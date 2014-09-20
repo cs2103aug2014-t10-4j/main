@@ -5,21 +5,21 @@ import java.io.File;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
-public class DoubleUp{
+public class DoubleUp {
 	private static Scanner scanner = new Scanner(System.in);
 	private static final String MSG_WELCOME = "Welcome to DoubleUp!";
-	private static final String COMMAND_LINE = "Enter Command: ";
+	private static final String MSG_COMMAND_LINE = "Enter Command: ";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 	private static final String MSG_FAIL_ADD = "Unable to add line.";
 	private static final String MSG_MISSING_FILE = "File not found.";
 
-	public static void main(String[] args){
+	public static void main(String[] args) {
 		String fileName = "DoubleUp.txt";
 		File file= openFile(fileName);
 
 		messageToUser(createWelcomeMessage());
-		while(true){
-			messageToUser(COMMAND_LINE);
+		while(true) {
+			messageToUser(MSG_COMMAND_LINE);
 			String command = scanner.nextLine();
 			/*		
 			String[] command = parseCommand();
@@ -28,13 +28,12 @@ public class DoubleUp{
 			Task taskToExecute = new Task(command);
 			String result = executeCommand(operation, taskToExecute, textFile);
 			 */
-
 			String result = executeCommand(command, file);
 			messageToUser(result);
 		}
 	}
+	
 	private static String executeCommand(String command, File file) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -46,7 +45,6 @@ public class DoubleUp{
 		//showToUser(getHelpMessage);
 		return MSG_WELCOME;
 	}
-
 
 	public static void writeToFile(String lineToAdd, File file) {
 		BufferedWriter fileWritten;
@@ -60,7 +58,6 @@ public class DoubleUp{
 		} catch (IOException e) {
 			messageToUser(MSG_FAIL_ADD);
 		}
-
 	}
 
 	// The function below serves to count the number of lines of text present in the file.
@@ -70,14 +67,12 @@ public class DoubleUp{
 		try {
 			input = new Scanner(file);
 
-			if(!input.hasNext()){
+			if(!input.hasNext()) {
 				input.close();
 				return lineNum;	
-			}
+			} else{
 
-			else{
-
-				while(input.hasNext()){
+				while(input.hasNext()) {
 					input.nextLine();
 					lineNum++;
 				}
@@ -101,8 +96,8 @@ public class DoubleUp{
 		}
 		return file;
 	}
+	
 	public static void messageToUser(String text){
 		System.out.println(text);
-
 	}
 }
