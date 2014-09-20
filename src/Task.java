@@ -51,4 +51,22 @@ class Task {
 	public void setImportance(int newImportance){
 		this.importance = newImportance;
 	}
+	
+	//This method can be used to print tasks for debugging.
+	@Override
+	public String toString(){
+		return "[" + this.getTime() +"]" + this.getName();
+	}
+	
+	//This overrode method can perhaps be used for search and other methods.
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Task){
+			Task task = (Task) obj; 
+			return this.equals(task.getName()) && this.equals(task.getDate()) && this.equals(task.getTime()) &&
+					this.equals(task.getDetails()) && this.getImportance() == task.getImportance();
+		} else {
+			return false;
+		}
+	}
 }
