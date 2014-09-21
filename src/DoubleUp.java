@@ -6,7 +6,16 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 
 public class DoubleUp {
-	private static Scanner scanner = new Scanner(System.in);
+	
+	public static final int ADD_TEXT = 1;
+	public static final int DISPLAY_TEXT = 2;
+	public static final int DELETE_TEXT = 3;
+	public static final int CLEAR_SCREEN = 4;
+	public static final int EXIT = 5;
+	public static final int SEARCH = 6;
+	public static final int SORT = 7;
+	public static final int HELP = 8;
+	
 	private static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
 	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
 	private static final String MSG_QOTD = "QOTD: \n";
@@ -17,6 +26,14 @@ public class DoubleUp {
 	private static final String MSG_FAIL_ADD = "Unable to add line.";
 	private static final String MSG_MISSING_FILE = "File not found.";
 
+	public static final String ERROR_INVALID_COMMAND = "Invalid command";
+	
+	private static Scanner scanner = new Scanner(System.in);
+
+	enum CommandType {
+		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_SCREEN, EXIT, INVALID, SEARCH, SORT, HELP;
+	};
+
 	public static void main(String[] args) {
 		String fileName = "DoubleUp.txt";
 		File file= openFile(fileName);
@@ -24,21 +41,83 @@ public class DoubleUp {
 		messageToUser(createWelcomeMessage());
 		while(true) {
 			messageToUser(MSG_COMMAND_LINE);
-			String command = scanner.nextLine();
-			/*		
-			String[] command = parseCommand();
-			String operation = command[0];
-			//Create Task object.
-			Task taskToExecute = new Task(command);
-			String result = executeCommand(operation, taskToExecute, textFile);
-			 */
-			String result = executeCommand(command, file);
+			String userSentence = scanner.nextLine();
+					
+			String[] splitCommand = parseCommand(userSentence);
+			String action = splitCommand[0];
+			Task taskToExecute = new Task(splitCommand);
+			String result = executeCommand(action, taskToExecute, file);
 			messageToUser(result);
 		}
 	}
-	
-	private static String executeCommand(String command, File file) {
-		return null;
+
+	//Return a string array with 6 fields: command, task name, date, time, details, importance level.
+	private static String[] parseCommand(String userSentence) {
+		// TODO Auto-generated method stub
+		String [] arr = {"add", "assignment", null, null, null, "0"};
+		return arr;
+	}
+
+	private static String executeCommand(String command, Task task, File file) {
+		String commandTypeString = getFirstWord(command);
+		CommandType commandType = determineCommandType(commandTypeString);
+		switch (commandType) {
+		case ADD_TEXT:
+			//return addLineToFile(task, file);
+			return "add"; //stub
+		case DISPLAY_TEXT:
+			//return displayOnScreen(file);
+			return "display"; //stub
+		case DELETE_TEXT:
+			//return deleteLineFromFile(task, file);
+			return "delete"; //stub
+		case CLEAR_SCREEN:
+			//return clearContent(file);
+			return "clear"; //stub
+		case EXIT:
+			System.exit(0);
+		case SEARCH:
+			//return search(task, file);
+			return "search"; //stub
+		case SORT:
+			//return sort(file);
+			return "sort"; //stub
+		case HELP:
+			//return showHelp();
+			return "help"; //stub
+		default:
+			return ERROR_INVALID_COMMAND;
+		}
+	}
+
+	//This method is used to determine the command types given the first word of the command.
+	private static CommandType determineCommandType(String commandTypeString) {
+		if (commandTypeString == null) {
+			throw new Error("command type string cannot be null!");
+		}
+		if (commandTypeString.equalsIgnoreCase("add")) {
+			return CommandType.ADD_TEXT;
+		} else if (commandTypeString.equalsIgnoreCase("display")) {
+			return CommandType.DISPLAY_TEXT;
+		} else if (commandTypeString.equalsIgnoreCase("delete")) {
+			return CommandType.DELETE_TEXT;
+		} else if (commandTypeString.equalsIgnoreCase("clear")) {
+			return CommandType.CLEAR_SCREEN;
+		} else if (commandTypeString.equalsIgnoreCase("exit")) {
+			return CommandType.EXIT;
+		} else if (commandTypeString.equalsIgnoreCase("search")) {
+			return CommandType.SEARCH;
+		} else if (commandTypeString.equalsIgnoreCase("sort")) {
+			return CommandType.SORT;
+		} else if (commandTypeString.equalsIgnoreCase("help")) {
+			return CommandType.HELP;
+		} else {
+			return CommandType.INVALID;
+		}
+	}
+
+	private static String getFirstWord(String userCommand) {
+		return userCommand.trim().split("\\s+")[0];
 	}
 
 	//Concats the different messages to form the welcome message for the welcome screen
@@ -104,7 +183,7 @@ public class DoubleUp {
 		}
 		return file;
 	}
-	
+
 	public static void messageToUser(String text){
 		System.out.println(text);
 	}
