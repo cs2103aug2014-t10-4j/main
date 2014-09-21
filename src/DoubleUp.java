@@ -7,7 +7,11 @@ import java.io.FileWriter;
 
 public class DoubleUp {
 	private static Scanner scanner = new Scanner(System.in);
-	private static final String MSG_WELCOME = "Welcome to DoubleUp!";
+	private static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
+	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
+	private static final String MSG_QOTD = "QOTD: \n";
+	private static final String MSG_GOAL = "Your goal is to: \n";
+	private static final String MSG_HELP = "Type -help to view all the commands for various actions. Happy doubling up!\n";
 	private static final String MSG_COMMAND_LINE = "Enter Command: ";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 	private static final String MSG_FAIL_ADD = "Unable to add line.";
@@ -39,11 +43,15 @@ public class DoubleUp {
 
 	//Concats the different messages to form the welcome message for the welcome screen
 	private static String createWelcomeMessage() {
-		//showToUser(getProgressBar);
-		//showToUser(getQOTD);
-		//showToUser(getGoal);
-		//showToUser(getHelpMessage);
-		return MSG_WELCOME;
+		String welcomeMessage = MSG_WELCOME;
+		welcomeMessage += "\n" + "\t" + String.format(MSG_PROGRESS_BAR, 3,0,1);
+		welcomeMessage += "\n" + "\t" + MSG_QOTD;
+		welcomeMessage += "\n" + "\t" + MSG_GOAL;
+		welcomeMessage += "\n" + getHelpMessage();
+		return welcomeMessage;
+	}
+	private static String getHelpMessage() {
+		return MSG_HELP;
 	}
 
 	public static void writeToFile(String lineToAdd, File file) {
