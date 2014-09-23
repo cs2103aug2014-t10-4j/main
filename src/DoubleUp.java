@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.io.File;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 public class DoubleUp {
 	
@@ -173,7 +176,16 @@ public class DoubleUp {
 		}
 		return stringBuilder.toString();
 	}
-
+	
+/*	private static String getCurrentDate(){
+ *		 DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+ *		   
+ *		   Date date = new Date();
+ *		   String reportDate =dateFormat.format(date);
+ *		   return reportDate;
+ *		   
+ *	}
+*/
 	// The function below serves to count the number of lines of text present in the file.
 	public static int numberOfLine(File file) {
 		Scanner input;
