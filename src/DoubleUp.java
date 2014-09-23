@@ -21,6 +21,7 @@ public class DoubleUp {
 	private static final String MSG_QOTD = "QOTD: \n";
 	private static final String MSG_GOAL = "Your goal is to: \n";
 	private static final String MSG_HELP = "Type -help to view all the commands for various actions. Happy doubling up!\n";
+	private static final String MSG_EMPTY_FILE = "%s is empty.";
 	private static final String MSG_COMMAND_LINE = "Enter Command: ";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 	private static final String MSG_FAIL_ADD = "Unable to add line.";
@@ -66,8 +67,7 @@ public class DoubleUp {
 			//return addLineToFile(task, file);
 			return "add"; //stub
 		case DISPLAY_TEXT:
-			//return displayOnScreen(file);
-			return "display"; //stub
+			return displayOnScreen(file); 
 		case DELETE_TEXT:
 			//return deleteLineFromFile(task, file);
 			return "delete"; //stub
@@ -146,6 +146,33 @@ public class DoubleUp {
 			messageToUser(MSG_FAIL_ADD);
 		}
 	}
+	
+	// This function serves to display on the task in the text file.
+	private static String displayOnScreen(File file) {
+		Scanner input;
+		StringBuilder stringBuilder = new StringBuilder();
+		try {
+			input = new Scanner(file);
+		
+			if(!input.hasNext()){
+				input.close();
+				return(String.format(MSG_EMPTY_FILE, file.getName()));	
+			}
+			
+			else{
+				
+				int listNum = 1;
+				while(input.hasNext()){
+					stringBuilder.append(listNum +". " +input.nextLine() +"\n");
+					listNum++;
+				}
+				input.close();	
+				}
+		} catch (FileNotFoundException e) {
+			return(MSG_MISSING_FILE);
+		}
+		return stringBuilder.toString();
+	}
 
 	// The function below serves to count the number of lines of text present in the file.
 	public static int numberOfLine(File file) {
@@ -170,6 +197,8 @@ public class DoubleUp {
 		}
 		return lineNum;
 	}
+	
+	// This function serves to create a text file if the text file is missing or for first time usage.
 	private static File openFile(String fileName) {
 		File file = new File(fileName);
 		try{
