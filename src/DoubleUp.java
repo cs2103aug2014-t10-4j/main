@@ -1,3 +1,4 @@
+import java.util.Collections;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -227,5 +228,9 @@ public class DoubleUp {
 
 	public static void messageToUser(String text){
 		System.out.println(text);
+	}
+	
+	public static String sort() {
+		return "stub";
 	}
 }
