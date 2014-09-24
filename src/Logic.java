@@ -96,7 +96,7 @@ public class Logic {
 			return "error";
 		}
 		tempStorage.add(task);
-		Storage.writeToFile(task, file);
+		Storage.writeToFile(tempStorage, file);
 		
 		return String.format(ADD_MESSAGE,file.getName(), task.getName());
 	}
