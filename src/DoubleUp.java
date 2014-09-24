@@ -30,7 +30,12 @@ public class DoubleUp {
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 	private static final String MSG_FAIL_ADD = "Unable to add line.";
 	private static final String MSG_MISSING_FILE = "File not found.";
-
+	private static final String DIVIDER_DATE = "//!@#DOUBLEUP_DIVIDER_DATE#@!//";
+	private static final String DIVIDER_TIME = "//!@#DOUBLEUP_DIVIDER_TIME#@!//";
+	private static final String DIVIDER_DETAILS = "//!@#DOUBLEUP_DIVIDER_DETAILS#@!//";
+	private static final String DIVIDER_IMPORTANCE = "//!@#DOUBLEUP_DIVIDER_IMPORTANCE#@!//";
+	
+	
 	public static final String ERROR_INVALID_COMMAND = "Invalid command";
 	
 	private static Scanner scanner = new Scanner(System.in);
@@ -233,27 +238,23 @@ public class DoubleUp {
 	public static void messageToUser(String text){
 		System.out.println(text);
 	}
-	
-//	private static void copyToArrayList(File file, ArrayList<Task> tempStorage) {
-//	Scanner input;
-//	try {
-//		input = new Scanner(file);
-//
-//		if(!input.hasNext()) {
-//			input.close();
-//			return tempStorage;
-//		} else{
-//
-//			while(input.hasNext()) {
-//				
-//			}
-//			input.close();	
-//			return tempStorage;
-//		}
-//	} catch (FileNotFoundException e) {
-//		messageToUser(MSG_MISSING_FILE);
-//}
-//	return tempStorage;
-//}
 
+
+	public static void writeToFile(Task task, File file) {
+		BufferedWriter fileWritten;
+		String toWriteInFile;
+		try {
+			fileWritten = new BufferedWriter(new FileWriter (file.getName(),true));
+			if(numberOfLine(file)>0){
+				fileWritten.newLine();
+			}
+			toWriteInFile= task.getName()+DIVIDER_DATE+task.getDate()+DIVIDER_TIME+task.getTime()+DIVIDER_DETAILS
+					+task.getDetails()+DIVIDER_IMPORTANCE+task.getImportance();
+			
+			fileWritten.write(toWriteInFile);
+			fileWritten.close();
+		} catch (IOException e) {
+			messageToUser(MSG_FAIL_ADD);
+		}
+	}
 }
