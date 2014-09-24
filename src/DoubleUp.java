@@ -1,11 +1,8 @@
 import java.util.ArrayList;
-
 import java.util.Scanner;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.File;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -58,13 +55,6 @@ public class DoubleUp {
 		}
 	}
 
-	// Return a string array with 6 fields: command, task name, date, time,
-	// details, importance level.
-	private static String[] parseCommand(String userSentence) {
-		// TODO Auto-generated method stub
-		String[] arr = { "add", "assignment", null, null, null, "0" };
-		return arr;
-	}
 
 	private static String executeCommand(String command, Task task, File file) {
 		String commandTypeString = getFirstWord(command);
