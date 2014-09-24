@@ -152,7 +152,29 @@ public class Logic {
 		
 		}
 	}
-	
+	public static void sortByAlphabet(ArrayList<Task> sortingStorage){
+		if(tempStorage.size()<1){
+			return;
+		}
+		else{
+			for (int i=0;i<tempStorage.size();i++){
+				boolean isSorted=true;
+				for(int j=0;j<tempStorage.size()-1;j++){
+				
+					if(sortingStorage.get(j).getName().compareToIgnoreCase(sortingStorage.get(j+1).getName())>0){
+						sortingStorage.add(j+2,sortingStorage.get(j));
+						sortingStorage.remove(j);
+						isSorted= false;
+							
+					}
+				}
+				if (isSorted){
+					return;
+				}
+			}				
+		}
+		
+	}
 }
 
 
