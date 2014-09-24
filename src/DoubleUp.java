@@ -146,19 +146,6 @@ public class DoubleUp {
 		return MSG_HELP;
 	}
 
-	public static void writeToFile(String lineToAdd, File file) {
-		BufferedWriter fileWritten;
-		try {
-			fileWritten = new BufferedWriter(new FileWriter (file.getName(),true));
-			if(numberOfLine(file)>0){
-				fileWritten.newLine();
-			}
-			fileWritten.write(lineToAdd);
-			fileWritten.close();
-		} catch (IOException e) {
-			messageToUser(MSG_FAIL_ADD);
-		}
-	}
 	
 	// This function serves to display on the task in the text file.
 	private static String displayOnScreen(File file) {
