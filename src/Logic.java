@@ -9,14 +9,21 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
 
 public class Logic {
 	private static final String MSG_FAIL_ADD = "Unable to add line.";
 	public static String ADD_MESSAGE = "added to %s: \"%s\"";
 	
 	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
+	private static ArrayList<Task> sortingStorage = new ArrayList<Task>();
 	private File file;
 
 	
@@ -91,11 +98,12 @@ public class Logic {
 	}
 */
 	public static String addLineToFile(Task task, File file) {
-
 		if (task.getName() == null) {
 			return "error";
 		}
 		tempStorage.add(task);
+		sortByDate(tempStorage);
+		sortingStorage.add(task);
 		Storage.writeToFile(tempStorage, file);
 		
 		return String.format(ADD_MESSAGE,file.getName(), task.getName());
@@ -103,11 +111,48 @@ public class Logic {
 
 	public static ArrayList<Integer> init(File file) {
 		 tempStorage = Storage.copyToArrayList(file, tempStorage);
-		 
+		 sortingStorage = Storage.copyToArrayList(file, sortingStorage);
 		 // stub = getNumTasks()
 		 ArrayList<Integer> stub = new ArrayList<Integer>();
 		 stub.add(1);
 		return stub;
 	}
-
+	
+	public static void sortByDate(ArrayList<Task> tempStorage){
+		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		if(tempStorage.size()<1){
+			return;
+		}
+		else{
+			for (int i=0;i<tempStorage.size();i++){
+				boolean isSorted=true;
+				for(int j=0;j<tempStorage.size()-1;j++){
+					try{
+					Date dateOfFirstTask = new Date();
+					dateOfFirstTask = dateFormat.parse(tempStorage.get(j).getDate());
+					
+					Date dateOfSecondTask = new Date();
+					dateOfSecondTask = dateFormat.parse(tempStorage.get(j+1).getDate());
+					
+						if(dateOfFirstTask.compareTo(dateOfSecondTask)>0){
+							tempStorage.add(j+2,tempStorage.get(j));
+							tempStorage.remove(j);
+							isSorted= false;
+							
+						}
+					}catch(Exception e){
+					
+					}
+				}
+				
+				if (isSorted){
+					return;
+				}				
+			}
+		
+		}
+	}
+	
 }
+
+
