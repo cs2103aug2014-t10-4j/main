@@ -29,9 +29,9 @@ public class DoubleUp {
 	private static final String MSG_EMPTY_FILE = "%s is empty.";
 	private static final String MSG_COMMAND_LINE = "Enter Command: ";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
-	
+
 	private static final String MSG_MISSING_FILE = "File not found.";
-	
+
 	public static final String ERROR_INVALID_COMMAND = "Invalid command";
 
 	private static Scanner scanner = new Scanner(System.in);
@@ -49,21 +49,14 @@ public class DoubleUp {
 		while (true) {
 			messageToUser(MSG_COMMAND_LINE);
 			String userSentence = scanner.nextLine();
-			
+
 			String[] splitCommand = Parser.parseInput(userSentence);
 			String action = splitCommand[0];
+			System.out.println(action);
 			Task taskToExecute = new Task(splitCommand);
 			String result = executeCommand(action, taskToExecute, file);
 			messageToUser(result);
 		}
-	}
-
-	// Return a string array with 6 fields: command, task name, date, time,
-	// details, importance level.
-	private static String[] parseCommand(String userSentence) {
-		// TODO Auto-generated method stub
-		String[] arr = { "add", "assignment", null, null, null, "0" };
-		return arr;
 	}
 
 	private static String executeCommand(String command, Task task, File file) {
@@ -71,7 +64,7 @@ public class DoubleUp {
 		CommandType commandType = determineCommandType(commandTypeString);
 		switch (commandType) {
 		case ADD_TEXT:
-		 return Logic.addLineToFile(task, file);
+			return Logic.addLineToFile(task, file);
 			//return "add"; // stub
 		case DISPLAY_TEXT:
 			return displayOnScreen(file);
@@ -181,7 +174,7 @@ public class DoubleUp {
 
 	}
 
-	
+
 
 	// This function serves to create a text file if the text file is missing or
 	// for first time usage.

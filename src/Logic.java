@@ -16,7 +16,7 @@ public class Logic {
 	private static final String MSG_FAIL_ADD = "Unable to add line.";
 	public static String ADD_MESSAGE = "added to %s: \"%s\"";
 	
-	private static ArrayList<Task> tempStorage;
+	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
 	private File file;
 
 	
@@ -96,12 +96,13 @@ public class Logic {
 			return "error";
 		}
 		tempStorage.add(task);
+		Storage.writeToFile(task, file);
 		
 		return String.format(ADD_MESSAGE,file.getName(), task.getName());
 	}
 
 	public static ArrayList<Integer> init(File file) {
-		 Storage.copyToArrayList(file, tempStorage);
+		 tempStorage = Storage.copyToArrayList(file, tempStorage);
 		 
 		 // stub = getNumTasks()
 		 ArrayList<Integer> stub = new ArrayList<Integer>();

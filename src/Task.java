@@ -15,7 +15,7 @@ class Task {
 		this.date = splitTask[2];
 		this.time = splitTask[3];
 		this.details = splitTask[4];
-		this.importance = Integer.parseInt(splitTask[5]);
+		//this.importance = Integer.parseInt(splitTask[5]);
 	}
 	
 	public Task(){
