@@ -47,8 +47,8 @@ public class DoubleUp {
 	public static void main(String[] args) {
 		String fileName = "DoubleUp.txt";
 		File file= openFile(fileName);
-		//ArrayList<Task> tempStorage = new ArrayList<Task>();
-		//copyToArrayList(file,tempStorage);
+		ArrayList<Task> tempStorage = new ArrayList<Task>();
+		copyToArrayList(file,tempStorage);
 		
 		
 
@@ -238,7 +238,40 @@ public class DoubleUp {
 	public static void messageToUser(String text){
 		System.out.println(text);
 	}
+	
+	private static void copyToArrayList(File file, ArrayList<Task> tempStorage) {
+		Scanner input;
+		try {
+			input = new Scanner(file);
 
+		if(!input.hasNext()) {
+			input.close();
+		} else{
+			while(input.hasNext()) {
+				Task task= new Task();
+				String currentTask = input.nextLine();
+				task.setName(currentTask.substring(0,currentTask.indexOf(DIVIDER_DATE)));
+				currentTask.replace(currentTask.substring(0,currentTask.indexOf(DIVIDER_DATE)),"");
+				
+				task.setDate(currentTask.substring(0,currentTask.indexOf(DIVIDER_TIME)));
+				currentTask.replace(currentTask.substring(0,currentTask.indexOf(DIVIDER_TIME)),"");
+				
+				task.setTime(currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS)));
+				currentTask.replace(currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS)),"");
+				
+				task.setDetails(currentTask.substring(0,currentTask.indexOf(DIVIDER_IMPORTANCE)));
+				currentTask.replace(currentTask.substring(0,currentTask.indexOf(DIVIDER_IMPORTANCE)),"");
+				
+				task.setImportance(Integer.parseInt(currentTask));
+				tempStorage.add(task);
+				
+			}
+			input.close();	
+		}
+	} catch (FileNotFoundException e) {
+		messageToUser(MSG_MISSING_FILE);
+	}
+	}
 
 	public static void writeToFile(Task task, File file) {
 		BufferedWriter fileWritten;
