@@ -1,5 +1,4 @@
 
-
 /**
  * This program implement the logic for the TextBuddy.
  * 
@@ -14,70 +13,54 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class Logic {
-
-	private static ArrayList<String> texts;
+	private static final String MSG_FAIL_ADD = "Unable to add line.";
+	public static String ADD_MESSAGE = "added to %s: \"%s\"";
+	
+	private static ArrayList<Task> tempStorage;
 	private File file;
-	public Logic() {
-		this.file= null;
-		texts = new ArrayList<String>();	
-	}
+
 	
-	public Logic( File file) throws IOException {
-		this.file = file;
-		texts = new ArrayList<String>();
-		writeTextFile(null,file);	
-	}
-	
-	public File getFile(){
-		return file;
-	}
-	
-	public boolean add(String content) {
-	if (content == null) {
-		return false;		
-	}	
-	boolean result = texts.add(content);
-	writeTextFile(null,file);
-	return result;	
-	}
+	/*
 	
 	public static String delete(int number) {
+		
 		String deleteTask;
 		try {
-			deleteTask = texts.remove(number);
+			deleteTask = tempStorage.remove(number);
 		} catch (Exception e) {
 			deleteTask = null;
-		}	
+		}
 		return deleteTask;
+		
 	}
-	
+
 	public void sort() {
-		Collections.sort(texts);
-		writeTextFile(null,file);
+		Collections.sort(tempStorage);
+		writeTextFile(null, file);
 	}
-	
-	public ArrayList<String> search (String word) {
+
+	public ArrayList<String> search(String word) {
 		ArrayList<String> result = new ArrayList<String>();
-		for (String task : texts) {
-			if(task.contains(word)) {
+		for (String task : tempStorage) {
+			if (task.contains(word)) {
 				result.add(task);
 			}
 		}
 		return result;
 	}
-	
+
 	public void clear() {
-		texts.clear();
-		writeTextFile(null,file);		
+		tempStorage.clear();
+		writeTextFile(null, file);
 	}
-	
+
 	public static void readFile(String FileName) throws IOException {
 		BufferedReader reader = null;
 		try {
 			reader = new BufferedReader(new FileReader(FileName));
 			String text;
 			while ((text = reader.readLine()) != null) {
-				texts.add(text.substring(3, text.length()));
+				tempStorage.add(text.substring(3, text.length()));
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -89,7 +72,7 @@ public class Logic {
 			}
 		}
 	}
-	
+
 	private static void writeTextFile(String inputText, File file) {
 		BufferedWriter outputFile;
 		try {
@@ -103,8 +86,27 @@ public class Logic {
 		}
 	}
 
-	private static boolean isEmpty (File file) {
+	private static boolean isEmpty(File file) {
 		return file.length() <= 0;
+	}
+*/
+	public static String addLineToFile(Task task, File file) {
+
+		if (task.getName() == null) {
+			return "error";
+		}
+		tempStorage.add(task);
+		
+		return String.format(ADD_MESSAGE,file.getName(), task.getName());
+	}
+
+	public static ArrayList<Integer> init(File file) {
+		 Storage.copyToArrayList(file, tempStorage);
+		 
+		 // stub = getNumTasks()
+		 ArrayList<Integer> stub = new ArrayList<Integer>();
+		 stub.add(1);
+		return stub;
 	}
 
 }

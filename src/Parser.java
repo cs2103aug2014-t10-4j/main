@@ -14,7 +14,7 @@ public class Parser {
 	protected static final String INVALID_TIME = "invalid time";
 	private static final String ERROR = "error";
 	private static final String INVALID_DATE = "invalid Date";
-	private static final int MAX_TYPES = 4;
+	private static final int MAX_TYPES = 6;
 	private static final String[] LIST_ADD = { "/a", "/add" };
 	private static final String COM_ADD = "add";
 	

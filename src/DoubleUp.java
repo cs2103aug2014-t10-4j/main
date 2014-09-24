@@ -1,6 +1,5 @@
 import java.util.ArrayList;
 
-
 import java.util.Scanner;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -30,13 +29,9 @@ public class DoubleUp {
 	private static final String MSG_EMPTY_FILE = "%s is empty.";
 	private static final String MSG_COMMAND_LINE = "Enter Command: ";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
-	private static final String MSG_FAIL_ADD = "Unable to add line.";
+	
 	private static final String MSG_MISSING_FILE = "File not found.";
-	private static final String DIVIDER_DATE = "//!@#DOUBLEUP_DIVIDER_DATE#@!//";
-	private static final String DIVIDER_TIME = "//!@#DOUBLEUP_DIVIDER_TIME#@!//";
-	private static final String DIVIDER_DETAILS = "//!@#DOUBLEUP_DIVIDER_DETAILS#@!//";
-	private static final String DIVIDER_IMPORTANCE = "//!@#DOUBLEUP_DIVIDER_IMPORTANCE#@!//";
-
+	
 	public static final String ERROR_INVALID_COMMAND = "Invalid command";
 
 	private static Scanner scanner = new Scanner(System.in);
@@ -48,15 +43,14 @@ public class DoubleUp {
 	public static void main(String[] args) {
 		String fileName = "DoubleUp.txt";
 		File file = openFile(fileName);
-		ArrayList<Task> tempStorage = new ArrayList<Task>();
-		copyToArrayList(file, tempStorage);
+		ArrayList<Integer> numOfTask = Logic.init(file);
 
 		messageToUser(createWelcomeMessage());
 		while (true) {
 			messageToUser(MSG_COMMAND_LINE);
 			String userSentence = scanner.nextLine();
 			
-			String[] splitCommand = parseCommand(userSentence);
+			String[] splitCommand = Parser.parseInput(userSentence);
 			String action = splitCommand[0];
 			Task taskToExecute = new Task(splitCommand);
 			String result = executeCommand(action, taskToExecute, file);
@@ -77,8 +71,8 @@ public class DoubleUp {
 		CommandType commandType = determineCommandType(commandTypeString);
 		switch (commandType) {
 		case ADD_TEXT:
-			// return addLineToFile(task, file);
-			return "add"; // stub
+		 return Logic.addLineToFile(task, file);
+			//return "add"; // stub
 		case DISPLAY_TEXT:
 			return displayOnScreen(file);
 		case DELETE_TEXT:
@@ -187,30 +181,7 @@ public class DoubleUp {
 
 	}
 
-	// The function below serves to count the number of lines of text present in
-	// the file.
-	public static int numberOfLine(File file) {
-		Scanner input;
-		int lineNum = 0;
-		try {
-			input = new Scanner(file);
-
-			if (!input.hasNext()) {
-				input.close();
-				return lineNum;
-			} else {
-
-				while (input.hasNext()) {
-					input.nextLine();
-					lineNum++;
-				}
-				input.close();
-			}
-		} catch (FileNotFoundException e) {
-			messageToUser(MSG_MISSING_FILE);
-		}
-		return lineNum;
-	}
+	
 
 	// This function serves to create a text file if the text file is missing or
 	// for first time usage.
@@ -231,72 +202,4 @@ public class DoubleUp {
 		System.out.println(text);
 	}
 
-	private static void copyToArrayList(File file, ArrayList<Task> tempStorage) {
-		Scanner input;
-		try {
-			input = new Scanner(file);
-
-			if (!input.hasNext()) {
-				input.close();
-			} else {
-				while (input.hasNext()) {
-					Task task = new Task();
-					String currentTask = input.nextLine();
-					task.setName(currentTask.substring(0,
-							currentTask.indexOf(DIVIDER_DATE)));
-					currentTask.replace(
-							currentTask.substring(0,
-									currentTask.indexOf(DIVIDER_DATE)), "");
-
-					task.setDate(currentTask.substring(0,
-							currentTask.indexOf(DIVIDER_TIME)));
-					currentTask.replace(
-							currentTask.substring(0,
-									currentTask.indexOf(DIVIDER_TIME)), "");
-
-					task.setTime(currentTask.substring(0,
-							currentTask.indexOf(DIVIDER_DETAILS)));
-					currentTask.replace(
-							currentTask.substring(0,
-									currentTask.indexOf(DIVIDER_DETAILS)), "");
-
-					task.setDetails(currentTask.substring(0,
-							currentTask.indexOf(DIVIDER_IMPORTANCE)));
-					currentTask.replace(
-							currentTask.substring(0,
-									currentTask.indexOf(DIVIDER_IMPORTANCE)),
-							"");
-
-					task.setImportance(Integer.parseInt(currentTask));
-					tempStorage.add(task);
-
-				}
-				input.close();
-			}
-		} catch (FileNotFoundException e) {
-			messageToUser(MSG_MISSING_FILE);
-		}
-	}
-
-	public static void writeToFile(Task task, File file) {
-		BufferedWriter fileWritten;
-		String toWriteInFile;
-		try {
-			fileWritten = new BufferedWriter(new FileWriter(file.getName(),
-					true));
-			if (numberOfLine(file) > 0) {
-				fileWritten.newLine();
-			}
-			toWriteInFile = task.getName() + DIVIDER_DATE + task.getDate()
-					+ DIVIDER_TIME + task.getTime() + DIVIDER_DETAILS
-					+ task.getDetails() + DIVIDER_IMPORTANCE
-					+ task.getImportance();
-
-			fileWritten.write(toWriteInFile);
-			fileWritten.close();
-		} catch (IOException e) {
-			messageToUser(MSG_FAIL_ADD);
-		}
-
-	}
 }
