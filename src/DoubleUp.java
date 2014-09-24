@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -41,6 +42,10 @@ public class DoubleUp {
 	public static void main(String[] args) {
 		String fileName = "DoubleUp.txt";
 		File file= openFile(fileName);
+		//ArrayList<Task> tempStorage = new ArrayList<Task>();
+		//copyToArrayList(file,tempStorage);
+		
+		
 
 		messageToUser(createWelcomeMessage());
 		while(true) {
@@ -228,4 +233,27 @@ public class DoubleUp {
 	public static void messageToUser(String text){
 		System.out.println(text);
 	}
+	
+//	private static void copyToArrayList(File file, ArrayList<Task> tempStorage) {
+//	Scanner input;
+//	try {
+//		input = new Scanner(file);
+//
+//		if(!input.hasNext()) {
+//			input.close();
+//			return tempStorage;
+//		} else{
+//
+//			while(input.hasNext()) {
+//				
+//			}
+//			input.close();	
+//			return tempStorage;
+//		}
+//	} catch (FileNotFoundException e) {
+//		messageToUser(MSG_MISSING_FILE);
+//}
+//	return tempStorage;
+//}
+
 }
