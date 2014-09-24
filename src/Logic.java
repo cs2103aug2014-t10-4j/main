@@ -102,7 +102,7 @@ public class Logic {
 			return "error";
 		}
 		tempStorage.add(task);
-		sortByDate(tempStorage);
+		sortByDateAndTime(tempStorage);
 		sortingStorage.add(task);
 		Storage.writeToFile(tempStorage, file);
 		
@@ -118,8 +118,8 @@ public class Logic {
 		return stub;
 	}
 	
-	public static void sortByDate(ArrayList<Task> tempStorage){
-		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+	public static void sortByDateAndTime(ArrayList<Task> tempStorage){
+		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
 		if(tempStorage.size()<1){
 			return;
 		}
@@ -128,13 +128,13 @@ public class Logic {
 				boolean isSorted=true;
 				for(int j=0;j<tempStorage.size()-1;j++){
 					try{
-					Date dateOfFirstTask = new Date();
-					dateOfFirstTask = dateFormat.parse(tempStorage.get(j).getDate());
+					Date dateAndTimeOfFirstTask = new Date();
+					dateAndTimeOfFirstTask = dateFormat.parse(tempStorage.get(j).getDate() +tempStorage.get(j).getTime());
 					
-					Date dateOfSecondTask = new Date();
-					dateOfSecondTask = dateFormat.parse(tempStorage.get(j+1).getDate());
+					Date dateAndTimeOfSecondTask = new Date();
+					dateAndTimeOfSecondTask = dateFormat.parse(tempStorage.get(j+1).getDate() +tempStorage.get(j+1).getTime());
 					
-						if(dateOfFirstTask.compareTo(dateOfSecondTask)>0){
+						if(dateAndTimeOfFirstTask.compareTo(dateAndTimeOfSecondTask)>0){
 							tempStorage.add(j+2,tempStorage.get(j));
 							tempStorage.remove(j);
 							isSorted= false;
@@ -152,6 +152,7 @@ public class Logic {
 		
 		}
 	}
+	
 	public static void sortByAlphabet(ArrayList<Task> sortingStorage){
 		if(tempStorage.size()<1){
 			return;
