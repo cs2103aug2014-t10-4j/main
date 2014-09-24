@@ -1,11 +1,8 @@
 import java.util.ArrayList;
-
 import java.util.Scanner;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.File;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
