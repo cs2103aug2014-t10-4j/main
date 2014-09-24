@@ -18,6 +18,14 @@ class Task {
 		this.importance = Integer.parseInt(splitTask[5]);
 	}
 	
+	public Task(){
+		this.name = null;
+		this.date = null;
+		this.time = null;
+		this.details = null;
+		this.importance = 0;
+	}
+	
 	//Accessors
 	public String getName(){
 		return name;
