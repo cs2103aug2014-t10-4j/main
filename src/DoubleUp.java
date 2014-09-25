@@ -51,9 +51,8 @@ public class DoubleUp {
 		while (true) {
 			messageToUser(MSG_COMMAND_LINE);
 			String userSentence = scanner.nextLine();
-			String result = showHelp();
-			//String[] splitCommand = Parser.parseInput(userSentence);
-			//String result = executeCommand(splitCommand, file);
+			String[] splitCommand = Parser.parseInput(userSentence);
+			String result = executeCommand(splitCommand, file);
 			messageToUser(result);
 		}
 	}
@@ -88,7 +87,6 @@ public class DoubleUp {
 			return "sort"; // stub
 		case HELP:
 			return showHelp();
-			//return "help"; // stub
 		case EXIT:
 			System.exit(0);
 		default:
@@ -99,21 +97,19 @@ public class DoubleUp {
 	private static String showHelp() {
 		File helpFile = new File("help.txt");
 		Scanner sc;
-		String toPrint = null;
+		String toPrint = "";
 		try {
 			sc = new Scanner(helpFile);
 			while (sc.hasNext()) {
 				String sentence = sc.nextLine();
 				String[] result = sentence.split(" ### ");
 				//toPrint += result[0] + result[1] + result[2];
-				toPrint = toPrint + System.out.format("%-16s%-40s%-40s%n", result[0], result[1], result[2]);
+				toPrint += String.format("%-16s%-56s%-50s%n", result[0], result[1], result[2]);
 			} 
 			sc.close();
 		}catch (FileNotFoundException e) {
 
 		}
-
-
 		return toPrint;
 	}
 
