@@ -22,13 +22,13 @@ public class DoubleUp {
 	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
 	private static final String MSG_QOTD = "QOTD: \n";
 	private static final String MSG_GOAL = "Your goal is to: \n";
-	private static final String MSG_HELP = "Type -help to view all the commands for various actions. Happy doubling up!\n";
+	private static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
 	private static final String MSG_EMPTY_FILE = "%s is empty.";
 	private static final String MSG_COMMAND_LINE = "Enter Command: ";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 	private static final String MSG_MISSING_FILE = "File not found.";
-
-	public static final String ERROR_INVALID_COMMAND = "Invalid command";
+	private static final String MSG_INVALID_COMMAND = "Invalid command";
+	
 	private static final int LENGTH_OF_PAGE = 80;
 
 	private static Scanner scanner = new Scanner(System.in);
@@ -41,9 +41,13 @@ public class DoubleUp {
 		String fileName = "DoubleUp.txt";
 		File file = openFile(fileName);
 		//ArrayList<Integer> numOfTask = Logic.init(file);
+		ArrayList<Integer> numOfTask = new ArrayList<Integer>();
+		numOfTask.add(5);
+		numOfTask.add(0);
+		numOfTask.add(1);
 
-		messageToUser(createWelcomeMessage());
-		messageToUser(createTodayList());
+		messageToUser(createWelcomeMessage(numOfTask));
+		messageToUser(createTodayList(file));
 		while (true) {
 			messageToUser(MSG_COMMAND_LINE);
 			String userSentence = scanner.nextLine();
@@ -62,7 +66,6 @@ public class DoubleUp {
 		switch (commandType) {
 		case ADD_TEXT:
 			return Logic.addLineToFile(task, file);
-			//return "add"; // stub
 		case DISPLAY_TEXT:
 			return displayOnScreen(file);
 		case DELETE_TEXT:
@@ -83,7 +86,7 @@ public class DoubleUp {
 			// return showHelp();
 			return "help"; // stub
 		default:
-			return ERROR_INVALID_COMMAND;
+			return MSG_INVALID_COMMAND;
 		}
 	}
 
@@ -120,18 +123,19 @@ public class DoubleUp {
 
 	// Concats the different messages to form the welcome message for the
 	// welcome screen
-	private static String createWelcomeMessage() {
+	private static String createWelcomeMessage(ArrayList<Integer> numOfTask) {
 		String welcomeMessage = MSG_WELCOME;
-		welcomeMessage += "\n" + "\t" + String.format(MSG_PROGRESS_BAR, 3, 0, 1);
+		welcomeMessage += "\n" + "\t" + String.format(MSG_PROGRESS_BAR, numOfTask.get(0), 
+				numOfTask.get(1), numOfTask.get(2));
 		welcomeMessage += "\n" + "\t" + MSG_QOTD;
 		welcomeMessage += "\n" + "\t" + MSG_GOAL;
 		welcomeMessage += "\n" + getHelpMessage();
 		welcomeMessage += "\n" + createHorizLine("*", LENGTH_OF_PAGE);
 		return welcomeMessage;
 	}
-	private static String createTodayList() {
+	private static String createTodayList(File file) {
 		//String allTodayTasks = fetchTodayTask();
-		return getCurrentDate() + "(Today):" + "\n" + "\n" + createHorizLine("-",LENGTH_OF_PAGE/2);
+		return getCurrentDate() + "(Today):" + "\n" + displayOnScreen(file) + createHorizLine("-",LENGTH_OF_PAGE/2);
 	}
 
 	private static String getHelpMessage() {
