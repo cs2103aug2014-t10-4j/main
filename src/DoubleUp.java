@@ -86,13 +86,13 @@ public class DoubleUp {
 				return sortByDateAndTime(file);
 			}*/
 			return "sort"; // stub
-			case HELP:
-				// return showHelp();
-				return "help"; // stub
-			case EXIT:
-				System.exit(0);
-			default:
-				return MSG_INVALID_COMMAND;
+		case HELP:
+			// return showHelp();
+			return "help"; // stub
+		case EXIT:
+			System.exit(0);
+		default:
+			return MSG_INVALID_COMMAND;
 		}
 	}
 
@@ -133,12 +133,30 @@ public class DoubleUp {
 		String welcomeMessage = MSG_WELCOME;
 		welcomeMessage += "\n" + "\t" + String.format(MSG_PROGRESS_BAR, numOfTask.get(0), 
 				numOfTask.get(1), numOfTask.get(2));
-		welcomeMessage += "\n" + "\t" + MSG_QOTD;
-		welcomeMessage += "\n" + "\t" + MSG_GOAL;
-		welcomeMessage += "\n" + MSG_HELP;
-		welcomeMessage += "\n" + createHorizLine("*", LENGTH_OF_PAGE);
+		welcomeMessage += createQOTD();
+		welcomeMessage += createGoalMsg();
+		welcomeMessage += createHelpMsg();
+				welcomeMessage += "\n" + createHorizLine("*", LENGTH_OF_PAGE);
 		return welcomeMessage;
 	}
+	//Returns Quote of the day.
+	private static String createQOTD(){
+		String quote = "\n" + "\t" + MSG_QOTD;
+		return quote;
+	}
+
+	//Returns goal message.
+	private static String createGoalMsg(){
+		String goal = "\n" + "\t" + MSG_GOAL;
+		return goal;
+	}
+
+	//Returns help message.
+	private static String createHelpMsg(){
+		String help = "\n" + MSG_HELP;
+		return help;
+	}
+
 	private static String createTodayList(File file) {
 		//String allTodayTasks = fetchTodayTask();
 		return getCurrentDate() + "(Today):" + "\n" + displayOnScreen(file) + createHorizLine("-",LENGTH_OF_PAGE/2);
