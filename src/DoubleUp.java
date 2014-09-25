@@ -21,7 +21,7 @@ public class DoubleUp {
 	private static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
 	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
 	private static final String MSG_QOTD = "QOTD: \n";
-	private static final String MSG_GOAL = "Your goal is to: \n";
+	private static final String MSG_GOAL = "Your goal is: ";
 	private static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
 	private static final String MSG_EMPTY_FILE = "%s is empty.";
 	private static final String MSG_COMMAND_LINE = "Enter Command: ";
@@ -165,6 +165,15 @@ public class DoubleUp {
 	//Returns goal message.
 	private static String createGoalMsg(){
 		String goal = "\n" + "\t" + MSG_GOAL;
+		File settings = new File("settings.txt");
+		try {
+			Scanner sc = new Scanner(settings);
+			String personalGoal = sc.nextLine();
+			goal += personalGoal + "\n";
+			sc.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		return goal;
 	}
 
@@ -177,10 +186,6 @@ public class DoubleUp {
 	private static String createTodayList(File file) {
 		//String allTodayTasks = fetchTodayTask();
 		return getCurrentDate() + "(Today):" + "\n" + displayOnScreen(file) + createHorizLine("-",LENGTH_OF_PAGE/2);
-	}
-
-	private static String getHelpMessage() {
-		return MSG_HELP;
 	}
 
 	//Creates a horizontal line for formatting the User Interface.
