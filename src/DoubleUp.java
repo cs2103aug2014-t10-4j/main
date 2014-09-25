@@ -126,12 +126,12 @@ public class DoubleUp {
 		welcomeMessage += "\n" + "\t" + MSG_QOTD;
 		welcomeMessage += "\n" + "\t" + MSG_GOAL;
 		welcomeMessage += "\n" + getHelpMessage();
-		welcomeMessage += "\n" + createHorizLine();
+		welcomeMessage += "\n" + createHorizLine("*", LENGTH_OF_PAGE);
 		return welcomeMessage;
 	}
 	private static String createTodayList() {
 		//String allTodayTasks = fetchTodayTask();
-		return getCurrentDate() + "(Today):" + "\n";
+		return getCurrentDate() + "(Today):" + "\n" + "\n" + createHorizLine("-",LENGTH_OF_PAGE/2);
 	}
 
 	private static String getHelpMessage() {
@@ -139,11 +139,12 @@ public class DoubleUp {
 	}
 	
 	//Creates a horizontal line for formatting the User Interface.
-	private static String createHorizLine(){
+	private static String createHorizLine(String charseq, int numToDraw){
 		String line = "";
-		for (int i=0; i < LENGTH_OF_PAGE; i++){
-			line += "*";
+		for (int i=0; i < numToDraw; i++){
+			line += charseq;
 		}
+		line += "\n";
 		return line;
 	}
 
