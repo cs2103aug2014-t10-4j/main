@@ -28,7 +28,7 @@ public class DoubleUp {
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 	private static final String MSG_MISSING_FILE = "File not found.";
 	private static final String MSG_INVALID_COMMAND = "Invalid command";
-	
+
 	private static final int LENGTH_OF_PAGE = 80;
 
 	private static Scanner scanner = new Scanner(System.in);
@@ -53,40 +53,46 @@ public class DoubleUp {
 			String userSentence = scanner.nextLine();
 
 			String[] splitCommand = Parser.parseInput(userSentence);
-			String action = splitCommand[0];
-			Task taskToExecute = new Task(splitCommand);
-			String result = executeCommand(action, taskToExecute, file);
+			String result = executeCommand(splitCommand, file);
 			messageToUser(result);
 		}
 	}
 
-	private static String executeCommand(String command, Task task, File file) {
-		String commandTypeString = getFirstWord(command);
-		CommandType commandType = determineCommandType(commandTypeString);
+	private static String executeCommand(String[] splitCommand, File file) {
+		String action = getFirstWord(splitCommand);
+		CommandType commandType = determineCommandType(action);
+		Task taskToExecute = new Task(splitCommand);
 		switch (commandType) {
 		case ADD_TEXT:
-			return Logic.addLineToFile(task, file);
+			return Logic.addLineToFile(taskToExecute, file);
 		case DISPLAY_TEXT:
 			return displayOnScreen(file);
 		case DELETE_TEXT:
-			// return deleteLineFromFile(task, file);
+			// return deleteLineFromFile(taskToExecute, file);
 			return "delete"; // stub
 		case CLEAR_SCREEN:
 			// return clearContent(file);
 			return "clear"; // stub
-		case EXIT:
-			System.exit(0);
 		case SEARCH:
-			// return search(task, file);
+			// return search(taskToExecute, file);
 			return "search"; // stub
 		case SORT:
-			// return sort(file);
+			/*String sortParams = splitCommand[6];
+			if (sortParams.equals("alpha"){
+				return sortByAlphabet(file);
+			} else if (sortParams.equals("importance")){
+				return sortByImportance(file);
+			} else {
+				return sortByDateAndTime(file);
+			}*/
 			return "sort"; // stub
-		case HELP:
-			// return showHelp();
-			return "help"; // stub
-		default:
-			return MSG_INVALID_COMMAND;
+			case HELP:
+				// return showHelp();
+				return "help"; // stub
+			case EXIT:
+				System.exit(0);
+			default:
+				return MSG_INVALID_COMMAND;
 		}
 	}
 
@@ -117,8 +123,8 @@ public class DoubleUp {
 		}
 	}
 
-	private static String getFirstWord(String userCommand) {
-		return userCommand.trim().split("\\s+")[0];
+	private static String getFirstWord(String[] userCommand) {
+		return userCommand[0];
 	}
 
 	// Concats the different messages to form the welcome message for the
@@ -129,7 +135,7 @@ public class DoubleUp {
 				numOfTask.get(1), numOfTask.get(2));
 		welcomeMessage += "\n" + "\t" + MSG_QOTD;
 		welcomeMessage += "\n" + "\t" + MSG_GOAL;
-		welcomeMessage += "\n" + getHelpMessage();
+		welcomeMessage += "\n" + MSG_HELP;
 		welcomeMessage += "\n" + createHorizLine("*", LENGTH_OF_PAGE);
 		return welcomeMessage;
 	}
@@ -141,7 +147,7 @@ public class DoubleUp {
 	private static String getHelpMessage() {
 		return MSG_HELP;
 	}
-	
+
 	//Creates a horizontal line for formatting the User Interface.
 	private static String createHorizLine(String charseq, int numToDraw){
 		String line = "";
