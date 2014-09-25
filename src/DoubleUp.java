@@ -51,9 +51,9 @@ public class DoubleUp {
 		while (true) {
 			messageToUser(MSG_COMMAND_LINE);
 			String userSentence = scanner.nextLine();
-
-			String[] splitCommand = Parser.parseInput(userSentence);
-			String result = executeCommand(splitCommand, file);
+			String result = showHelp();
+			//String[] splitCommand = Parser.parseInput(userSentence);
+			//String result = executeCommand(splitCommand, file);
 			messageToUser(result);
 		}
 	}
@@ -87,13 +87,34 @@ public class DoubleUp {
 			}*/
 			return "sort"; // stub
 		case HELP:
-			// return showHelp();
-			return "help"; // stub
+			return showHelp();
+			//return "help"; // stub
 		case EXIT:
 			System.exit(0);
 		default:
 			return MSG_INVALID_COMMAND;
 		}
+	}
+
+	private static String showHelp() {
+		File helpFile = new File("help.txt");
+		Scanner sc;
+		String toPrint = null;
+		try {
+			sc = new Scanner(helpFile);
+			while (sc.hasNext()) {
+				String sentence = sc.nextLine();
+				String[] result = sentence.split(" ### ");
+				//toPrint += result[0] + result[1] + result[2];
+				toPrint = toPrint + System.out.format("%-16s%-40s%-40s%n", result[0], result[1], result[2]);
+			} 
+			sc.close();
+		}catch (FileNotFoundException e) {
+
+		}
+
+
+		return toPrint;
 	}
 
 	// This method is used to determine the command types given the first word
@@ -136,7 +157,7 @@ public class DoubleUp {
 		welcomeMessage += createQOTD();
 		welcomeMessage += createGoalMsg();
 		welcomeMessage += createHelpMsg();
-				welcomeMessage += "\n" + createHorizLine("*", LENGTH_OF_PAGE);
+		welcomeMessage += "\n" + createHorizLine("*", LENGTH_OF_PAGE);
 		return welcomeMessage;
 	}
 	//Returns Quote of the day.

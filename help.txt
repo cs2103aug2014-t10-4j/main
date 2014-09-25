@@ -1,0 +1,4 @@
+Commands ### Description ### Example
+/add ### adds a task ### /add 31/12/2015 assignment
+/delete ### deletes a task ### /delete assignment OR /delete 1
+/edit ### edits a task with updated details ### /edit assignment OR /edit 1 /time 1900 /date 15/09/2014
