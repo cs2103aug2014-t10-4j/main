@@ -26,10 +26,10 @@ public class DoubleUp {
 	private static final String MSG_EMPTY_FILE = "%s is empty.";
 	private static final String MSG_COMMAND_LINE = "Enter Command: ";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
-
 	private static final String MSG_MISSING_FILE = "File not found.";
 
 	public static final String ERROR_INVALID_COMMAND = "Invalid command";
+	private static final int LENGTH_OF_PAGE = 80;
 
 	private static Scanner scanner = new Scanner(System.in);
 
@@ -40,16 +40,16 @@ public class DoubleUp {
 	public static void main(String[] args) {
 		String fileName = "DoubleUp.txt";
 		File file = openFile(fileName);
-		ArrayList<Integer> numOfTask = Logic.init(file);
+		//ArrayList<Integer> numOfTask = Logic.init(file);
 
 		messageToUser(createWelcomeMessage());
+		messageToUser(createTodayList());
 		while (true) {
 			messageToUser(MSG_COMMAND_LINE);
 			String userSentence = scanner.nextLine();
 
 			String[] splitCommand = Parser.parseInput(userSentence);
 			String action = splitCommand[0];
-			System.out.println(action);
 			Task taskToExecute = new Task(splitCommand);
 			String result = executeCommand(action, taskToExecute, file);
 			messageToUser(result);
@@ -122,16 +122,29 @@ public class DoubleUp {
 	// welcome screen
 	private static String createWelcomeMessage() {
 		String welcomeMessage = MSG_WELCOME;
-		welcomeMessage += "\n" + "\t"
-				+ String.format(MSG_PROGRESS_BAR, 3, 0, 1);
+		welcomeMessage += "\n" + "\t" + String.format(MSG_PROGRESS_BAR, 3, 0, 1);
 		welcomeMessage += "\n" + "\t" + MSG_QOTD;
 		welcomeMessage += "\n" + "\t" + MSG_GOAL;
-		welcomeMessage += "\n" + getHelpMessage()+ getCurrentDate();
+		welcomeMessage += "\n" + getHelpMessage();
+		welcomeMessage += "\n" + createHorizLine();
 		return welcomeMessage;
+	}
+	private static String createTodayList() {
+		//String allTodayTasks = fetchTodayTask();
+		return getCurrentDate() + "(Today):" + "\n";
 	}
 
 	private static String getHelpMessage() {
 		return MSG_HELP;
+	}
+	
+	//Creates a horizontal line for formatting the User Interface.
+	private static String createHorizLine(){
+		String line = "";
+		for (int i=0; i < LENGTH_OF_PAGE; i++){
+			line += "*";
+		}
+		return line;
 	}
 
 	// This function serves to display on the task in the text file.
@@ -140,18 +153,15 @@ public class DoubleUp {
 		StringBuilder stringBuilder = new StringBuilder();
 		try {
 			input = new Scanner(file);
-
 			if (!input.hasNext()) {
 				input.close();
 				return (String.format(MSG_EMPTY_FILE, file.getName()));
 			}
 
 			else {
-
 				int listNum = 1;
 				while (input.hasNext()) {
-					stringBuilder.append(listNum + ". " + input.nextLine()
-							+ "\n");
+					stringBuilder.append(listNum + ". " + input.nextLine() + "\n");
 					listNum++;
 				}
 				input.close();
@@ -164,17 +174,12 @@ public class DoubleUp {
 
 	private static String getCurrentDate() {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-
 		Date date = new Date();
 		String reportDate = dateFormat.format(date);
 		return reportDate;
-
 	}
 
-
-
-	// This function serves to create a text file if the text file is missing or
-	// for first time usage.
+	// Creates a text file if the text file is missing or for first time usage.
 	private static File openFile(String fileName) {
 		File file = new File(fileName);
 		try {
