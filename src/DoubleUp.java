@@ -9,15 +9,6 @@ import java.text.SimpleDateFormat;
 
 public class DoubleUp {
 
-	public static final int ADD_TEXT = 1;
-	public static final int DISPLAY_TEXT = 2;
-	public static final int DELETE_TEXT = 3;
-	public static final int CLEAR_SCREEN = 4;
-	public static final int EXIT = 5;
-	public static final int SEARCH = 6;
-	public static final int SORT = 7;
-	public static final int HELP = 8;
-
 	private static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
 	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
 	private static final String MSG_QOTD = "QOTD: \n";
