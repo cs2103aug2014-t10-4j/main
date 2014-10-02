@@ -23,7 +23,6 @@ public class Logic {
 	public static String ADD_MESSAGE = "added to %s: \"%s\"";
 	
 	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
-	private static ArrayList<Task> sortingStorage = new ArrayList<Task>();
 	private File file;
 
 	
@@ -103,7 +102,6 @@ public class Logic {
 		}
 		tempStorage.add(task);
 		sortByDateAndTime(tempStorage);
-		sortingStorage.add(task);
 		Storage.writeToFile(tempStorage, file);
 		
 		return String.format(ADD_MESSAGE,file.getName(), task.getName());
@@ -111,7 +109,6 @@ public class Logic {
 
 	public static ArrayList<Integer> init(File file) {
 		 tempStorage = Storage.copyToArrayList(file, tempStorage);
-		 sortingStorage = Storage.copyToArrayList(file, sortingStorage);
 		 // stub = getNumTasks()
 		 ArrayList<Integer> stub = new ArrayList<Integer>();
 		 stub.add(1);
@@ -153,7 +150,7 @@ public class Logic {
 		}
 	}
 	
-	public static void sortByAlphabet(ArrayList<Task> sortingStorage){
+	public static void sortByAlphabet(ArrayList<Task> tempStorage){
 		if(tempStorage.size()<1){
 			return;
 		}
@@ -162,9 +159,9 @@ public class Logic {
 				boolean isSorted=true;
 				for(int j=0;j<tempStorage.size()-1;j++){
 				
-					if(sortingStorage.get(j).getName().compareToIgnoreCase(sortingStorage.get(j+1).getName())>0){
-						sortingStorage.add(j+2,sortingStorage.get(j));
-						sortingStorage.remove(j);
+					if(tempStorage.get(j).getName().compareToIgnoreCase(tempStorage.get(j+1).getName())>0){
+						tempStorage.add(j+2,tempStorage.get(j));
+						tempStorage.remove(j);
 						isSorted= false;
 							
 					}
@@ -177,7 +174,7 @@ public class Logic {
 		
 	}
 	
-	public static void sortByImportance(ArrayList<Task> sortingStorage){
+	public static void sortByImportance(ArrayList<Task> tempStorage){
 		if(tempStorage.size()<1){
 			return;
 		}
@@ -186,9 +183,9 @@ public class Logic {
 				boolean isSorted=true;
 				for(int j=0;j<tempStorage.size()-1;j++){
 				
-					if(sortingStorage.get(j).getImportance()<sortingStorage.get(j+1).getImportance()){
-						sortingStorage.add(j+2,sortingStorage.get(j));
-						sortingStorage.remove(j);
+					if(tempStorage.get(j).getImportance()<tempStorage.get(j+1).getImportance()){
+						tempStorage.add(j+2,tempStorage.get(j));
+						tempStorage.remove(j);
 						isSorted= false;
 							
 					}
