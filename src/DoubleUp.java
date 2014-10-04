@@ -1,13 +1,24 @@
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.File;
-import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Scanner;
 
-public class DoubleUp {
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+
+public class DoubleUp extends JFrame {
 
 	private static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
 	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
@@ -28,6 +39,56 @@ public class DoubleUp {
 		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_SCREEN, EXIT, INVALID, SEARCH, SORT, HELP;
 	};
 
+	private JTextField tfInput, tfOutput;
+	private JTextArea displayList;
+	private int numberIn;   // input number
+	private int sum = 0;    // accumulated sum, init to 0
+
+	public DoubleUp () {
+		// Retrieve the content-pane of the top-level container JFrame
+		// All operations done on the content-pane
+		Container cp = getContentPane();
+		cp.setLayout(new BoxLayout(cp, BoxLayout.Y_AXIS));
+
+		JPanel topRow = new JPanel();
+		topRow.add(new JLabel("Enter a command: "));
+		tfInput = new JTextField(30);
+		topRow.add(tfInput);
+		cp.add(topRow);
+		
+		JPanel middleRow = new JPanel();
+		displayList = new JTextArea(10,50);
+		displayList.setEditable(false);
+		topRow.add(displayList);
+		cp.add(middleRow);
+		
+		JPanel lastRow = new JPanel();
+		lastRow.add(new JLabel("Result: "));
+		tfOutput = new JTextField(30);
+		tfOutput.setEditable(false);  // read-only
+		lastRow.add(tfOutput);
+		cp.add(lastRow);
+
+		// Allocate an anonymous instance of an anonymous inner class that
+		//  implements ActionListener as ActionEvent listener
+		tfInput.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Get the String entered into the input TextField, convert to int
+				numberIn = Integer.parseInt(tfInput.getText());
+				sum += numberIn;      // accumulate numbers entered into sum
+				tfInput.setText("");  // clear input TextField
+				tfOutput.setText(sum + ""); // display sum on the output TextField
+			}
+		});
+
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // Exit program if close-window button clicked
+		setTitle("DoubleUp To-do List"); // "this" Frame sets title
+		setSize(600, 260);  // "this" Frame sets initial size
+		setVisible(true);   // "this" Frame shows
+
+	}
+
 	public static void main(String[] args) {
 		String fileName = "DoubleUp.txt";
 		File file = openFile(fileName);
@@ -36,6 +97,13 @@ public class DoubleUp {
 		numOfTask.add(5);
 		numOfTask.add(0);
 		numOfTask.add(1);
+
+		SwingUtilities.invokeLater(new Runnable() {
+	         @Override
+	         public void run() {
+	            new DoubleUp(); // Let the constructor do the job
+	         }
+	      });
 
 		messageToUser(createWelcomeMessage(numOfTask));
 		messageToUser(createTodayList(file));
@@ -238,5 +306,4 @@ public class DoubleUp {
 	public static void messageToUser(String text) {
 		System.out.println(text);
 	}
-
 }
