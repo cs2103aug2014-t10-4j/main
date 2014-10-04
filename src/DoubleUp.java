@@ -1,4 +1,8 @@
+import java.awt.Color;
+import java.awt.ComponentOrientation;
 import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -10,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
-import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -33,41 +36,83 @@ public class DoubleUp extends JFrame {
 
 	private static final int LENGTH_OF_PAGE = 80;
 
+
 	private static Scanner scanner = new Scanner(System.in);
 
 	enum CommandType {
 		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_SCREEN, EXIT, INVALID, SEARCH, SORT, HELP;
 	};
 
-	private JTextField tfInput, tfOutput;
-	private JTextArea displayList;
-	private int numberIn;   // input number
-	private int sum = 0;    // accumulated sum, init to 0
+	private static JTextField tfInput, tfOutput;
+	private static JTextArea displayList;
+	private static int numberIn;   // input number
+	private static int sum = 0;    // accumulated sum, init to 0
+	final static boolean shouldFill = true;
+	final static boolean shouldWeightX = true;
+	final static boolean RIGHT_TO_LEFT = false;
 
-	public DoubleUp () {
-		// Retrieve the content-pane of the top-level container JFrame
-		// All operations done on the content-pane
-		Container cp = getContentPane();
-		cp.setLayout(new BoxLayout(cp, BoxLayout.Y_AXIS));
+	public static void createAndShowGUI() {
+		//Create and set up the window
+		JFrame frame = new JFrame("DoubleUp To-do-List");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+		addComponentsToPane(frame.getContentPane());
+
+		frame.pack();
+		//frame.setSize(600, 260);  // "this" Frame sets initial size
+		frame.setVisible(true);
+	}
+
+	public static void addComponentsToPane(Container cp){
+		if (RIGHT_TO_LEFT) {
+			cp.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
+		}
+
+		cp.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		if (shouldFill) {
+			//natural height, maximum width
+			c.fill = GridBagConstraints.HORIZONTAL;
+		}
+		if (shouldWeightX) {
+			c.weightx = 0.5;
+		}
+		
+		//Top pane
+		c.fill = GridBagConstraints.BOTH;
+		c.gridx = 0;
+		c.gridy = 0;
 		JPanel topRow = new JPanel();
 		topRow.add(new JLabel("Enter a command: "));
 		tfInput = new JTextField(30);
 		topRow.add(tfInput);
-		cp.add(topRow);
-		
+		cp.add(topRow,c);
+
+		//second panel
+		c.fill = GridBagConstraints.BOTH;
+		c.gridx = 0;
+		c.gridy = 2;
+		c.weightx = 0.0;
+		c.ipady = 40;
+		c.gridwidth = 3;
 		JPanel middleRow = new JPanel();
 		displayList = new JTextArea(10,50);
 		displayList.setEditable(false);
-		topRow.add(displayList);
-		cp.add(middleRow);
-		
+		middleRow.add(displayList);
+		cp.add(middleRow, c);
+
+		c.fill = GridBagConstraints.BOTH;
+		c.ipady = 00;
+		c.weighty = 1.0;
+		c.anchor = GridBagConstraints.PAGE_END;
+		c.gridx = 0;
+		c.gridy = 10;
 		JPanel lastRow = new JPanel();
 		lastRow.add(new JLabel("Result: "));
 		tfOutput = new JTextField(30);
 		tfOutput.setEditable(false);  // read-only
 		lastRow.add(tfOutput);
-		cp.add(lastRow);
+		cp.add(lastRow, c);
 
 		// Allocate an anonymous instance of an anonymous inner class that
 		//  implements ActionListener as ActionEvent listener
@@ -82,11 +127,6 @@ public class DoubleUp extends JFrame {
 			}
 		});
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // Exit program if close-window button clicked
-		setTitle("DoubleUp To-do List"); // "this" Frame sets title
-		setSize(600, 260);  // "this" Frame sets initial size
-		setVisible(true);   // "this" Frame shows
-
 	}
 
 	public static void main(String[] args) {
@@ -99,11 +139,11 @@ public class DoubleUp extends JFrame {
 		numOfTask.add(1);
 
 		SwingUtilities.invokeLater(new Runnable() {
-	         @Override
-	         public void run() {
-	            new DoubleUp(); // Let the constructor do the job
-	         }
-	      });
+			@Override
+			public void run() {
+				createAndShowGUI();
+			}
+		});
 
 		messageToUser(createWelcomeMessage(numOfTask));
 		messageToUser(createTodayList(file));
