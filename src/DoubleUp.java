@@ -1,5 +1,3 @@
-import java.awt.Color;
-import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -29,63 +27,47 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_GOAL = "Your goal is: ";
 	private static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
 	private static final String MSG_EMPTY_FILE = "%s is empty.";
-	private static final String MSG_COMMAND_LINE = "Enter Command: ";
+	private static final String MSG_COMMAND_LINE = "Enter a command: ";
+	private static final String MSG_RESULT = "Result: ";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 	private static final String MSG_MISSING_FILE = "File not found.";
 	private static final String MSG_INVALID_COMMAND = "Invalid command";
 
+	private static JTextField textFieldCmdIn, textFieldResultsOut;
+	private static JTextArea displayList;
+	final static boolean shouldFill = true;
+	final static boolean shouldWeightX = true;
+	final static boolean RIGHT_TO_LEFT = false;
+
+	public static File file;
 	private static final int LENGTH_OF_PAGE = 80;
-
-
-	private static Scanner scanner = new Scanner(System.in);
 
 	enum CommandType {
 		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_SCREEN, EXIT, INVALID, SEARCH, SORT, HELP;
 	};
 
-	private static JTextField tfInput, tfOutput;
-	private static JTextArea displayList;
-	private static int numberIn;   // input number
-	private static int sum = 0;    // accumulated sum, init to 0
-	final static boolean shouldFill = true;
-	final static boolean shouldWeightX = true;
-	final static boolean RIGHT_TO_LEFT = false;
-
 	public static void createAndShowGUI() {
 		//Create and set up the window
 		JFrame frame = new JFrame("DoubleUp To-do-List");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
 		addComponentsToPane(frame.getContentPane());
-
 		frame.pack();
-		//frame.setSize(600, 260);  // "this" Frame sets initial size
 		frame.setVisible(true);
 	}
 
 	public static void addComponentsToPane(Container cp){
-		if (RIGHT_TO_LEFT) {
-			cp.setComponentOrientation(ComponentOrientation.RIGHT_TO_LEFT);
-		}
-
 		cp.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
-		if (shouldFill) {
-			//natural height, maximum width
-			c.fill = GridBagConstraints.HORIZONTAL;
-		}
-		if (shouldWeightX) {
-			c.weightx = 0.5;
-		}
-		
+
 		//Top pane
 		c.fill = GridBagConstraints.BOTH;
 		c.gridx = 0;
 		c.gridy = 0;
+		c.weightx = 0.5;
 		JPanel topRow = new JPanel();
-		topRow.add(new JLabel("Enter a command: "));
-		tfInput = new JTextField(30);
-		topRow.add(tfInput);
+		topRow.add(new JLabel(MSG_COMMAND_LINE));
+		textFieldCmdIn = new JTextField(30);
+		topRow.add(textFieldCmdIn);
 		cp.add(topRow,c);
 
 		//second panel
@@ -108,35 +90,36 @@ public class DoubleUp extends JFrame {
 		c.gridx = 0;
 		c.gridy = 10;
 		JPanel lastRow = new JPanel();
-		lastRow.add(new JLabel("Result: "));
-		tfOutput = new JTextField(30);
-		tfOutput.setEditable(false);  // read-only
-		lastRow.add(tfOutput);
+		lastRow.add(new JLabel(MSG_RESULT));
+		textFieldResultsOut = new JTextField(30);
+		textFieldResultsOut.setEditable(false);  // read-only
+		lastRow.add(textFieldResultsOut);
 		cp.add(lastRow, c);
 
 		// Allocate an anonymous instance of an anonymous inner class that
 		//  implements ActionListener as ActionEvent listener
-		tfInput.addActionListener(new ActionListener() {
+		textFieldCmdIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// Get the String entered into the input TextField, convert to int
-				numberIn = Integer.parseInt(tfInput.getText());
-				sum += numberIn;      // accumulate numbers entered into sum
-				tfInput.setText("");  // clear input TextField
-				tfOutput.setText(sum + ""); // display sum on the output TextField
+				String userSentence = textFieldCmdIn.getText();
+				String[] splitCommand = Parser.parseInput(userSentence);
+				String result = executeCommand(splitCommand, file);
+				textFieldCmdIn.setText("");  // clear input TextField
+				displayList.setText(displayOnScreen(file));
+				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
 		});
-
 	}
 
 	public static void main(String[] args) {
 		String fileName = "DoubleUp.txt";
-		File file = openFile(fileName);
+		file = openFile(fileName);
 		//ArrayList<Integer> numOfTask = Logic.init(file);
 		ArrayList<Integer> numOfTask = new ArrayList<Integer>();
 		numOfTask.add(5);
 		numOfTask.add(0);
 		numOfTask.add(1);
+
 
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -144,16 +127,8 @@ public class DoubleUp extends JFrame {
 				createAndShowGUI();
 			}
 		});
-
-		messageToUser(createWelcomeMessage(numOfTask));
-		messageToUser(createTodayList(file));
-		while (true) {
-			messageToUser(MSG_COMMAND_LINE);
-			String userSentence = scanner.nextLine();
-			String[] splitCommand = Parser.parseInput(userSentence);
-			String result = executeCommand(splitCommand, file);
-			messageToUser(result);
-		}
+		//messageToUser(createWelcomeMessage(numOfTask));
+		//messageToUser(createTodayList(file));
 	}
 
 	private static String executeCommand(String[] splitCommand, File file) {
@@ -202,12 +177,10 @@ public class DoubleUp extends JFrame {
 			while (sc.hasNext()) {
 				String sentence = sc.nextLine();
 				String[] result = sentence.split(" ### ");
-				//toPrint += result[0] + result[1] + result[2];
 				toPrint += String.format("%-16s%-56s%-50s%n", result[0], result[1], result[2]);
 			} 
 			sc.close();
 		}catch (FileNotFoundException e) {
-
 		}
 		return toPrint;
 	}
@@ -344,6 +317,6 @@ public class DoubleUp extends JFrame {
 	}
 
 	public static void messageToUser(String text) {
-		System.out.println(text);
+		displayList.setText(text);
 	}
 }
