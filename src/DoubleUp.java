@@ -142,7 +142,26 @@ public class DoubleUp extends JFrame {
 		Task taskToExecute = new Task(splitCommand);
 		switch (commandType) {
 		case ADD_TEXT:
-			return Logic.addLineToFile(taskToExecute, file);
+			Task tempTask = new Task();
+			tempTask.setDate(taskToExecute.getDate());
+			tempTask.setTime(taskToExecute.getTime());
+			//ArrayList<Task> tasksFound = search(tempTask, file);
+			ArrayList<Task> tasksFound = new ArrayList<Task>(); //stub to swop with above line
+			if (tasksFound.size() == 0){
+				return Logic.addLineToFile(taskToExecute, file);
+			} /*else {
+					String matchedList = printArrayList(tasksFound);
+					displayList.setText(matchedList);
+					//textFieldResultsOut.setText("Clashes found!");
+					 JFrame frame = new JFrame();
+    				 Object result = JOptionPane.showInputDialog(frame, "The task you are about to add have the same 
+						date and time as the above items. Do you want to continue? (y/n)?"");
+					 if (result.equalsIgnoreCase("y") || results.equalsIgnoreCase("yes"){
+					 	return Logic.addLineToFile(taskToExecute, file);
+					 } else {
+					 	return;
+					 }
+				}*/
 		case DISPLAY_TEXT:
 			return displayOnScreen(file);
 		case DELETE_TEXT:
@@ -152,7 +171,7 @@ public class DoubleUp extends JFrame {
 			// return clearContent(file);
 			return "clear"; // stub
 		case SEARCH:
-			// return search(taskToExecute, file);
+			// return printArrayList ( search(taskToExecute, file) );
 			return "search"; // stub
 		case SORT:
 			/*String sortParams = splitCommand[6];
@@ -171,6 +190,14 @@ public class DoubleUp extends JFrame {
 		default:
 			return MSG_INVALID_COMMAND;
 		}
+	}
+
+	private static String printArrayList(ArrayList<Task> listOfTasks){
+		String toPrint ="";
+		for (int j = 0; j < listOfTasks.size() ; j ++){
+			toPrint += (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
+		}
+		return toPrint;
 	}
 
 	private static String showHelp() {
