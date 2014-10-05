@@ -15,7 +15,9 @@ class Task {
 		this.date = splitTask[2];
 		this.time = splitTask[3];
 		this.details = splitTask[4];
-		//this.importance = Integer.parseInt(splitTask[5]);
+		if (splitTask[5] != null){
+			this.importance = Integer.parseInt(splitTask[5]);
+		}
 	}
 	
 	public Task(){
@@ -63,7 +65,14 @@ class Task {
 	//This method can be used to print tasks for debugging.
 	@Override
 	public String toString(){
-		return "[" + this.getTime() +"]" + this.getName();
+		String sentence =  " [" + this.getTime() +"] " + this.getName();
+		if (importance !=0) {
+			sentence += sentence + " [" + printImportance(importance) + "] ";
+		}
+		if (details != null){
+			sentence += sentence + "[+]";
+		}
+		return sentence;
 	}
 	
 	//This overrode method can perhaps be used for search and other methods.
@@ -76,5 +85,13 @@ class Task {
 		} else {
 			return false;
 		}
+	}
+	//Return a number of ! based on importance number
+	private String printImportance (int num){
+		String toPrint = null;
+		for (int j=0; j < num; j++){
+			toPrint += "!";
+		}
+		return toPrint;
 	}
 }

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Scanner;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -72,6 +73,7 @@ public class DoubleUp extends JFrame {
 
 		//second panel
 		c.fill = GridBagConstraints.BOTH;
+		c.gridwidth = 5;
 		c.gridx = 0;
 		c.gridy = 2;
 		c.weightx = 0.0;
@@ -80,7 +82,10 @@ public class DoubleUp extends JFrame {
 		JPanel middleRow = new JPanel();
 		displayList = new JTextArea(10,50);
 		displayList.setEditable(false);
+		displayList.setText(displayOnScreen(file));
 		middleRow.add(displayList);
+		middleRow.setOpaque(true);
+		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
 		cp.add(middleRow, c);
 
 		c.fill = GridBagConstraints.BOTH;
@@ -287,6 +292,7 @@ public class DoubleUp extends JFrame {
 					stringBuilder.append(listNum + ". " + input.nextLine() + "\n");
 					listNum++;
 				}
+				stringBuilder.append("END");
 				input.close();
 			}
 		} catch (FileNotFoundException e) {
