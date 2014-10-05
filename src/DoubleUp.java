@@ -66,10 +66,10 @@ public class DoubleUp {
 		case DISPLAY_TEXT:
 			return displayOnScreen(file);
 		case DELETE_TEXT:
-			// return deleteLineFromFile(task, file);
-			return "delete"; // stub
+			// return Logic.deleteLineFromFile(task, file);
+			//return "delete"; // stub
 		case CLEAR_SCREEN:
-			// return clearContent(file);
+			// return Logic.clearContent(file);
 			return "clear"; // stub
 		case EXIT:
 			System.exit(0);
