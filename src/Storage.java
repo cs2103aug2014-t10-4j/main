@@ -79,7 +79,7 @@ public class Storage {
 	}
 	
 	// The function below serves to count the number of lines of text present in the file.
-	public static Integer numberOfLine(File file) {
+	private static Integer numberOfLine(File file) {
 		Scanner input;
 		int lineNum = 0;
 		try {
@@ -102,7 +102,7 @@ public class Storage {
 	}
 		
 	// This function serves to clear the file.
-	public static void clear(File file) {
+	private static void clear(File file) {
 		try {
 			new BufferedWriter(new FileWriter (file,false)).write("");
 		} catch (IOException e) {
