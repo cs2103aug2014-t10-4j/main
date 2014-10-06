@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 public class Logic {
 	private static final String MSG_FAIL_ADD = "Unable to add line.";
 	public static String ADD_MESSAGE = "added to %s: \"%s\"";
+	private static final int INITIAL_VALUE = 0;
 	
 	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
 	private File file;
@@ -110,11 +111,40 @@ public class Logic {
 	public static ArrayList<Integer> init(File file) {
 		 tempStorage = Storage.copyToArrayList(file, tempStorage);
 		 // stub = getNumTasks()
-		 ArrayList<Integer> stub = new ArrayList<Integer>();
-		 stub.add(1);
-		return stub;
+		 ArrayList<Integer> numTask = new ArrayList<Integer>();
+		 getNumTasks(numTask, tempStorage);
+		 
+		return numTask;
 	}
 	
+	private static void getNumTasks(ArrayList<Integer> numTask,
+			ArrayList<Task> tempStorage2) {
+		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		Date currentDate = new Date();
+		
+		try{
+			int todayTask=INITIAL_VALUE;
+			int tomorrowTask=INITIAL_VALUE;
+			for(int i =0; i<tempStorage.size(); i++){
+				Date dateOfCurrentTask = new Date();
+				dateOfCurrentTask = dateFormat.parse(tempStorage.get(i).getDate());
+				if(dateOfCurrentTask.compareTo(currentDate)==INITIAL_VALUE){
+					todayTask++;
+				}
+				else if(dateOfCurrentTask.compareTo(currentDate)==INITIAL_VALUE+1){
+					tomorrowTask++;
+				}
+				else{
+					break; // During init, the tempStorage is already sorted by date and time.
+				}
+			}
+			numTask.add(todayTask);
+			numTask.add(tomorrowTask);
+		}catch(Exception e){
+			
+		}
+	}
+
 	public static void sortByDateAndTime(ArrayList<Task> tempStorage){
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
 		if(tempStorage.size()<1){
@@ -193,10 +223,51 @@ public class Logic {
 				if (isSorted){
 					return;
 				}
+				
 			}				
-		}
-		
+		}	
 	}
+	
+	public static void edit(Task detailsOfTask, Task taskToBeEdited, ArrayList<Task> tempStorage){
+		int counter = exactMatchCounter(taskToBeEdited, tempStorage);
+		if(detailsOfTask.getName()!=null){
+			tempStorage.get(counter).setName(detailsOfTask.getName());
+		}
+		if(detailsOfTask.getDate()!=null){
+			tempStorage.get(counter).setDate(detailsOfTask.getDate());
+		}
+		if(detailsOfTask.getTime()!=null){
+			tempStorage.get(counter).setTime(detailsOfTask.getTime());
+		}
+		if(detailsOfTask.getDetails()!=null){
+			tempStorage.get(counter).setDetails(detailsOfTask.getDetails());
+		}
+		// IMPORTANCE LEVEL MIGHT NOT HAVE CHANGED!! BEST IF SET IN THE DETAILS OF TASK TO BE A NEGATIVE NUMBER
+		//if(detailsOfTask.getImportance()!= tempStorage.get(counter).getImportance()){
+		//	tempStorage.get(counter).setImportance(detailsOfTask.getImportance()); 
+		//}
+	}
+
+
+	private static int exactMatchCounter(Task taskToBeEdited,
+			ArrayList<Task> tempStorage) {
+		int counter = INITIAL_VALUE;
+		for(int i=0; i<tempStorage.size(); i++){
+			if(taskToBeEdited.getName().equals(tempStorage.get(i).getName()) &&
+					taskToBeEdited.getDate().equals(tempStorage.get(i).getDate()) &&
+					taskToBeEdited.getTime().equals(tempStorage.get(i).getTime()) &&
+					taskToBeEdited.getDetails().equals(tempStorage.get(i).getDetails()) &&
+					taskToBeEdited.getImportance() == tempStorage.get(i).getImportance()){
+				break;
+			}
+			else{
+				counter++;
+			}
+		}
+		return counter;
+	}
+	
 }
+
 
 
