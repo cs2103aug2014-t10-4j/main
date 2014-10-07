@@ -30,6 +30,7 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
 	private static final String MSG_EMPTY_FILE = "%s is empty.";
 	private static final String MSG_EMPTY_TODAY = "No tasks for today!";
+	private static final String MSG_EMPTY_ALL_DAYS = "No tasks for anyday!";
 	private static final String MSG_COMMAND_LINE = "Enter a command: ";
 	private static final String MSG_RESULT = "Result: ";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
@@ -40,8 +41,8 @@ public class DoubleUp extends JFrame {
 	private static JTextArea displayPanelTodayTasks, displayPanelFloatingTasks, displayPanelAllTasks;
 
 	public static File file;
+	private static final int LENGTH_OF_PAGE = 60;
 	public static File archive;
-	private static final int LENGTH_OF_PAGE = 80;
 
 	enum CommandType {
 		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_SCREEN, EDIT, EXIT, INVALID, SEARCH, SORT, HELP;
@@ -88,7 +89,7 @@ public class DoubleUp extends JFrame {
 		middleRow.setOpaque(true);
 		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
 		cp.add(middleRow, c);
-		
+
 		//everything tasks panel
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 5;
@@ -100,13 +101,13 @@ public class DoubleUp extends JFrame {
 		JPanel everythingRow = new JPanel();
 		displayPanelAllTasks = new JTextArea(10,50);
 		displayPanelAllTasks.setEditable(false);
-		displayPanelAllTasks.setText(printArrayList(Logic.getTempStorage()));
+		displayPanelAllTasks.setText(printEveryTask());
 		JScrollPane scroll2 = new JScrollPane(displayPanelAllTasks);
 		everythingRow.add(scroll2);
 		everythingRow.setOpaque(true);
 		everythingRow.setBorder(BorderFactory.createTitledBorder("All tasks"));
 		cp.add(everythingRow, c);
-		
+
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 5;
 		c.gridx = 0;
@@ -148,7 +149,7 @@ public class DoubleUp extends JFrame {
 				String result = executeCommand(splitCommand, file);
 				textFieldCmdIn.setText("");  // clear input TextField
 				displayPanelTodayTasks.setText(printTodayList(createTodayList()));
-				displayPanelAllTasks.setText(printArrayList(Logic.getTempStorage()));
+				displayPanelAllTasks.setText(printEveryTask());
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
 		});
@@ -161,6 +162,7 @@ public class DoubleUp extends JFrame {
 		archive = Storage.openFile(archiveName);
 		ArrayList<Integer> numOfTask = Logic.init(file,archive);
 		
+
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -241,6 +243,26 @@ public class DoubleUp extends JFrame {
 			toPrint += (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
 		}
 		return toPrint;
+	}
+	private static String printEveryTask(){
+		String toPrint = "";
+		ArrayList<Task> everyTask = Logic.getTempStorage();
+		if (everyTask.size() !=0){
+			String date = everyTask.get(0).getDate();
+			toPrint += createHorizLine("=", LENGTH_OF_PAGE/3) + date + " " + createHorizLine("=", LENGTH_OF_PAGE/3) +"\n" ;
+			for (int j = 0; j < everyTask.size() ; j ++){
+				String dateOfCurrentTask = everyTask.get(j).getDate();
+				if (! dateOfCurrentTask.equals(date)){
+					toPrint += "\n";
+					toPrint += createHorizLine("=", LENGTH_OF_PAGE/3) + dateOfCurrentTask + " " + createHorizLine("=", LENGTH_OF_PAGE/3)+"\n" ;
+				}
+				toPrint += (j+1) + ". " + everyTask.get(j).toString() + "\n";
+			}
+			return toPrint;
+		} else {
+			return MSG_EMPTY_ALL_DAYS;
+		}
+
 	}
 
 	private static String showHelp() {
@@ -348,10 +370,9 @@ public class DoubleUp extends JFrame {
 		for (int i=0; i < numToDraw; i++){
 			line += charseq;
 		}
-		line += "\n";
 		return line;
 	}
-	
+
 	//Same function as getCurrentDate except date is in another format
 	private static String getTodayDate() {
 		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
@@ -359,7 +380,7 @@ public class DoubleUp extends JFrame {
 		String reportDate = dateFormat.format(date);
 		return reportDate;
 	}
-	
+
 
 	private static String getCurrentDate() {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");

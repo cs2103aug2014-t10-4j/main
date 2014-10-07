@@ -89,9 +89,9 @@ class Task {
 		} else {
 			sentence +=  " [" + this.getTime() +"] "; 
 		}
-		if (this.getDate() != null && !date.equals("null")){
+	/*	if (this.getDate() != null && !date.equals("null")){
 			sentence += "(" + this.getDate() + ") ";
-		}
+		}*/
 		sentence += this.getName();
 		if (importance !=0) {
 			sentence += " [" + printImportance(importance) + "]";
