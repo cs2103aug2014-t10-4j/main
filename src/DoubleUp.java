@@ -79,7 +79,7 @@ public class DoubleUp extends JFrame {
 		JPanel middleRow = new JPanel();
 		displayList = new JTextArea(10,50);
 		displayList.setEditable(false);
-		displayList.setText(printArrayList(Logic.getTempStorage()));
+		displayList.setText(printArrayList(createTodayList()));
 		middleRow.add(displayList);
 		middleRow.setOpaque(true);
 		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
