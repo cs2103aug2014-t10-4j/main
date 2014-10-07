@@ -113,20 +113,21 @@ public class Logic {
 	}
 
 	public static ArrayList<Task> search(Task task) {
+		searchResults.clear();
 		for (int i = 0; i < tempStorage.size(); i++) {
-			if (!task.getName().equals("null")
+			if (task.getName()!=null
 					&& !tempStorage.get(i).getName().contains(task.getName())) {
 				continue;
 			}
-			if (!task.getDate().equals("null")
+			if (task.getDate()!= null
 					&& !tempStorage.get(i).getDate().contains(task.getDate())) {
 				continue;
 			}
-			if (!task.getTime().equals("null")
+			if (task.getTime()!= null
 					&& !tempStorage.get(i).getTime().contains(task.getTime())) {
 				continue;
 			}
-			if (!task.getDetails().equals("null")
+			if (task.getDetails() != null
 					&& !tempStorage.get(i).getDetails()
 							.contains(task.getDetails())) {
 				continue;
