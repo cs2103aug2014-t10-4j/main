@@ -198,17 +198,15 @@ public class DoubleUp extends JFrame {
 		case DISPLAY_TEXT:
 			return printArrayList(createTodayList());
 		case DELETE_TEXT:
-			// return deleteLineFromFile(taskToExecute, file);
-			return "delete"; // stub
+			return Logic.deleteLineFromFile(taskToExecute, file);
 		case EDIT:
-			//return Logic.edit(Task taskToExecute, file);
-			return "edit"; //stub
+			return Logic.edit(taskToExecute, file);
 		case CLEAR_SCREEN:
 			// return Logic.clearContent(file);
 			return "clear"; // stub
 		case SEARCH:
-			// return printArrayList ( search(taskToExecute, file) );
-			return "search"; // stub
+			return printArrayList ( Logic.search(taskToExecute) );
+			//return "search"; // stub
 		case SORT:
 			/*String sortParams = splitCommand[7s];
 			if (sortParams.equals("alpha"){

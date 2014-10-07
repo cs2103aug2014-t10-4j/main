@@ -101,31 +101,33 @@ public class Logic {
 		}
 		try {
 			String temp = String.format(DELETE_MESSAGE, file.getName(),
-					tempStorage.remove(index));
+					tempStorage.get(index).getName());
+			tempStorage.remove(index);
 			sortByDateAndTime(tempStorage);
 			Storage.writeToFile(tempStorage, file);
 			return temp;
 		} catch (IndexOutOfBoundsException e) {
-			return String.format(BAD_INDEX_MESSAGE, index, 1,
+			return String.format(BAD_INDEX_MESSAGE, index+1 , 1,
 					tempStorage.size());
 		}
 	}
 
 	public static ArrayList<Task> search(Task task) {
+		searchResults.clear();
 		for (int i = 0; i < tempStorage.size(); i++) {
-			if (!task.getName().equals("null")
+			if (task.getName()!=null
 					&& !tempStorage.get(i).getName().contains(task.getName())) {
 				continue;
 			}
-			if (!task.getDate().equals("null")
+			if (task.getDate()!= null
 					&& !tempStorage.get(i).getDate().contains(task.getDate())) {
 				continue;
 			}
-			if (!task.getTime().equals("null")
+			if (task.getTime()!= null
 					&& !tempStorage.get(i).getTime().contains(task.getTime())) {
 				continue;
 			}
-			if (!task.getDetails().equals("null")
+			if (task.getDetails() != null
 					&& !tempStorage.get(i).getDetails()
 							.contains(task.getDetails())) {
 				continue;
@@ -162,7 +164,6 @@ public class Logic {
 	public static ArrayList<Integer> init(File file) {
 
 		 Storage.copyToArrayList(file, tempStorage);
-		 // stub = getNumTasks()
 		 ArrayList<Integer> numTask = new ArrayList<Integer>();
 		 getNumTasks(numTask, tempStorage);
 
@@ -340,51 +341,31 @@ public class Logic {
 		}
 	}
 
-	public static void edit(Task detailsOfTask, Task taskToBeEdited,
-			ArrayList<Task> tempStorage) {
-		int counter = exactMatchCounter(taskToBeEdited, tempStorage);
+	public static String edit(Task detailsOfTask, File file) {
+		int taskNumber = getIndex(detailsOfTask);
 		if (detailsOfTask.getName() != null) {
-			tempStorage.get(counter).setName(detailsOfTask.getName());
+			tempStorage.get(taskNumber).setName(detailsOfTask.getName());
 		}
 		if (detailsOfTask.getDate() != null) {
-			tempStorage.get(counter).setDate(detailsOfTask.getDate());
+			tempStorage.get(taskNumber).setDate(detailsOfTask.getDate());
 		}
 		if (detailsOfTask.getTime() != null) {
-			tempStorage.get(counter).setTime(detailsOfTask.getTime());
+			tempStorage.get(taskNumber).setTime(detailsOfTask.getTime());
 		}
 		if (detailsOfTask.getDetails() != null) {
-			tempStorage.get(counter).setDetails(detailsOfTask.getDetails());
+			tempStorage.get(taskNumber).setDetails(detailsOfTask.getDetails());
 		}
-		// IMPORTANCE LEVEL MIGHT NOT HAVE CHANGED!! BEST IF SET IN THE DETAILS
-		// OF TASK TO BE A NEGATIVE NUMBER
-		// if(detailsOfTask.getImportance()!=
-		// tempStorage.get(counter).getImportance()){
-		// tempStorage.get(counter).setImportance(detailsOfTask.getImportance());
-		// }
+		if(detailsOfTask.getImportance()!= INITIAL_VALUE-1){
+		 tempStorage.get(taskNumber).setImportance(detailsOfTask.getImportance());
+		}
+		
+		sortByDateAndTime(tempStorage);
+		Storage.writeToFile(tempStorage, file);
+		
+		return "success";
 
 	}
 
-	private static int exactMatchCounter(Task taskToBeEdited,
-			ArrayList<Task> tempStorage) {
-		int counter = INITIAL_VALUE;
-
-		for (int i = 0; i < tempStorage.size(); i++) {
-			if (taskToBeEdited.getName().equals(tempStorage.get(i).getName())
-					&& taskToBeEdited.getDate().equals(
-							tempStorage.get(i).getDate())
-					&& taskToBeEdited.getTime().equals(
-							tempStorage.get(i).getTime())
-					&& taskToBeEdited.getDetails().equals(
-							tempStorage.get(i).getDetails())
-					&& taskToBeEdited.getImportance() == tempStorage.get(i)
-							.getImportance()) {
-				break;
-			} else {
-
-				counter++;
-			}
-		}
-		return counter;
-	}
+	
 
 }
