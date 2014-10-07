@@ -36,7 +36,7 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_INVALID_COMMAND = "Invalid command";
 
 	private static JTextField textFieldCmdIn, textFieldResultsOut;
-	private static JTextArea displayList, displayList2;
+	private static JTextArea displayList, displayList2, displayList3;
 
 	public static File file;
 	private static final int LENGTH_OF_PAGE = 80;
@@ -86,10 +86,27 @@ public class DoubleUp extends JFrame {
 		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
 		cp.add(middleRow, c);
 		
+		//everything tasks panel
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 5;
 		c.gridx = 0;
 		c.gridy = 3;
+		c.weightx = 0.0;
+		c.ipady = 40;
+		c.gridwidth = 3;
+		JPanel everythingRow = new JPanel();
+		displayList3 = new JTextArea(10,50);
+		displayList3.setEditable(false);
+		displayList3.setText(printArrayList(Logic.getTempStorage()));
+		everythingRow.add(displayList3);
+		everythingRow.setOpaque(true);
+		everythingRow.setBorder(BorderFactory.createTitledBorder("All tasks"));
+		cp.add(everythingRow, c);
+		
+		c.fill = GridBagConstraints.BOTH;
+		c.gridwidth = 5;
+		c.gridx = 0;
+		c.gridy = 5;
 		c.weightx = 0.0;
 		c.ipady = 40;
 		c.gridwidth = 3;
@@ -126,6 +143,7 @@ public class DoubleUp extends JFrame {
 				String result = executeCommand(splitCommand, file);
 				textFieldCmdIn.setText("");  // clear input TextField
 				displayList.setText(printTodayList(createTodayList()));
+				displayList3.setText(printArrayList(Logic.getTempStorage()));
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
 		});
@@ -134,11 +152,11 @@ public class DoubleUp extends JFrame {
 	public static void main(String[] args) {
 		String fileName = "DoubleUp.txt";
 		file = openFile(fileName);
-		//ArrayList<Integer> numOfTask = Logic.init(file);
-		ArrayList<Integer> numOfTask = new ArrayList<Integer>();
-		numOfTask.add(5);
-		numOfTask.add(0);
-		numOfTask.add(1);
+		ArrayList<Integer> numOfTask = Logic.init(file);
+		//ArrayList<Integer> numOfTask = new ArrayList<Integer>();
+		//numOfTask.add(5);
+		//numOfTask.add(0);
+		//numOfTask.add(1);
 
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
