@@ -84,12 +84,13 @@ class Task {
 	@Override
 	public String toString(){
 		String sentence ="";
-		if (this.getTime() == null){
-			sentence +=  " [*] "; 
-		} else if (this.getTime().equals("null") ){
+		if (this.getTime() == null || this.getTime().equals("null") ){
 			sentence +=  " [*] "; 
 		} else {
 			sentence +=  " [" + this.getTime() +"] "; 
+		}
+		if (this.getDate() != null && !date.equals("null")){
+			sentence += "(" + this.getDate() + ") ";
 		}
 		sentence += this.getName();
 		if (importance !=0) {
