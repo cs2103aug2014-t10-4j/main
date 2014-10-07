@@ -109,5 +109,9 @@ public class Logic {
 		 stub.add(1);
 		return stub;
 	}
+	
+	public static ArrayList<Task> getTempStorage(){
+		return tempStorage;
+	}
 
 }

@@ -36,9 +36,6 @@ public class DoubleUp extends JFrame {
 
 	private static JTextField textFieldCmdIn, textFieldResultsOut;
 	private static JTextArea displayList;
-	final static boolean shouldFill = true;
-	final static boolean shouldWeightX = true;
-	final static boolean RIGHT_TO_LEFT = false;
 
 	public static File file;
 	private static final int LENGTH_OF_PAGE = 80;
@@ -82,7 +79,7 @@ public class DoubleUp extends JFrame {
 		JPanel middleRow = new JPanel();
 		displayList = new JTextArea(10,50);
 		displayList.setEditable(false);
-		displayList.setText(displayOnScreen(file));
+		displayList.setText(printArrayList(Logic.getTempStorage()));
 		middleRow.add(displayList);
 		middleRow.setOpaque(true);
 		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
@@ -110,7 +107,7 @@ public class DoubleUp extends JFrame {
 				String[] splitCommand = Parser.parseInput(userSentence);
 				String result = executeCommand(splitCommand, file);
 				textFieldCmdIn.setText("");  // clear input TextField
-				displayList.setText(displayOnScreen(file));
+				displayList.setText(printArrayList(createTodayList()));
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
 		});
@@ -163,7 +160,7 @@ public class DoubleUp extends JFrame {
 					 }
 				}*/
 		case DISPLAY_TEXT:
-			return displayOnScreen(file);
+			return printArrayList(createTodayList());
 		case DELETE_TEXT:
 			// return deleteLineFromFile(taskToExecute, file);
 			return "delete"; // stub
@@ -174,7 +171,7 @@ public class DoubleUp extends JFrame {
 			// return printArrayList ( search(taskToExecute, file) );
 			return "search"; // stub
 		case SORT:
-			/*String sortParams = splitCommand[6];
+			/*String sortParams = splitCommand[7s];
 			if (sortParams.equals("alpha"){
 				return sortByAlphabet(file);
 			} else if (sortParams.equals("importance")){
@@ -287,9 +284,15 @@ public class DoubleUp extends JFrame {
 		return help;
 	}
 
-	private static String createTodayList(File file) {
-		//String allTodayTasks = fetchTodayTask();
-		return getCurrentDate() + "(Today):" + "\n" + displayOnScreen(file) + createHorizLine("-",LENGTH_OF_PAGE/2);
+	private static ArrayList<Task> createTodayList() {
+		ArrayList<Task> allTasks = Logic.getTempStorage();
+		ArrayList<Task> todayTasks = new ArrayList<Task>();
+		for (int j = 0 ; j< allTasks.size() ; j++){
+			if (allTasks.get(j).getDate().equals(getTodayDate())){
+				todayTasks.add(allTasks.get(j));
+			}
+		}
+		return todayTasks;
 	}
 
 	//Creates a horizontal line for formatting the User Interface.
@@ -301,32 +304,15 @@ public class DoubleUp extends JFrame {
 		line += "\n";
 		return line;
 	}
-
-	// This function serves to display on the task in the text file.
-	private static String displayOnScreen(File file) {
-		Scanner input;
-		StringBuilder stringBuilder = new StringBuilder();
-		try {
-			input = new Scanner(file);
-			if (!input.hasNext()) {
-				input.close();
-				return (String.format(MSG_EMPTY_FILE, file.getName()));
-			}
-
-			else {
-				int listNum = 1;
-				while (input.hasNext()) {
-					stringBuilder.append(listNum + ". " + input.nextLine() + "\n");
-					listNum++;
-				}
-				stringBuilder.append("END");
-				input.close();
-			}
-		} catch (FileNotFoundException e) {
-			return (MSG_MISSING_FILE);
-		}
-		return stringBuilder.toString();
+	
+	//Same function as getCurrentDate except date is in another format
+	private static String getTodayDate() {
+		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
+		Date date = new Date();
+		String reportDate = dateFormat.format(date);
+		return reportDate;
 	}
+	
 
 	private static String getCurrentDate() {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
