@@ -247,12 +247,12 @@ public class DoubleUp extends JFrame {
 		ArrayList<Task> everyTask = Logic.getTempStorage();
 		if (everyTask.size() !=0){
 			String date = everyTask.get(0).getDate();
-			toPrint += date + " " + createHorizLine("=", LENGTH_OF_PAGE);
+			toPrint += createHorizLine("=", LENGTH_OF_PAGE/3) + date + " " + createHorizLine("=", LENGTH_OF_PAGE/3) +"\n" ;
 			for (int j = 0; j < everyTask.size() ; j ++){
 				String dateOfCurrentTask = everyTask.get(j).getDate();
 				if (! dateOfCurrentTask.equals(date)){
 					toPrint += "\n";
-					toPrint += dateOfCurrentTask + " " + createHorizLine("=", LENGTH_OF_PAGE);
+					toPrint += createHorizLine("=", LENGTH_OF_PAGE/3) + dateOfCurrentTask + " " + createHorizLine("=", LENGTH_OF_PAGE/3)+"\n" ;
 				}
 				toPrint += (j+1) + ". " + everyTask.get(j).toString() + "\n";
 			}
@@ -260,7 +260,7 @@ public class DoubleUp extends JFrame {
 		} else {
 			return MSG_EMPTY_ALL_DAYS;
 		}
-	
+
 	}
 
 	private static String showHelp() {
@@ -368,7 +368,6 @@ public class DoubleUp extends JFrame {
 		for (int i=0; i < numToDraw; i++){
 			line += charseq;
 		}
-		line += "\n";
 		return line;
 	}
 
