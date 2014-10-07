@@ -168,6 +168,11 @@ public class Logic {
 
 		return numTask;
 	}
+	
+	public static ArrayList<Task> getTempStorage(){
+		return tempStorage;
+	}
+
 
 	private static void getNumTasks(ArrayList<Integer> numTask,
 			ArrayList<Task> tempStorage2) {
