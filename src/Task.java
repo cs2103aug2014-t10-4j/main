@@ -83,7 +83,13 @@ class Task {
 	//This method can be used to print tasks for debugging.
 	@Override
 	public String toString(){
-		String sentence =  " [" + this.getTime() +"] " + this.getName();
+		String sentence ="";
+		if (this.getTime()==null){
+			sentence +=  " [*] "; 
+		} else {
+			sentence +=  " [" + this.getTime() +"] "; 
+		}
+		sentence += this.getName();
 		if (importance !=0) {
 			sentence += " [" + printImportance(importance) + "]";
 		}
