@@ -195,7 +195,7 @@ public class Logic {
 	}
 
 	public static ArrayList<Integer> init(File file) {
-		 tempStorage = Storage.copyToArrayList(file, tempStorage);
+		 Storage.copyToArrayList(file, tempStorage);
 		 // stub = getNumTasks()
 		 ArrayList<Integer> numTask = new ArrayList<Integer>();
 		 getNumTasks(numTask, tempStorage);
