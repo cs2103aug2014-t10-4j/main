@@ -109,7 +109,7 @@ public class Logic {
 			Storage.writeToFile(archiveStorage, archive);
 			return temp;
 		} catch (IndexOutOfBoundsException e) {
-			return String.format(BAD_INDEX_MESSAGE, index+1 , 1,
+			return String.format(BAD_INDEX_MESSAGE, index + 1, 1,
 					tempStorage.size());
 		}
 	}
@@ -117,15 +117,15 @@ public class Logic {
 	public static ArrayList<Task> search(Task task) {
 		searchResults.clear();
 		for (int i = 0; i < tempStorage.size(); i++) {
-			if (task.getName()!=null
+			if (task.getName() != null
 					&& !tempStorage.get(i).getName().contains(task.getName())) {
 				continue;
 			}
-			if (task.getDate()!= null
+			if (task.getDate() != null
 					&& !tempStorage.get(i).getDate().contains(task.getDate())) {
 				continue;
 			}
-			if (task.getTime()!= null
+			if (task.getTime() != null
 					&& !tempStorage.get(i).getTime().contains(task.getTime())) {
 				continue;
 			}
@@ -145,13 +145,21 @@ public class Logic {
 		return searchResults;
 	}
 
-	/*
-	 * public static String deleteLineFromSearchList (Task task, ArrayList<Task>
-	 * memory ){ if (memory.size() == 0) { return NO_MESSAGE_DELETE; } int index
-	 * = getIndex(task); return removeText (index, task, memory);
-	 * 
-	 * }
-	 */
+	public static String deleteLineFromSearchList(Task task,
+			ArrayList<Task> searchResults) {
+		if (searchResults.size() == 0) {
+			return NO_MESSAGE_DELETE;
+		}
+		int index = getIndex(task);
+		Task temp = searchResults.get(index);
+		for (int i = 0; i < tempStorage.size(); i++) {
+			if (tempStorage.get(i).equals(temp)) {
+				tempStorage.remove(i);
+			}
+		}
+		return String
+				.format(DELETE_MESSAGE, searchResults.get(index).getName());
+	}
 
 	// for delete from searched list of tasks.
 	// step 1 search from tempStorage display all the lists of tasks.
@@ -163,6 +171,7 @@ public class Logic {
 		Storage.writeToFile(null, file);
 	}
 
+
 	public static ArrayList<Integer> init(File file, File archive) {
 
 		 Storage.copyToArrayList(file, tempStorage);
@@ -170,13 +179,13 @@ public class Logic {
 		 ArrayList<Integer> numTask = new ArrayList<Integer>();
 		 getNumTasks(numTask, tempStorage);
 
+
 		return numTask;
 	}
-	
-	public static ArrayList<Task> getTempStorage(){
+
+	public static ArrayList<Task> getTempStorage() {
 		return tempStorage;
 	}
-
 
 	private static void getNumTasks(ArrayList<Integer> numTask,
 			ArrayList<Task> tempStorage) {
@@ -187,21 +196,22 @@ public class Logic {
 			int todayTask = INITIAL_VALUE;
 			int tomorrowTask = INITIAL_VALUE;
 			for (int i = 0; i < tempStorage.size(); i++) {
-				if (tempStorage.get(i).getDate().contains("ft")){
+				if (tempStorage.get(i).getDate().contains("ft")) {
 					continue;
-				}
-				else{
+				} else {
 					Date dateOfCurrentTask = new Date();
-					dateOfCurrentTask = dateFormat.parse(tempStorage.get(i).getDate());
+					dateOfCurrentTask = dateFormat.parse(tempStorage.get(i)
+							.getDate());
 					if (dateOfCurrentTask.compareTo(currentDate) == INITIAL_VALUE) {
 						todayTask++;
 					} else if (dateOfCurrentTask.compareTo(currentDate) == INITIAL_VALUE + 1) {
-					tomorrowTask++;
+						tomorrowTask++;
 					} else {
-						break; // During init, the tempStorage is already sorted by
-							// date and time.
+						break; // During init, the tempStorage is already sorted
+								// by
+								// date and time.
 					}
-			}
+				}
 			}
 			numTask.add(todayTask);
 			numTask.add(tomorrowTask);
@@ -210,17 +220,17 @@ public class Logic {
 		}
 	}
 
-
-
-	public static void sortByDateAndTime(ArrayList<Task> tempStorage){
+	public static void sortByDateAndTime(ArrayList<Task> tempStorage) {
 
 		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
 		DateFormat timeFormat = new SimpleDateFormat("HHmm");
 		dateFormat.setLenient(false);
 		timeFormat.setLenient(false);
-		if(tempStorage.size()<1){
-			
+		if (tempStorage.size() < 1) {
+
 			return;
+
+
 		}
 		else{
 			
@@ -241,47 +251,55 @@ public class Logic {
 							continue;
 						}
 						else{
+
 							Date dateOfFirstTask = new Date();
-							
-							dateOfFirstTask = dateFormat.parse(tempStorage.get(j).getDate());
-							
+
+							dateOfFirstTask = dateFormat.parse(tempStorage.get(
+									j).getDate());
+
 							Date dateOfSecondTask = new Date();
-							dateOfSecondTask = dateFormat.parse(tempStorage.get(j+1).getDate());
-							
-							if(dateOfFirstTask.compareTo(dateOfSecondTask)>0){
-								tempStorage.add(j+2,tempStorage.get(j));
+							dateOfSecondTask = dateFormat.parse(tempStorage
+									.get(j + 1).getDate());
+
+							if (dateOfFirstTask.compareTo(dateOfSecondTask) > 0) {
+								tempStorage.add(j + 2, tempStorage.get(j));
 								tempStorage.remove(j);
-								isSorted= false;
-							
-							}
-							else if(dateOfFirstTask.compareTo(dateOfSecondTask)==0){
-								if(tempStorage.get(j).getTime().equals("null")){
+								isSorted = false;
+
+							} else if (dateOfFirstTask
+									.compareTo(dateOfSecondTask) == 0) {
+								if (tempStorage.get(j).getTime().equals("null")) {
 									continue;
-								}
-								else if(!tempStorage.get(j).getTime().equals("null") && tempStorage.get(j+1).getTime().equals("null")){
-									tempStorage.add(j+2,tempStorage.get(j));
+								} else if (!tempStorage.get(j).getTime()
+										.equals("null")
+										&& tempStorage.get(j + 1).getTime()
+												.equals("null")) {
+									tempStorage.add(j + 2, tempStorage.get(j));
 									tempStorage.remove(j);
-									isSorted= false;
-								}
-								else{
+									isSorted = false;
+								} else {
 									Date timeOfFirstTask = new Date();
-									
-									timeOfFirstTask = timeFormat.parse(tempStorage.get(j).getTime());
-									
+
+									timeOfFirstTask = timeFormat
+											.parse(tempStorage.get(j).getTime());
+
 									Date timeOfSecondTask = new Date();
-									timeOfSecondTask = timeFormat.parse(tempStorage.get(j+1).getTime());
-								
-									if(timeOfFirstTask.compareTo(timeOfSecondTask)>0){
-										tempStorage.add(j+2,tempStorage.get(j));
+									timeOfSecondTask = timeFormat
+											.parse(tempStorage.get(j + 1)
+													.getTime());
+
+									if (timeOfFirstTask
+											.compareTo(timeOfSecondTask) > 0) {
+										tempStorage.add(j + 2,
+												tempStorage.get(j));
 										tempStorage.remove(j);
-										isSorted= false;
-									
+										isSorted = false;
+
 									}
 								}
 							}
 						}
-					}catch(Exception e){
-						
+					} catch (Exception e) {
 
 					}
 				}
@@ -359,17 +377,16 @@ public class Logic {
 		if (detailsOfTask.getDetails() != null) {
 			tempStorage.get(taskNumber).setDetails(detailsOfTask.getDetails());
 		}
-		if(detailsOfTask.getImportance()!= INITIAL_VALUE-1){
-		 tempStorage.get(taskNumber).setImportance(detailsOfTask.getImportance());
+		if (detailsOfTask.getImportance() != INITIAL_VALUE - 1) {
+			tempStorage.get(taskNumber).setImportance(
+					detailsOfTask.getImportance());
 		}
-		
+
 		sortByDateAndTime(tempStorage);
 		Storage.writeToFile(tempStorage, file);
-		
+
 		return "success";
 
 	}
-
-	
 
 }
