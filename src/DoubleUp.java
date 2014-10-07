@@ -165,7 +165,7 @@ public class DoubleUp extends JFrame {
 			// return deleteLineFromFile(taskToExecute, file);
 			return "delete"; // stub
 		case CLEAR_SCREEN:
-			// return clearContent(file);
+			// return Logic.clearContent(file);
 			return "clear"; // stub
 		case SEARCH:
 			// return printArrayList ( search(taskToExecute, file) );
