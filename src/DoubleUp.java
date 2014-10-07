@@ -179,11 +179,9 @@ public class DoubleUp extends JFrame {
 		case DISPLAY_TEXT:
 			return printArrayList(createTodayList());
 		case DELETE_TEXT:
-			// return deleteLineFromFile(taskToExecute, file);
-			return "delete"; // stub
+			return Logic.deleteLineFromFile(taskToExecute, file);
 		case EDIT:
-			//return Logic.edit(Task taskToExecute, file);
-			return "edit"; //stub
+			return Logic.edit(taskToExecute, file);
 		case CLEAR_SCREEN:
 			// return Logic.clearContent(file);
 			return "clear"; // stub
