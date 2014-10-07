@@ -342,49 +342,25 @@ public class Logic {
 
 	public static void edit(Task detailsOfTask, Task taskToBeEdited,
 			ArrayList<Task> tempStorage) {
-		int counter = exactMatchCounter(taskToBeEdited, tempStorage);
+		int taskNumber = getIndex(detailsOfTask);
 		if (detailsOfTask.getName() != null) {
-			tempStorage.get(counter).setName(detailsOfTask.getName());
+			tempStorage.get(taskNumber).setName(detailsOfTask.getName());
 		}
 		if (detailsOfTask.getDate() != null) {
-			tempStorage.get(counter).setDate(detailsOfTask.getDate());
+			tempStorage.get(taskNumber).setDate(detailsOfTask.getDate());
 		}
 		if (detailsOfTask.getTime() != null) {
-			tempStorage.get(counter).setTime(detailsOfTask.getTime());
+			tempStorage.get(taskNumber).setTime(detailsOfTask.getTime());
 		}
 		if (detailsOfTask.getDetails() != null) {
-			tempStorage.get(counter).setDetails(detailsOfTask.getDetails());
+			tempStorage.get(taskNumber).setDetails(detailsOfTask.getDetails());
 		}
-		// IMPORTANCE LEVEL MIGHT NOT HAVE CHANGED!! BEST IF SET IN THE DETAILS
-		// OF TASK TO BE A NEGATIVE NUMBER
-		// if(detailsOfTask.getImportance()!=
-		// tempStorage.get(counter).getImportance()){
-		// tempStorage.get(counter).setImportance(detailsOfTask.getImportance());
-		// }
+		if(detailsOfTask.getImportance()!= INITIAL_VALUE-1){
+		 tempStorage.get(taskNumber).setImportance(detailsOfTask.getImportance());
+		}
 
 	}
 
-	private static int exactMatchCounter(Task taskToBeEdited,
-			ArrayList<Task> tempStorage) {
-		int counter = INITIAL_VALUE;
-
-		for (int i = 0; i < tempStorage.size(); i++) {
-			if (taskToBeEdited.getName().equals(tempStorage.get(i).getName())
-					&& taskToBeEdited.getDate().equals(
-							tempStorage.get(i).getDate())
-					&& taskToBeEdited.getTime().equals(
-							tempStorage.get(i).getTime())
-					&& taskToBeEdited.getDetails().equals(
-							tempStorage.get(i).getDetails())
-					&& taskToBeEdited.getImportance() == tempStorage.get(i)
-							.getImportance()) {
-				break;
-			} else {
-
-				counter++;
-			}
-		}
-		return counter;
-	}
+	
 
 }
