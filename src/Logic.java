@@ -150,17 +150,28 @@ public class Logic {
 		}
 	}
 
-	public static ArrayList<Task> search(Task task){
-	
-		for (int i = 0; i < tempStorage.size() ; i++) {
-			if (tempStorage.contains(task.getName())) {
+	  public static ArrayList<Task> search(Task task){
+			for (int i = 0; i < tempStorage.size() ; i++) {
+				if (!task.getName().equals("null") && !tempStorage.get(i).getName().contains(task.getName())) {
+					continue;
+				}
+				if (!task.getDate().equals("null") && !tempStorage.get(i).getDate().contains(task.getDate())) {
+					continue;
+				}
+				if (!task.getTime().equals("null") && !tempStorage.get(i).getTime().contains(task.getTime())) {
+					continue;
+				}
+				if (!task.getDetails().equals("null") && !tempStorage.get(i).getDetails().contains(task.getDetails())) {
+					continue;
+				}
+				if (task.getImportance() != -1 && tempStorage.get(i).getImportance()!= task.getImportance()) {
+					continue;
+				}
 				searchResults.add(tempStorage.get(i));
-			//	addLineToFile(tempStorage.get(i), memory);
 			}
-		}
 
-		return searchResults;
-	}
+			return searchResults;
+		}
 	
 	/*public static String deleteLineFromSearchList (Task task, ArrayList<Task> memory ){ 
 	  if (memory.size() == 0) {
@@ -343,6 +354,3 @@ public class Logic {
 	}
 	
 }
-
-
-
