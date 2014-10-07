@@ -185,8 +185,8 @@ public class DoubleUp extends JFrame {
 			// return Logic.clearContent(file);
 			return "clear"; // stub
 		case SEARCH:
-			// return printArrayList ( search(taskToExecute, file) );
-			return "search"; // stub
+			return printArrayList ( Logic.search(taskToExecute) );
+			//return "search"; // stub
 		case SORT:
 			/*String sortParams = splitCommand[7s];
 			if (sortParams.equals("alpha"){
