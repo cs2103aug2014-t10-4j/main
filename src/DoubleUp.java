@@ -134,8 +134,8 @@ public class DoubleUp extends JFrame {
 	public static void main(String[] args) {
 		String fileName = "DoubleUp.txt";
 		file = openFile(fileName);
-		//ArrayList<Integer> numOfTask = Logic.init(file);
-		ArrayList<Integer> numOfTask = new ArrayList<Integer>();
+		ArrayList<Integer> numOfTask = Logic.init(file);
+		//ArrayList<Integer> numOfTask = new ArrayList<Integer>();
 		numOfTask.add(5);
 		numOfTask.add(0);
 		numOfTask.add(1);
