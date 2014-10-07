@@ -114,6 +114,7 @@ public class Logic {
 		if (task.getName() == null) {
 			return "error";
 		}
+		System.out.println("testing add");
 		tempStorage.add(task);
 		sortByDateAndTime(tempStorage);
 		Storage.writeToFile(tempStorage, file);
@@ -232,29 +233,74 @@ public class Logic {
 	}
 
 	public static void sortByDateAndTime(ArrayList<Task> tempStorage){
-		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm");
+
+		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
+		DateFormat timeFormat = new SimpleDateFormat("HHmm");
+		dateFormat.setLenient(false);
+		timeFormat.setLenient(false);
 		if(tempStorage.size()<1){
+			
 			return;
 		}
 		else{
+			
 			for (int i=0;i<tempStorage.size();i++){
 				boolean isSorted=true;
+				
 				for(int j=0;j<tempStorage.size()-1;j++){
+					
 					try{
-					Date dateAndTimeOfFirstTask = new Date();
-					dateAndTimeOfFirstTask = dateFormat.parse(tempStorage.get(j).getDate() +tempStorage.get(j).getTime());
-					
-					Date dateAndTimeOfSecondTask = new Date();
-					dateAndTimeOfSecondTask = dateFormat.parse(tempStorage.get(j+1).getDate() +tempStorage.get(j+1).getTime());
-					
-						if(dateAndTimeOfFirstTask.compareTo(dateAndTimeOfSecondTask)>0){
+						
+						if(tempStorage.get(j).getDate().equals("ft")){
+							continue;
+						}
+						else if(!tempStorage.get(j).getDate().equals("ft") && tempStorage.get(j+1).getDate().equals("ft")){
 							tempStorage.add(j+2,tempStorage.get(j));
 							tempStorage.remove(j);
 							isSorted= false;
+						}
+						else{
+							Date dateOfFirstTask = new Date();
 							
+							dateOfFirstTask = dateFormat.parse(tempStorage.get(j).getDate());
+							
+							Date dateOfSecondTask = new Date();
+							dateOfSecondTask = dateFormat.parse(tempStorage.get(j+1).getDate());
+							
+							if(dateOfFirstTask.compareTo(dateOfSecondTask)>0){
+								tempStorage.add(j+2,tempStorage.get(j));
+								tempStorage.remove(j);
+								isSorted= false;
+							
+							}
+							else if(dateOfFirstTask.compareTo(dateOfSecondTask)==0){
+								if(tempStorage.get(j).getTime().equals("null")){
+									continue;
+								}
+								else if(!tempStorage.get(j).getTime().equals("null") && tempStorage.get(j+1).getTime().equals("null")){
+									tempStorage.add(j+2,tempStorage.get(j));
+									tempStorage.remove(j);
+									isSorted= false;
+								}
+								else{
+									Date timeOfFirstTask = new Date();
+									
+									timeOfFirstTask = timeFormat.parse(tempStorage.get(j).getTime());
+									
+									Date timeOfSecondTask = new Date();
+									timeOfSecondTask = timeFormat.parse(tempStorage.get(j+1).getTime());
+								
+									if(timeOfFirstTask.compareTo(timeOfSecondTask)>0){
+										tempStorage.add(j+2,tempStorage.get(j));
+										tempStorage.remove(j);
+										isSorted= false;
+									
+									}
+								}
+							}
 						}
 					}catch(Exception e){
-					
+						
 					}
 				}
 				

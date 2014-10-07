@@ -16,7 +16,7 @@ public class Storage {
 	
 	// This function serves to write all the task in the text file into temp storage.
 	public static void copyToArrayList(File file, ArrayList<Task> tempStorage) {
-		System.out.println("Into copy to arraylist");
+		
 		Scanner input;
 		try {
 			input = new Scanner(file);
@@ -55,7 +55,7 @@ public class Storage {
 				input.close();
 			}
 		} catch (FileNotFoundException e) {
-			System.out.println("test fails");
+			
 		}
 	}
 
@@ -68,10 +68,6 @@ public class Storage {
 			fileWritten = new BufferedWriter(new FileWriter(file.getName(),true));
 			
 			for(int i=0; i<tempStorage.size();i++){
-				if (numberOfLine(file) > 0) {
-					fileWritten.newLine();
-					System.out.println("test Number of line");
-				}
 				
 				toWriteInFile = tempStorage.get(i).getName() + DIVIDER_DATE + tempStorage.get(i).getDate()
 						+ DIVIDER_TIME + tempStorage.get(i).getTime() + DIVIDER_DETAILS
@@ -88,28 +84,28 @@ public class Storage {
 	}
 	
 	// The function below serves to count the number of lines of text present in the file.
-	private static Integer numberOfLine(File file) {
-		Scanner input;
-		int lineNum = 0;
-		try {
-			input = new Scanner(file);
-
-			if (!input.hasNext()) {
-				input.close();
-					return lineNum;
-				} 
-			else {
-				while (input.hasNext()) {
-					input.nextLine();
-					lineNum++;
-				}
-			input.close();				}
-			} catch (FileNotFoundException e) {
-				return null;
-			}
-		return lineNum;
-	}
-		
+	/*private static Integer numberOfLine(File file) {
+	*	Scanner input;
+	*	int lineNum = 0;
+	*	try {
+	*		input = new Scanner(file);
+*
+*			if (!input.hasNext()) {
+*				input.close();
+*					return lineNum;
+*				} 
+*			else {
+*				while (input.hasNext()) {
+*					input.nextLine();
+*					lineNum++;
+*				}
+*			input.close();				}
+*			} catch (FileNotFoundException e) {
+*				return null;
+*			}
+*		return lineNum;
+*	}
+*/		
 	// This function serves to clear the file.
 	private static void clear(File file) {
 		try {
