@@ -101,7 +101,8 @@ public class Logic {
 		}
 		try {
 			String temp = String.format(DELETE_MESSAGE, file.getName(),
-					tempStorage.remove(index));
+					tempStorage.get(index).getName());
+			tempStorage.remove(index);
 			sortByDateAndTime(tempStorage);
 			Storage.writeToFile(tempStorage, file);
 			return temp;
@@ -162,7 +163,6 @@ public class Logic {
 	public static ArrayList<Integer> init(File file) {
 
 		 Storage.copyToArrayList(file, tempStorage);
-		 // stub = getNumTasks()
 		 ArrayList<Integer> numTask = new ArrayList<Integer>();
 		 getNumTasks(numTask, tempStorage);
 
