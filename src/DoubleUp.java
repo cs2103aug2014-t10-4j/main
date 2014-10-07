@@ -31,6 +31,7 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_EMPTY_FILE = "%s is empty.";
 	private static final String MSG_EMPTY_TODAY = "No tasks for today!";
 	private static final String MSG_EMPTY_ALL_DAYS = "No tasks for anyday!";
+	private static final String MSG_EMPTY_FLOATING = "No floating tasks!";
 	private static final String MSG_COMMAND_LINE = "Enter a command: ";
 	private static final String MSG_RESULT = "Result: ";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
@@ -118,7 +119,7 @@ public class DoubleUp extends JFrame {
 		JPanel thirdRow = new JPanel();
 		displayPanelFloatingTasks = new JTextArea(5,50);
 		displayPanelFloatingTasks.setEditable(false);
-		displayPanelFloatingTasks.setText("Dummy! Supposed to show floating tasks");
+		displayPanelFloatingTasks.setText(printFloatingList());
 		JScrollPane scroll3 = new JScrollPane(displayPanelFloatingTasks);
 		thirdRow.add(scroll3);
 		thirdRow.setOpaque(true);
@@ -150,6 +151,7 @@ public class DoubleUp extends JFrame {
 				textFieldCmdIn.setText("");  // clear input TextField
 				displayPanelTodayTasks.setText(printTodayList(createTodayList()));
 				displayPanelAllTasks.setText(printEveryTask());
+				displayPanelFloatingTasks.setText(printFloatingList());
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
 		});
@@ -229,11 +231,25 @@ public class DoubleUp extends JFrame {
 			return MSG_INVALID_COMMAND;
 		}
 	}
-	private static String printTodayList(ArrayList<Task> listOfTasks){
+	private static String printTodayList (ArrayList<Task> listOfTasks){
 		if (listOfTasks.size() ==0){
 			return MSG_EMPTY_TODAY;
 		} else {
 			return printArrayList(listOfTasks);
+		}
+	}
+	private static String printFloatingList (){
+		ArrayList<Task> allTasks = Logic.getTempStorage();
+		ArrayList <Task> listOfFloating = new ArrayList<Task>();
+		for (int j=0; j < allTasks.size(); j++){
+			if (allTasks.get(j).getDate().equals("ft")){
+				listOfFloating.add(allTasks.get(j));
+			}
+		}
+		if (listOfFloating.size() == 0){
+			return MSG_EMPTY_FLOATING;
+		} else {
+			return printArrayList(listOfFloating);
 		}
 	}
 
@@ -249,20 +265,20 @@ public class DoubleUp extends JFrame {
 		ArrayList<Task> everyTask = Logic.getTempStorage();
 		if (everyTask.size() !=0){
 			String date = everyTask.get(0).getDate();
-			toPrint += createHorizLine("=", LENGTH_OF_PAGE/3) + date + " " + createHorizLine("=", LENGTH_OF_PAGE/3) +"\n" ;
+			toPrint += createHorizLine("=", 20) + date + " " + createHorizLine("=", 20) + "\n";
 			for (int j = 0; j < everyTask.size() ; j ++){
 				String dateOfCurrentTask = everyTask.get(j).getDate();
 				if (! dateOfCurrentTask.equals(date)){
 					toPrint += "\n";
-					toPrint += createHorizLine("=", LENGTH_OF_PAGE/3) + dateOfCurrentTask + " " + createHorizLine("=", LENGTH_OF_PAGE/3)+"\n" ;
+					toPrint += createHorizLine("=", 20) + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
 				}
 				toPrint += (j+1) + ". " + everyTask.get(j).toString() + "\n";
+				date = dateOfCurrentTask;
 			}
 			return toPrint;
 		} else {
 			return MSG_EMPTY_ALL_DAYS;
 		}
-
 	}
 
 	private static String showHelp() {
