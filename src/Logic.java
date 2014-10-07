@@ -71,7 +71,6 @@ public class Logic {
 		if (task.getName() == null) {
 			return "error";
 		}
-		System.out.println("testing add");
 		tempStorage.add(task);
 		sortByDateAndTime(tempStorage);
 		Storage.writeToFile(tempStorage, file);

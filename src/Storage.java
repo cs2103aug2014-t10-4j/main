@@ -84,29 +84,7 @@ public class Storage {
 		return true;
 	}
 	
-	// The function below serves to count the number of lines of text present in the file.
-	/*private static Integer numberOfLine(File file) {
-	*	Scanner input;
-	*	int lineNum = 0;
-	*	try {
-	*		input = new Scanner(file);
-*
-*			if (!input.hasNext()) {
-*				input.close();
-*					return lineNum;
-*				} 
-*			else {
-*				while (input.hasNext()) {
-*					input.nextLine();
-*					lineNum++;
-*				}
-*			input.close();				}
-*			} catch (FileNotFoundException e) {
-*				return null;
-*			}
-*		return lineNum;
-*	}
-*/		
+	
 	// This function serves to clear the file.
 	private static void clear(File file) {
 		try {
