@@ -27,6 +27,7 @@ public class Logic {
 	private static final int INVAILD_NUMBER = -1;
 
 	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
+	private static ArrayList<Task> archiveStorage = new ArrayList<Task>();
 	private static ArrayList<Task> memory = new ArrayList<Task>();
 	private static ArrayList<Task> searchTask;
 	private static ArrayList<Task> searchResults = new ArrayList<Task>();
@@ -78,12 +79,12 @@ public class Logic {
 		return String.format(ADD_MESSAGE, file.getName(), task.getName());
 	}
 
-	public static String deleteLineFromFile(Task task, File file) {
+	public static String deleteLineFromFile(Task task, File file,File archive) {
 		if (tempStorage.size() == 0) {
 			return NO_MESSAGE_DELETE;
 		}
 		int index = getIndex(task);
-		return removeText(index, task, file);
+		return removeText(index, task, file, archive);
 	}
 
 	public static int getIndex(Task task) {
@@ -95,16 +96,18 @@ public class Logic {
 		return INVAILD_NUMBER;
 	}
 
-	public static String removeText(int index, Task task, File file) {
+	public static String removeText(int index, Task task, File file, File archive) {
 		if (index == INVAILD_NUMBER) {
 			return NO_MESSAGE_DELETE;
 		}
 		try {
 			String temp = String.format(DELETE_MESSAGE, file.getName(),
 					tempStorage.get(index).getName());
-			tempStorage.remove(index);
+			archiveStorage.add(tempStorage.remove(index));
 			sortByDateAndTime(tempStorage);
+			sortByDateAndTime(archiveStorage);
 			Storage.writeToFile(tempStorage, file);
+			Storage.writeToFile(archiveStorage, archive);
 			return temp;
 		} catch (IndexOutOfBoundsException e) {
 			return String.format(BAD_INDEX_MESSAGE, index+1 , 1,
@@ -161,9 +164,10 @@ public class Logic {
 		Storage.writeToFile(null, file);
 	}
 
-	public static ArrayList<Integer> init(File file) {
+	public static ArrayList<Integer> init(File file, File archive) {
 
 		 Storage.copyToArrayList(file, tempStorage);
+		 Storage.copyToArrayList(archive, archiveStorage);
 		 ArrayList<Integer> numTask = new ArrayList<Integer>();
 		 getNumTasks(numTask, tempStorage);
 

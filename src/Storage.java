@@ -12,6 +12,7 @@ public class Storage {
 	private static final String DIVIDER_TIME = "//!@#DOUBLEUP_DIVIDER_TIME#@!//";
 	private static final String DIVIDER_DETAILS = "//!@#DOUBLEUP_DIVIDER_DETAILS#@!//";
 	private static final String DIVIDER_IMPORTANCE = "//!@#DOUBLEUP_DIVIDER_IMPORTANCE#@!//";
+	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 
 	
 	// This function serves to write all the task in the text file into temp storage.
@@ -114,6 +115,20 @@ public class Storage {
 			
 		}
 			
+	}
+	
+	// Creates a text file if the text file is missing or for first time usage.
+	public static File openFile(String fileName) {
+		File file = new File(fileName);
+		try {
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+		} catch (IOException e) {
+			System.out.println(MSG_FAIL_READ_FILE);
+			System.exit(1);
+		}
+		return file;
 	}
 
 }
