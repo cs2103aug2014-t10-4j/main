@@ -20,11 +20,20 @@ import java.text.SimpleDateFormat;
 
 public class Logic {
 	private static final String MSG_FAIL_ADD = "Unable to add line.";
+	private static final String DELETE_MESSAGE = "deleted from %s: \"%s\"";
+	private static final String WRONG_FORMAT = "\"%s\" is wrong format";
+	private static final String BAD_INDEX_MESSAGE = "%d is not a valid number.Valid range is %d to %d.";
 	public static String ADD_MESSAGE = "added to %s: \"%s\"";
 	private static final int INITIAL_VALUE = 0;
-	
+	private static final String NO_MESSAGE_DELETE = "nothing to delete!";
+	private static final int INVAILD_NUMBER = -1;
+
 	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
+	private static ArrayList<Task> memory = new ArrayList<Task>();
+	private static ArrayList<Task> searchTask;
+	private static ArrayList<Task> searchResults = new ArrayList<Task>();
 	private File file;
+	
 
 	
 	/*
@@ -97,6 +106,10 @@ public class Logic {
 		return file.length() <= 0;
 	}
 */
+	private static void showToUser(String message) {
+		System.out.println(message);
+	}
+	
 	public static String addLineToFile(Task task, File file) {
 		if (task.getName() == null) {
 			return "error";
@@ -106,6 +119,68 @@ public class Logic {
 		Storage.writeToFile(tempStorage, file);
 		
 		return String.format(ADD_MESSAGE,file.getName(), task.getName());
+	}
+	
+	public static String deleteLineFromFile(Task task, File file){ 
+		  if (tempStorage.size() == 0) {
+			  return NO_MESSAGE_DELETE;
+		  }
+			int index = getIndex(task);
+			return removeText(index, task, file);
+			
+		}
+	public static int getIndex(Task task) {
+		try {
+			return Integer.parseInt(task.getName()) - 1;
+		} catch (NumberFormatException e) {
+			showToUser(String.format(WRONG_FORMAT, task.getName()));
+		}
+		return INVAILD_NUMBER;
+	}
+	
+	public static String removeText(int index,Task task, File file) {
+		if (index== INVAILD_NUMBER) {
+			return NO_MESSAGE_DELETE;
+		}
+		try {
+			return String.format(DELETE_MESSAGE, file.getName(),
+					tempStorage.remove(index));
+		} catch (IndexOutOfBoundsException e) {
+			return String.format(BAD_INDEX_MESSAGE, index, 1, tempStorage.size());
+		}
+	}
+
+	public static ArrayList<Task> search(Task task){
+	
+		for (int i = 0; i < tempStorage.size() ; i++) {
+			if (tempStorage.contains(task.getName())) {
+				searchResults.add(tempStorage.get(i));
+			//	addLineToFile(tempStorage.get(i), memory);
+			}
+		}
+
+		return searchResults;
+	}
+	
+	/*public static String deleteLineFromSearchList (Task task, ArrayList<Task> memory ){ 
+	  if (memory.size() == 0) {
+		  return NO_MESSAGE_DELETE;
+	  }
+		int index = getIndex(task);
+		return removeText (index, task, memory);
+		
+	} 
+	*/
+	
+	
+	
+	//for delete from searched list of tasks.
+	//step 1 search from tempStorage display all the lists of tasks.
+	//step 2 add these tasks one by one to the other temp storage(memory).
+	//step3 get the contain for the delete task. delete the task use equals .
+	public void clearContent() {
+		tempStorage.clear();
+		Storage.writeToFile(null, file);
 	}
 
 	public static ArrayList<Integer> init(File file) {
