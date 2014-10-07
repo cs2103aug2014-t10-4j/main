@@ -12,6 +12,7 @@ public class Storage {
 	private static final String DIVIDER_TIME = "//!@#DOUBLEUP_DIVIDER_TIME#@!//";
 	private static final String DIVIDER_DETAILS = "//!@#DOUBLEUP_DIVIDER_DETAILS#@!//";
 	private static final String DIVIDER_IMPORTANCE = "//!@#DOUBLEUP_DIVIDER_IMPORTANCE#@!//";
+	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 
 	
 	// This function serves to write all the task in the text file into temp storage.
@@ -83,29 +84,7 @@ public class Storage {
 		return true;
 	}
 	
-	// The function below serves to count the number of lines of text present in the file.
-	/*private static Integer numberOfLine(File file) {
-	*	Scanner input;
-	*	int lineNum = 0;
-	*	try {
-	*		input = new Scanner(file);
-*
-*			if (!input.hasNext()) {
-*				input.close();
-*					return lineNum;
-*				} 
-*			else {
-*				while (input.hasNext()) {
-*					input.nextLine();
-*					lineNum++;
-*				}
-*			input.close();				}
-*			} catch (FileNotFoundException e) {
-*				return null;
-*			}
-*		return lineNum;
-*	}
-*/		
+	
 	// This function serves to clear the file.
 	private static void clear(File file) {
 		try {
@@ -114,6 +93,20 @@ public class Storage {
 			
 		}
 			
+	}
+	
+	// Creates a text file if the text file is missing or for first time usage.
+	public static File openFile(String fileName) {
+		File file = new File(fileName);
+		try {
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+		} catch (IOException e) {
+			System.out.println(MSG_FAIL_READ_FILE);
+			System.exit(1);
+		}
+		return file;
 	}
 
 }
