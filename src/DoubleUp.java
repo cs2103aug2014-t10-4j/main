@@ -16,6 +16,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -36,7 +37,7 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_INVALID_COMMAND = "Invalid command";
 
 	private static JTextField textFieldCmdIn, textFieldResultsOut;
-	private static JTextArea displayList, displayList2;
+	private static JTextArea displayPanelTodayTasks, displayPanelFloatingTasks, displayPanelAllTasks;
 
 	public static File file;
 	private static final int LENGTH_OF_PAGE = 80;
@@ -69,7 +70,7 @@ public class DoubleUp extends JFrame {
 		topRow.add(textFieldCmdIn);
 		cp.add(topRow,c);
 
-		//second panel
+		// Today panel
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 5;
 		c.gridx = 0;
@@ -78,14 +79,16 @@ public class DoubleUp extends JFrame {
 		c.ipady = 40;
 		c.gridwidth = 3;
 		JPanel middleRow = new JPanel();
-		displayList = new JTextArea(10,50);
-		displayList.setEditable(false);
-		displayList.setText(printTodayList(createTodayList()));
-		middleRow.add(displayList);
+		displayPanelTodayTasks = new JTextArea(10,50);
+		displayPanelTodayTasks.setEditable(false);
+		displayPanelTodayTasks.setText(printTodayList(createTodayList()));
+		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks);
+		middleRow.add(scroll);
 		middleRow.setOpaque(true);
 		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
 		cp.add(middleRow, c);
 		
+		//everything tasks panel
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 5;
 		c.gridx = 0;
@@ -93,11 +96,29 @@ public class DoubleUp extends JFrame {
 		c.weightx = 0.0;
 		c.ipady = 40;
 		c.gridwidth = 3;
+		JPanel everythingRow = new JPanel();
+		displayPanelAllTasks = new JTextArea(10,50);
+		displayPanelAllTasks.setEditable(false);
+		displayPanelAllTasks.setText(printArrayList(Logic.getTempStorage()));
+		JScrollPane scroll2 = new JScrollPane(displayPanelAllTasks);
+		everythingRow.add(scroll2);
+		everythingRow.setOpaque(true);
+		everythingRow.setBorder(BorderFactory.createTitledBorder("All tasks"));
+		cp.add(everythingRow, c);
+		
+		c.fill = GridBagConstraints.BOTH;
+		c.gridwidth = 5;
+		c.gridx = 0;
+		c.gridy = 5;
+		c.weightx = 0.0;
+		c.ipady = 40;
+		c.gridwidth = 3;
 		JPanel thirdRow = new JPanel();
-		displayList2 = new JTextArea(5,50);
-		displayList2.setEditable(false);
-		displayList2.setText("Dummy! Supposed to show floating tasks");
-		thirdRow.add(displayList2);
+		displayPanelFloatingTasks = new JTextArea(5,50);
+		displayPanelFloatingTasks.setEditable(false);
+		displayPanelFloatingTasks.setText("Dummy! Supposed to show floating tasks");
+		JScrollPane scroll3 = new JScrollPane(displayPanelFloatingTasks);
+		thirdRow.add(scroll3);
 		thirdRow.setOpaque(true);
 		thirdRow.setBorder(BorderFactory.createTitledBorder("Floating tasks:"));
 		cp.add(thirdRow, c);
@@ -125,7 +146,8 @@ public class DoubleUp extends JFrame {
 				String[] splitCommand = Parser.parseInput(userSentence);
 				String result = executeCommand(splitCommand, file);
 				textFieldCmdIn.setText("");  // clear input TextField
-				displayList.setText(printTodayList(createTodayList()));
+				displayPanelTodayTasks.setText(printTodayList(createTodayList()));
+				displayPanelAllTasks.setText(printArrayList(Logic.getTempStorage()));
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
 		});
@@ -135,11 +157,7 @@ public class DoubleUp extends JFrame {
 		String fileName = "DoubleUp.txt";
 		file = openFile(fileName);
 		ArrayList<Integer> numOfTask = Logic.init(file);
-		//ArrayList<Integer> numOfTask = new ArrayList<Integer>();
-		numOfTask.add(5);
-		numOfTask.add(0);
-		numOfTask.add(1);
-
+		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -217,7 +235,6 @@ public class DoubleUp extends JFrame {
 	}
 
 	private static String printArrayList(ArrayList<Task> listOfTasks){
-
 		String toPrint ="";
 		for (int j = 0; j < listOfTasks.size() ; j ++){
 			toPrint += (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
@@ -365,6 +382,6 @@ public class DoubleUp extends JFrame {
 	}
 
 	public static void messageToUser(String text) {
-		displayList.setText(text);
+		displayPanelTodayTasks.setText(text);
 	}
 }
