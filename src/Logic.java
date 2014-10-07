@@ -152,6 +152,7 @@ public class Logic {
 	// step 1 search from tempStorage display all the lists of tasks.
 	// step 2 add these tasks one by one to the other temp storage(memory).
 	// step3 get the contain for the delete task. delete the task use equals .
+
 	public void clearContent() {
 		tempStorage.clear();
 		Storage.writeToFile(null, file);
@@ -305,11 +306,13 @@ public class Logic {
 		// tempStorage.get(counter).getImportance()){
 		// tempStorage.get(counter).setImportance(detailsOfTask.getImportance());
 		// }
+
 	}
 
 	private static int exactMatchCounter(Task taskToBeEdited,
 			ArrayList<Task> tempStorage) {
 		int counter = INITIAL_VALUE;
+
 		for (int i = 0; i < tempStorage.size(); i++) {
 			if (taskToBeEdited.getName().equals(tempStorage.get(i).getName())
 					&& taskToBeEdited.getDate().equals(
@@ -322,6 +325,7 @@ public class Logic {
 							.getImportance()) {
 				break;
 			} else {
+
 				counter++;
 			}
 		}

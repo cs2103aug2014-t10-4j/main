@@ -9,15 +9,17 @@ class Task {
 	private String time;
 	private String details;
 	private int importance;
-	
+
 	public Task(String[] splitTask){
 		this.name = splitTask[1];
 		this.date = splitTask[2];
 		this.time = splitTask[3];
 		this.details = splitTask[4];
-		//this.importance = Integer.parseInt(splitTask[5]);
+		if (splitTask[5] != null){
+			this.importance = Integer.parseInt(splitTask[5]);
+		}
 	}
-	
+
 	public Task(){
 		this.name = null;
 		this.date = null;
@@ -25,7 +27,7 @@ class Task {
 		this.details = null;
 		this.importance = 0;
 	}
-	
+
 	//Accessors
 	public String getName(){
 		return name;
@@ -42,7 +44,7 @@ class Task {
 	public int getImportance(){
 		return importance;
 	}
-	
+
 	//Mutators
 	public void setName(String newName){
 		this.name = newName;
@@ -59,13 +61,20 @@ class Task {
 	public void setImportance(int newImportance){
 		this.importance = newImportance;
 	}
-	
+
 	//This method can be used to print tasks for debugging.
 	@Override
 	public String toString(){
-		return "[" + this.getTime() +"]" + this.getName();
+		String sentence =  " [" + this.getTime() +"] " + this.getName();
+		if (importance !=0) {
+			sentence += " [" + printImportance(importance) + "]";
+		}
+		if (details != null){
+			sentence += " [+] ";
+		}
+		return sentence;
 	}
-	
+
 	//This overrode method can perhaps be used for search and other methods.
 	@Override
 	public boolean equals(Object obj) {
@@ -76,5 +85,13 @@ class Task {
 		} else {
 			return false;
 		}
+	}
+	//Return a number of ! based on importance number
+	private String printImportance (int num){
+		String toPrint = "";
+		for (int j=0; j < num; j++){
+			toPrint += "!";
+		}
+		return toPrint;
 	}
 }
