@@ -340,8 +340,7 @@ public class Logic {
 		}
 	}
 
-	public static void edit(Task detailsOfTask, Task taskToBeEdited,
-			ArrayList<Task> tempStorage) {
+	public static void edit(Task detailsOfTask) {
 		int taskNumber = getIndex(detailsOfTask);
 		if (detailsOfTask.getName() != null) {
 			tempStorage.get(taskNumber).setName(detailsOfTask.getName());
