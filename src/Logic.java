@@ -107,7 +107,7 @@ public class Logic {
 			Storage.writeToFile(tempStorage, file);
 			return temp;
 		} catch (IndexOutOfBoundsException e) {
-			return String.format(BAD_INDEX_MESSAGE, index, 1,
+			return String.format(BAD_INDEX_MESSAGE, index+1 , 1,
 					tempStorage.size());
 		}
 	}
