@@ -231,13 +231,14 @@ public class Logic {
 					
 					try{
 						
-						if(tempStorage.get(j).getDate().equals("ft")){
-							continue;
-						}
-						else if(!tempStorage.get(j).getDate().equals("ft") && tempStorage.get(j+1).getDate().equals("ft")){
+						if(tempStorage.get(j).getDate().equals("ft")&& !tempStorage.get(j+1).getDate().equals("ft")){
+							
 							tempStorage.add(j+2,tempStorage.get(j));
 							tempStorage.remove(j);
 							isSorted= false;
+						}
+						else if(!tempStorage.get(j).getDate().equals("ft") && tempStorage.get(j+1).getDate().equals("ft")){
+							continue;
 						}
 						else{
 							Date dateOfFirstTask = new Date();
