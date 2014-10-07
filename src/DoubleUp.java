@@ -28,6 +28,7 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_GOAL = "Your goal is: ";
 	private static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
 	private static final String MSG_EMPTY_FILE = "%s is empty.";
+	private static final String MSG_EMPTY_TODAY = "No tasks for today!";
 	private static final String MSG_COMMAND_LINE = "Enter a command: ";
 	private static final String MSG_RESULT = "Result: ";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
@@ -79,7 +80,7 @@ public class DoubleUp extends JFrame {
 		JPanel middleRow = new JPanel();
 		displayList = new JTextArea(10,50);
 		displayList.setEditable(false);
-		displayList.setText(printArrayList(createTodayList()));
+		displayList.setText(printTodayList(createTodayList()));
 		middleRow.add(displayList);
 		middleRow.setOpaque(true);
 		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
@@ -107,7 +108,7 @@ public class DoubleUp extends JFrame {
 				String[] splitCommand = Parser.parseInput(userSentence);
 				String result = executeCommand(splitCommand, file);
 				textFieldCmdIn.setText("");  // clear input TextField
-				displayList.setText(printArrayList(createTodayList()));
+				displayList.setText(printTodayList(createTodayList()));
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
 		});
@@ -121,7 +122,6 @@ public class DoubleUp extends JFrame {
 		numOfTask.add(5);
 		numOfTask.add(0);
 		numOfTask.add(1);
-
 
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -188,8 +188,16 @@ public class DoubleUp extends JFrame {
 			return MSG_INVALID_COMMAND;
 		}
 	}
+	private static String printTodayList(ArrayList<Task> listOfTasks){
+		if (listOfTasks.size() ==0){
+			return MSG_EMPTY_TODAY;
+		} else {
+			return printArrayList(listOfTasks);
+		}
+	}
 
 	private static String printArrayList(ArrayList<Task> listOfTasks){
+
 		String toPrint ="";
 		for (int j = 0; j < listOfTasks.size() ; j ++){
 			toPrint += (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
@@ -214,8 +222,7 @@ public class DoubleUp extends JFrame {
 		return toPrint;
 	}
 
-	// This method is used to determine the command types given the first word
-	// of the command.
+	// This method is used to determine the command types given the first word of the command.
 	private static CommandType determineCommandType(String commandTypeString) {
 		if (commandTypeString == null) {
 			throw new Error("command type string cannot be null!");
