@@ -139,11 +139,15 @@ public class Logic {
 
 		return searchResults;
 	}
+	
 
 	/*
-	 * public static String deleteLineFromSearchList (Task task, ArrayList<Task>
-	 * memory ){ if (memory.size() == 0) { return NO_MESSAGE_DELETE; } int index
-	 * = getIndex(task); return removeText (index, task, memory);
+	 * public static String deleteLineFromSearchList (Task task, ArrayList<Task> memory ){ 
+	 * if (searchResults.size() == 0) {
+	 *  return NO_MESSAGE_DELETE;
+	 * } 
+	 * int index = getIndex(task); 
+	 * return removeText (index, task, memory);
 	 * 
 	 * }
 	 */
@@ -159,7 +163,7 @@ public class Logic {
 	}
 
 	public static ArrayList<Integer> init(File file) {
-		tempStorage = Storage.copyToArrayList(file, tempStorage);
+	Storage.copyToArrayList (file, tempStorage);
 		// stub = getNumTasks()
 		ArrayList<Integer> numTask = new ArrayList<Integer>();
 		getNumTasks(numTask, tempStorage);
