@@ -16,6 +16,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -69,7 +70,7 @@ public class DoubleUp extends JFrame {
 		topRow.add(textFieldCmdIn);
 		cp.add(topRow,c);
 
-		//second panel
+		// Today panel
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 5;
 		c.gridx = 0;
@@ -81,7 +82,8 @@ public class DoubleUp extends JFrame {
 		displayPanelTodayTasks = new JTextArea(10,50);
 		displayPanelTodayTasks.setEditable(false);
 		displayPanelTodayTasks.setText(printTodayList(createTodayList()));
-		middleRow.add(displayPanelTodayTasks);
+		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks);
+		middleRow.add(scroll);
 		middleRow.setOpaque(true);
 		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
 		cp.add(middleRow, c);
@@ -98,7 +100,8 @@ public class DoubleUp extends JFrame {
 		displayPanelAllTasks = new JTextArea(10,50);
 		displayPanelAllTasks.setEditable(false);
 		displayPanelAllTasks.setText(printArrayList(Logic.getTempStorage()));
-		everythingRow.add(displayPanelAllTasks);
+		JScrollPane scroll2 = new JScrollPane(displayPanelAllTasks);
+		everythingRow.add(scroll2);
 		everythingRow.setOpaque(true);
 		everythingRow.setBorder(BorderFactory.createTitledBorder("All tasks"));
 		cp.add(everythingRow, c);
@@ -114,7 +117,8 @@ public class DoubleUp extends JFrame {
 		displayPanelFloatingTasks = new JTextArea(5,50);
 		displayPanelFloatingTasks.setEditable(false);
 		displayPanelFloatingTasks.setText("Dummy! Supposed to show floating tasks");
-		thirdRow.add(displayPanelFloatingTasks);
+		JScrollPane scroll3 = new JScrollPane(displayPanelFloatingTasks);
+		thirdRow.add(scroll3);
 		thirdRow.setOpaque(true);
 		thirdRow.setBorder(BorderFactory.createTitledBorder("Floating tasks:"));
 		cp.add(thirdRow, c);
@@ -153,11 +157,7 @@ public class DoubleUp extends JFrame {
 		String fileName = "DoubleUp.txt";
 		file = openFile(fileName);
 		ArrayList<Integer> numOfTask = Logic.init(file);
-		//ArrayList<Integer> numOfTask = new ArrayList<Integer>();
-		//numOfTask.add(5);
-		//numOfTask.add(0);
-		//numOfTask.add(1);
-
+		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -235,7 +235,6 @@ public class DoubleUp extends JFrame {
 	}
 
 	private static String printArrayList(ArrayList<Task> listOfTasks){
-
 		String toPrint ="";
 		for (int j = 0; j < listOfTasks.size() ; j ++){
 			toPrint += (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
