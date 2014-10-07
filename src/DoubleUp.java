@@ -42,7 +42,7 @@ public class DoubleUp extends JFrame {
 	private static final int LENGTH_OF_PAGE = 80;
 
 	enum CommandType {
-		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_SCREEN, EXIT, INVALID, SEARCH, SORT, HELP;
+		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_SCREEN, EDIT, EXIT, INVALID, SEARCH, SORT, HELP;
 	};
 
 	public static void createAndShowGUI() {
@@ -181,6 +181,9 @@ public class DoubleUp extends JFrame {
 		case DELETE_TEXT:
 			// return deleteLineFromFile(taskToExecute, file);
 			return "delete"; // stub
+		case EDIT:
+			//return Logic.edit(Task taskToExecute, file);
+			return "edit"; //stub
 		case CLEAR_SCREEN:
 			// return Logic.clearContent(file);
 			return "clear"; // stub
@@ -252,6 +255,8 @@ public class DoubleUp extends JFrame {
 			return CommandType.DELETE_TEXT;
 		} else if (commandTypeString.equalsIgnoreCase("clear")) {
 			return CommandType.CLEAR_SCREEN;
+		} else if (commandTypeString.equalsIgnoreCase("edit")) {
+			return CommandType.EDIT;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
 			return CommandType.EXIT;
 		} else if (commandTypeString.equalsIgnoreCase("search")) {

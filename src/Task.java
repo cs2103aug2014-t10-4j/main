@@ -29,7 +29,7 @@ class Task {
 		this.date = null;
 		this.time = null;
 		this.details = null;
-		this.importance = 0;
+		this.importance = -1;
 		this.error = null;
 		this.params = null;
 	}
@@ -84,7 +84,9 @@ class Task {
 	@Override
 	public String toString(){
 		String sentence ="";
-		if (this.getTime()==null){
+		if (this.getTime() == null){
+			sentence +=  " [*] "; 
+		} else if (this.getTime().equals("null") ){
 			sentence +=  " [*] "; 
 		} else {
 			sentence +=  " [" + this.getTime() +"] "; 
@@ -93,7 +95,7 @@ class Task {
 		if (importance !=0) {
 			sentence += " [" + printImportance(importance) + "]";
 		}
-		if (details != null){
+		if (details != null && !details.equals("null")){
 			sentence += " [+] ";
 		}
 		return sentence;
