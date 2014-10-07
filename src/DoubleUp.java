@@ -40,6 +40,7 @@ public class DoubleUp extends JFrame {
 	private static JTextArea displayPanelTodayTasks, displayPanelFloatingTasks, displayPanelAllTasks;
 
 	public static File file;
+	public static File archive;
 	private static final int LENGTH_OF_PAGE = 80;
 
 	enum CommandType {
@@ -155,8 +156,10 @@ public class DoubleUp extends JFrame {
 
 	public static void main(String[] args) {
 		String fileName = "DoubleUp.txt";
-		file = openFile(fileName);
-		ArrayList<Integer> numOfTask = Logic.init(file);
+		String archiveName = "Archive.txt";
+		file = Storage.openFile(fileName);
+		archive = Storage.openFile(archiveName);
+		ArrayList<Integer> numOfTask = Logic.init(file,archive);
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -197,7 +200,7 @@ public class DoubleUp extends JFrame {
 		case DISPLAY_TEXT:
 			return printArrayList(createTodayList());
 		case DELETE_TEXT:
-			return Logic.deleteLineFromFile(taskToExecute, file);
+			return Logic.deleteLineFromFile(taskToExecute, file, archive);
 		case EDIT:
 			return Logic.edit(taskToExecute, file);
 		case CLEAR_SCREEN:
@@ -365,19 +368,7 @@ public class DoubleUp extends JFrame {
 		return reportDate;
 	}
 
-	// Creates a text file if the text file is missing or for first time usage.
-	private static File openFile(String fileName) {
-		File file = new File(fileName);
-		try {
-			if (!file.exists()) {
-				file.createNewFile();
-			}
-		} catch (IOException e) {
-			System.out.println(MSG_FAIL_READ_FILE);
-			System.exit(1);
-		}
-		return file;
-	}
+
 
 	public static void messageToUser(String text) {
 		displayPanelTodayTasks.setText(text);
