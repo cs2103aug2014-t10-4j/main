@@ -234,6 +234,7 @@ public class Parser {
 				assignErrorMsg(parsedInput, INVALID_PARAMETER);
 			}
 		}
+		index.decrement();
 	}
 
 	private static void processFutureTask(String[] parsedInput, String[] input,
