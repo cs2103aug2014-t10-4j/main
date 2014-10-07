@@ -82,15 +82,16 @@ public class Parser {
 
 		parsedInput[COMMAND_POSITION] = getCommand(input, index);
 
-		/*if (parsedInput[COMMAND_POSITION] == null) {
-			processNaturalCommand(parsedInput, input, index);
-		} else */if (parsedInput[COMMAND_POSITION].equals(COM_ADD)) {
+		/*
+		 * if (parsedInput[COMMAND_POSITION] == null) {
+		 * processNaturalCommand(parsedInput, input, index); } else
+		 */if (parsedInput[COMMAND_POSITION].equals(COM_ADD)) {
 
 			processFutureTask(parsedInput, input, index);
 		} else if (parsedInput[COMMAND_POSITION].equals(COM_SEARCH)) {
 			processFutureTask(parsedInput, input, index);
 		} else if (parsedInput[COMMAND_POSITION].equals(COM_DELETE)) {
-			processOneParameter(parsedInput, input, index);
+			processMultiParameter(parsedInput, input, index);
 		} else if (parsedInput[COMMAND_POSITION].equals(COM_EDIT)) {
 			processOneParameter(parsedInput, input, index);
 			processFutureTask(parsedInput, input, index);
@@ -100,132 +101,126 @@ public class Parser {
 
 	}
 
-	/*private static void processNaturalCommand(String[] parsedInput,
+	private static void processMultiParameter(String[] parsedInput,
 			String[] input, Index index) {
-		// process command naturally
+		index.increment();
+		input = sortAndCheck(parsedInput, input, index);
+		parsedInput[PARAMETER_POSITION] = formatParameters(input, index);
+
+	}
+
+	private static String formatParameters(String[] input, Index index) {
+		String finalParameters = new String("");
 		while (isIndexValid(index.getValue(), input)) {
-			String command = getCommand(input, index);
-			if (command == null) {
-				command = getActualCommand(input, index);
-			}
-			if (command != null) {
-				parsedInput[COMMAND_POSITION] = input[index.getValue()];
-				input[index.getValue()] = null;
-				break;
-			}
+			finalParameters = finalParameters + " "+ input[index.getValue()];
 			index.increment();
 		}
-		// process add commands naturally
-		if (parsedInput[COMMAND_POSITION] == null) {
-			assignErrorMsg(parsedInput,
-					"No commands found. Please enter a command");
-		} else if (parsedInput[COMMAND_POSITION].equals(COM_ADD)) {
-			// process natural date
-			index.setValue(RESET);
-			while (isIndexValid(index.getValue(), input)) {
-				int startingIndex = index.getValue();
-				processFutureDate(parsedInput, input, index);
-				if (parsedInput[DATE_POSITION] != null) {
-					for (int i = startingIndex; i <= index.getValue(); i++) {
-						input[i] = null;
-					}
-					break;
-				} else if (parsedInput[ERROR_MSG_POSITION] != null) {
-					break;
-				}
-				index.increment();
-			}
-			// process natural time
-			index.setValue(RESET);
-			while (isIndexValid(index.getValue(), input)) {
-				int startingIndex = index.getValue();
-				processFutureTime(parsedInput, input, index);
-				if (parsedInput[TIME_POSITION] != null) {
-					for (int i = startingIndex; i <= index.getValue(); i++) {
-						input[i] = null;
-					}
-					break;
-				} else if (parsedInput[ERROR_MSG_POSITION] != null) {
-					break;
-				}
-				index.increment();
-			}
-			// process importance
-			index.setValue(RESET);
-			while (isIndexValid(index.getValue(), input)) {
-				int startingIndex = index.getValue();
-				processImportance(parsedInput, input, index);
-				if (parsedInput[IMPT_POSITION] != null) {
-					for (int i = startingIndex; i <= index.getValue(); i++) {
-						input[i] = null;
-					}
-					break;
-				} else if (parsedInput[ERROR_MSG_POSITION] != null) {
-					break;
-				}
-				index.increment();
-			}
-			// process taskname
-			index.setValue(RESET);
-			while (isIndexValid(index.getValue(), input)) {
-				int startingIndex = index.getValue();
-				processDetails(parsedInput, input, index);
-				if (parsedInput[TASK_NAME_POSITION] != null) {
-					for (int i = startingIndex; i <= index.getValue(); i++) {
-						input[i] = null;
-					}
-					break;
-				} else if (parsedInput[ERROR_MSG_POSITION] != null) {
-					break;
-				}
-				index.increment();
-			}
-			// process taskname
-			index.setValue(RESET);
-			while (isIndexValid(index.getValue(), input)) {
-				int startingIndex = index.getValue();
-				processDetails(parsedInput, input, index);
-				if (parsedInput[DETAILS_POSITION] != null) {
-					for (int i = startingIndex; i <= index.getValue(); i++) {
-						input[i] = null;
-					}
-					break;
-				} else if (parsedInput[ERROR_MSG_POSITION] != null) {
-					break;
-				}
-				index.increment();
-			}
-
-		}
-
+		return finalParameters.trim();
 	}
 
-	private static String getActualCommand(String[] input, Index index) {
-		if (input[index.getValue()].equals(COM_ADD)) {
-			return COM_ADD;
-		} else if (input[index.getValue()].equals(COM_DELETE)) {
+	private static String[] sortAndCheck(String[] parsedInput, String[] input,
+			Index index) {
+		if (index.getValue() == (input.length - 1)) {
+			try {
+				Integer.parseInt(input[index.getValue()]);
+			} catch (Exception e) {
+				assignErrorMsg(parsedInput, INVALID_PARAMETER);
+			}
+		}
+		sortItems(parsedInput, input, index);
+		return input;
+	}
 
-			return COM_DELETE;
-		} else if (input[index.getValue()].equals(COM_EDIT)) {
-
-			return COM_EDIT;
-		} else if (input[index.getValue()].equals(COM_SEARCH)) {
-
-			return COM_SEARCH;
-		} else if (input[index.getValue()].equals(COM_UNDO)) {
-
-			return COM_UNDO;
-		} else if (input[index.getValue()].equals(COM_REDO)) {
-
-			return COM_REDO;
-		} else if (input[index.getValue()].equals(COM_DISPLAY)) {
-
-			return COM_DISPLAY;
-		} else {
-			return null;
+	private static void sortItems(String[] parsedInput, String[] input,
+			Index index) {
+		for (int j = index.getValue(); j < input.length; j++) {
+			for (int i = index.getValue(); i < input.length - 1; i++) {
+				checkAndSwapItems(parsedInput, input, i);
+			}
 		}
 	}
-*/
+
+	private static void checkAndSwapItems(String[] parsedInput, String[] input,
+			int i) {
+		try {
+			if (Integer.parseInt(input[i]) < Integer
+					.parseInt(input[i + 1])) {
+				swapItem(input, i);
+			}
+		} catch (Exception e) {
+			assignErrorMsg(parsedInput, INVALID_PARAMETER);
+		}
+	}
+
+	private static void swapItem(String[] input, int i) {
+		String temp = input[i];
+		input[i] = input[i + 1];
+		input[i + 1] = temp;
+	}
+
+	/*
+	 * private static void processNaturalCommand(String[] parsedInput, String[]
+	 * input, Index index) { // process command naturally while
+	 * (isIndexValid(index.getValue(), input)) { String command =
+	 * getCommand(input, index); if (command == null) { command =
+	 * getActualCommand(input, index); } if (command != null) {
+	 * parsedInput[COMMAND_POSITION] = input[index.getValue()];
+	 * input[index.getValue()] = null; break; } index.increment(); } // process
+	 * add commands naturally if (parsedInput[COMMAND_POSITION] == null) {
+	 * assignErrorMsg(parsedInput, "No commands found. Please enter a command");
+	 * } else if (parsedInput[COMMAND_POSITION].equals(COM_ADD)) { // process
+	 * natural date index.setValue(RESET); while (isIndexValid(index.getValue(),
+	 * input)) { int startingIndex = index.getValue();
+	 * processFutureDate(parsedInput, input, index); if
+	 * (parsedInput[DATE_POSITION] != null) { for (int i = startingIndex; i <=
+	 * index.getValue(); i++) { input[i] = null; } break; } else if
+	 * (parsedInput[ERROR_MSG_POSITION] != null) { break; } index.increment(); }
+	 * // process natural time index.setValue(RESET); while
+	 * (isIndexValid(index.getValue(), input)) { int startingIndex =
+	 * index.getValue(); processFutureTime(parsedInput, input, index); if
+	 * (parsedInput[TIME_POSITION] != null) { for (int i = startingIndex; i <=
+	 * index.getValue(); i++) { input[i] = null; } break; } else if
+	 * (parsedInput[ERROR_MSG_POSITION] != null) { break; } index.increment(); }
+	 * // process importance index.setValue(RESET); while
+	 * (isIndexValid(index.getValue(), input)) { int startingIndex =
+	 * index.getValue(); processImportance(parsedInput, input, index); if
+	 * (parsedInput[IMPT_POSITION] != null) { for (int i = startingIndex; i <=
+	 * index.getValue(); i++) { input[i] = null; } break; } else if
+	 * (parsedInput[ERROR_MSG_POSITION] != null) { break; } index.increment(); }
+	 * // process taskname index.setValue(RESET); while
+	 * (isIndexValid(index.getValue(), input)) { int startingIndex =
+	 * index.getValue(); processDetails(parsedInput, input, index); if
+	 * (parsedInput[TASK_NAME_POSITION] != null) { for (int i = startingIndex; i
+	 * <= index.getValue(); i++) { input[i] = null; } break; } else if
+	 * (parsedInput[ERROR_MSG_POSITION] != null) { break; } index.increment(); }
+	 * // process taskname index.setValue(RESET); while
+	 * (isIndexValid(index.getValue(), input)) { int startingIndex =
+	 * index.getValue(); processDetails(parsedInput, input, index); if
+	 * (parsedInput[DETAILS_POSITION] != null) { for (int i = startingIndex; i
+	 * <= index.getValue(); i++) { input[i] = null; } break; } else if
+	 * (parsedInput[ERROR_MSG_POSITION] != null) { break; } index.increment(); }
+	 * 
+	 * }
+	 * 
+	 * }
+	 * 
+	 * private static String getActualCommand(String[] input, Index index) { if
+	 * (input[index.getValue()].equals(COM_ADD)) { return COM_ADD; } else if
+	 * (input[index.getValue()].equals(COM_DELETE)) {
+	 * 
+	 * return COM_DELETE; } else if (input[index.getValue()].equals(COM_EDIT)) {
+	 * 
+	 * return COM_EDIT; } else if (input[index.getValue()].equals(COM_SEARCH)) {
+	 * 
+	 * return COM_SEARCH; } else if (input[index.getValue()].equals(COM_UNDO)) {
+	 * 
+	 * return COM_UNDO; } else if (input[index.getValue()].equals(COM_REDO)) {
+	 * 
+	 * return COM_REDO; } else if (input[index.getValue()].equals(COM_DISPLAY))
+	 * {
+	 * 
+	 * return COM_DISPLAY; } else { return null; } }
+	 */
 	private static void processOneParameter(String[] parsedInput,
 			String[] input, Index index) {
 		index.increment();
@@ -239,6 +234,7 @@ public class Parser {
 				assignErrorMsg(parsedInput, INVALID_PARAMETER);
 			}
 		}
+		index.decrement();
 	}
 
 	private static void processFutureTask(String[] parsedInput, String[] input,

@@ -9,6 +9,8 @@ class Task {
 	private String time;
 	private String details;
 	private int importance;
+	private String error;
+	private String params;
 
 	public Task(String[] splitTask){
 		this.name = splitTask[1];
@@ -18,6 +20,8 @@ class Task {
 		if (splitTask[5] != null){
 			this.importance = Integer.parseInt(splitTask[5]);
 		}
+		this.error = splitTask[6];
+		this.params = splitTask[7];
 	}
 
 	public Task(){
@@ -25,7 +29,9 @@ class Task {
 		this.date = null;
 		this.time = null;
 		this.details = null;
-		this.importance = 0;
+		this.importance = -1;
+		this.error = null;
+		this.params = null;
 	}
 
 	//Accessors
@@ -44,6 +50,12 @@ class Task {
 	public int getImportance(){
 		return importance;
 	}
+	public String getError(){
+		return error;
+	}
+	public String getParams(){
+		return params;
+	}
 
 	//Mutators
 	public void setName(String newName){
@@ -61,15 +73,30 @@ class Task {
 	public void setImportance(int newImportance){
 		this.importance = newImportance;
 	}
+	public void setError(String newError){
+		this.error = newError;
+	}
+	public void setParams(String newParams){
+		this.params = newParams;
+	}
 
 	//This method can be used to print tasks for debugging.
 	@Override
 	public String toString(){
-		String sentence =  " [" + this.getTime() +"] " + this.getName();
+		String sentence ="";
+		if (this.getTime() == null || this.getTime().equals("null") ){
+			sentence +=  " [*] "; 
+		} else {
+			sentence +=  " [" + this.getTime() +"] "; 
+		}
+		if (this.getDate() != null && !date.equals("null")){
+			sentence += "(" + this.getDate() + ") ";
+		}
+		sentence += this.getName();
 		if (importance !=0) {
 			sentence += " [" + printImportance(importance) + "]";
 		}
-		if (details != null){
+		if (details != null && !details.equals("null")){
 			sentence += " [+] ";
 		}
 		return sentence;
