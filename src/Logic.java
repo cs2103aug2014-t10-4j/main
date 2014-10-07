@@ -143,18 +143,20 @@ public class Logic {
 		return searchResults;
 	}
 
-	public static String deleteLineFromSearchList (Task task,ArrayList<Task> searchResults ){ 
-	  if (searchResults.size() == 0) {
-	   return NO_MESSAGE_DELETE;
-	  } 
-	  int index = getIndex(task); 
-	  Task temp = searchResults.get(index);
-	  for (int i = 0; i < tempStorage.size(); i++) {
-	  if (tempStorage.get(i).equals(temp)) {
-	  tempStorage.remove(i);
-	  }
-	  }
-	  return String.format(DELETE_MESSAGE, searchResults.get(index).getName());
+	public static String deleteLineFromSearchList(Task task,
+			ArrayList<Task> searchResults) {
+		if (searchResults.size() == 0) {
+			return NO_MESSAGE_DELETE;
+		}
+		int index = getIndex(task);
+		Task temp = searchResults.get(index);
+		for (int i = 0; i < tempStorage.size(); i++) {
+			if (tempStorage.get(i).equals(temp)) {
+				tempStorage.remove(i);
+			}
+		}
+		return String
+				.format(DELETE_MESSAGE, searchResults.get(index).getName());
 	}
 
 	// for delete from searched list of tasks.
