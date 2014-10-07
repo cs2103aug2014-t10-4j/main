@@ -36,7 +36,7 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_INVALID_COMMAND = "Invalid command";
 
 	private static JTextField textFieldCmdIn, textFieldResultsOut;
-	private static JTextArea displayList;
+	private static JTextArea displayList, displayList2;
 
 	public static File file;
 	private static final int LENGTH_OF_PAGE = 80;
@@ -85,6 +85,23 @@ public class DoubleUp extends JFrame {
 		middleRow.setOpaque(true);
 		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
 		cp.add(middleRow, c);
+		
+		c.fill = GridBagConstraints.BOTH;
+		c.gridwidth = 5;
+		c.gridx = 0;
+		c.gridy = 3;
+		c.weightx = 0.0;
+		c.ipady = 40;
+		c.gridwidth = 3;
+		JPanel thirdRow = new JPanel();
+		displayList2 = new JTextArea(5,50);
+		displayList2.setEditable(false);
+		displayList2.setText("Dummy! Supposed to show floating tasks");
+		thirdRow.add(displayList2);
+		thirdRow.setOpaque(true);
+		thirdRow.setBorder(BorderFactory.createTitledBorder("Floating tasks:"));
+		cp.add(thirdRow, c);
+
 
 		c.fill = GridBagConstraints.BOTH;
 		c.ipady = 00;
