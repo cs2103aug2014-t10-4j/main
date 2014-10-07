@@ -36,7 +36,7 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_INVALID_COMMAND = "Invalid command";
 
 	private static JTextField textFieldCmdIn, textFieldResultsOut;
-	private static JTextArea displayList, displayList2, displayList3;
+	private static JTextArea displayPanelTodayTasks, displayPanelFloatingTasks, displayPanelAllTasks;
 
 	public static File file;
 	private static final int LENGTH_OF_PAGE = 80;
@@ -78,10 +78,10 @@ public class DoubleUp extends JFrame {
 		c.ipady = 40;
 		c.gridwidth = 3;
 		JPanel middleRow = new JPanel();
-		displayList = new JTextArea(10,50);
-		displayList.setEditable(false);
-		displayList.setText(printTodayList(createTodayList()));
-		middleRow.add(displayList);
+		displayPanelTodayTasks = new JTextArea(10,50);
+		displayPanelTodayTasks.setEditable(false);
+		displayPanelTodayTasks.setText(printTodayList(createTodayList()));
+		middleRow.add(displayPanelTodayTasks);
 		middleRow.setOpaque(true);
 		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
 		cp.add(middleRow, c);
@@ -95,10 +95,10 @@ public class DoubleUp extends JFrame {
 		c.ipady = 40;
 		c.gridwidth = 3;
 		JPanel everythingRow = new JPanel();
-		displayList3 = new JTextArea(10,50);
-		displayList3.setEditable(false);
-		displayList3.setText(printArrayList(Logic.getTempStorage()));
-		everythingRow.add(displayList3);
+		displayPanelAllTasks = new JTextArea(10,50);
+		displayPanelAllTasks.setEditable(false);
+		displayPanelAllTasks.setText(printArrayList(Logic.getTempStorage()));
+		everythingRow.add(displayPanelAllTasks);
 		everythingRow.setOpaque(true);
 		everythingRow.setBorder(BorderFactory.createTitledBorder("All tasks"));
 		cp.add(everythingRow, c);
@@ -111,10 +111,10 @@ public class DoubleUp extends JFrame {
 		c.ipady = 40;
 		c.gridwidth = 3;
 		JPanel thirdRow = new JPanel();
-		displayList2 = new JTextArea(5,50);
-		displayList2.setEditable(false);
-		displayList2.setText("Dummy! Supposed to show floating tasks");
-		thirdRow.add(displayList2);
+		displayPanelFloatingTasks = new JTextArea(5,50);
+		displayPanelFloatingTasks.setEditable(false);
+		displayPanelFloatingTasks.setText("Dummy! Supposed to show floating tasks");
+		thirdRow.add(displayPanelFloatingTasks);
 		thirdRow.setOpaque(true);
 		thirdRow.setBorder(BorderFactory.createTitledBorder("Floating tasks:"));
 		cp.add(thirdRow, c);
@@ -142,8 +142,8 @@ public class DoubleUp extends JFrame {
 				String[] splitCommand = Parser.parseInput(userSentence);
 				String result = executeCommand(splitCommand, file);
 				textFieldCmdIn.setText("");  // clear input TextField
-				displayList.setText(printTodayList(createTodayList()));
-				displayList3.setText(printArrayList(Logic.getTempStorage()));
+				displayPanelTodayTasks.setText(printTodayList(createTodayList()));
+				displayPanelAllTasks.setText(printArrayList(Logic.getTempStorage()));
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
 		});
@@ -383,6 +383,6 @@ public class DoubleUp extends JFrame {
 	}
 
 	public static void messageToUser(String text) {
-		displayList.setText(text);
+		displayPanelTodayTasks.setText(text);
 	}
 }
