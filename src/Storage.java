@@ -15,7 +15,7 @@ public class Storage {
 
 	
 	// This function serves to write all the task in the text file into temp storage.
-	public static ArrayList<Task> copyToArrayList(File file, ArrayList<Task> tempStorage) {
+	public static void copyToArrayList(File file, ArrayList<Task> tempStorage) {
 		
 		Scanner input;
 		try {
@@ -28,17 +28,26 @@ public class Storage {
 					Task task = new Task();
 					String currentTask = input.nextLine();
 					task.setName(currentTask.substring(0, currentTask.indexOf(DIVIDER_DATE)));
-					currentTask.replace(currentTask.substring(0,currentTask.indexOf(DIVIDER_DATE)),"");
 
+					
+					currentTask = currentTask.replaceFirst(currentTask.substring(0,currentTask.indexOf(DIVIDER_DATE)),"");
+					currentTask = currentTask.replaceFirst(DIVIDER_DATE,"");
+					
+					
 					task.setDate(currentTask.substring(0,currentTask.indexOf(DIVIDER_TIME)));
-					currentTask.replace(currentTask.substring(0,currentTask.indexOf(DIVIDER_TIME)),"");
-
+					currentTask = currentTask.replaceFirst(currentTask.substring(0,currentTask.indexOf(DIVIDER_TIME)),"");
+					currentTask = currentTask.replaceFirst((DIVIDER_TIME),"");
+					
 					task.setTime(currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS)));
-					currentTask.replace(currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS)),"");
-
+					currentTask = currentTask.replaceFirst(currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS)),"");
+					currentTask = currentTask.replaceFirst((DIVIDER_DETAILS),"");
+					
+					
 					task.setDetails(currentTask.substring(0,currentTask.indexOf(DIVIDER_IMPORTANCE)));
-					currentTask.replace(currentTask.substring(0,currentTask.indexOf(DIVIDER_IMPORTANCE)),"");
-
+					currentTask = currentTask.replaceFirst(currentTask.substring(0,currentTask.indexOf(DIVIDER_IMPORTANCE)),"");
+					currentTask = currentTask.replaceFirst((DIVIDER_IMPORTANCE),"");
+					
+					
 					task.setImportance(Integer.parseInt(currentTask));
 					tempStorage.add(task);
 
@@ -46,9 +55,8 @@ public class Storage {
 				input.close();
 			}
 		} catch (FileNotFoundException e) {
-			return null;
+			
 		}
-		return tempStorage;
 	}
 
 	// This function serves to write all the task in the tempStorage into the text file.
@@ -60,14 +68,11 @@ public class Storage {
 			fileWritten = new BufferedWriter(new FileWriter(file.getName(),true));
 			
 			for(int i=0; i<tempStorage.size();i++){
-				if (numberOfLine(file) > 0) {
-					fileWritten.newLine();
-				}
 				
 				toWriteInFile = tempStorage.get(i).getName() + DIVIDER_DATE + tempStorage.get(i).getDate()
 						+ DIVIDER_TIME + tempStorage.get(i).getTime() + DIVIDER_DETAILS
 						+ tempStorage.get(i).getDetails() + DIVIDER_IMPORTANCE
-						+ tempStorage.get(i).getImportance();
+						+ tempStorage.get(i).getImportance()+"\n";
 
 				fileWritten.write(toWriteInFile);
 			}
@@ -79,28 +84,28 @@ public class Storage {
 	}
 	
 	// The function below serves to count the number of lines of text present in the file.
-	private static Integer numberOfLine(File file) {
-		Scanner input;
-		int lineNum = 0;
-		try {
-			input = new Scanner(file);
-
-			if (!input.hasNext()) {
-				input.close();
-					return lineNum;
-				} 
-			else {
-				while (input.hasNext()) {
-					input.nextLine();
-					lineNum++;
-				}
-			input.close();				}
-			} catch (FileNotFoundException e) {
-				return null;
-			}
-		return lineNum;
-	}
-		
+	/*private static Integer numberOfLine(File file) {
+	*	Scanner input;
+	*	int lineNum = 0;
+	*	try {
+	*		input = new Scanner(file);
+*
+*			if (!input.hasNext()) {
+*				input.close();
+*					return lineNum;
+*				} 
+*			else {
+*				while (input.hasNext()) {
+*					input.nextLine();
+*					lineNum++;
+*				}
+*			input.close();				}
+*			} catch (FileNotFoundException e) {
+*				return null;
+*			}
+*		return lineNum;
+*	}
+*/		
 	// This function serves to clear the file.
 	private static void clear(File file) {
 		try {
