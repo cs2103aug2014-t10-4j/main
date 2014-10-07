@@ -175,7 +175,7 @@ public class Logic {
 
 
 	private static void getNumTasks(ArrayList<Integer> numTask,
-			ArrayList<Task> tempStorage2) {
+			ArrayList<Task> tempStorage) {
 		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		Date currentDate = new Date();
 
@@ -183,17 +183,21 @@ public class Logic {
 			int todayTask = INITIAL_VALUE;
 			int tomorrowTask = INITIAL_VALUE;
 			for (int i = 0; i < tempStorage.size(); i++) {
-				Date dateOfCurrentTask = new Date();
-				dateOfCurrentTask = dateFormat.parse(tempStorage.get(i)
-						.getDate());
-				if (dateOfCurrentTask.compareTo(currentDate) == INITIAL_VALUE) {
-					todayTask++;
-				} else if (dateOfCurrentTask.compareTo(currentDate) == INITIAL_VALUE + 1) {
-					tomorrowTask++;
-				} else {
-					break; // During init, the tempStorage is already sorted by
-							// date and time.
+				if (tempStorage.get(i).getDate().contains("ft")){
+					continue;
 				}
+				else{
+					Date dateOfCurrentTask = new Date();
+					dateOfCurrentTask = dateFormat.parse(tempStorage.get(i).getDate());
+					if (dateOfCurrentTask.compareTo(currentDate) == INITIAL_VALUE) {
+						todayTask++;
+					} else if (dateOfCurrentTask.compareTo(currentDate) == INITIAL_VALUE + 1) {
+					tomorrowTask++;
+					} else {
+						break; // During init, the tempStorage is already sorted by
+							// date and time.
+					}
+			}
 			}
 			numTask.add(todayTask);
 			numTask.add(tomorrowTask);
