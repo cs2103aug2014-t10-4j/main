@@ -340,7 +340,7 @@ public class Logic {
 		}
 	}
 
-	public static void edit(Task detailsOfTask) {
+	public static String edit(Task detailsOfTask, File file) {
 		int taskNumber = getIndex(detailsOfTask);
 		if (detailsOfTask.getName() != null) {
 			tempStorage.get(taskNumber).setName(detailsOfTask.getName());
@@ -357,6 +357,11 @@ public class Logic {
 		if(detailsOfTask.getImportance()!= INITIAL_VALUE-1){
 		 tempStorage.get(taskNumber).setImportance(detailsOfTask.getImportance());
 		}
+		
+		sortByDateAndTime(tempStorage);
+		Storage.writeToFile(tempStorage, file);
+		
+		return "success";
 
 	}
 
