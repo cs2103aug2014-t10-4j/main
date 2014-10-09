@@ -45,10 +45,6 @@ public class DoubleUp extends JFrame {
 	private static final int LENGTH_OF_PAGE = 60;
 	public static File archive;
 
-	enum CommandType {
-		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_SCREEN, EDIT, EXIT, INVALID, SEARCH, SORT, HELP;
-	};
-
 	public static void createAndShowGUI() {
 		//Create and set up the window
 		JFrame frame = new JFrame("DoubleUp To-do-List");
@@ -84,7 +80,7 @@ public class DoubleUp extends JFrame {
 		JPanel middleRow = new JPanel();
 		displayPanelTodayTasks = new JTextArea(10,50);
 		displayPanelTodayTasks.setEditable(false);
-		displayPanelTodayTasks.setText(printTodayList(createTodayList()));
+		displayPanelTodayTasks.setText(Controller.printTodayList(Controller.createTodayList()));
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks);
 		middleRow.add(scroll);
 		middleRow.setOpaque(true);
@@ -102,7 +98,7 @@ public class DoubleUp extends JFrame {
 		JPanel everythingRow = new JPanel();
 		displayPanelAllTasks = new JTextArea(10,50);
 		displayPanelAllTasks.setEditable(false);
-		displayPanelAllTasks.setText(printEveryTask());
+		displayPanelAllTasks.setText(Controller.printEveryTask());
 		JScrollPane scroll2 = new JScrollPane(displayPanelAllTasks);
 		everythingRow.add(scroll2);
 		everythingRow.setOpaque(true);
@@ -119,7 +115,7 @@ public class DoubleUp extends JFrame {
 		JPanel thirdRow = new JPanel();
 		displayPanelFloatingTasks = new JTextArea(5,50);
 		displayPanelFloatingTasks.setEditable(false);
-		displayPanelFloatingTasks.setText(printFloatingList());
+		displayPanelFloatingTasks.setText(Controller.printFloatingList());
 		JScrollPane scroll3 = new JScrollPane(displayPanelFloatingTasks);
 		thirdRow.add(scroll3);
 		thirdRow.setOpaque(true);
@@ -147,11 +143,11 @@ public class DoubleUp extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String userSentence = textFieldCmdIn.getText();
 				String[] splitCommand = Parser.parseInput(userSentence);
-				String result = executeCommand(splitCommand, file);
+				String result = Controller.executeCommand(splitCommand, file, archive);
 				textFieldCmdIn.setText("");  // clear input TextField
-				displayPanelTodayTasks.setText(printTodayList(createTodayList()));
-				displayPanelAllTasks.setText(printEveryTask());
-				displayPanelFloatingTasks.setText(printFloatingList());
+				displayPanelTodayTasks.setText(Controller.printTodayList(Controller.createTodayList()));
+				displayPanelAllTasks.setText(Controller.printEveryTask());
+				displayPanelFloatingTasks.setText(Controller.printFloatingList());
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
 		});
@@ -162,9 +158,8 @@ public class DoubleUp extends JFrame {
 		String archiveName = "Archive.txt";
 		file = Storage.openFile(fileName);
 		archive = Storage.openFile(archiveName);
-		ArrayList<Integer> numOfTask = Logic.init(file,archive);
+		ArrayList<Integer> numOfTask = Logic.init(file, archive);
 		
-
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -174,162 +169,7 @@ public class DoubleUp extends JFrame {
 		//messageToUser(createWelcomeMessage(numOfTask));
 		//messageToUser(createTodayList(file));
 	}
-
-	private static String executeCommand(String[] splitCommand, File file) {
-		String action = getFirstWord(splitCommand);
-		CommandType commandType = determineCommandType(action);
-		Task taskToExecute = new Task(splitCommand);
-		switch (commandType) {
-		case ADD_TEXT:
-			Task tempTask = new Task();
-			tempTask.setDate(taskToExecute.getDate());
-			tempTask.setTime(taskToExecute.getTime());
-			//ArrayList<Task> tasksFound = search(tempTask, file);
-			ArrayList<Task> tasksFound = new ArrayList<Task>(); //stub to swop with above line
-			if (tasksFound.size() == 0){
-				return Logic.addLineToFile(taskToExecute, file);
-			} /*else {
-					String matchedList = printArrayList(tasksFound);
-					displayList.setText(matchedList);
-					//textFieldResultsOut.setText("Clashes found!");
-					 JFrame frame = new JFrame();
-    				 Object result = JOptionPane.showInputDialog(frame, "The task you are about to add have the same 
-						date and time as the above items. Do you want to continue? (y/n)?"");
-					 if (result.equalsIgnoreCase("y") || results.equalsIgnoreCase("yes"){
-					 	return Logic.addLineToFile(taskToExecute, file);
-					 } else {
-					 	return;
-					 }
-				}*/
-		case DISPLAY_TEXT:
-			return printArrayList(createTodayList());
-		case DELETE_TEXT:
-			return Logic.deleteLineFromFile(taskToExecute, file, archive);
-		case EDIT:
-			return Logic.edit(taskToExecute, file);
-		case CLEAR_SCREEN:
-			// return Logic.clearContent(file);
-			return "clear"; // stub
-		case SEARCH:
-			return printArrayList ( Logic.search(taskToExecute) );
-			//return "search"; // stub
-		case SORT:
-			/*String sortParams = splitCommand[7s];
-			if (sortParams.equals("alpha"){
-				return sortByAlphabet(file);
-			} else if (sortParams.equals("importance")){
-				return sortByImportance(file);
-			} else {
-				return sortByDateAndTime(file);
-			}*/
-			return "sort"; // stub
-		case HELP:
-			return showHelp();
-		case EXIT:
-			System.exit(0);
-		default:
-			return MSG_INVALID_COMMAND;
-		}
-	}
-	private static String printTodayList (ArrayList<Task> listOfTasks){
-		if (listOfTasks.size() ==0){
-			return MSG_EMPTY_TODAY;
-		} else {
-			return printArrayList(listOfTasks);
-		}
-	}
-	private static String printFloatingList (){
-		ArrayList<Task> allTasks = Logic.getTempStorage();
-		ArrayList <Task> listOfFloating = new ArrayList<Task>();
-		for (int j=0; j < allTasks.size(); j++){
-			if (allTasks.get(j).getDate().equals("ft")){
-				listOfFloating.add(allTasks.get(j));
-			}
-		}
-		if (listOfFloating.size() == 0){
-			return MSG_EMPTY_FLOATING;
-		} else {
-			return printArrayList(listOfFloating);
-		}
-	}
-
-	private static String printArrayList(ArrayList<Task> listOfTasks){
-		String toPrint ="";
-		for (int j = 0; j < listOfTasks.size() ; j ++){
-			toPrint += (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
-		}
-		return toPrint;
-	}
-	private static String printEveryTask(){
-		String toPrint = "";
-		ArrayList<Task> everyTask = Logic.getTempStorage();
-		if (everyTask.size() !=0){
-			String date = everyTask.get(0).getDate();
-			toPrint += createHorizLine("=", 20) + date + " " + createHorizLine("=", 20) + "\n";
-			for (int j = 0; j < everyTask.size() ; j ++){
-				String dateOfCurrentTask = everyTask.get(j).getDate();
-				if (! dateOfCurrentTask.equals(date)){
-					toPrint += "\n";
-					toPrint += createHorizLine("=", 20) + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
-				}
-				toPrint += (j+1) + ". " + everyTask.get(j).toString() + "\n";
-				date = dateOfCurrentTask;
-			}
-			return toPrint;
-		} else {
-			return MSG_EMPTY_ALL_DAYS;
-		}
-	}
-
-	private static String showHelp() {
-		File helpFile = new File("help.txt");
-		Scanner sc;
-		String toPrint = "";
-		try {
-			sc = new Scanner(helpFile);
-			while (sc.hasNext()) {
-				String sentence = sc.nextLine();
-				String[] result = sentence.split(" ### ");
-				toPrint += String.format("%-16s%-56s%-50s%n", result[0], result[1], result[2]);
-			} 
-			sc.close();
-		}catch (FileNotFoundException e) {
-		}
-		return toPrint;
-	}
-
-	// This method is used to determine the command types given the first word of the command.
-	private static CommandType determineCommandType(String commandTypeString) {
-		if (commandTypeString == null) {
-			throw new Error("command type string cannot be null!");
-		}
-		if (commandTypeString.equalsIgnoreCase("add")) {
-			return CommandType.ADD_TEXT;
-		} else if (commandTypeString.equalsIgnoreCase("display")) {
-			return CommandType.DISPLAY_TEXT;
-		} else if (commandTypeString.equalsIgnoreCase("delete")) {
-			return CommandType.DELETE_TEXT;
-		} else if (commandTypeString.equalsIgnoreCase("clear")) {
-			return CommandType.CLEAR_SCREEN;
-		} else if (commandTypeString.equalsIgnoreCase("edit")) {
-			return CommandType.EDIT;
-		} else if (commandTypeString.equalsIgnoreCase("exit")) {
-			return CommandType.EXIT;
-		} else if (commandTypeString.equalsIgnoreCase("search")) {
-			return CommandType.SEARCH;
-		} else if (commandTypeString.equalsIgnoreCase("sort")) {
-			return CommandType.SORT;
-		} else if (commandTypeString.equalsIgnoreCase("help")) {
-			return CommandType.HELP;
-		} else {
-			return CommandType.INVALID;
-		}
-	}
-
-	private static String getFirstWord(String[] userCommand) {
-		return userCommand[0];
-	}
-
+	
 	// Concats the different messages to form the welcome message for the
 	// welcome screen
 	private static String createWelcomeMessage(ArrayList<Integer> numOfTask) {
@@ -339,7 +179,6 @@ public class DoubleUp extends JFrame {
 		welcomeMessage += createQOTD();
 		welcomeMessage += createGoalMsg();
 		welcomeMessage += createHelpMsg();
-		welcomeMessage += "\n" + createHorizLine("*", LENGTH_OF_PAGE);
 		return welcomeMessage;
 	}
 	//Returns Quote of the day.
@@ -369,43 +208,12 @@ public class DoubleUp extends JFrame {
 		return help;
 	}
 
-	private static ArrayList<Task> createTodayList() {
-		ArrayList<Task> allTasks = Logic.getTempStorage();
-		ArrayList<Task> todayTasks = new ArrayList<Task>();
-		for (int j = 0 ; j< allTasks.size() ; j++){
-			if (allTasks.get(j).getDate().equals(getTodayDate())){
-				todayTasks.add(allTasks.get(j));
-			}
-		}
-		return todayTasks;
-	}
-
-	//Creates a horizontal line for formatting the User Interface.
-	private static String createHorizLine(String charseq, int numToDraw){
-		String line = "";
-		for (int i=0; i < numToDraw; i++){
-			line += charseq;
-		}
-		return line;
-	}
-
-	//Same function as getCurrentDate except date is in another format
-	private static String getTodayDate() {
-		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
-		Date date = new Date();
-		String reportDate = dateFormat.format(date);
-		return reportDate;
-	}
-
-
 	private static String getCurrentDate() {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 		Date date = new Date();
 		String reportDate = dateFormat.format(date);
 		return reportDate;
 	}
-
-
 
 	public static void messageToUser(String text) {
 		displayPanelTodayTasks.setText(text);
