@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,27 +22,39 @@ import javax.swing.SwingUtilities;
 
 public class DoubleUp extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
 	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
 	private static final String MSG_QOTD = "QOTD: \n";
 	private static final String MSG_GOAL = "Your goal is: ";
 	private static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
-	private static final String MSG_EMPTY_FILE = "%s is empty.";
-	private static final String MSG_EMPTY_TODAY = "No tasks for today!";
-	private static final String MSG_EMPTY_ALL_DAYS = "No tasks for anyday!";
-	private static final String MSG_EMPTY_FLOATING = "No floating tasks!";
 	private static final String MSG_COMMAND_LINE = "Enter a command: ";
 	private static final String MSG_RESULT = "Result: ";
-	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
-	private static final String MSG_MISSING_FILE = "File not found.";
-	private static final String MSG_INVALID_COMMAND = "Invalid command";
 
 	private static JTextField textFieldCmdIn, textFieldResultsOut;
 	private static JTextArea displayPanelTodayTasks, displayPanelFloatingTasks, displayPanelAllTasks;
 
-	public static File file;
-	private static final int LENGTH_OF_PAGE = 60;
-	public static File archive;
+	public static File file, archive;
+	
+	public static void main(String[] args) {
+		String fileName = "DoubleUp.txt";
+		String archiveName = "Archive.txt";
+		file = Storage.openFile(fileName);
+		archive = Storage.openFile(archiveName);
+		ArrayList<Integer> numOfTask = Logic.init(file, archive);
+		
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				createAndShowGUI();
+			}
+		});
+		//messageToUser(createWelcomeMessage(numOfTask));
+		//messageToUser(createTodayList(file));
+	}
 
 	public static void createAndShowGUI() {
 		//Create and set up the window
@@ -122,7 +133,6 @@ public class DoubleUp extends JFrame {
 		thirdRow.setBorder(BorderFactory.createTitledBorder("Floating tasks:"));
 		cp.add(thirdRow, c);
 
-
 		c.fill = GridBagConstraints.BOTH;
 		c.ipady = 00;
 		c.weighty = 1.0;
@@ -142,8 +152,7 @@ public class DoubleUp extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String userSentence = textFieldCmdIn.getText();
-				String[] splitCommand = Parser.parseInput(userSentence);
-				String result = Controller.executeCommand(splitCommand, file, archive);
+				String result = Controller.executeCommand(userSentence, file, archive);
 				textFieldCmdIn.setText("");  // clear input TextField
 				displayPanelTodayTasks.setText(Controller.printTodayList(Controller.createTodayList()));
 				displayPanelAllTasks.setText(Controller.printEveryTask());
@@ -151,23 +160,6 @@ public class DoubleUp extends JFrame {
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
 		});
-	}
-
-	public static void main(String[] args) {
-		String fileName = "DoubleUp.txt";
-		String archiveName = "Archive.txt";
-		file = Storage.openFile(fileName);
-		archive = Storage.openFile(archiveName);
-		ArrayList<Integer> numOfTask = Logic.init(file, archive);
-		
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				createAndShowGUI();
-			}
-		});
-		//messageToUser(createWelcomeMessage(numOfTask));
-		//messageToUser(createTodayList(file));
 	}
 	
 	// Concats the different messages to form the welcome message for the

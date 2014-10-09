@@ -9,26 +9,17 @@ import java.util.Scanner;
 
 public class Controller {
 
-	private static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
-	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
-	private static final String MSG_QOTD = "QOTD: \n";
-	private static final String MSG_GOAL = "Your goal is: ";
-	private static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
-	private static final String MSG_EMPTY_FILE = "%s is empty.";
 	private static final String MSG_EMPTY_TODAY = "No tasks for today!";
 	private static final String MSG_EMPTY_ALL_DAYS = "No tasks for anyday!";
 	private static final String MSG_EMPTY_FLOATING = "No floating tasks!";
-	private static final String MSG_COMMAND_LINE = "Enter a command: ";
-	private static final String MSG_RESULT = "Result: ";
-	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
-	private static final String MSG_MISSING_FILE = "File not found.";
 	private static final String MSG_INVALID_COMMAND = "Invalid command";
 
 	enum CommandType {
 		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_SCREEN, EDIT, EXIT, INVALID, SEARCH, SORT, HELP;
 	};
 
-	public static String executeCommand(String[] splitCommand, File file, File archive) {
+	public static String executeCommand(String userSentence, File file, File archive) {
+		String[] splitCommand = Parser.parseInput(userSentence);
 		String action = getFirstWord(splitCommand);
 		CommandType commandType = determineCommandType(action);
 		Task taskToExecute = new Task(splitCommand);
