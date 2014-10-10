@@ -133,7 +133,7 @@ public class Controller {
 	public static String printArrayList(ArrayList<Task> listOfTasks){
 		String toPrint ="";
 		for (int j = 0; j < listOfTasks.size() ; j ++){
-			toPrint += (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
+			toPrint += " " + (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
 		}
 		return toPrint;
 	}
@@ -149,7 +149,7 @@ public class Controller {
 					toPrint += "\n";
 					toPrint += createHorizLine("=", 20) + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
 				}
-				toPrint += (j+1) + ". " + everyTask.get(j).toString() + "\n";
+				toPrint += " " + (j+1) + ". " + everyTask.get(j).toString() + "\n";
 				date = dateOfCurrentTask;
 			}
 			return toPrint;

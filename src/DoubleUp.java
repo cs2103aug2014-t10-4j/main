@@ -86,10 +86,10 @@ public class DoubleUp extends JFrame {
 		middleRow.setLayout(new BorderLayout());
 		displayPanelTodayTasks = new JTextArea();
 		displayPanelTodayTasks.setEditable(false);
-		displayPanelTodayTasks.setText(Controller.printTodayList(Controller.createTodayList()));
+		displayPanelTodayTasks.setText(Controller.printEveryTask());
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		middleRow.add(scroll, BorderLayout.CENTER);
-		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
+		middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks: "));
 		cp.add(middleRow, BorderLayout.CENTER);
 		
 		JPanel lastRow = new JPanel();
@@ -141,8 +141,8 @@ public class DoubleUp extends JFrame {
 					break;
 				default:
 					result = Controller.executeCommand(userSentence, file, archive);					
-					displayPanelTodayTasks.setText(Controller.printTodayList(Controller.createTodayList()));
-					middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
+					displayPanelTodayTasks.setText(Controller.printEveryTask());
+					middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks:"));
 				}
 				textFieldCmdIn.setText("");  // clear input TextField
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
