@@ -67,8 +67,6 @@ public class Controller {
 				return sortByDateAndTime(file);
 			}*/
 			return "sort"; // stub
-		case HELP:
-			return showHelp();
 		case EXIT:
 			System.exit(0);
 		default:
@@ -108,22 +106,7 @@ public class Controller {
 		return userCommand[0];
 	}
 
-	private static String showHelp() {
-		File helpFile = new File("help.txt");
-		Scanner sc;
-		String toPrint = "";
-		try {
-			sc = new Scanner(helpFile);
-			while (sc.hasNext()) {
-				String sentence = sc.nextLine();
-				String[] result = sentence.split(" ### ");
-				toPrint += String.format("%-16s%-56s%-50s%n", result[0], result[1], result[2]);
-			} 
-			sc.close();
-		}catch (FileNotFoundException e) {
-		}
-		return toPrint;
-	}
+	
 
 	public static String printTodayList (ArrayList<Task> listOfTasks){
 		if (listOfTasks.size() ==0){

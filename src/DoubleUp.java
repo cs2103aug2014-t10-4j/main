@@ -1,10 +1,14 @@
+import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,21 +35,22 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_QOTD = "QOTD: \n";
 	private static final String MSG_GOAL = "Your goal is: ";
 	private static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
-	private static final String MSG_COMMAND_LINE = "Enter a command: ";
+	private static final String MSG_ENTER_COMMAND = "Enter a command: ";
 	private static final String MSG_RESULT = "Result: ";
 
 	private static JTextField textFieldCmdIn, textFieldResultsOut;
 	private static JTextArea displayPanelTodayTasks, displayPanelFloatingTasks, displayPanelAllTasks;
+	private static JPanel middleRow;
 
 	public static File file, archive;
-	
+
 	public static void main(String[] args) {
 		String fileName = "DoubleUp.txt";
 		String archiveName = "Archive.txt";
 		file = Storage.openFile(fileName);
 		archive = Storage.openFile(archiveName);
 		ArrayList<Integer> numOfTask = Logic.init(file, archive);
-		
+
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -61,90 +66,38 @@ public class DoubleUp extends JFrame {
 		JFrame frame = new JFrame("DoubleUp To-do-List");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addComponentsToPane(frame.getContentPane());
-		frame.pack();
+		//frame.pack();
+		frame.setMinimumSize(new Dimension(500,500));
 		frame.setVisible(true);
 	}
 
 	public static void addComponentsToPane(Container cp){
-		cp.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
+		cp.setLayout(new BorderLayout());
 
 		//Top pane
-		c.fill = GridBagConstraints.BOTH;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.weightx = 0.5;
 		JPanel topRow = new JPanel();
-		topRow.add(new JLabel(MSG_COMMAND_LINE));
+		topRow.add(new JLabel(MSG_ENTER_COMMAND));
 		textFieldCmdIn = new JTextField(30);
 		topRow.add(textFieldCmdIn);
-		cp.add(topRow,c);
+		cp.add(topRow, BorderLayout.NORTH);
 
 		// Today panel
-		c.fill = GridBagConstraints.BOTH;
-		c.gridwidth = 5;
-		c.gridx = 0;
-		c.gridy = 2;
-		c.weightx = 0.0;
-		c.ipady = 40;
-		c.gridwidth = 3;
-		JPanel middleRow = new JPanel();
-		displayPanelTodayTasks = new JTextArea(10,50);
+		middleRow = new JPanel();
+		middleRow.setLayout(new BorderLayout());
+		displayPanelTodayTasks = new JTextArea();
 		displayPanelTodayTasks.setEditable(false);
 		displayPanelTodayTasks.setText(Controller.printTodayList(Controller.createTodayList()));
-		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks);
-		middleRow.add(scroll);
-		middleRow.setOpaque(true);
+		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		middleRow.add(scroll, BorderLayout.CENTER);
 		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
-		cp.add(middleRow, c);
-
-		//everything tasks panel
-		c.fill = GridBagConstraints.BOTH;
-		c.gridwidth = 5;
-		c.gridx = 0;
-		c.gridy = 3;
-		c.weightx = 0.0;
-		c.ipady = 40;
-		c.gridwidth = 3;
-		JPanel everythingRow = new JPanel();
-		displayPanelAllTasks = new JTextArea(10,50);
-		displayPanelAllTasks.setEditable(false);
-		displayPanelAllTasks.setText(Controller.printEveryTask());
-		JScrollPane scroll2 = new JScrollPane(displayPanelAllTasks);
-		everythingRow.add(scroll2);
-		everythingRow.setOpaque(true);
-		everythingRow.setBorder(BorderFactory.createTitledBorder("All tasks"));
-		cp.add(everythingRow, c);
-
-		c.fill = GridBagConstraints.BOTH;
-		c.gridwidth = 5;
-		c.gridx = 0;
-		c.gridy = 5;
-		c.weightx = 0.0;
-		c.ipady = 40;
-		c.gridwidth = 3;
-		JPanel thirdRow = new JPanel();
-		displayPanelFloatingTasks = new JTextArea(5,50);
-		displayPanelFloatingTasks.setEditable(false);
-		displayPanelFloatingTasks.setText(Controller.printFloatingList());
-		JScrollPane scroll3 = new JScrollPane(displayPanelFloatingTasks);
-		thirdRow.add(scroll3);
-		thirdRow.setOpaque(true);
-		thirdRow.setBorder(BorderFactory.createTitledBorder("Floating tasks:"));
-		cp.add(thirdRow, c);
-
-		c.fill = GridBagConstraints.BOTH;
-		c.ipady = 00;
-		c.weighty = 1.0;
-		c.anchor = GridBagConstraints.PAGE_END;
-		c.gridx = 0;
-		c.gridy = 10;
+		cp.add(middleRow, BorderLayout.CENTER);
+		
 		JPanel lastRow = new JPanel();
 		lastRow.add(new JLabel(MSG_RESULT));
 		textFieldResultsOut = new JTextField(30);
 		textFieldResultsOut.setEditable(false);  // read-only
 		lastRow.add(textFieldResultsOut);
-		cp.add(lastRow, c);
+		cp.add(lastRow, BorderLayout.SOUTH);
 
 		// Allocate an anonymous instance of an anonymous inner class that
 		//  implements ActionListener as ActionEvent listener
@@ -152,16 +105,51 @@ public class DoubleUp extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String userSentence = textFieldCmdIn.getText();
-				String result = Controller.executeCommand(userSentence, file, archive);
+				String result;
+				switch (userSentence){
+				case "/showhelp":
+					try 
+					{
+						FileReader fr = new FileReader("help1.txt");
+						BufferedReader br = new BufferedReader(fr);
+						displayPanelTodayTasks.read(br, null);
+						br.close();
+					}catch (IOException e1) {
+	                 }
+	              
+					middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen"));
+					result = "Press ESC to return to Today Tasks";
+					break;
+				case "/showfloating":
+					result = "These are your floating tasks.";
+					middleRow.setBorder(BorderFactory.createTitledBorder("Floating Tasks:"));
+					displayPanelTodayTasks.setText(Controller.printFloatingList());
+					break;
+				case "/showtoday":
+					result = "These are your tasks for the day.";
+					middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
+					displayPanelTodayTasks.setText(Controller.printTodayList(Controller.createTodayList()));
+					break;
+				case "/showall":
+					result = "These are all your tasks.";
+					middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks:"));
+					displayPanelTodayTasks.setText(Controller.printEveryTask());
+					break;
+				case "/clear":
+					result ="Screen cleared.";
+					displayPanelTodayTasks.setText("");
+					break;
+				default:
+					result = Controller.executeCommand(userSentence, file, archive);					
+					displayPanelTodayTasks.setText(Controller.printTodayList(Controller.createTodayList()));
+					middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
+				}
 				textFieldCmdIn.setText("");  // clear input TextField
-				displayPanelTodayTasks.setText(Controller.printTodayList(Controller.createTodayList()));
-				displayPanelAllTasks.setText(Controller.printEveryTask());
-				displayPanelFloatingTasks.setText(Controller.printFloatingList());
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
 		});
 	}
-	
+
 	// Concats the different messages to form the welcome message for the
 	// welcome screen
 	private static String createWelcomeMessage(ArrayList<Integer> numOfTask) {
@@ -209,5 +197,21 @@ public class DoubleUp extends JFrame {
 
 	public static void messageToUser(String text) {
 		displayPanelTodayTasks.setText(text);
+	}
+	private static String showHelp() {
+		File helpFile = new File("help.txt");
+		Scanner sc;
+		String toPrint = "";
+		try {
+			sc = new Scanner(helpFile);
+			while (sc.hasNext()) {
+				String sentence = sc.nextLine();
+				String[] result = sentence.split(" ### ");
+				toPrint += String.format("%-40s%-56s%-50s%n", result[0], result[1], result[2]);
+			} 
+			sc.close();
+		}catch (FileNotFoundException e) {
+		}
+		return toPrint;
 	}
 }
