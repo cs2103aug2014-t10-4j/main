@@ -83,9 +83,9 @@ class Task {
 	//This method can be used to print tasks for debugging.
 	@Override
 	public String toString(){
-		String sentence ="";
+		String sentence = "";
 		if (this.getTime() == null || this.getTime().equals("null") ){
-			sentence +=  " [*] "; 
+			sentence +=  " [ **** ] "; 
 		} else {
 			sentence +=  " [" + this.getTime() +"] "; 
 		}

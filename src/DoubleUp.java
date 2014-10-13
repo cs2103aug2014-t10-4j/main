@@ -1,7 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -25,7 +24,6 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
 public class DoubleUp extends JFrame {
-
 	/**
 	 * 
 	 */
@@ -34,12 +32,12 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
 	private static final String MSG_QOTD = "QOTD: \n";
 	private static final String MSG_GOAL = "Your goal is: ";
-	private static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
+	private static final String MSG_HELP = "Type /help to view all the commands. Happy doubling up!\n";
 	private static final String MSG_ENTER_COMMAND = "Enter a command: ";
 	private static final String MSG_RESULT = "Result: ";
 
 	private static JTextField textFieldCmdIn, textFieldResultsOut;
-	private static JTextArea displayPanelTodayTasks, displayPanelFloatingTasks, displayPanelAllTasks;
+	private static JTextArea displayPanelTodayTasks;
 	private static JPanel middleRow;
 
 	public static File file, archive;
@@ -49,7 +47,7 @@ public class DoubleUp extends JFrame {
 		String archiveName = "Archive.txt";
 		file = Storage.openFile(fileName);
 		archive = Storage.openFile(archiveName);
-		ArrayList<Integer> numOfTask = Logic.init(file, archive);
+		Logic.init(file, archive);
 
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -67,14 +65,13 @@ public class DoubleUp extends JFrame {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addComponentsToPane(frame.getContentPane());
 		//frame.pack();
-		frame.setMinimumSize(new Dimension(500,500));
+		frame.setMinimumSize(new Dimension(630,500));
 		frame.setVisible(true);
 	}
 
 	public static void addComponentsToPane(Container cp){
 		cp.setLayout(new BorderLayout());
-
-		//Top pane
+		//Top panel for Command
 		JPanel topRow = new JPanel();
 		topRow.add(new JLabel(MSG_ENTER_COMMAND));
 		textFieldCmdIn = new JTextField(30);
@@ -94,18 +91,18 @@ public class DoubleUp extends JFrame {
 		
 		JPanel lastRow = new JPanel();
 		lastRow.add(new JLabel(MSG_RESULT));
-		textFieldResultsOut = new JTextField(30);
+		textFieldResultsOut = new JTextField(43);
 		textFieldResultsOut.setEditable(false);  // read-only
+		textFieldResultsOut.setText(MSG_WELCOME + MSG_HELP);
 		lastRow.add(textFieldResultsOut);
 		cp.add(lastRow, BorderLayout.SOUTH);
 
-		// Allocate an anonymous instance of an anonymous inner class that
-		//  implements ActionListener as ActionEvent listener
 		textFieldCmdIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String userSentence = textFieldCmdIn.getText();
 				String result;
+				ResultOfCommand results;
 				switch (userSentence){
 				case "/showhelp":
 					try 
@@ -116,19 +113,18 @@ public class DoubleUp extends JFrame {
 						br.close();
 					}catch (IOException e1) {
 	                 }
-	              
 					middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen"));
 					result = "Press ESC to return to Today Tasks";
 					break;
 				case "/showfloating":
 					result = "These are your floating tasks.";
 					middleRow.setBorder(BorderFactory.createTitledBorder("Floating Tasks:"));
-					displayPanelTodayTasks.setText(Controller.printFloatingList());
+					displayToUser(Controller.printFloatingList());
 					break;
 				case "/showtoday":
 					result = "These are your tasks for the day.";
 					middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
-					displayPanelTodayTasks.setText(Controller.printTodayList(Controller.createTodayList()));
+					displayToUser(Controller.printTodayList(Controller.createTodayList()));
 					break;
 				case "/showall":
 					result = "These are all your tasks.";
@@ -140,9 +136,10 @@ public class DoubleUp extends JFrame {
 					displayPanelTodayTasks.setText("");
 					break;
 				default:
-					result = Controller.executeCommand(userSentence, file, archive);					
-					displayPanelTodayTasks.setText(Controller.printEveryTask());
-					middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks:"));
+					results = Controller.executeCommand(userSentence, file, archive);					
+					displayPanelTodayTasks.setText(results.printArrayList());
+					result = results.getFeedback();
+					middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 				}
 				textFieldCmdIn.setText("");  // clear input TextField
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
@@ -195,23 +192,7 @@ public class DoubleUp extends JFrame {
 		return reportDate;
 	}
 
-	public static void messageToUser(String text) {
+	public static void displayToUser(String text) {
 		displayPanelTodayTasks.setText(text);
-	}
-	private static String showHelp() {
-		File helpFile = new File("help.txt");
-		Scanner sc;
-		String toPrint = "";
-		try {
-			sc = new Scanner(helpFile);
-			while (sc.hasNext()) {
-				String sentence = sc.nextLine();
-				String[] result = sentence.split(" ### ");
-				toPrint += String.format("%-40s%-56s%-50s%n", result[0], result[1], result[2]);
-			} 
-			sc.close();
-		}catch (FileNotFoundException e) {
-		}
-		return toPrint;
 	}
 }

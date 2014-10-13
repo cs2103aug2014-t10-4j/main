@@ -1,10 +1,12 @@
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Scanner;
+
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 
 public class Controller {
@@ -18,45 +20,55 @@ public class Controller {
 		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_SCREEN, EDIT, EXIT, INVALID, SEARCH, SORT, HELP;
 	};
 
-	public static String executeCommand(String userSentence, File file, File archive) {
+	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
 		String[] splitCommand = Parser.parseInput(userSentence);
 		String action = getFirstWord(splitCommand);
 		CommandType commandType = determineCommandType(action);
 		Task taskToExecute = new Task(splitCommand);
+		ResultOfCommand results = new ResultOfCommand();
 		switch (commandType) {
 		case ADD_TEXT:
-			Task tempTask = new Task();
-			tempTask.setDate(taskToExecute.getDate());
-			tempTask.setTime(taskToExecute.getTime());
-			//ArrayList<Task> tasksFound = search(tempTask, file);
-			ArrayList<Task> tasksFound = new ArrayList<Task>(); //stub to swop with above line
+			ArrayList<Task> tasksFound = findClash(taskToExecute);
 			if (tasksFound.size() == 0){
-				return Logic.addLineToFile(taskToExecute, file);
-			} /*else {
-					String matchedList = printArrayList(tasksFound);
-					displayList.setText(matchedList);
-					//textFieldResultsOut.setText("Clashes found!");
-					 JFrame frame = new JFrame();
-    				 Object result = JOptionPane.showInputDialog(frame, "The task you are about to add have the same 
-						date and time as the above items. Do you want to continue? (y/n)?"");
-					 if (result.equalsIgnoreCase("y") || results.equalsIgnoreCase("yes"){
-					 	return Logic.addLineToFile(taskToExecute, file);
-					 } else {
-					 	return;
-					 }
-				}*/
+				results.setListOfTasks(Logic.getTempStorage());
+				results.setFeedback(Logic.addLineToFile(taskToExecute, file));
+				return results;
+			} else {
+				results.setListOfTasks(tasksFound);
+				results.setFeedback("Clashes found!");
+				JFrame frame = new JFrame();
+				int n = JOptionPane.showConfirmDialog(
+						frame,
+						"Continue adding?",
+						"Something is happening at the same time!",
+						JOptionPane.YES_NO_OPTION);
+				if (n == JOptionPane.YES_OPTION){
+					results.setFeedback(Logic.addLineToFile(taskToExecute, file));			
+				} else {
+					results.setFeedback("Task is not added.");
+				}
+				results.setListOfTasks(Logic.getTempStorage());
+				return results;
+			}
 		case DISPLAY_TEXT:
-			return printArrayList(createTodayList());
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
 		case DELETE_TEXT:
-			return Logic.deleteLineFromFile(taskToExecute, file, archive);
+			results.setFeedback(Logic.deleteLineFromFile(taskToExecute, file, archive));
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
 		case EDIT:
-			return Logic.edit(taskToExecute, file);
+			results.setFeedback(Logic.edit(taskToExecute, file));
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
 		case CLEAR_SCREEN:
 			// return Logic.clearContent(file);
-			return "clear"; // stub
+			//return "clear"; // stub
 		case SEARCH:
-			return printArrayList ( Logic.search(taskToExecute) );
-			//return "search"; // stub
+			results.setListOfTasks(Logic.search(taskToExecute) );
+			results.setFeedback("This is what is found.");
+			results.setTitleOfPanel("Search Results for \""+ userSentence + "\"");
+			return results;
 		case SORT:
 			/*String sortParams = splitCommand[7s];
 			if (sortParams.equals("alpha"){
@@ -66,13 +78,24 @@ public class Controller {
 			} else {
 				return sortByDateAndTime(file);
 			}*/
-			return "sort"; // stub
+			//return "sort"; // stub
 		case EXIT:
 			System.exit(0);
 		default:
-			return MSG_INVALID_COMMAND;
+			results.setFeedback(MSG_INVALID_COMMAND);
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
 		}
 	}
+
+	//Return any tasks with the same date and time as taskToExecute
+	private static ArrayList<Task> findClash(Task taskToExecute) {
+		Task tempTask = new Task();
+		tempTask.setDate(taskToExecute.getDate());
+		tempTask.setTime(taskToExecute.getTime());
+		return Logic.search(tempTask);
+	}
+
 
 	// This method is used to determine the command types given the first word of the command.
 	private static CommandType determineCommandType(String commandTypeString) {
@@ -106,7 +129,7 @@ public class Controller {
 		return userCommand[0];
 	}
 
-	
+
 
 	public static String printTodayList (ArrayList<Task> listOfTasks){
 		if (listOfTasks.size() ==0){
@@ -142,12 +165,20 @@ public class Controller {
 		ArrayList<Task> everyTask = Logic.getTempStorage();
 		if (everyTask.size() !=0){
 			String date = everyTask.get(0).getDate();
-			toPrint += createHorizLine("=", 20) + date + " " + createHorizLine("=", 20) + "\n";
+			if (date.equals(getTodayDate())){
+				toPrint += " " + createHorizLine("=", 20) + " " + date + " , Today " + createHorizLine("=", 20) + "\n";
+			} else {	
+				toPrint += " " + createHorizLine("=", 20) + " " + date + " " + createHorizLine("=", 20) + "\n";
+			}
 			for (int j = 0; j < everyTask.size() ; j ++){
 				String dateOfCurrentTask = everyTask.get(j).getDate();
 				if (! dateOfCurrentTask.equals(date)){
 					toPrint += "\n";
-					toPrint += createHorizLine("=", 20) + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
+					if (dateOfCurrentTask.equals("ft")){
+						toPrint += " " + createHorizLine("=", 20) + " Floating Tasks "  + createHorizLine("=", 20)+ "\n" ;
+					} else {
+						toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
+					}
 				}
 				toPrint += " " + (j+1) + ". " + everyTask.get(j).toString() + "\n";
 				date = dateOfCurrentTask;
@@ -166,7 +197,7 @@ public class Controller {
 		}
 		return line;
 	}
-	
+
 	public static ArrayList<Task> createTodayList() {
 		ArrayList<Task> allTasks = Logic.getTempStorage();
 		ArrayList<Task> todayTasks = new ArrayList<Task>();
@@ -177,7 +208,7 @@ public class Controller {
 		}
 		return todayTasks;
 	}
-	
+
 	//Same function as getCurrentDate except date is in another format
 	private static String getTodayDate() {
 		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
