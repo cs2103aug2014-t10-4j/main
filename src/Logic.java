@@ -2,22 +2,16 @@
  * This program implement the logic for the TextBuddy.
  * 
  */
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 public class Logic {
-	private static final String MSG_FAIL_ADD = "Unable to add line.";
+	private static final String MSG_FAILED_SORT = "Sorting failed";
+	private static final String MSG_SUCCESSFUL_SORT = "Successfully sorted by ";
+	private static final String MSG_NO_TASKS_TO_SORT = "Not enough tasks to sort";
 	private static final String DELETE_MESSAGE = "deleted from %s: \"%s\"";
 	private static final String WRONG_FORMAT = "\"%s\" is wrong format";
 	private static final String BAD_INDEX_MESSAGE = "%d is not a valid number.Valid range is %d to %d.";
@@ -25,47 +19,12 @@ public class Logic {
 	private static final int INITIAL_VALUE = 0;
 	private static final String NO_MESSAGE_DELETE = "nothing to delete!";
 	private static final int INVAILD_NUMBER = -1;
+	private static final String MSG_CLEARED_FILE = "List is cleared";
 
 	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
 	private static ArrayList<Task> archiveStorage = new ArrayList<Task>();
-	private static ArrayList<Task> memory = new ArrayList<Task>();
-	private static ArrayList<Task> searchTask;
 	private static ArrayList<Task> searchResults = new ArrayList<Task>();
-	private File file;
-
-	/*
-	 * 
-	 * public static String delete(int number) {
-	 * 
-	 * String deleteTask; try { deleteTask = tempStorage.remove(number); } catch
-	 * (Exception e) { deleteTask = null; } return deleteTask;
-	 * 
-	 * }
-	 * 
-	 * public void sort() { Collections.sort(tempStorage); writeTextFile(null,
-	 * file); }
-	 * 
-	 * public ArrayList<String> search(String word) { ArrayList<String> result =
-	 * new ArrayList<String>(); for (String task : tempStorage) { if
-	 * (task.contains(word)) { result.add(task); } } return result; }
-	 * 
-	 * public void clear() { tempStorage.clear(); writeTextFile(null, file); }
-	 * 
-	 * public static void readFile(String FileName) throws IOException {
-	 * BufferedReader reader = null; try { reader = new BufferedReader(new
-	 * FileReader(FileName)); String text; while ((text = reader.readLine()) !=
-	 * null) { tempStorage.add(text.substring(3, text.length())); } } catch
-	 * (IOException e) { e.printStackTrace(); } finally { try { reader.close();
-	 * } catch (IOException e) { e.printStackTrace(); } } }
-	 * 
-	 * private static void writeTextFile(String inputText, File file) {
-	 * BufferedWriter outputFile; try { outputFile = new BufferedWriter( new
-	 * FileWriter(file.getName(), true)); if (!isEmpty(file))
-	 * outputFile.write(inputText); outputFile.close(); } catch (IOException e)
-	 * { System.out.println("Error: " + e.getMessage()); } }
-	 * 
-	 * private static boolean isEmpty(File file) { return file.length() <= 0; }
-	 */
+	private static File file;
 
 	public static String addLineToFile(Task task, File file) {
 		if (task.getName() == null) {
@@ -158,9 +117,10 @@ public class Logic {
 	// step 2 add these tasks one by one to the other temp storage(memory).
 	// step3 get the contain for the delete task. delete the task use equals .
 
-	public void clearContent() {
+	public static String clearContent() {
 		tempStorage.clear();
 		Storage.writeToFile(null, file);
+		return MSG_CLEARED_FILE;
 	}
 
 	public static ArrayList<Integer> init(File file, File archive) {
@@ -210,34 +170,27 @@ public class Logic {
 		}
 	}
 
-	public static void sortByDateAndTime(ArrayList<Task> tempStorage){
+	public static String sortByDateAndTime(ArrayList<Task> tempStorage){
 		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
 		DateFormat timeFormat = new SimpleDateFormat("HHmm");
 		dateFormat.setLenient(false);
 		timeFormat.setLenient(false);
 		if(tempStorage.size()<1){
-			return;
+			return MSG_NO_TASKS_TO_SORT;
 		}
 		else{
 			for (int i=0;i<tempStorage.size();i++){
 				boolean isSorted=true;
-
 				for(int j=0;j<tempStorage.size()-1;j++){
-
 					try{
-
-						if(tempStorage.get(j).getDate().equals("ft")&& !tempStorage.get(j+1).getDate().equals("ft")){
-
+						if (tempStorage.get(j).getDate().equals("ft")&& !tempStorage.get(j+1).getDate().equals("ft")){
 							tempStorage.add(j+2,tempStorage.get(j));
 							tempStorage.remove(j);
 							isSorted= false;
-						}
-						else if(!tempStorage.get(j).getDate().equals("ft") && tempStorage.get(j+1).getDate().equals("ft")){
+						} else if (!tempStorage.get(j).getDate().equals("ft") && tempStorage.get(j+1).getDate().equals("ft")){
 							continue;
-						}
-						else{
+						} else {
 							Date dateOfFirstTask = new Date();
-
 							dateOfFirstTask = dateFormat.parse(tempStorage.get(j).getDate());
 
 							Date dateOfSecondTask = new Date();
@@ -247,49 +200,42 @@ public class Logic {
 								tempStorage.add(j+2,tempStorage.get(j));
 								tempStorage.remove(j);
 								isSorted= false;
-
-							}
-							else if(dateOfFirstTask.compareTo(dateOfSecondTask)==0){
+							} else if (dateOfFirstTask.compareTo(dateOfSecondTask)==0){
 								if(tempStorage.get(j).getTime().equals("null")){
 									continue;
-								}
-								else if(!tempStorage.get(j).getTime().equals("null") && tempStorage.get(j+1).getTime().equals("null")){
+								} else if (!tempStorage.get(j).getTime().equals("null") && tempStorage.get(j+1).getTime().equals("null")){
 									tempStorage.add(j+2,tempStorage.get(j));
 									tempStorage.remove(j);
 									isSorted= false;
-								}
-								else{
+								} else {
 									Date timeOfFirstTask = new Date();
-
 									timeOfFirstTask = timeFormat.parse(tempStorage.get(j).getTime());
 
 									Date timeOfSecondTask = new Date();
 									timeOfSecondTask = timeFormat.parse(tempStorage.get(j+1).getTime());
 
-									if(timeOfFirstTask.compareTo(timeOfSecondTask)>0){
+									if (timeOfFirstTask.compareTo(timeOfSecondTask)>0){
 										tempStorage.add(j+2,tempStorage.get(j));
 										tempStorage.remove(j);
 										isSorted= false;
-
 									}
 								}
 							}
 						}
-					}catch(Exception e){
+					} catch(Exception e){
 					}
 				}
-
 				if (isSorted) {
-					return;
+					return MSG_SUCCESSFUL_SORT + "date and time";
 				}
 			}
-
+		return MSG_FAILED_SORT;
 		}
 	}
 
-	public static void sortByAlphabet(ArrayList<Task> tempStorage) {
+	public static String sortByAlphabet(ArrayList<Task> tempStorage) {
 		if (tempStorage.size() < 1) {
-			return;
+			return MSG_NO_TASKS_TO_SORT;
 		} else {
 			for (int i = 0; i < tempStorage.size(); i++) {
 				boolean isSorted = true;
@@ -302,19 +248,19 @@ public class Logic {
 						tempStorage.add(j + 2, tempStorage.get(j));
 						tempStorage.remove(j);
 						isSorted = false;
-
 					}
 				}
 				if (isSorted) {
-					return;
+					return MSG_SUCCESSFUL_SORT + "alphabetical order.";
 				}
 			}
+		return MSG_FAILED_SORT;
 		}
 	}
 
-	public static void sortByImportance(ArrayList<Task> tempStorage) {
+	public static String sortByImportance(ArrayList<Task> tempStorage) {
 		if (tempStorage.size() < 1) {
-			return;
+			return MSG_NO_TASKS_TO_SORT;
 		} else {
 			for (int i = 0; i < tempStorage.size(); i++) {
 				boolean isSorted = true;
@@ -327,11 +273,11 @@ public class Logic {
 					}
 				}
 				if (isSorted) {
-					return;
+					return MSG_SUCCESSFUL_SORT + "importance level.";
 				}
-
 			}
 		}
+		return MSG_FAILED_SORT;
 	}
 
 	public static String edit(Task detailsOfTask, File file) {

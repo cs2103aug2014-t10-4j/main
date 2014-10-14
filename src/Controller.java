@@ -4,7 +4,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -17,7 +16,7 @@ public class Controller {
 	private static final String MSG_INVALID_COMMAND = "Invalid command";
 
 	enum CommandType {
-		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_SCREEN, EDIT, EXIT, INVALID, SEARCH, SORT, HELP;
+		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_FILE, EDIT, EXIT, INVALID, SEARCH, SORT, HELP;
 	};
 
 	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
@@ -61,24 +60,33 @@ public class Controller {
 			results.setFeedback(Logic.edit(taskToExecute, file));
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
-		case CLEAR_SCREEN:
-			// return Logic.clearContent(file);
-			//return "clear"; // stub
+		case CLEAR_FILE:
+			results.setFeedback(Logic.clearContent());
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
 		case SEARCH:
 			results.setListOfTasks(Logic.search(taskToExecute) );
 			results.setFeedback("This is what is found.");
 			results.setTitleOfPanel("Search Results for \""+ userSentence + "\"");
 			return results;
 		case SORT:
-			/*String sortParams = splitCommand[7s];
-			if (sortParams.equals("alpha"){
-				return sortByAlphabet(file);
-			} else if (sortParams.equals("importance")){
-				return sortByImportance(file);
+			String sortParams = splitCommand[7];
+			if (sortParams.equalsIgnoreCase("alpha")){
+				results.setFeedback(Logic.sortByAlphabet(Logic.getTempStorage()));
+				results.setListOfTasks(Logic.getTempStorage());
+				results.setTitleOfPanel("All tasks by alphabetical order");
+				return results;
+			} else if (sortParams.equalsIgnoreCase("importance")){
+				results.setFeedback(Logic.sortByImportance(Logic.getTempStorage()));
+				results.setListOfTasks(Logic.getTempStorage());
+				results.setTitleOfPanel("All tasks by importance order");
+				return results;
 			} else {
-				return sortByDateAndTime(file);
-			}*/
-			//return "sort"; // stub
+				results.setFeedback(Logic.sortByDateAndTime(Logic.getTempStorage()));
+				results.setListOfTasks(Logic.getTempStorage());
+				results.setTitleOfPanel("All tasks:");
+				return results;
+			}
 		case EXIT:
 			System.exit(0);
 		default:
@@ -96,7 +104,6 @@ public class Controller {
 		return Logic.search(tempTask);
 	}
 
-
 	// This method is used to determine the command types given the first word of the command.
 	private static CommandType determineCommandType(String commandTypeString) {
 		if (commandTypeString == null) {
@@ -109,7 +116,7 @@ public class Controller {
 		} else if (commandTypeString.equalsIgnoreCase("delete")) {
 			return CommandType.DELETE_TEXT;
 		} else if (commandTypeString.equalsIgnoreCase("clear")) {
-			return CommandType.CLEAR_SCREEN;
+			return CommandType.CLEAR_FILE;
 		} else if (commandTypeString.equalsIgnoreCase("edit")) {
 			return CommandType.EDIT;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
@@ -129,8 +136,6 @@ public class Controller {
 		return userCommand[0];
 	}
 
-
-
 	public static String printTodayList (ArrayList<Task> listOfTasks){
 		if (listOfTasks.size() ==0){
 			return MSG_EMPTY_TODAY;
@@ -138,6 +143,7 @@ public class Controller {
 			return printArrayList(listOfTasks);
 		}
 	}
+	
 	public static String printFloatingList (){
 		ArrayList<Task> allTasks = Logic.getTempStorage();
 		ArrayList <Task> listOfFloating = new ArrayList<Task>();
@@ -160,6 +166,7 @@ public class Controller {
 		}
 		return toPrint;
 	}
+	
 	public static String printEveryTask(){
 		String toPrint = "";
 		ArrayList<Task> everyTask = Logic.getTempStorage();
