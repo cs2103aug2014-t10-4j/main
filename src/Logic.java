@@ -68,7 +68,7 @@ public class Logic {
 			Storage.writeToFile(archiveStorage, archive);
 			return temp;
 		} catch (IndexOutOfBoundsException e) {
-			return String.format(BAD_INDEX_MESSAGE, index+1 , 1,
+			return String.format(BAD_INDEX_MESSAGE, index + 1, 1,
 					tempStorage.size());
 		}
 	}
@@ -76,15 +76,15 @@ public class Logic {
 	public static ArrayList<Task> search(Task task) {
 		searchResults.clear();
 		for (int i = 0; i < tempStorage.size(); i++) {
-			if (task.getName()!=null
+			if (task.getName() != null
 					&& !tempStorage.get(i).getName().contains(task.getName())) {
 				continue;
 			}
-			if (task.getDate()!= null
+			if (task.getDate() != null
 					&& !tempStorage.get(i).getDate().contains(task.getDate())) {
 				continue;
 			}
-			if (task.getTime()!= null
+			if (task.getTime() != null
 					&& !tempStorage.get(i).getTime().contains(task.getTime())) {
 				continue;
 			}
@@ -104,13 +104,21 @@ public class Logic {
 		return searchResults;
 	}
 
-	/*
-	 * public static String deleteLineFromSearchList (Task task, ArrayList<Task>
-	 * memory ){ if (memory.size() == 0) { return NO_MESSAGE_DELETE; } int index
-	 * = getIndex(task); return removeText (index, task, memory);
-	 * 
-	 * }
-	 */
+	public static String deleteLineFromSearchList(Task task,
+			ArrayList<Task> searchResults) {
+		if (searchResults.size() == 0) {
+			return NO_MESSAGE_DELETE;
+		}
+		int index = getIndex(task);
+		Task temp = searchResults.get(index);
+		for (int i = 0; i < tempStorage.size(); i++) {
+			if (tempStorage.get(i).equals(temp)) {
+				tempStorage.remove(i);
+			}
+		}
+		return String
+				.format(DELETE_MESSAGE, searchResults.get(index).getName());
+	}
 
 	// for delete from searched list of tasks.
 	// step 1 search from tempStorage display all the lists of tasks.
@@ -123,6 +131,7 @@ public class Logic {
 		return MSG_CLEARED_FILE;
 	}
 
+
 	public static ArrayList<Integer> init(File file, File archive) {
 
 		Storage.copyToArrayList(file, tempStorage);
@@ -130,13 +139,13 @@ public class Logic {
 		ArrayList<Integer> numTask = new ArrayList<Integer>();
 		getNumTasks(numTask, tempStorage);
 
+
 		return numTask;
 	}
 
 	public static ArrayList<Task> getTempStorage(){
 		return tempStorage;
 	}
-
 
 	private static void getNumTasks(ArrayList<Integer> numTask,
 			ArrayList<Task> tempStorage) {
@@ -147,12 +156,12 @@ public class Logic {
 			int todayTask = INITIAL_VALUE;
 			int tomorrowTask = INITIAL_VALUE;
 			for (int i = 0; i < tempStorage.size(); i++) {
-				if (tempStorage.get(i).getDate().contains("ft")){
+				if (tempStorage.get(i).getDate().contains("ft")) {
 					continue;
-				}
-				else{
+				} else {
 					Date dateOfCurrentTask = new Date();
-					dateOfCurrentTask = dateFormat.parse(tempStorage.get(i).getDate());
+					dateOfCurrentTask = dateFormat.parse(tempStorage.get(i)
+							.getDate());
 					if (dateOfCurrentTask.compareTo(currentDate) == INITIAL_VALUE) {
 						todayTask++;
 					} else if (dateOfCurrentTask.compareTo(currentDate) == INITIAL_VALUE + 1) {
@@ -285,10 +294,11 @@ public class Logic {
 		if (detailsOfTask.getName() != null) {
 			tempStorage.get(taskNumber).setName(detailsOfTask.getName());
 		}
-		if (detailsOfTask.getDate() != null) {
+		if (detailsOfTask.getDate().equals("null")) {
 			tempStorage.get(taskNumber).setDate(detailsOfTask.getDate());
 		}
-		if (detailsOfTask.getTime() != null) {
+		System.out.println(detailsOfTask.getTime());
+		if (detailsOfTask.getTime()!=null) {
 			tempStorage.get(taskNumber).setTime(detailsOfTask.getTime());
 		}
 		if (detailsOfTask.getDetails() != null) {
@@ -299,7 +309,6 @@ public class Logic {
 		}
 		sortByDateAndTime(tempStorage);
 		Storage.writeToFile(tempStorage, file);
-
 		return "Successfully edited.";
 	}
 }
