@@ -117,9 +117,9 @@ public class Logic {
 	// step 2 add these tasks one by one to the other temp storage(memory).
 	// step3 get the contain for the delete task. delete the task use equals .
 
-	public static String clearContent() {
+	public static String clearContent(File file) { //Changed by delvin, your file was not initialized without the parameters
 		tempStorage.clear();
-		Storage.writeToFile(null, file);
+		Storage.writeToFile(new ArrayList<Task>(), file); //Changed by delvin. Using null will cause nullPointException.
 		return MSG_CLEARED_FILE;
 	}
 

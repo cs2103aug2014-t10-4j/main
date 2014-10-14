@@ -55,7 +55,7 @@ public class ResultOfCommand {
 			}
 			for (int j = 0; j < listOfTasks.size() ; j ++){
 				String dateOfCurrentTask = listOfTasks.get(j).getDate();
-				if (! dateOfCurrentTask.equals(date)){
+				if ( dateOfCurrentTask != null && !dateOfCurrentTask.equals(date)){
 					toPrint += "\n";
 					if (dateOfCurrentTask.equals("ft")){
 						toPrint += " " + createHorizLine("=", 20) + " Floating Tasks "  + createHorizLine("=", 20)+ "\n" ;

@@ -8,10 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Scanner;
 
 import javax.swing.AbstractAction;
@@ -38,6 +35,8 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!\n";
 	private static final String MSG_ENTER_COMMAND = "Enter a command: ";
 	private static final String MSG_RESULT = "Result: ";
+	private static final String FILE_TASK = "DoubleUp.txt";
+	private static final String FILE_ARCHIVE = "Archive.txt";
 
 	private static JTextField textFieldCmdIn, textFieldResultsOut;
 	private static JTextArea displayPanelTodayTasks;
@@ -46,28 +45,21 @@ public class DoubleUp extends JFrame {
 	public static File file, archive;
 
 	public static void main(String[] args) {
-		String fileName = "DoubleUp.txt";
-		String archiveName = "Archive.txt";
-		file = Storage.openFile(fileName);
-		archive = Storage.openFile(archiveName);
+		file = Storage.openFile(FILE_TASK);
+		archive = Storage.openFile(FILE_ARCHIVE);
 		Logic.init(file, archive);
-
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				createAndShowGUI();
 			}
 		});
-		//messageToUser(createWelcomeMessage(numOfTask));
-		//messageToUser(createTodayList(file));
 	}
 
 	public static void createAndShowGUI() {
-		//Create and set up the window
 		JFrame frame = new JFrame("DoubleUp To-do-List");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addComponentsToPane(frame.getContentPane());
-		//frame.pack();
 		frame.setMinimumSize(new Dimension(630,500));
 		frame.setVisible(true);
 	}
@@ -102,50 +94,66 @@ public class DoubleUp extends JFrame {
 		cp.add(lastRow, BorderLayout.SOUTH);
 
 		Action showHelp = new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
 			public void actionPerformed(ActionEvent e) {
-				//do nothing
-				ResultOfCommand results = new ResultOfCommand();
-				showHelp(results);
+				showHelp();
 			}
-			private void showHelp(ResultOfCommand results) {
+			private void showHelp() {
 				try 
 				{
 					FileReader fr = new FileReader("help.txt");
 					BufferedReader br = new BufferedReader(fr);
 					displayPanelTodayTasks.read(br, null);
 					br.close();
-					results.setTitleOfPanel("Help Screen:");
-					results.setFeedback("Press ESC to return to All Tasks");
 				} catch (IOException e1) {
 				}
-				textFieldResultsOut.setText(results.getFeedback());
-				middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
+				textFieldResultsOut.setText("Press ESC to return to All Tasks");
+				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen:"));
 			}
 		};
-		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("F2"),
-				"doSomething");
-		textFieldCmdIn.getActionMap().put("doSomething", showHelp);
+		Action showAll = new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			public void actionPerformed(ActionEvent e) {
+				showAll();
+			}
+			private void showAll() {
+				displayPanelTodayTasks.setText(Controller.printEveryTask());
+				middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks: "));
+				textFieldResultsOut.setText("Press F2 for help.");
+			}
+		};
+		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("F2"), "showHelp");
+		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "showall");
+		textFieldCmdIn.getActionMap().put("showHelp", showHelp);
+		textFieldCmdIn.getActionMap().put("showall", showAll);
 
 		textFieldCmdIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String userSentence = textFieldCmdIn.getText();
 				ResultOfCommand results = new ResultOfCommand();
-				//				if (userSentence.equalsIgnoreCase("/help")){
-				//					showHelp(results);
-				//				} else { 
-				results = Controller.executeCommand(userSentence, file, archive);					
-				displayPanelTodayTasks.setText(results.printArrayList());
-				middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
-				textFieldResultsOut.setText(results.getFeedback()); // display results of command on the output TextField
-				//}
-				textFieldCmdIn.setText("");  // clear input TextField
+				if (userSentence.equalsIgnoreCase("/help")){
+					showHelp(results);
+				} else { 
+					results = Controller.executeCommand(userSentence, file, archive);					
+					displayPanelTodayTasks.setText(results.printArrayList());
+					middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
+					textFieldResultsOut.setText(results.getFeedback()); // display results of command on the output TextField
+					//}
+					textFieldCmdIn.setText("");  // clear input TextField
+				}
 			}
 
 			private void showHelp(ResultOfCommand results) {
 				try 
 				{
-					FileReader fr = new FileReader("help1.txt");
+					FileReader fr = new FileReader("help.txt");
 					BufferedReader br = new BufferedReader(fr);
 					displayPanelTodayTasks.read(br, null);
 					br.close();
@@ -156,8 +164,6 @@ public class DoubleUp extends JFrame {
 			}
 		});
 	}
-
-
 
 	// Concats the different messages to form the welcome message for the
 	// welcome screen
@@ -197,14 +203,4 @@ public class DoubleUp extends JFrame {
 		return help;
 	}
 
-	private static String getCurrentDate() {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-		Date date = new Date();
-		String reportDate = dateFormat.format(date);
-		return reportDate;
-	}
-
-	public static void displayToUser(String text) {
-		displayPanelTodayTasks.setText(text);
-	}
 }

@@ -1,13 +1,9 @@
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -16,7 +12,6 @@ public class Controller {
 
 	private static final String MSG_EMPTY_TODAY = "No tasks for today!";
 	private static final String MSG_EMPTY_ALL_DAYS = "No tasks for anyday!";
-	private static final String MSG_EMPTY_FLOATING = "No floating tasks!";
 	private static final String MSG_INVALID_COMMAND = "Invalid command";
 
 	enum CommandType {
@@ -40,7 +35,6 @@ public class Controller {
 					return results;
 				} else {
 					results.setListOfTasks(tasksFound);
-					results.setFeedback("Clashes found!");
 					JFrame frame = new JFrame();
 					int n = JOptionPane.showConfirmDialog(
 							frame,
@@ -75,16 +69,12 @@ public class Controller {
 			}
 		} else { 
 			switch (userSentence) {
-			case "/display" :
-				results.setListOfTasks(Logic.getTempStorage());
-				results.setFeedback("These are all your tasks");
-				results.setTitleOfPanel("All Tasks:");
-				return results;
 			case "/exit":
 				System.exit(0);
 			case "/deleteall":
-				results.setFeedback(Logic.clearContent());
+				results.setFeedback(Logic.clearContent(file));
 				results.setListOfTasks(Logic.getTempStorage());
+				results.setTitleOfPanel("All Tasks:");
 				return results;
 			case "/sort":
 				results.setFeedback(Logic.sortByDateAndTime(Logic.getTempStorage()));
@@ -106,11 +96,30 @@ public class Controller {
 				results.setTitleOfPanel("Floating Tasks:");
 				results.setListOfTasks(getFloatingList());
 				return results;
+				/* Currently, we cannot delete from floating list because
+				 * the number in floating list is not the same as in tempStorage
+				 * Therefore, after search and cmdHistory is written,
+				 * showfloating will be replaced by and treated as part of search:
+				 * Task dateFloating = new Task ();
+				 * dateFloating.setDate("ft");
+				 * results.setListOfTasks( Logic.search(dateFloating));
+				 * then delete or edit from floating list will work.
+				 */
 			case "/showtoday":
 				results.setFeedback("These are your tasks for the day.");
 				results.setTitleOfPanel("Today Tasks:");
 				results.setListOfTasks(getTodayList());
 				return results;
+				/* Currently, we cannot delete from today list because
+				 * the number in today list is not the same as in tempStorage.
+				 * This is because there could be past tasks on top of the list.
+				 * Therefore, after search and cmdHistory is written,
+				 * showtoday will be replaced by and treated as part of search:
+				 * Task dateToday = new Task ();
+				 * dateFloating.setDate(getTodayDate();
+				 * results.setListOfTasks( Logic.search(dateToday));
+				 * then delete or edit from today list will work.
+				 */
 			case "/showall":
 				results.setFeedback("These are all your tasks.");
 				results.setTitleOfPanel("All Tasks:");
@@ -241,7 +250,7 @@ public class Controller {
 		for (int j = 0 ; j< allTasks.size() ; j++){
 			if (allTasks.get(j).getDate().equals(getTodayDate())){
 				todayTasks.add(allTasks.get(j));
-			}
+			} 
 		}
 		return todayTasks;
 	}
