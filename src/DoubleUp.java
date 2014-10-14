@@ -1,16 +1,18 @@
+import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Scanner;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -18,10 +20,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 public class DoubleUp extends JFrame {
-
 	/**
 	 * 
 	 */
@@ -30,138 +32,139 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
 	private static final String MSG_QOTD = "QOTD: \n";
 	private static final String MSG_GOAL = "Your goal is: ";
-	private static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
-	private static final String MSG_COMMAND_LINE = "Enter a command: ";
+	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!\n";
+	private static final String MSG_ENTER_COMMAND = "Enter a command: ";
 	private static final String MSG_RESULT = "Result: ";
+	private static final String FILE_TASK = "DoubleUp.txt";
+	private static final String FILE_ARCHIVE = "Archive.txt";
 
 	private static JTextField textFieldCmdIn, textFieldResultsOut;
-	private static JTextArea displayPanelTodayTasks, displayPanelFloatingTasks, displayPanelAllTasks;
+	private static JTextArea displayPanelTodayTasks;
+	private static JPanel middleRow;
 
 	public static File file, archive;
-	
+
 	public static void main(String[] args) {
-		String fileName = "DoubleUp.txt";
-		String archiveName = "Archive.txt";
-		file = Storage.openFile(fileName);
-		archive = Storage.openFile(archiveName);
-		ArrayList<Integer> numOfTask = Logic.init(file, archive);
-		
+		file = Storage.openFile(FILE_TASK);
+		archive = Storage.openFile(FILE_ARCHIVE);
+		Logic.init(file, archive);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				createAndShowGUI();
 			}
 		});
-		//messageToUser(createWelcomeMessage(numOfTask));
-		//messageToUser(createTodayList(file));
 	}
 
 	public static void createAndShowGUI() {
-		//Create and set up the window
 		JFrame frame = new JFrame("DoubleUp To-do-List");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addComponentsToPane(frame.getContentPane());
-		frame.pack();
+		frame.setMinimumSize(new Dimension(650,600));
 		frame.setVisible(true);
 	}
 
 	public static void addComponentsToPane(Container cp){
-		cp.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-
-		//Top pane
-		c.fill = GridBagConstraints.BOTH;
-		c.gridx = 0;
-		c.gridy = 0;
-		c.weightx = 0.5;
+		cp.setLayout(new BorderLayout());
+		//Top panel for Command
 		JPanel topRow = new JPanel();
-		topRow.add(new JLabel(MSG_COMMAND_LINE));
+		topRow.add(new JLabel(MSG_ENTER_COMMAND));
 		textFieldCmdIn = new JTextField(30);
 		topRow.add(textFieldCmdIn);
-		cp.add(topRow,c);
+		cp.add(topRow, BorderLayout.NORTH);
 
 		// Today panel
-		c.fill = GridBagConstraints.BOTH;
-		c.gridwidth = 5;
-		c.gridx = 0;
-		c.gridy = 2;
-		c.weightx = 0.0;
-		c.ipady = 40;
-		c.gridwidth = 3;
-		JPanel middleRow = new JPanel();
-		displayPanelTodayTasks = new JTextArea(10,50);
+		middleRow = new JPanel();
+		middleRow.setLayout(new BorderLayout());
+		displayPanelTodayTasks = new JTextArea();
 		displayPanelTodayTasks.setEditable(false);
-		displayPanelTodayTasks.setText(Controller.printTodayList(Controller.createTodayList()));
-		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks);
-		middleRow.add(scroll);
-		middleRow.setOpaque(true);
-		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
-		cp.add(middleRow, c);
+		displayPanelTodayTasks.setText(Controller.printEveryTask());
+		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		middleRow.add(scroll, BorderLayout.CENTER);
+		middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks: "));
+		cp.add(middleRow, BorderLayout.CENTER);
 
-		//everything tasks panel
-		c.fill = GridBagConstraints.BOTH;
-		c.gridwidth = 5;
-		c.gridx = 0;
-		c.gridy = 3;
-		c.weightx = 0.0;
-		c.ipady = 40;
-		c.gridwidth = 3;
-		JPanel everythingRow = new JPanel();
-		displayPanelAllTasks = new JTextArea(10,50);
-		displayPanelAllTasks.setEditable(false);
-		displayPanelAllTasks.setText(Controller.printEveryTask());
-		JScrollPane scroll2 = new JScrollPane(displayPanelAllTasks);
-		everythingRow.add(scroll2);
-		everythingRow.setOpaque(true);
-		everythingRow.setBorder(BorderFactory.createTitledBorder("All tasks"));
-		cp.add(everythingRow, c);
-
-		c.fill = GridBagConstraints.BOTH;
-		c.gridwidth = 5;
-		c.gridx = 0;
-		c.gridy = 5;
-		c.weightx = 0.0;
-		c.ipady = 40;
-		c.gridwidth = 3;
-		JPanel thirdRow = new JPanel();
-		displayPanelFloatingTasks = new JTextArea(5,50);
-		displayPanelFloatingTasks.setEditable(false);
-		displayPanelFloatingTasks.setText(Controller.printFloatingList());
-		JScrollPane scroll3 = new JScrollPane(displayPanelFloatingTasks);
-		thirdRow.add(scroll3);
-		thirdRow.setOpaque(true);
-		thirdRow.setBorder(BorderFactory.createTitledBorder("Floating tasks:"));
-		cp.add(thirdRow, c);
-
-		c.fill = GridBagConstraints.BOTH;
-		c.ipady = 00;
-		c.weighty = 1.0;
-		c.anchor = GridBagConstraints.PAGE_END;
-		c.gridx = 0;
-		c.gridy = 10;
+		//feedback
 		JPanel lastRow = new JPanel();
 		lastRow.add(new JLabel(MSG_RESULT));
-		textFieldResultsOut = new JTextField(30);
+		textFieldResultsOut = new JTextField(43);
 		textFieldResultsOut.setEditable(false);  // read-only
+		textFieldResultsOut.setText(MSG_WELCOME + MSG_HELP);
 		lastRow.add(textFieldResultsOut);
-		cp.add(lastRow, c);
+		cp.add(lastRow, BorderLayout.SOUTH);
 
-		// Allocate an anonymous instance of an anonymous inner class that
-		//  implements ActionListener as ActionEvent listener
+		Action showHelp = new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			public void actionPerformed(ActionEvent e) {
+				showHelp();
+			}
+			private void showHelp() {
+				try 
+				{
+					FileReader fr = new FileReader("help.txt");
+					BufferedReader br = new BufferedReader(fr);
+					displayPanelTodayTasks.read(br, null);
+					br.close();
+				} catch (IOException e1) {
+				}
+				textFieldResultsOut.setText("Press ESC to return to All Tasks");
+				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen:"));
+			}
+		};
+		Action showAll = new AbstractAction() {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+			public void actionPerformed(ActionEvent e) {
+				showAll();
+			}
+			private void showAll() {
+				displayPanelTodayTasks.setText(Controller.printEveryTask());
+				middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks: "));
+				textFieldResultsOut.setText("Press F2 for help.");
+			}
+		};
+		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("F2"), "showHelp");
+		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "showall");
+		textFieldCmdIn.getActionMap().put("showHelp", showHelp);
+		textFieldCmdIn.getActionMap().put("showall", showAll);
+
 		textFieldCmdIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String userSentence = textFieldCmdIn.getText();
-				String result = Controller.executeCommand(userSentence, file, archive);
-				textFieldCmdIn.setText("");  // clear input TextField
-				displayPanelTodayTasks.setText(Controller.printTodayList(Controller.createTodayList()));
-				displayPanelAllTasks.setText(Controller.printEveryTask());
-				displayPanelFloatingTasks.setText(Controller.printFloatingList());
-				textFieldResultsOut.setText(result); // display results of command on the output TextField
+				ResultOfCommand results = new ResultOfCommand();
+				if (userSentence.equalsIgnoreCase("/help")){
+					showHelp(results);
+				} else { 
+					results = Controller.executeCommand(userSentence, file, archive);					
+					displayPanelTodayTasks.setText(results.printArrayList());
+					middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
+					textFieldResultsOut.setText(results.getFeedback()); // display results of command on the output TextField
+					//}
+					textFieldCmdIn.setText("");  // clear input TextField
+				}
+			}
+
+			private void showHelp(ResultOfCommand results) {
+				try 
+				{
+					FileReader fr = new FileReader("help.txt");
+					BufferedReader br = new BufferedReader(fr);
+					displayPanelTodayTasks.read(br, null);
+					br.close();
+				} catch (IOException e1) {
+				}
+				results.setTitleOfPanel("Help Screen:");
+				results.setFeedback("Press ESC to return to Today Tasks");
 			}
 		});
 	}
-	
+
 	// Concats the different messages to form the welcome message for the
 	// welcome screen
 	private static String createWelcomeMessage(ArrayList<Integer> numOfTask) {
@@ -200,14 +203,4 @@ public class DoubleUp extends JFrame {
 		return help;
 	}
 
-	private static String getCurrentDate() {
-		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-		Date date = new Date();
-		String reportDate = dateFormat.format(date);
-		return reportDate;
-	}
-
-	public static void messageToUser(String text) {
-		displayPanelTodayTasks.setText(text);
-	}
 }
