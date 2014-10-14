@@ -30,6 +30,8 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
 	private static final String MSG_EMPTY_FILE = "%s is empty.";
 	private static final String MSG_EMPTY_TODAY = "No tasks for today!";
+	private static final String MSG_EMPTY_ALL_DAYS = "No tasks for anyday!";
+	private static final String MSG_EMPTY_FLOATING = "No floating tasks!";
 	private static final String MSG_COMMAND_LINE = "Enter a command: ";
 	private static final String MSG_RESULT = "Result: ";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
@@ -40,8 +42,8 @@ public class DoubleUp extends JFrame {
 	private static JTextArea displayPanelTodayTasks, displayPanelFloatingTasks, displayPanelAllTasks;
 
 	public static File file;
+	private static final int LENGTH_OF_PAGE = 60;
 	public static File archive;
-	private static final int LENGTH_OF_PAGE = 80;
 
 	enum CommandType {
 		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_SCREEN, EDIT, EXIT, INVALID, SEARCH, SORT, HELP;
@@ -88,7 +90,7 @@ public class DoubleUp extends JFrame {
 		middleRow.setOpaque(true);
 		middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
 		cp.add(middleRow, c);
-		
+
 		//everything tasks panel
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 5;
@@ -100,13 +102,13 @@ public class DoubleUp extends JFrame {
 		JPanel everythingRow = new JPanel();
 		displayPanelAllTasks = new JTextArea(10,50);
 		displayPanelAllTasks.setEditable(false);
-		displayPanelAllTasks.setText(printArrayList(Logic.getTempStorage()));
+		displayPanelAllTasks.setText(printEveryTask());
 		JScrollPane scroll2 = new JScrollPane(displayPanelAllTasks);
 		everythingRow.add(scroll2);
 		everythingRow.setOpaque(true);
 		everythingRow.setBorder(BorderFactory.createTitledBorder("All tasks"));
 		cp.add(everythingRow, c);
-		
+
 		c.fill = GridBagConstraints.BOTH;
 		c.gridwidth = 5;
 		c.gridx = 0;
@@ -117,7 +119,7 @@ public class DoubleUp extends JFrame {
 		JPanel thirdRow = new JPanel();
 		displayPanelFloatingTasks = new JTextArea(5,50);
 		displayPanelFloatingTasks.setEditable(false);
-		displayPanelFloatingTasks.setText("Dummy! Supposed to show floating tasks");
+		displayPanelFloatingTasks.setText(printFloatingList());
 		JScrollPane scroll3 = new JScrollPane(displayPanelFloatingTasks);
 		thirdRow.add(scroll3);
 		thirdRow.setOpaque(true);
@@ -148,7 +150,8 @@ public class DoubleUp extends JFrame {
 				String result = executeCommand(splitCommand, file);
 				textFieldCmdIn.setText("");  // clear input TextField
 				displayPanelTodayTasks.setText(printTodayList(createTodayList()));
-				displayPanelAllTasks.setText(printArrayList(Logic.getTempStorage()));
+				displayPanelAllTasks.setText(printEveryTask());
+				displayPanelFloatingTasks.setText(printFloatingList());
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
 		});
@@ -160,7 +163,8 @@ public class DoubleUp extends JFrame {
 		file = Storage.openFile(fileName);
 		archive = Storage.openFile(archiveName);
 		ArrayList<Integer> numOfTask = Logic.init(file,archive);
-		
+
+
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -183,26 +187,26 @@ public class DoubleUp extends JFrame {
 			//ArrayList<Task> tasksFound = search(tempTask, file);
 			ArrayList<Task> tasksFound = new ArrayList<Task>(); //stub to swop with above line
 			if (tasksFound.size() == 0){
-				return Logic.addLineToFile(taskToExecute, file);
+				return Logic.add("add",taskToExecute, file);
 			} /*else {
-					String matchedList = printArrayList(tasksFound);
-					displayList.setText(matchedList);
-					//textFieldResultsOut.setText("Clashes found!");
-					 JFrame frame = new JFrame();
-    				 Object result = JOptionPane.showInputDialog(frame, "The task you are about to add have the same 
-						date and time as the above items. Do you want to continue? (y/n)?"");
-					 if (result.equalsIgnoreCase("y") || results.equalsIgnoreCase("yes"){
-					 	return Logic.addLineToFile(taskToExecute, file);
-					 } else {
-					 	return;
-					 }
-				}*/
+     String matchedList = printArrayList(tasksFound);
+     displayList.setText(matchedList);
+     //textFieldResultsOut.setText("Clashes found!");
+      JFrame frame = new JFrame();
+         Object result = JOptionPane.showInputDialog(frame, "The task you are about to add have the same 
+      date and time as the above items. Do you want to continue? (y/n)?"");
+      if (result.equalsIgnoreCase("y") || results.equalsIgnoreCase("yes"){
+       return Logic.addLineToFile(taskToExecute, file);
+      } else {
+       return;
+      }
+    }*/
 		case DISPLAY_TEXT:
 			return printArrayList(createTodayList());
 		case DELETE_TEXT:
-			return Logic.deleteLineFromFile(taskToExecute, file, archive);
+			return Logic.delete("delete",taskToExecute, file, archive);
 		case EDIT:
-			return Logic.edit(taskToExecute, file);
+			return Logic.edit("edit",taskToExecute, file);
 		case CLEAR_SCREEN:
 			// return Logic.clearContent(file);
 			return "clear"; // stub
@@ -211,13 +215,13 @@ public class DoubleUp extends JFrame {
 			//return "search"; // stub
 		case SORT:
 			/*String sortParams = splitCommand[7s];
-			if (sortParams.equals("alpha"){
-				return sortByAlphabet(file);
-			} else if (sortParams.equals("importance")){
-				return sortByImportance(file);
-			} else {
-				return sortByDateAndTime(file);
-			}*/
+   if (sortParams.equals("alpha"){
+    return sortByAlphabet(file);
+   } else if (sortParams.equals("importance")){
+    return sortByImportance(file);
+   } else {
+    return sortByDateAndTime(file);
+   }*/
 			return "sort"; // stub
 		case HELP:
 			return showHelp();
@@ -227,11 +231,25 @@ public class DoubleUp extends JFrame {
 			return MSG_INVALID_COMMAND;
 		}
 	}
-	private static String printTodayList(ArrayList<Task> listOfTasks){
+	private static String printTodayList (ArrayList<Task> listOfTasks){
 		if (listOfTasks.size() ==0){
 			return MSG_EMPTY_TODAY;
 		} else {
 			return printArrayList(listOfTasks);
+		}
+	}
+	private static String printFloatingList (){
+		ArrayList<Task> allTasks = Logic.getTempStorage();
+		ArrayList <Task> listOfFloating = new ArrayList<Task>();
+		for (int j=0; j < allTasks.size(); j++){
+			if (allTasks.get(j).getDate().equals("ft")){
+				listOfFloating.add(allTasks.get(j));
+			}
+		}
+		if (listOfFloating.size() == 0){
+			return MSG_EMPTY_FLOATING;
+		} else {
+			return printArrayList(listOfFloating);
 		}
 	}
 
@@ -241,6 +259,26 @@ public class DoubleUp extends JFrame {
 			toPrint += (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
 		}
 		return toPrint;
+	}
+	private static String printEveryTask(){
+		String toPrint = "";
+		ArrayList<Task> everyTask = Logic.getTempStorage();
+		if (everyTask.size() !=0){
+			String date = everyTask.get(0).getDate();
+			toPrint += createHorizLine("=", 20) + date + " " + createHorizLine("=", 20) + "\n";
+			for (int j = 0; j < everyTask.size() ; j ++){
+				String dateOfCurrentTask = everyTask.get(j).getDate();
+				if (! dateOfCurrentTask.equals(date)){
+					toPrint += "\n";
+					toPrint += createHorizLine("=", 20) + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
+				}
+				toPrint += (j+1) + ". " + everyTask.get(j).toString() + "\n";
+				date = dateOfCurrentTask;
+			}
+			return toPrint;
+		} else {
+			return MSG_EMPTY_ALL_DAYS;
+		}
 	}
 
 	private static String showHelp() {
@@ -348,10 +386,9 @@ public class DoubleUp extends JFrame {
 		for (int i=0; i < numToDraw; i++){
 			line += charseq;
 		}
-		line += "\n";
 		return line;
 	}
-	
+
 	//Same function as getCurrentDate except date is in another format
 	private static String getTodayDate() {
 		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
@@ -359,7 +396,7 @@ public class DoubleUp extends JFrame {
 		String reportDate = dateFormat.format(date);
 		return reportDate;
 	}
-	
+
 
 	private static String getCurrentDate() {
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
