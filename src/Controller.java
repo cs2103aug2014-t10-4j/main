@@ -30,8 +30,8 @@ public class Controller {
 			case ADD_TEXT:
 				ArrayList<Task> tasksFound = findClash(taskToExecute);
 				if (tasksFound.size() == 0){
-					results.setListOfTasks(Logic.getTempStorage());
 					results.setFeedback(Logic.addLineToFile(taskToExecute, file));
+					results.setListOfTasks(Logic.getTempStorage());
 					return results;
 				} else {
 					results.setListOfTasks(tasksFound);
@@ -49,6 +49,9 @@ public class Controller {
 					results.setListOfTasks(Logic.getTempStorage());
 					return results;
 				}
+				/*results.setListOfTasks(Logic.getTempStorage());
+				results.setFeedback(Logic.addLineToFile(taskToExecute, file));
+				return results;*/
 			case DELETE_TEXT:
 				results.setFeedback(Logic.deleteLineFromFile(taskToExecute, file, archive));
 				results.setListOfTasks(Logic.getTempStorage());
@@ -77,16 +80,19 @@ public class Controller {
 				results.setTitleOfPanel("All Tasks:");
 				return results;
 			case "/sort":
+				Task.setSortedByTime(true);
 				results.setFeedback(Logic.sortByDateAndTime(Logic.getTempStorage()));
 				results.setListOfTasks(Logic.getTempStorage());
 				results.setTitleOfPanel("All Tasks:");
 				return results;
 			case "/sortalpha":
+				Task.setSortedByTime(false);
 				results.setFeedback(Logic.sortByAlphabet(Logic.getTempStorage()));
 				results.setListOfTasks(Logic.getTempStorage());
 				results.setTitleOfPanel("All tasks by alphabetical order");
 				return results;
 			case "/sortimpt":
+				Task.setSortedByTime(false);
 				results.setFeedback(Logic.sortByImportance(Logic.getTempStorage()));
 				results.setListOfTasks(Logic.getTempStorage());
 				results.setTitleOfPanel("All tasks by importance order");
@@ -139,6 +145,14 @@ public class Controller {
 
 	//Return any tasks with the same date and time as taskToExecute
 	private static ArrayList<Task> findClash(Task taskToExecute) {
+		//Do not check for clash if is floating, because it will always clash
+		if (taskToExecute.getDate().equals("ft")){
+			return new ArrayList<Task>();
+		}
+		//If time is null, means there is no time allocated for that task
+		if (taskToExecute.getTime() == null){
+			return new ArrayList<Task>();
+		}
 		Task tempTask = new Task();
 		tempTask.setDate(taskToExecute.getDate());
 		tempTask.setTime(taskToExecute.getTime());
@@ -209,21 +223,25 @@ public class Controller {
 		ArrayList<Task> everyTask = Logic.getTempStorage();
 		if (everyTask.size() !=0){
 			String date = everyTask.get(0).getDate();
-			if (date.equals(getTodayDate())){
-				toPrint += " " + createHorizLine("=", 20) + " " + date + " , Today " + createHorizLine("=", 20) + "\n";
-			} else {	
-				toPrint += " " + createHorizLine("=", 20) + " " + date + " " + createHorizLine("=", 20) + "\n";
+			if (Task.getIsSortedByTime()){
+				if (date.equals(getTodayDate())){
+					toPrint += " " + createHorizLine("=", 20) + " " + date + " , Today " + createHorizLine("=", 20) + "\n";
+				} else {	
+					toPrint += " " + createHorizLine("=", 20) + " " + date + " " + createHorizLine("=", 20) + "\n";
+				}
 			}
 			for (int j = 0; j < everyTask.size() ; j ++){
 				String dateOfCurrentTask = everyTask.get(j).getDate();
 				if (! dateOfCurrentTask.equals(date)){
 					toPrint += "\n";
-					if (dateOfCurrentTask.equals("ft")){
-						toPrint += " " + createHorizLine("=", 20) + " Floating Tasks "  + createHorizLine("=", 20)+ "\n" ;
-					} else if  (dateOfCurrentTask.equals(getTodayDate())){
-						toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " , Today " + createHorizLine("=", 20) + "\n";
-					} else {
-						toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
+					if (Task.getIsSortedByTime()){
+						if (dateOfCurrentTask.equals("ft")){
+							toPrint += " " + createHorizLine("=", 20) + " Floating Tasks "  + createHorizLine("=", 20)+ "\n" ;
+						} else if  (dateOfCurrentTask.equals(getTodayDate())){
+							toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " , Today " + createHorizLine("=", 20) + "\n";
+						} else {
+							toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
+						}
 					}
 				}
 				toPrint += " " + (j+1) + ". " + everyTask.get(j).toString() + "\n";

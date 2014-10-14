@@ -48,21 +48,25 @@ public class ResultOfCommand {
 		String toPrint ="";
 		if (listOfTasks.size() !=0){
 			String date = listOfTasks.get(0).getDate();
-			if (date.equals(getTodayDate())){
-				toPrint += " " + createHorizLine("=", 20) + " " + date + " , Today " + createHorizLine("=", 20) + "\n";
-			} else {	
-				toPrint += " " + createHorizLine("=", 20) + " " + date + " " + createHorizLine("=", 20) + "\n";
+			if (Task.getIsSortedByTime()){
+				if (date.equals(getTodayDate())){
+					toPrint += " " + createHorizLine("=", 20) + " " + date + " , Today " + createHorizLine("=", 20) + "\n";
+				} else {	
+					toPrint += " " + createHorizLine("=", 20) + " " + date + " " + createHorizLine("=", 20) + "\n";
+				}
 			}
 			for (int j = 0; j < listOfTasks.size() ; j ++){
 				String dateOfCurrentTask = listOfTasks.get(j).getDate();
 				if ( dateOfCurrentTask != null && !dateOfCurrentTask.equals(date)){
 					toPrint += "\n";
-					if (dateOfCurrentTask.equals("ft")){
-						toPrint += " " + createHorizLine("=", 20) + " Floating Tasks "  + createHorizLine("=", 20)+ "\n" ;
-					} else if  (dateOfCurrentTask.equals(getTodayDate())){
-						toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " , Today " + createHorizLine("=", 20) + "\n";
-					} else {
-						toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
+					if (Task.getIsSortedByTime()){
+						if (dateOfCurrentTask.equals("ft")){
+							toPrint += " " + createHorizLine("=", 20) + " Floating Tasks "  + createHorizLine("=", 20)+ "\n" ;
+						} else if  (dateOfCurrentTask.equals(getTodayDate())){
+							toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " , Today " + createHorizLine("=", 20) + "\n";
+						} else {
+							toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
+						}
 					}
 				}
 				toPrint += " " + (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
@@ -83,10 +87,10 @@ public class ResultOfCommand {
 		return line;
 	}
 	//Same function as getCurrentDate except date is in another format
-		private static String getTodayDate() {
-			DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
-			Date date = new Date();
-			String reportDate = dateFormat.format(date);
-			return reportDate;
-		}
+	private static String getTodayDate() {
+		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
+		Date date = new Date();
+		String reportDate = dateFormat.format(date);
+		return reportDate;
+	}
 }
