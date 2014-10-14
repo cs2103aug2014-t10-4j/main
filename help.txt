@@ -1,22 +1,24 @@
-COMMANDS	DESCRIPTION			EXAMPLE
+ COMMANDS	DESCRIPTION			EXAMPLE
 
-Basic Commands 
-/add	adds a task to your to do list 		/add 31/12/2015 assignment
-/do 	marks your task as completed 		/do 1
-/delete	removes an unwanted task 		/delete assignment, /delete 1
-/display	displays your to do list for today		/display
-/edit 	updates your task with new details 	/edit assignment, /edit 1 /time 1900 /date 15/09/2014
-/search	searches for tasks that contain your 	/search assignment
+ Basic Commands 
+ /add	adds a task to your to do list 		/add 31/12/2015 assignment
+ /delete	marks your task as completed 		/delete 1
+ /edit 	updates your task with new details 	/edit 1 assignment, 
+				/edit 1 19:00 15/09/2014
+ /search	searches for tasks that contain your 	/search assignment
 	search term. 				
-/sort 	sorts your list by date and time. 		/sort
+ /showall	shows all your to do tasks		/showall
+ /sort 	sorts your list by date and time. 		/sort
 
-Advanced Commands 		
-/archive 	views all your completed tasks. 		/archive
-/deletearchive 	delete your achive forever. 		/deletearchive
-/goal 	changes your personal goal 		/goal Become the best Computer Engineer
-/imp 	sets importance level for a task 		/add Exam /imp 3, /edit Quiz /imp 1
-/repeat 	adds a periodic task 		/repeat lunch 12pm daily
-/sortalpha 	sorts your list alphabetically 		/sortalpha
-/sortimpt 	sorts your list by importance level 	/sortimpt
-/redo 	repeat your last action 		/redo
-/undo 	undo your last action 		/undo
+ Advanced Commands 		
+ /archive 	views all your completed tasks. 		/archive
+ /deletearchive 	delete your achive forever. 		/deletearchive
+ /goal 	changes your personal goal 		/goal Become the best Computer Engineer
+ /imp 	sets importance level for a task 		/add Exam /imp 3, /edit Quiz /imp 1
+ /repeat 	adds a periodic task 		/repeat lunch 12pm daily
+ /showfloating	shows all your floating tasks		/showall
+ /showtoday	shows all your to do tasks for today	/showtoday
+ /sortalpha 	sorts your list alphabetically 		/sortalpha
+ /sortimpt 	sorts your list by importance level 	/sortimpt
+ /redo 	repeat your last action 		/redo
+ /undo 	undo your last action 		/undo

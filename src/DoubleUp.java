@@ -60,7 +60,7 @@ public class DoubleUp extends JFrame {
 		JFrame frame = new JFrame("DoubleUp To-do-List");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addComponentsToPane(frame.getContentPane());
-		frame.setMinimumSize(new Dimension(630,500));
+		frame.setMinimumSize(new Dimension(650,600));
 		frame.setVisible(true);
 	}
 
