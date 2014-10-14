@@ -59,6 +59,8 @@ public class ResultOfCommand {
 					toPrint += "\n";
 					if (dateOfCurrentTask.equals("ft")){
 						toPrint += " " + createHorizLine("=", 20) + " Floating Tasks "  + createHorizLine("=", 20)+ "\n" ;
+					} else if  (dateOfCurrentTask.equals(getTodayDate())){
+						toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " , Today " + createHorizLine("=", 20) + "\n";
 					} else {
 						toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
 					}

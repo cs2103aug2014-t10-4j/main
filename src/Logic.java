@@ -12,12 +12,12 @@ public class Logic {
 	private static final String MSG_FAILED_SORT = "Sorting failed";
 	private static final String MSG_SUCCESSFUL_SORT = "Successfully sorted by ";
 	private static final String MSG_NO_TASKS_TO_SORT = "Not enough tasks to sort";
-	private static final String DELETE_MESSAGE = "deleted from %s: \"%s\"";
+	private static final String DELETE_MESSAGE = "Deleted from %s: \"%s\"";
 	private static final String WRONG_FORMAT = "\"%s\" is wrong format";
 	private static final String BAD_INDEX_MESSAGE = "%d is not a valid number.Valid range is %d to %d.";
-	public static String ADD_MESSAGE = "added to %s: \"%s\"";
+	public static String ADD_MESSAGE = "Added to %s: \"%s\"";
 	private static final int INITIAL_VALUE = 0;
-	private static final String NO_MESSAGE_DELETE = "nothing to delete!";
+	private static final String NO_MESSAGE_DELETE = "Nothing to delete!";
 	private static final int INVAILD_NUMBER = -1;
 	private static final String MSG_CLEARED_FILE = "List is cleared";
 

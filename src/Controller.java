@@ -78,7 +78,7 @@ public class Controller {
 			case "/display" :
 				results.setListOfTasks(Logic.getTempStorage());
 				results.setFeedback("These are all your tasks");
-				results.setTitleOfPanel("All tasks:");
+				results.setTitleOfPanel("All Tasks:");
 				return results;
 			case "/exit":
 				System.exit(0);
@@ -89,7 +89,7 @@ public class Controller {
 			case "/sort":
 				results.setFeedback(Logic.sortByDateAndTime(Logic.getTempStorage()));
 				results.setListOfTasks(Logic.getTempStorage());
-				results.setTitleOfPanel("All tasks:");
+				results.setTitleOfPanel("All Tasks:");
 				return results;
 			case "/sortalpha":
 				results.setFeedback(Logic.sortByAlphabet(Logic.getTempStorage()));
@@ -101,18 +101,6 @@ public class Controller {
 				results.setListOfTasks(Logic.getTempStorage());
 				results.setTitleOfPanel("All tasks by importance order");
 				return results;
-				/*	case "/showhelp":
-				try 
-				{
-					FileReader fr = new FileReader("help1.txt");
-					BufferedReader br = new BufferedReader(fr);
-					displayPanelTodayTasks.read(br, null);
-					br.close();
-				}catch (IOException e1) {
-				}
-				results.setTitleOfPanel("Help Screen:");
-				results.setFeedback("Press ESC to return to Today Tasks");
-				break;*/
 			case "/showfloating":
 				results.setFeedback("These are your floating tasks.");
 				results.setTitleOfPanel("Floating Tasks:");
@@ -125,11 +113,11 @@ public class Controller {
 				return results;
 			case "/showall":
 				results.setFeedback("These are all your tasks.");
-				results.setTitleOfPanel("All tasks:");
+				results.setTitleOfPanel("All Tasks:");
 				results.setListOfTasks(Logic.getTempStorage());
 				return results;
 			case "/clear":
-				results.setFeedback("Screen is cleared. Type /showall, /showtoday, /showfloating again.");
+				results.setFeedback("Screen is cleared. Type /showall, /showtoday or /showfloating again.");
 				results.setListOfTasks(new ArrayList<Task>());
 				return results;
 			default:
@@ -199,7 +187,6 @@ public class Controller {
 		return listOfFloating;
 	} 
 
-
 	public static String printArrayList(ArrayList<Task> listOfTasks){
 		String toPrint ="";
 		for (int j = 0; j < listOfTasks.size() ; j ++){
@@ -224,6 +211,8 @@ public class Controller {
 					toPrint += "\n";
 					if (dateOfCurrentTask.equals("ft")){
 						toPrint += " " + createHorizLine("=", 20) + " Floating Tasks "  + createHorizLine("=", 20)+ "\n" ;
+					} else if  (dateOfCurrentTask.equals(getTodayDate())){
+						toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " , Today " + createHorizLine("=", 20) + "\n";
 					} else {
 						toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
 					}
