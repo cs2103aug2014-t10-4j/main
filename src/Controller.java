@@ -1,9 +1,13 @@
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -20,79 +24,119 @@ public class Controller {
 	};
 
 	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
-		String[] splitCommand = Parser.parseInput(userSentence);
-		String action = getFirstWord(splitCommand);
-		CommandType commandType = determineCommandType(action);
-		Task taskToExecute = new Task(splitCommand);
+		CommandType commandType;
 		ResultOfCommand results = new ResultOfCommand();
-		switch (commandType) {
-		case ADD_TEXT:
-			ArrayList<Task> tasksFound = findClash(taskToExecute);
-			if (tasksFound.size() == 0){
-				results.setListOfTasks(Logic.getTempStorage());
-				results.setFeedback(Logic.addLineToFile(taskToExecute, file));
-				return results;
-			} else {
-				results.setListOfTasks(tasksFound);
-				results.setFeedback("Clashes found!");
-				JFrame frame = new JFrame();
-				int n = JOptionPane.showConfirmDialog(
-						frame,
-						"Continue adding?",
-						"Something is happening at the same time!",
-						JOptionPane.YES_NO_OPTION);
-				if (n == JOptionPane.YES_OPTION){
-					results.setFeedback(Logic.addLineToFile(taskToExecute, file));			
+		if (countWords(userSentence) > 1) {
+			String[] splitCommand = Parser.parseInput(userSentence);
+			String action = getFirstWord(splitCommand);
+			commandType = determineCommandType(action);
+			Task taskToExecute = new Task(splitCommand);
+			switch (commandType) {
+			case ADD_TEXT:
+				ArrayList<Task> tasksFound = findClash(taskToExecute);
+				if (tasksFound.size() == 0){
+					results.setListOfTasks(Logic.getTempStorage());
+					results.setFeedback(Logic.addLineToFile(taskToExecute, file));
+					return results;
 				} else {
-					results.setFeedback("Task is not added.");
+					results.setListOfTasks(tasksFound);
+					results.setFeedback("Clashes found!");
+					JFrame frame = new JFrame();
+					int n = JOptionPane.showConfirmDialog(
+							frame,
+							"Continue adding?",
+							"Something is happening at the same time!",
+							JOptionPane.YES_NO_OPTION);
+					if (n == JOptionPane.YES_OPTION){
+						results.setFeedback(Logic.addLineToFile(taskToExecute, file));			
+					} else {
+						results.setFeedback("Task is not added.");
+					}
+					results.setListOfTasks(Logic.getTempStorage());
+					return results;
 				}
+			case DELETE_TEXT:
+				results.setFeedback(Logic.deleteLineFromFile(taskToExecute, file, archive));
+				results.setListOfTasks(Logic.getTempStorage());
+				return results;
+			case EDIT:
+				results.setFeedback(Logic.edit(taskToExecute, file));
+				results.setListOfTasks(Logic.getTempStorage());
+				return results;
+			case SEARCH:
+				results.setListOfTasks(Logic.search(taskToExecute) );
+				results.setFeedback("This is what is found.");
+				results.setTitleOfPanel("Search Results for \""+ userSentence + "\"");
+				return results;
+			default:
+				results.setFeedback(MSG_INVALID_COMMAND);
 				results.setListOfTasks(Logic.getTempStorage());
 				return results;
 			}
-		case DISPLAY_TEXT:
-			results.setListOfTasks(Logic.getTempStorage());
-			return results;
-		case DELETE_TEXT:
-			results.setFeedback(Logic.deleteLineFromFile(taskToExecute, file, archive));
-			results.setListOfTasks(Logic.getTempStorage());
-			return results;
-		case EDIT:
-			results.setFeedback(Logic.edit(taskToExecute, file));
-			results.setListOfTasks(Logic.getTempStorage());
-			return results;
-		case CLEAR_FILE:
-			results.setFeedback(Logic.clearContent());
-			results.setListOfTasks(Logic.getTempStorage());
-			return results;
-		case SEARCH:
-			results.setListOfTasks(Logic.search(taskToExecute) );
-			results.setFeedback("This is what is found.");
-			results.setTitleOfPanel("Search Results for \""+ userSentence + "\"");
-			return results;
-		case SORT:
-			String sortParams = splitCommand[7];
-			if (sortParams.equalsIgnoreCase("alpha")){
-				results.setFeedback(Logic.sortByAlphabet(Logic.getTempStorage()));
+		} else { 
+			switch (userSentence) {
+			case "/display" :
 				results.setListOfTasks(Logic.getTempStorage());
-				results.setTitleOfPanel("All tasks by alphabetical order");
+				results.setFeedback("These are all your tasks");
+				results.setTitleOfPanel("All tasks:");
 				return results;
-			} else if (sortParams.equalsIgnoreCase("importance")){
-				results.setFeedback(Logic.sortByImportance(Logic.getTempStorage()));
+			case "/exit":
+				System.exit(0);
+			case "/deleteall":
+				results.setFeedback(Logic.clearContent());
 				results.setListOfTasks(Logic.getTempStorage());
-				results.setTitleOfPanel("All tasks by importance order");
 				return results;
-			} else {
+			case "/sort":
 				results.setFeedback(Logic.sortByDateAndTime(Logic.getTempStorage()));
 				results.setListOfTasks(Logic.getTempStorage());
 				results.setTitleOfPanel("All tasks:");
 				return results;
+			case "/sortalpha":
+				results.setFeedback(Logic.sortByAlphabet(Logic.getTempStorage()));
+				results.setListOfTasks(Logic.getTempStorage());
+				results.setTitleOfPanel("All tasks by alphabetical order");
+				return results;
+			case "/sortimpt":
+				results.setFeedback(Logic.sortByImportance(Logic.getTempStorage()));
+				results.setListOfTasks(Logic.getTempStorage());
+				results.setTitleOfPanel("All tasks by importance order");
+				return results;
+				/*	case "/showhelp":
+				try 
+				{
+					FileReader fr = new FileReader("help1.txt");
+					BufferedReader br = new BufferedReader(fr);
+					displayPanelTodayTasks.read(br, null);
+					br.close();
+				}catch (IOException e1) {
+				}
+				results.setTitleOfPanel("Help Screen:");
+				results.setFeedback("Press ESC to return to Today Tasks");
+				break;*/
+			case "/showfloating":
+				results.setFeedback("These are your floating tasks.");
+				results.setTitleOfPanel("Floating Tasks:");
+				results.setListOfTasks(getFloatingList());
+				return results;
+			case "/showtoday":
+				results.setFeedback("These are your tasks for the day.");
+				results.setTitleOfPanel("Today Tasks:");
+				results.setListOfTasks(getTodayList());
+				return results;
+			case "/showall":
+				results.setFeedback("These are all your tasks.");
+				results.setTitleOfPanel("All tasks:");
+				results.setListOfTasks(Logic.getTempStorage());
+				return results;
+			case "/clear":
+				results.setFeedback("Screen is cleared. Type /showall, /showtoday, /showfloating again.");
+				results.setListOfTasks(new ArrayList<Task>());
+				return results;
+			default:
+				results.setFeedback(MSG_INVALID_COMMAND);
+				results.setListOfTasks(Logic.getTempStorage());
+				return results;
 			}
-		case EXIT:
-			System.exit(0);
-		default:
-			results.setFeedback(MSG_INVALID_COMMAND);
-			results.setListOfTasks(Logic.getTempStorage());
-			return results;
 		}
 	}
 
@@ -143,8 +187,8 @@ public class Controller {
 			return printArrayList(listOfTasks);
 		}
 	}
-	
-	public static String printFloatingList (){
+
+	public static ArrayList<Task> getFloatingList (){
 		ArrayList<Task> allTasks = Logic.getTempStorage();
 		ArrayList <Task> listOfFloating = new ArrayList<Task>();
 		for (int j=0; j < allTasks.size(); j++){
@@ -152,12 +196,9 @@ public class Controller {
 				listOfFloating.add(allTasks.get(j));
 			}
 		}
-		if (listOfFloating.size() == 0){
-			return MSG_EMPTY_FLOATING;
-		} else {
-			return printArrayList(listOfFloating);
-		}
-	}
+		return listOfFloating;
+	} 
+
 
 	public static String printArrayList(ArrayList<Task> listOfTasks){
 		String toPrint ="";
@@ -166,7 +207,7 @@ public class Controller {
 		}
 		return toPrint;
 	}
-	
+
 	public static String printEveryTask(){
 		String toPrint = "";
 		ArrayList<Task> everyTask = Logic.getTempStorage();
@@ -205,7 +246,7 @@ public class Controller {
 		return line;
 	}
 
-	public static ArrayList<Task> createTodayList() {
+	public static ArrayList<Task> getTodayList() {
 		ArrayList<Task> allTasks = Logic.getTempStorage();
 		ArrayList<Task> todayTasks = new ArrayList<Task>();
 		for (int j = 0 ; j< allTasks.size() ; j++){
@@ -222,6 +263,29 @@ public class Controller {
 		Date date = new Date();
 		String reportDate = dateFormat.format(date);
 		return reportDate;
+	}
+
+	public static int countWords(String s){
+
+		int wordCount = 0;
+		boolean word = false;
+		int endOfLine = s.length() - 1;
+		for (int i = 0; i < s.length(); i++) {
+			// if the char is a letter, word = true.
+			if (Character.isLetter(s.charAt(i)) && i != endOfLine) {
+				word = true;
+				// if char isn't a letter and there have been letters before,
+				// counter goes up.
+			} else if (!Character.isLetter(s.charAt(i)) && word) {
+				wordCount++;
+				word = false;
+				// last word of String; if it doesn't end with a non letter, it
+				// wouldn't count without this.
+			} else if (Character.isLetter(s.charAt(i)) && i == endOfLine) {
+				wordCount++;
+			}
+		}
+		return wordCount;
 	}
 
 }

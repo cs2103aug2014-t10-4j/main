@@ -88,7 +88,7 @@ public class DoubleUp extends JFrame {
 		middleRow.add(scroll, BorderLayout.CENTER);
 		middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks: "));
 		cp.add(middleRow, BorderLayout.CENTER);
-		
+
 		JPanel lastRow = new JPanel();
 		lastRow.add(new JLabel(MSG_RESULT));
 		textFieldResultsOut = new JTextField(43);
@@ -103,44 +103,11 @@ public class DoubleUp extends JFrame {
 				String userSentence = textFieldCmdIn.getText();
 				String result;
 				ResultOfCommand results;
-				switch (userSentence){
-				case "/showhelp":
-					try 
-					{
-						FileReader fr = new FileReader("help1.txt");
-						BufferedReader br = new BufferedReader(fr);
-						displayPanelTodayTasks.read(br, null);
-						br.close();
-					}catch (IOException e1) {
-	                 }
-					middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen"));
-					result = "Press ESC to return to Today Tasks";
-					break;
-				case "/showfloating":
-					result = "These are your floating tasks.";
-					middleRow.setBorder(BorderFactory.createTitledBorder("Floating Tasks:"));
-					displayToUser(Controller.printFloatingList());
-					break;
-				case "/showtoday":
-					result = "These are your tasks for the day.";
-					middleRow.setBorder(BorderFactory.createTitledBorder("To-do Today, " + getCurrentDate()));
-					displayToUser(Controller.printTodayList(Controller.createTodayList()));
-					break;
-				case "/showall":
-					result = "These are all your tasks.";
-					middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks:"));
-					displayPanelTodayTasks.setText(Controller.printEveryTask());
-					break;
-				case "/clear":
-					result ="Screen cleared.";
-					displayPanelTodayTasks.setText("");
-					break;
-				default:
-					results = Controller.executeCommand(userSentence, file, archive);					
-					displayPanelTodayTasks.setText(results.printArrayList());
-					result = results.getFeedback();
-					middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
-				}
+
+				results = Controller.executeCommand(userSentence, file, archive);					
+				displayPanelTodayTasks.setText(results.printArrayList());
+				result = results.getFeedback();
+				middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 				textFieldCmdIn.setText("");  // clear input TextField
 				textFieldResultsOut.setText(result); // display results of command on the output TextField
 			}
