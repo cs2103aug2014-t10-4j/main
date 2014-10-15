@@ -53,7 +53,25 @@ public class Controller {
 				results.setFeedback(Logic.addLineToFile(taskToExecute, file));
 				return results;*/
 			case DELETE_TEXT:
-				results.setFeedback(Logic.deleteLineFromFile(taskToExecute, file, archive));
+				String params = taskToExecute.getParams();
+				String feedback = "";
+				if (params != null){
+					String [] splitParams = params.split("\\s+");
+					int [] splitIndex = new int [splitParams.length];
+					for (int j = 0; j < splitParams.length; j ++){
+						splitIndex[j] = Integer.parseInt(splitParams[j]);
+					}
+					sortIndex(splitIndex);
+					for (int j = splitIndex.length - 1; j >= 0; j--){
+						Task oneOutOfMany = new Task();
+						String userDeleteIndex = String.valueOf(splitIndex[j]); 
+						oneOutOfMany.setParams(userDeleteIndex);
+						feedback += Logic.deleteLineFromFile(oneOutOfMany, file, archive) + ", ";
+					}
+					results.setFeedback(feedback);
+				} else { 
+					results.setFeedback("You must add a number after /delete");
+				}
 				results.setListOfTasks(Logic.getTempStorage());
 				return results;
 			case EDIT:
@@ -130,6 +148,24 @@ public class Controller {
 				return results;
 			}
 		}
+	}
+
+	//Sort index from smallest to largest for multiple deletion.
+	private static void sortIndex(int[] splitIndex) {
+		int n = splitIndex.length;
+		int temp = 0;
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 1; j < (n - i); j++) {
+				if (splitIndex[j - 1] > splitIndex[j]) {
+					temp = splitIndex[j - 1];
+					splitIndex[j - 1] = splitIndex[j];
+					splitIndex[j] = temp;
+				}
+
+			}
+		}
+
 	}
 
 	//Return any tasks with the same date and time as taskToExecute
