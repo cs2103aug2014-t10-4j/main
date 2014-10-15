@@ -176,6 +176,7 @@ public class DoubleUp extends JFrame {
 		welcomeMessage += createHelpMsg();
 		return welcomeMessage;
 	}
+	
 	//Returns Quote of the day.
 	private static String createQOTD(){
 		String quote = "\n" + "\t" + MSG_QOTD;
