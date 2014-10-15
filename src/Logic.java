@@ -117,7 +117,7 @@ public class Logic {
 	public static String delete(String command, Task task, File file, File archive){
 		String returnMessage;
 		if (command.equals("delete") || command.equals(redo)){
-			if(undo.peek().equals("search")){
+			if(undo.size()!= 0 && undo.peek().equals("search")){
 				System.out.println("here it is");
 				returnMessage = deleteLineFromSearchList(task,searchResults,file,archive);
 				undo.push(command);
