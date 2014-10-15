@@ -932,8 +932,8 @@ class CommandProcessor {
 		// } else if (startIndex == index.getValue()) {
 		// input[startIndex] = null;
 		// }
-		assert index >= 0 ;
-		assert index <= input.length;
+		assert index < 0 ;
+		assert index > input.length;
 	}
 
 	private void assignCommand(String[] parsedInput, String[] input,
@@ -1055,5 +1055,4 @@ class CommandProcessor {
 		}
 
 	}
-
 }
