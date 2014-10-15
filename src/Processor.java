@@ -1,5 +1,7 @@
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -711,7 +713,7 @@ class NaturalProcessor {
 	protected final int COMMAND_POSITION = 0;
 	protected final String ERROR = "error";
 	protected final int ERROR_MSG_POSITION = 6;
-	// list of prepositions and determiners
+	// list of prepositions and determiners (need to remove some later)
 	protected final String[] LIST_REMOVABLES = { "and", "about", "after",
 			"around", "as", "at", "before", "be", "behind", "below", "beneath",
 			"beside", "besides", "between", "beyond", "but", "by",
@@ -850,15 +852,15 @@ class StrictNaturalProcessor extends NaturalProcessor {
 }
 
 class CommandProcessor {
-	// list of prepositions and determiners
+	// list of prepositions and determiners (need to remove some later)
 	protected final String[] LIST_REMOVABLES = { "and", "about", "after",
 			"around", "as", "at", "before", "be", "behind", "below", "beneath",
 			"beside", "besides", "between", "beyond", "but", "by",
 			"concerning", "considering", "	despite", "	down", "	during",
-			"	except", "excepting", "	excluding", "	following", "for", "	from",
-			"in", "inside", "	into", "like", "minus", "	near", "of", "off",
-			"on", "onto", "	opposite", "outside", "	over", "past", "per",
-			"plus", "	regarding", "	round", "save", "since", "that", "than",
+			"except", "excepting", "excluding", "following", "for", "	from",
+			"in", "inside", "into", "like", "minus", "	near", "of", "off",
+			"on", "onto", "opposite", "outside", "	over", "past", "per",
+			"plus", "regarding", "	round", "save", "since", "that", "than",
 			"through", "to", "toward", "towards", "under", "	underneath",
 			"unlike", "until", "up", "upon", "versus", "via", "which", "with",
 			"within", "without", "is", "are", "the" };
@@ -875,9 +877,11 @@ class CommandProcessor {
 	private final String[] LIST_REDO = { "redo", ".r" };
 	private final String[] LIST_DISPLAY = { "display", ".dly" };
 	private final String CLEAR_ALL_ARCHIVE = "clear all archive";
+	
+	private static Logger logger = Logger.getLogger("CommandProcessor");
 
 	public void process(String[] parsedInput, String[] input, Index index) {
-
+		logger.log(Level.INFO, "going to start processing command");
 		while (isIndexValid(index.getValue(), input)
 				&& !isLastWord(input, index.getValue())) {
 			assignIfPossible(parsedInput, input, index);
@@ -895,6 +899,7 @@ class CommandProcessor {
 	private void assignAddIfPossible(String[] parsedInput, String[] input,
 			Index index) {
 		if (parsedInput[COMMAND_POSITION] == null) {
+			logger.log(Level.INFO, "assigning auto add");
 			assignCommand(parsedInput, input, index, getFirstMember(LIST_ADD));
 		}
 	}
@@ -927,10 +932,13 @@ class CommandProcessor {
 		// } else if (startIndex == index.getValue()) {
 		// input[startIndex] = null;
 		// }
+		assert index >= 0 ;
+		assert index <= input.length;
 	}
 
 	private void assignCommand(String[] parsedInput, String[] input,
 			Index index, String possibleCommand) {
+		logger.log(Level.INFO, "assigning command: "+possibleCommand);
 		parsedInput[COMMAND_POSITION] = possibleCommand;
 	}
 
@@ -984,6 +992,7 @@ class CommandProcessor {
 			return false;
 		}
 		if (input[index].charAt(input[index].length() - 1) == '.') {
+			logger.log(Level.INFO,"last word of sentence is: "+ input[index]);
 			return true;
 		} else {
 			return false;
