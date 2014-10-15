@@ -98,34 +98,23 @@ public class Controller {
 				results.setTitleOfPanel("All tasks by importance order");
 				return results;
 			case "/showfloating":
+				// Cannot delete from floating list or today list now because
+				// number in floating list is different from tempStorage.
+				// Deleting and editing after search will be written with cmdHistory.
+				Task dateFloating = new Task ();
+				dateFloating.setDate("ft");
+				results.setListOfTasks( Logic.search(dateFloating));
 				results.setFeedback("These are your floating tasks.");
 				results.setTitleOfPanel("Floating Tasks:");
-				results.setListOfTasks(getFloatingList());
 				return results;
-				/* Currently, we cannot delete from floating list because
-				 * the number in floating list is not the same as in tempStorage
-				 * Therefore, after search and cmdHistory is written,
-				 * showfloating will be replaced by and treated as part of search:
-				 * Task dateFloating = new Task ();
-				 * dateFloating.setDate("ft");
-				 * results.setListOfTasks( Logic.search(dateFloating));
-				 * then delete or edit from floating list will work.
-				 */
 			case "/showtoday":
+				//Need to ignore importance? Set to null?
+				Task dateToday = new Task();
+				dateToday.setDate(getTodayDate());
+				results.setListOfTasks(Logic.search(dateToday));
 				results.setFeedback("These are your tasks for the day.");
 				results.setTitleOfPanel("Today Tasks:");
-				results.setListOfTasks(getTodayList());
 				return results;
-				/* Currently, we cannot delete from today list because
-				 * the number in today list is not the same as in tempStorage.
-				 * This is because there could be past tasks on top of the list.
-				 * Therefore, after search and cmdHistory is written,
-				 * showtoday will be replaced by and treated as part of search:
-				 * Task dateToday = new Task ();
-				 * dateFloating.setDate(getTodayDate();
-				 * results.setListOfTasks( Logic.search(dateToday));
-				 * then delete or edit from today list will work.
-				 */
 			case "/showall":
 				results.setFeedback("These are all your tasks.");
 				results.setTitleOfPanel("All Tasks:");

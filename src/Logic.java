@@ -24,7 +24,6 @@ public class Logic {
 	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
 	private static ArrayList<Task> archiveStorage = new ArrayList<Task>();
 	private static ArrayList<Task> searchResults = new ArrayList<Task>();
-	private static File file;
 
 	public static String addLineToFile(Task task, File file) {
 		if (task.getName() == null) {
