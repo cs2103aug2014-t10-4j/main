@@ -107,8 +107,6 @@ public class Logic {
 		if (task.getName() == null) {
 			return "error";
 		}
-		assert(task.getImportance()>=0);
-
 		tempStorage.add(task);
 		sortByDateAndTime(tempStorage);
 		Storage.writeToFile(tempStorage, file);
@@ -119,31 +117,42 @@ public class Logic {
 	public static String delete(String command, Task task, File file, File archive){
 		String returnMessage;
 		if (command.equals("delete") || command.equals(redo)){
-			returnMessage = deleteLineFromFile(task,file,archive);
-			if(command.equals(redo)){
-				return returnMessage;
-			}
-			else{
+			if(undo.peek().equals("search")){
+				System.out.println("here it is");
+				returnMessage = deleteLineFromSearchList(task,searchResults,file,archive);
 				undo.push(command);
 				ArrayList<Task> deletedTask = new ArrayList<Task>();
 				deletedTask.add(task);
 				undoTask.push(deletedTask);
 				return returnMessage;
 			}
+			else{
+				returnMessage = deleteLineFromFile(task,file,archive);
+				if(command.equals(redo)){
+				return returnMessage;
+				}
+				else{
+				undo.push(command);
+				ArrayList<Task> deletedTask = new ArrayList<Task>();
+				deletedTask.add(task);
+				undoTask.push(deletedTask);
+				return returnMessage;
+				}
+			}
 		}
 
-
-		if (command.equals("undo")){
+			else if (command.equals("undo")){
 			returnMessage = deleteLineFromFile(task,file,archive);
 			archiveStorage.remove(archiveStorage.indexOf(task));
 			Storage.writeToFile(archiveStorage, archive);
 			return returnMessage;
 		}
 
-		else{
-			return MSG_FAIL_DELETE;
+			else{
+				return MSG_FAIL_DELETE;
+			}
 		}
-	}
+
 
 	public static String deleteLineFromFile(Task task, File file,File archive) {
 		if (tempStorage.size() == 0) {
@@ -183,6 +192,7 @@ public class Logic {
 
 	public static ArrayList<Task> search(Task task) {
 		searchResults.clear();
+		assert tempStorage.size()>0 : "tempStorage.size() is negative";
 		for (int i = 0; i < tempStorage.size(); i++) {
 			if (task.getName() != null
 					&& !tempStorage.get(i).getName().contains(task.getName())) {
@@ -208,24 +218,38 @@ public class Logic {
 			}
 			searchResults.add(tempStorage.get(i));
 		}
-
+		undo.push("search");
 		return searchResults;
 	}
 
 	public static String deleteLineFromSearchList(Task task,
-			ArrayList<Task> searchResults) {
+			ArrayList<Task> searchResults, File file, File archive) {
 		if (searchResults.size() == 0) {
 			return NO_MESSAGE_DELETE;
 		}
 		int index = getIndex(task);
-		Task temp = searchResults.get(index);
+
+
+		String name = searchResults.get(index).getName()
+				+searchResults.get(index).getDate() +searchResults.get(index).getTime()
+				+searchResults.get(index).getDetails()+searchResults.get(index).getImportance()
+				+searchResults.get(index).getError() + searchResults.get(index).getParams();
+
 		for (int i = 0; i < tempStorage.size(); i++) {
-			if (tempStorage.get(i).equals(temp)) {
-				tempStorage.remove(i);
+			String currentTask = tempStorage.get(i).getName()
+					+tempStorage.get(i).getDate()+tempStorage.get(i).getTime()
+					+tempStorage.get(i).getDetails()+tempStorage.get(i).getImportance()
+					+tempStorage.get(i).getError() + tempStorage.get(i).getParams();
+			if (currentTask.equals(name)) {
+				System.out.println("does it reach here");
+				archiveStorage.add(tempStorage.remove(i));
+				sortByDateAndTime(tempStorage);
+				sortByDateAndTime(archiveStorage);
+				Storage.writeToFile(tempStorage, file);
+				Storage.writeToFile(archiveStorage, archive);
 			}
 		}
-		return String
-				.format(DELETE_MESSAGE, searchResults.get(index).getName());
+		return String.format(DELETE_MESSAGE, file.getName(), searchResults.get(index).getName());
 	}
 
 	// for delete from searched list of tasks.
