@@ -293,7 +293,7 @@ public class Logic {
 		if (detailsOfTask.getName() != null) {
 			tempStorage.get(taskNumber).setName(detailsOfTask.getName());
 		}
-		if (detailsOfTask.getDate().equals("null")) {
+		if (detailsOfTask.getDate() != null) {
 			tempStorage.get(taskNumber).setDate(detailsOfTask.getDate());
 		}
 		System.out.println(detailsOfTask.getTime());
