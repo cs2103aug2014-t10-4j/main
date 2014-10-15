@@ -893,7 +893,7 @@ class CommandProcessor {
 		}
 		assignIfPossible(parsedInput, input, index);
 		assignAddIfPossible(parsedInput, input, index);
-
+		logger.log(Level.INFO, "finish command processing. index value: "+index.getValue());
 	}
 
 	private void assignAddIfPossible(String[] parsedInput, String[] input,
