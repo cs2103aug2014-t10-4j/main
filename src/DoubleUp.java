@@ -136,7 +136,7 @@ public class DoubleUp extends JFrame {
 		textFieldCmdIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String userSentence = textFieldCmdIn.getText();
+				String userSentence = textFieldCmdIn.getText().trim();
 				ResultOfCommand results = new ResultOfCommand();
 				if (userSentence.equalsIgnoreCase("/help")){
 					showHelp(results);
