@@ -1,7 +1,5 @@
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +10,8 @@ public abstract class Processor {
 	protected final String INVALID_IMPORTANCE = "invalid importance level";
 
 	protected final String FLOATING_TASK = "ft";
+	protected final String[] LIST_TODAY = {"today","tdy"};
+	protected final String[] LIST_TMR = {"tomorrow","tmr"};
 	// patterns for matching
 	protected final String PATTERN_YEAR = "^\\d{4}$|^\\d{2}$";
 	protected final String PATTERN_DATE_TWO = "^([2-3]?[1][s][t])$|^([2]?[2][n][d])$|^([2]?[3][r][d])$|^([1][0-9][t][h])$|^([2]?[4-9][t][h])$|^([0-2]?[0-9])$|^([3][0-1])$|^(([2]|[3])[0][t][h])$";
@@ -589,11 +589,22 @@ class DateProcessor extends Processor {
 					new SpelledDayFormatter());
 		} else if (isFloatingTask(index.getValue(), input)) {
 			possibleDate = FLOATING_TASK;
-		} else {
+		} else if(isPartOfList(input[index.getValue()],LIST_TODAY)){
+			possibleDate = formatDate(index.getValue(),input, new DateFormatter());
+		}else if(isPartOfList(input[index.getValue()],LIST_TMR)){
+			possibleDate = formatDate(index.getValue(),input,new TmrDateFormatter());
+		}else{
 			possibleDate = assignDate(input, index);
 		}
 		return possibleDate;
 
+	}
+
+	
+
+	private String getTodayDate() {
+		Date today = new Date();
+		return dateFormat.format(today);
 	}
 
 	protected String assignDate(String[] input, Index index) {
@@ -713,7 +724,7 @@ class NaturalProcessor {
 	protected final int COMMAND_POSITION = 0;
 	protected final String ERROR = "error";
 	protected final int ERROR_MSG_POSITION = 6;
-	// list of prepositions and determiners (need to remove some later)
+	// list of prepositions and determiners
 	protected final String[] LIST_REMOVABLES = { "and", "about", "after",
 			"around", "as", "at", "before", "be", "behind", "below", "beneath",
 			"beside", "besides", "between", "beyond", "but", "by",
@@ -852,15 +863,15 @@ class StrictNaturalProcessor extends NaturalProcessor {
 }
 
 class CommandProcessor {
-	// list of prepositions and determiners (need to remove some later)
+	// list of prepositions and determiners
 	protected final String[] LIST_REMOVABLES = { "and", "about", "after",
 			"around", "as", "at", "before", "be", "behind", "below", "beneath",
 			"beside", "besides", "between", "beyond", "but", "by",
 			"concerning", "considering", "	despite", "	down", "	during",
-			"except", "excepting", "excluding", "following", "for", "	from",
-			"in", "inside", "into", "like", "minus", "	near", "of", "off",
-			"on", "onto", "opposite", "outside", "	over", "past", "per",
-			"plus", "regarding", "	round", "save", "since", "that", "than",
+			"	except", "excepting", "	excluding", "	following", "for", "	from",
+			"in", "inside", "	into", "like", "minus", "	near", "of", "off",
+			"on", "onto", "	opposite", "outside", "	over", "past", "per",
+			"plus", "	regarding", "	round", "save", "since", "that", "than",
 			"through", "to", "toward", "towards", "under", "	underneath",
 			"unlike", "until", "up", "upon", "versus", "via", "which", "with",
 			"within", "without", "is", "are", "the" };
@@ -877,11 +888,9 @@ class CommandProcessor {
 	private final String[] LIST_REDO = { "redo", ".r" };
 	private final String[] LIST_DISPLAY = { "display", ".dly" };
 	private final String CLEAR_ALL_ARCHIVE = "clear all archive";
-	
-	private static Logger logger = Logger.getLogger("CommandProcessor");
 
 	public void process(String[] parsedInput, String[] input, Index index) {
-		logger.log(Level.INFO, "going to start processing command");
+
 		while (isIndexValid(index.getValue(), input)
 				&& !isLastWord(input, index.getValue())) {
 			assignIfPossible(parsedInput, input, index);
@@ -893,13 +902,12 @@ class CommandProcessor {
 		}
 		assignIfPossible(parsedInput, input, index);
 		assignAddIfPossible(parsedInput, input, index);
-		logger.log(Level.INFO, "finish command processing. index value: "+index.getValue());
+
 	}
 
 	private void assignAddIfPossible(String[] parsedInput, String[] input,
 			Index index) {
 		if (parsedInput[COMMAND_POSITION] == null) {
-			logger.log(Level.INFO, "assigning auto add");
 			assignCommand(parsedInput, input, index, getFirstMember(LIST_ADD));
 		}
 	}
@@ -932,13 +940,10 @@ class CommandProcessor {
 		// } else if (startIndex == index.getValue()) {
 		// input[startIndex] = null;
 		// }
-		assert index < 0 ;
-		assert index > input.length;
 	}
 
 	private void assignCommand(String[] parsedInput, String[] input,
 			Index index, String possibleCommand) {
-		logger.log(Level.INFO, "assigning command: "+possibleCommand);
 		parsedInput[COMMAND_POSITION] = possibleCommand;
 	}
 
@@ -992,7 +997,6 @@ class CommandProcessor {
 			return false;
 		}
 		if (input[index].charAt(input[index].length() - 1) == '.') {
-			logger.log(Level.INFO,"last word of sentence is: "+ input[index]);
 			return true;
 		} else {
 			return false;
@@ -1055,4 +1059,5 @@ class CommandProcessor {
 		}
 
 	}
+
 }
