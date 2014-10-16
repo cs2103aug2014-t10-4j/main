@@ -160,7 +160,7 @@ public class Logic {
 					&& !tempStorage.get(i).getDate().toLowerCase().contains(task.getDate().toLowerCase())) {
 				continue;
 			}
-			if (task.getTime() != null
+			if (task.getTime() != null && tempStorage.get(i).getTime() != null 
 					&& !tempStorage.get(i).getTime().toLowerCase().contains(task.getTime().toLowerCase())) {
 				continue;
 			}
