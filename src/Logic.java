@@ -33,15 +33,12 @@ public class Logic {
 
 	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
 	private static ArrayList<Task> archiveStorage = new ArrayList<Task>();
-	private static ArrayList<Task> memory = new ArrayList<Task>();
 
-	private static ArrayList<Task> searchTask;
 	private static ArrayList<Task> searchResults = new ArrayList<Task>();
 	private static Stack<String> undo = new Stack<String>();
 	private static Stack<String> redo = new Stack<String>();
 	private static Stack<ArrayList<Task>> undoTask = new Stack<ArrayList<Task>>();
 	private static Stack<ArrayList<Task>> redoTask = new Stack<ArrayList<Task>>();
-	private File file;
 
 	public static String add(String command, Task task, File file){
 		String returnMessage;
@@ -110,12 +107,10 @@ public class Logic {
 			Storage.writeToFile(archiveStorage, archive);
 			return returnMessage;
 		}
-
 		else{
 			return MSG_FAIL_DELETE;
 		}
 	}
-
 
 	public static String deleteLineFromFile(Task task, File file,File archive) {
 		if (tempStorage.size() == 0) {
@@ -155,23 +150,23 @@ public class Logic {
 
 	public static ArrayList<Task> search(Task task) {
 		searchResults.clear();
-		assert tempStorage.size()>0 : "tempStorage.size() is negative";
+		assert tempStorage.size() > 0 : "tempStorage.size() is negative";
 		for (int i = 0; i < tempStorage.size(); i++) {
 			if (task.getName() != null
-					&& !tempStorage.get(i).getName().contains(task.getName())) {
+					&& !tempStorage.get(i).getName().toLowerCase().contains(task.getName().toLowerCase())) {
 				continue;
 			}
 			if (task.getDate() != null
-					&& !tempStorage.get(i).getDate().contains(task.getDate())) {
+					&& !tempStorage.get(i).getDate().toLowerCase().contains(task.getDate().toLowerCase())) {
 				continue;
 			}
 			if (task.getTime() != null
-					&& !tempStorage.get(i).getTime().contains(task.getTime())) {
+					&& !tempStorage.get(i).getTime().toLowerCase().contains(task.getTime().toLowerCase())) {
 				continue;
 			}
 			if (task.getDetails() != null
-					&& !tempStorage.get(i).getDetails()
-					.contains(task.getDetails())) {
+					&& !tempStorage.get(i).getDetails().toLowerCase()
+					.contains(task.getDetails().toLowerCase())) {
 				continue;
 			}
 			if (task.getImportance() != -1
@@ -228,7 +223,7 @@ public class Logic {
 
 	public static ArrayList<Integer> init(File file, File archive) {
 		Storage.copyToArrayList(file, tempStorage);
-		//Storage.copyToArrayList(archive, archiveStorage); //YOUWEI SOLVE THIS THX :D
+		Storage.copyToArrayList(archive, archiveStorage); 
 		ArrayList<Integer> numTask = new ArrayList<Integer>();
 		getNumTasks(numTask, tempStorage);
 

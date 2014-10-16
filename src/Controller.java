@@ -15,7 +15,7 @@ public class Controller {
 	private static final String MSG_INVALID_COMMAND = "Invalid command";
 
 	enum CommandType {
-		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_FILE, EDIT, EXIT, INVALID, SEARCH, SORT, HELP;
+		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_FILE, EDIT, EXIT, INVALID, SEARCH, SORT, HELP, REDO, UNDO;
 	};
 
 	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
@@ -81,41 +81,51 @@ public class Controller {
 			case SEARCH:
 				results.setListOfTasks(Logic.search(taskToExecute) );
 				results.setFeedback("This is what is found.");
-				results.setTitleOfPanel("Search Results for \""+ userSentence + "\"");
+				results.setTitleOfPanel("Search Results for \""+ getSearchTermOnly(userSentence) + "\"");
 				return results;
+			/*case UNDO: 
+				Logic.undo(file, archive); //ACTIVATE THIS METHOD WHEN YOU THINK IT CAN WORK
+				results.setFeedback("Previous action is undone");
+				results.setListOfTasks(Logic.getTempStorage());
+				return results;
+			case REDO:
+				Logic.redo(file, archive); //ACTIVATE THIS METHOD WHEN YOU THINK IT CAN WORK
+				results.setFeedback("Previous action is done again");
+				results.setListOfTasks(Logic.getTempStorage());
+				return results;*/ 
+				//Activate all these above after Parser can accept one word commands
 			default:
 				results.setFeedback(MSG_INVALID_COMMAND);
 				results.setListOfTasks(Logic.getTempStorage());
 				return results;
 			}
 		} else { 
-			switch (userSentence) {
-			case "/exit":
+			if (userSentence.equalsIgnoreCase("exit")) {
 				System.exit(0);
-			case "/deleteall":
+			} else if (userSentence.equalsIgnoreCase("deleteall")) {
 				results.setFeedback(Logic.clearContent(file));
 				results.setListOfTasks(Logic.getTempStorage());
 				results.setTitleOfPanel("All Tasks:");
 				return results;
-			case "/sort":
+			} else if (userSentence.equalsIgnoreCase("sort")) {
 				Task.setSortedByTime(true);
 				results.setFeedback(Logic.sortByDateAndTime(Logic.getTempStorage()));
 				results.setListOfTasks(Logic.getTempStorage());
 				results.setTitleOfPanel("All Tasks:");
 				return results;
-			case "/sortalpha":
+			} else if (userSentence.equalsIgnoreCase("sortalpha")) {
 				Task.setSortedByTime(false);
 				results.setFeedback(Logic.sortByAlphabet(Logic.getTempStorage()));
 				results.setListOfTasks(Logic.getTempStorage());
 				results.setTitleOfPanel("All tasks by alphabetical order");
 				return results;
-			case "/sortimpt":
+			} else if (userSentence.equalsIgnoreCase("sortimpt")) {
 				Task.setSortedByTime(false);
 				results.setFeedback(Logic.sortByImportance(Logic.getTempStorage()));
 				results.setListOfTasks(Logic.getTempStorage());
 				results.setTitleOfPanel("All tasks by importance order");
 				return results;
-			case "/showfloating":
+			} else if (userSentence.equalsIgnoreCase("showfloating")) {
 				// Cannot delete from floating list or today list now because
 				// number in floating list is different from tempStorage.
 				// Deleting and editing after search will be written with cmdHistory.
@@ -125,7 +135,7 @@ public class Controller {
 				results.setFeedback("These are your floating tasks.");
 				results.setTitleOfPanel("Floating Tasks:");
 				return results;
-			case "/showtoday":
+			} else if (userSentence.equalsIgnoreCase("showtoday")) {
 				//Need to ignore importance? Set to null?
 				Task dateToday = new Task();
 				dateToday.setDate(getTodayDate());
@@ -133,28 +143,43 @@ public class Controller {
 				results.setFeedback("These are your tasks for the day.");
 				results.setTitleOfPanel("Today Tasks:");
 				return results;
-			case "/showall":
+			} else if (userSentence.equalsIgnoreCase("showall")) {
 				results.setFeedback("These are all your tasks.");
 				results.setTitleOfPanel("All Tasks:");
 				results.setListOfTasks(Logic.getTempStorage());
 				return results;
-			case "/clear":
-				results.setFeedback("Screen is cleared. Type /showall, /showtoday or /showfloating again.");
+			} else if (userSentence.equalsIgnoreCase("clear")) {
+				results.setFeedback("Screen is cleared. Type showall, showtoday or showfloating again.");
 				results.setListOfTasks(new ArrayList<Task>());
 				return results;
-			default:
+			} else if (userSentence.equalsIgnoreCase("redo")) {
+				Logic.redo(file, archive);
+				results.setFeedback("Redo is called");
+				results.setListOfTasks(Logic.getTempStorage());
+				return results;
+			} else if (userSentence.equalsIgnoreCase("undo")) {
+				Logic.undo(file, archive);
+				results.setFeedback("Undo is called");
+				results.setListOfTasks(Logic.getTempStorage());
+				return results;
+			} else {
 				results.setFeedback(MSG_INVALID_COMMAND);
 				results.setListOfTasks(Logic.getTempStorage());
 				return results;
 			}
 		}
+		return results;
+	}
+
+	private static String getSearchTermOnly(String userSentence) {
+		String firstWord = userSentence.trim().split("\\s+")[0];
+		return userSentence.replace(firstWord , "").trim();
 	}
 
 	//Sort index from smallest to largest for multiple deletion.
 	private static void sortIndex(int[] splitIndex) {
 		int n = splitIndex.length;
 		int temp = 0;
-
 		for (int i = 0; i < n; i++) {
 			for (int j = 1; j < (n - i); j++) {
 				if (splitIndex[j - 1] > splitIndex[j]) {
@@ -162,10 +187,8 @@ public class Controller {
 					splitIndex[j - 1] = splitIndex[j];
 					splitIndex[j] = temp;
 				}
-
 			}
 		}
-
 	}
 
 	//Return any tasks with the same date and time as taskToExecute
@@ -207,13 +230,18 @@ public class Controller {
 			return CommandType.SORT;
 		} else if (commandTypeString.equalsIgnoreCase("help")) {
 			return CommandType.HELP;
+		} else if (commandTypeString.equalsIgnoreCase("redo")) {
+			return CommandType.REDO;
+		} else if (commandTypeString.equalsIgnoreCase("undo")) {
+			return CommandType.UNDO;
 		} else {
 			return CommandType.INVALID;
 		}
 	}
 
 	private static String getFirstWord(String[] userCommand) {
-		return userCommand[0];
+		String firstWord = userCommand[0];
+		return firstWord;
 	}
 
 	public static String printTodayList (ArrayList<Task> listOfTasks){

@@ -5,8 +5,6 @@ public class Parser {
 	private static final String COM_EDIT = "edit";
 	private static final String COM_DELETE = "delete";
 
-
-
 	// Position of various inputs
 	private static final int MAX_TYPES = 8;
 	private static final int COMMAND_POSITION = 0;
@@ -39,7 +37,6 @@ public class Parser {
 		index.increment();
 		command.parse(parsedInput, input, index);
 	}
-
 }
 
 class Index {
