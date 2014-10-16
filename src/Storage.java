@@ -88,11 +88,12 @@ public class Storage {
 	// This function serves to clear the file.
 	private static void clear(File file) {
 		try {
-			new BufferedWriter(new FileWriter (file,false)).write("");
+			BufferedWriter bw =new BufferedWriter(new FileWriter (file,false));
+			bw.write("");
+			bw.close();
 		} catch (IOException e) {
 			
 		}
-			
 	}
 	
 	// Creates a text file if the text file is missing or for first time usage.
