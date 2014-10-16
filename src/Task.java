@@ -11,6 +11,7 @@ class Task {
 	private int importance;
 	private String error;
 	private String params;
+	private static boolean isSortedByTime;
 
 	public Task(String[] splitTask){
 		this.name = splitTask[1];
@@ -22,6 +23,7 @@ class Task {
 		}
 		this.error = splitTask[6];
 		this.params = splitTask[7];
+		isSortedByTime = true;
 	}
 
 	public Task(){
@@ -32,6 +34,7 @@ class Task {
 		this.importance = -1;
 		this.error = null;
 		this.params = null;
+		isSortedByTime = true;
 	}
 
 	//Accessors
@@ -56,6 +59,9 @@ class Task {
 	public String getParams(){
 		return params;
 	}
+	public static boolean getIsSortedByTime(){
+		return isSortedByTime;
+	}
 
 	//Mutators
 	public void setName(String newName){
@@ -79,18 +85,27 @@ class Task {
 	public void setParams(String newParams){
 		this.params = newParams;
 	}
+	public static void setSortedByTime(boolean sortedByTime){
+		isSortedByTime = sortedByTime;
+	}
 
 	//This method can be used to print tasks for debugging.
 	@Override
 	public String toString(){
-		String sentence ="";
+		String sentence = "";
 		if (this.getTime() == null || this.getTime().equals("null") ){
-			sentence +=  " [*] "; 
+			sentence +=  " [ **** ]   "; 
 		} else {
-			sentence +=  " [" + this.getTime() +"] "; 
+			sentence +=  " [" + this.getTime() +"]   "; 
 		}
-		if (this.getDate() != null && !date.equals("null")){
-			sentence += "(" + this.getDate() + ") ";
+		if (! isSortedByTime){
+			if (this.getDate() != null && !date.equals("null")){
+				if (!this.getDate().equals("ft")){
+					sentence += "(" + printDateNicely() + ")   ";
+				} else {
+					sentence += "(" + this.date + ")   ";
+				}
+			}
 		}
 		sentence += this.getName();
 		if (importance !=0) {
@@ -119,6 +134,17 @@ class Task {
 		for (int j=0; j < num; j++){
 			toPrint += "!";
 		}
+		return toPrint;
+	}
+
+	private String printDateNicely (){
+		String temp = date;
+		String toPrint = temp.substring(0, 2);
+		toPrint += "/";
+		toPrint += temp.substring(2,4);
+		toPrint += "/";
+		toPrint += temp.substring(4);
+
 		return toPrint;
 	}
 }
