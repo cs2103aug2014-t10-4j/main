@@ -75,7 +75,7 @@ public class Controller {
 				results.setListOfTasks(Logic.getTempStorage());
 				return results;
 			case EDIT:
-				results.setFeedback(Logic.edit(taskToExecute, file));
+				results.setFeedback(Logic.edit("edit" /*stub*/, taskToExecute, file));
 				results.setListOfTasks(Logic.getTempStorage());
 				return results;
 			case SEARCH:

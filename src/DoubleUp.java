@@ -34,6 +34,7 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_GOAL = "Your goal is: ";
 	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!\n";
 	private static final String MSG_ENTER_COMMAND = "Enter a command: ";
+
 	private static final String MSG_RESULT = "Result: ";
 	private static final String FILE_TASK = "DoubleUp.txt";
 	private static final String FILE_ARCHIVE = "Archive.txt";
@@ -78,6 +79,7 @@ public class DoubleUp extends JFrame {
 		middleRow.setLayout(new BorderLayout());
 		displayPanelTodayTasks = new JTextArea();
 		displayPanelTodayTasks.setEditable(false);
+
 		displayPanelTodayTasks.setText(Controller.printEveryTask());
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		middleRow.add(scroll, BorderLayout.CENTER);
@@ -176,7 +178,7 @@ public class DoubleUp extends JFrame {
 		welcomeMessage += createHelpMsg();
 		return welcomeMessage;
 	}
-	
+
 	//Returns Quote of the day.
 	private static String createQOTD(){
 		String quote = "\n" + "\t" + MSG_QOTD;
@@ -203,5 +205,4 @@ public class DoubleUp extends JFrame {
 		String help = "\n" + MSG_HELP;
 		return help;
 	}
-
 }
