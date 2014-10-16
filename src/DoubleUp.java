@@ -2,6 +2,7 @@ import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.MenuItem;
@@ -11,6 +12,7 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -58,6 +60,7 @@ public class DoubleUp extends JFrame {
 	private static JTextField textFieldCmdIn, textFieldResultsOut;
 	private static JTextArea displayPanelTodayTasks;
 	private static JPanel middleRow;
+	private static JFrame frame;
 
 	private static Stack <String> backwardsUserInput, forwardUserInput;
 
@@ -124,7 +127,7 @@ public class DoubleUp extends JFrame {
 	}
 
 	public static void createAndShowGUI() {
-		JFrame frame = new JFrame("DoubleUp To-do-List");
+		frame = new JFrame("DoubleUp To-do-List");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addComponentsToPane(frame.getContentPane());
 		frame.setMinimumSize(new Dimension(650,600));
@@ -222,15 +225,28 @@ public class DoubleUp extends JFrame {
 				}
 			}
 		};
+		
+		Action controlSpace = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				controlSpace();
+			}
+			private void controlSpace() {
+				frame.setState(Frame.ICONIFIED);
+				//frame.setState(Frame.NORMAL);
+			}
+		};
 
 		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("F2"), "showHelp");
 		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "showall");
 		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "goBack");
 		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "goForward");
+		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_MASK), "controlSpace" );
+
 		textFieldCmdIn.getActionMap().put("showHelp", showHelp);
 		textFieldCmdIn.getActionMap().put("showall", showAll);
 		textFieldCmdIn.getActionMap().put("goBack", goBack);
 		textFieldCmdIn.getActionMap().put("goForward", goForward);
+		textFieldCmdIn.getActionMap().put("controlSpace", controlSpace);
 
 		textFieldCmdIn.addActionListener(new ActionListener() {
 			@Override
