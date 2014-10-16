@@ -152,29 +152,30 @@ public class Logic {
 		searchResults.clear();
 		assert tempStorage.size() > 0 : "tempStorage.size() is negative";
 		for (int i = 0; i < tempStorage.size(); i++) {
-			if (task.getName() != null
-					&& !tempStorage.get(i).getName().toLowerCase().contains(task.getName().toLowerCase())) {
+			Task temp = tempStorage.get(i);
+			if (task.getName() != null && temp.getName() != null 
+					&& !temp.getName().toLowerCase().contains(task.getName().toLowerCase())) {
 				continue;
 			}
-			if (task.getDate() != null
-					&& !tempStorage.get(i).getDate().toLowerCase().contains(task.getDate().toLowerCase())) {
+			if (task.getDate() != null && temp.getDate() != null 
+					&& !temp.getDate().toLowerCase().contains(task.getDate().toLowerCase())) {
 				continue;
 			}
-			if (task.getTime() != null && tempStorage.get(i).getTime() != null 
-					&& !tempStorage.get(i).getTime().toLowerCase().contains(task.getTime().toLowerCase())) {
+			if (task.getTime() != null && temp.getTime() != null 
+					&& !temp.getTime().toLowerCase().contains(task.getTime().toLowerCase())) {
 				continue;
 			}
-			if (task.getDetails() != null
-					&& !tempStorage.get(i).getDetails().toLowerCase()
+			if (task.getDetails() != null && temp.getDetails() != null 
+					&& !temp.getDetails().toLowerCase()
 					.contains(task.getDetails().toLowerCase())) {
 				continue;
 			}
 			if (task.getImportance() != -1
-					&& tempStorage.get(i).getImportance() != task
+					&& temp.getImportance() != task
 					.getImportance()) {
 				continue;
 			}
-			searchResults.add(tempStorage.get(i));
+			searchResults.add(temp);
 		}
 		undo.push("search");
 		return searchResults;
