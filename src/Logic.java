@@ -7,6 +7,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Stack;
+
+
 
 public class Logic {
 	private static final String MSG_FAILED_SORT = "Sorting failed";
@@ -24,12 +27,84 @@ public class Logic {
 	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
 	private static ArrayList<Task> archiveStorage = new ArrayList<Task>();
 	private static ArrayList<Task> searchResults = new ArrayList<Task>();
+	private static Stack<ArrayList<Task>> undoList;
+	private static Stack<ArrayList<Task>> redoList;
+	public static final int MAXIMUM_UNDO_TIMES = 30;
+	public static final int MAXIMUM_REDO_TIMES = 30;
+	private File file;
+
+	/*
+	 * 
+	 * public static String delete(int number) {
+	 * 
+	 * String deleteTask; try { deleteTask = tempStorage.remove(number); } catch
+	 * (Exception e) { deleteTask = null; } return deleteTask;
+	 * 
+	 * }
+	 * 
+	 * public void sort() { Collections.sort(tempStorage); writeTextFile(null,
+	 * file); }
+	 * 
+	 * public ArrayList<String> search(String word) { ArrayList<String> result =
+	 * new ArrayList<String>(); for (String task : tempStorage) { if
+	 * (task.contains(word)) { result.add(task); } } return result; }
+	 * 
+	 * public void clear() { tempStorage.clear(); writeTextFile(null, file); }
+	 * 
+	 * public static void readFile(String FileName) throws IOException {
+	 * BufferedReader reader = null; try { reader = new BufferedReader(new
+	 * FileReader(FileName)); String text; while ((text = reader.readLine()) !=
+	 * null) { tempStorage.add(text.substring(3, text.length())); } } catch
+	 * (IOException e) { e.printStackTrace(); } finally { try { reader.close();
+	 * } catch (IOException e) { e.printStackTrace(); } } }
+	 * 
+	 * private static void writeTextFile(String inputText, File file) {
+	 * BufferedWriter outputFile; try { outputFile = new BufferedWriter( new
+	 * FileWriter(file.getName(), true)); if (!isEmpty(file))
+	 * outputFile.write(inputText); outputFile.close(); } catch (IOException e)
+	 * { System.out.println("Error: " + e.getMessage()); } }
+	 * 
+	 * private static boolean isEmpty(File file) { return file.length() <= 0; }
+	 */
+	public void redo() throws Exception {
+	if (redoList.empty()) {
+		throw new Exception();
+	} else {
+		undoList.push(tempStorage );
+		if (undoList.size() > MAXIMUM_UNDO_TIMES) {
+			undoList.remove(0);
+		}
+		tempStorage  = redoList.pop();
+	}
+}
+
+public static void undo() throws Exception {
+	if (undoList.empty()) {
+		throw new Exception();
+	} else {
+		redoList.push(tempStorage );
+		if (redoList.size() > MAXIMUM_REDO_TIMES) {
+			redoList.remove(0);
+		}
+		tempStorage  = undoList.pop();
+	}
+}
+
+private static void updateUndoList() {
+	redoList.clear();
+	undoList.push(tempStorage );
+	if (undoList.size() > MAXIMUM_UNDO_TIMES) {
+		undoList.remove(0);
+	}
+}
+
 
 	public static String addLineToFile(Task task, File file) {
 		if (task.getName() == null) {
 			return "error";
 		}
 		tempStorage.add(task);
+		updateUndoList();
 		sortByDateAndTime(tempStorage);
 		Storage.writeToFile(tempStorage, file);
 
