@@ -1,9 +1,18 @@
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.HeadlessException;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.Panel;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,14 +28,17 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.plaf.metal.MetalIconFactory;
 
 public class DoubleUp extends JFrame {
 	/**
@@ -34,7 +46,7 @@ public class DoubleUp extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
-	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
+	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d overdue tasks, %d tasks due eventually and %d floating tasks.\n";
 	private static final String MSG_QOTD = "QOTD: \n";
 	private static final String MSG_GOAL = "Your goal is: ";
 	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!\n";
@@ -56,13 +68,59 @@ public class DoubleUp extends JFrame {
 		archive = Storage.openFile(FILE_ARCHIVE);
 		backwardsUserInput = new Stack<String>();
 		forwardUserInput = new Stack<String>();
-		Logic.init(file, archive);
+		ArrayList<Integer> overview = Logic.init(file, archive);
+		TrayIcon icon = new TrayIcon(getImage(), "DoubleUp", 
+				createPopupMenu());
+		icon.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JOptionPane.showMessageDialog(null, "Hey, you pressed me!");
+			}
+		});
+		try {
+			SystemTray.getSystemTray().add(icon);
+		} catch (AWTException e1) {
+			e1.printStackTrace();
+		}
+
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				createAndShowGUI();
 			}
 		});
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		icon.displayMessage("Welcome to DoubleUp!", String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
+				TrayIcon.MessageType.INFO);
+	}
+
+	private static Image getImage() throws HeadlessException {
+		Icon defaultIcon = MetalIconFactory.getTreeHardDriveIcon();
+		Image img = new BufferedImage(defaultIcon.getIconWidth(), 
+				defaultIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+		defaultIcon.paintIcon(new Panel(), img.getGraphics(), 0, 0);
+
+		return img;
+	}
+
+	private static PopupMenu createPopupMenu() throws HeadlessException {
+		PopupMenu menu = new PopupMenu();
+
+		MenuItem exit = new MenuItem("Exit");
+		exit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		menu.add(exit);
+
+		return menu;
 	}
 
 	public static void createAndShowGUI() {

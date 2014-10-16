@@ -4,6 +4,7 @@
  */
 import java.io.File;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -237,31 +238,39 @@ public class Logic {
 
 	private static void getNumTasks(ArrayList<Integer> numTask,
 			ArrayList<Task> tempStorage) {
-		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+		// Need to ensure correct format of date (as returned by parser) is used
+		SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
 		Date currentDate = new Date();
-
 		try {
-			int todayTask = INITIAL_VALUE;
-			int tomorrowTask = INITIAL_VALUE;
+			currentDate = dateFormat.parse(dateFormat.format(currentDate));
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		assert currentDate != null;
+		try {
+			int todayTask = 0;
+			int overdueTask = 0;
+			int tomorrowTask = 0;
+			int floatingTask = 0;
 			for (int i = 0; i < tempStorage.size(); i++) {
 				if (tempStorage.get(i).getDate().contains("ft")) {
-					continue;
+					floatingTask ++;
 				} else {
-					Date dateOfCurrentTask = new Date();
-					dateOfCurrentTask = dateFormat.parse(tempStorage.get(i)
-							.getDate());
-					if (dateOfCurrentTask.compareTo(currentDate) == INITIAL_VALUE) {
+					Date dateOfCurrentTask = dateFormat.parse(tempStorage.get(i).getDate());
+					if (dateOfCurrentTask.compareTo(currentDate) == 0) {
 						todayTask++;
-					} else if (dateOfCurrentTask.compareTo(currentDate) == INITIAL_VALUE + 1) {
+					} else if (dateOfCurrentTask.compareTo(currentDate) == 1) {
 						tomorrowTask++;
 					} else {
-						break; // During init, the tempStorage is already sorted by
-						// date and time.
+						overdueTask++;						
 					}
 				}
 			}
 			numTask.add(todayTask);
+			numTask.add(overdueTask);
 			numTask.add(tomorrowTask);
+			numTask.add(floatingTask);
 		} catch (Exception e) {
 
 		}
