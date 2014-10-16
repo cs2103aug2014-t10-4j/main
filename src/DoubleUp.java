@@ -3,13 +3,18 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.Scanner;
+import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -34,7 +39,6 @@ public class DoubleUp extends JFrame {
 	private static final String MSG_GOAL = "Your goal is: ";
 	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!\n";
 	private static final String MSG_ENTER_COMMAND = "Enter a command: ";
-
 	private static final String MSG_RESULT = "Result: ";
 	private static final String FILE_TASK = "DoubleUp.txt";
 	private static final String FILE_ARCHIVE = "Archive.txt";
@@ -43,11 +47,15 @@ public class DoubleUp extends JFrame {
 	private static JTextArea displayPanelTodayTasks;
 	private static JPanel middleRow;
 
+	private static Stack <String> backwardsUserInput, forwardUserInput;
+
 	public static File file, archive;
 
 	public static void main(String[] args) {
 		file = Storage.openFile(FILE_TASK);
 		archive = Storage.openFile(FILE_ARCHIVE);
+		backwardsUserInput = new Stack<String>();
+		forwardUserInput = new Stack<String>();
 		Logic.init(file, archive);
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
@@ -63,6 +71,8 @@ public class DoubleUp extends JFrame {
 		addComponentsToPane(frame.getContentPane());
 		frame.setMinimumSize(new Dimension(650,600));
 		frame.setVisible(true);
+		Logger logger = Logger.getLogger("myLogger");
+		logger.log(Level.INFO, "Successfully create GUI");
 	}
 
 	public static void addComponentsToPane(Container cp){
@@ -79,7 +89,6 @@ public class DoubleUp extends JFrame {
 		middleRow.setLayout(new BorderLayout());
 		displayPanelTodayTasks = new JTextArea();
 		displayPanelTodayTasks.setEditable(false);
-
 		displayPanelTodayTasks.setText(Controller.printEveryTask());
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		middleRow.add(scroll, BorderLayout.CENTER);
@@ -96,9 +105,6 @@ public class DoubleUp extends JFrame {
 		cp.add(lastRow, BorderLayout.SOUTH);
 
 		Action showHelp = new AbstractAction() {
-			/**
-			 * 
-			 */
 			private static final long serialVersionUID = 1L;
 			public void actionPerformed(ActionEvent e) {
 				showHelp();
@@ -111,16 +117,13 @@ public class DoubleUp extends JFrame {
 					displayPanelTodayTasks.read(br, null);
 					br.close();
 				} catch (IOException e1) {
+					System.out.println("Help.txt not found.");
 				}
 				textFieldResultsOut.setText("Press ESC to return to All Tasks");
 				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen:"));
 			}
 		};
 		Action showAll = new AbstractAction() {
-			/**
-			 * 
-			 */
-			private static final long serialVersionUID = 1L;
 			public void actionPerformed(ActionEvent e) {
 				showAll();
 			}
@@ -130,10 +133,46 @@ public class DoubleUp extends JFrame {
 				textFieldResultsOut.setText("Press F2 for help.");
 			}
 		};
+
+		Action goBack = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				goBack();
+			}
+			private void goBack() {
+				try {
+					if (!backwardsUserInput.empty()){
+						forwardUserInput.push(backwardsUserInput.pop());
+						textFieldCmdIn.setText(forwardUserInput.peek());
+					}
+				} catch (EmptyStackException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+		Action goForward = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				goForward();
+			}
+			private void goForward() {
+				try {
+					if (!forwardUserInput.empty()){
+						backwardsUserInput.push(forwardUserInput.pop());
+						textFieldCmdIn.setText(forwardUserInput.peek());
+					}
+				} catch (EmptyStackException e) {
+					textFieldCmdIn.setText("");
+				}
+			}
+		};
+
 		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("F2"), "showHelp");
 		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "showall");
+		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "goBack");
+		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "goForward");
 		textFieldCmdIn.getActionMap().put("showHelp", showHelp);
 		textFieldCmdIn.getActionMap().put("showall", showAll);
+		textFieldCmdIn.getActionMap().put("goBack", goBack);
+		textFieldCmdIn.getActionMap().put("goForward", goForward);
 
 		textFieldCmdIn.addActionListener(new ActionListener() {
 			@Override
@@ -143,11 +182,12 @@ public class DoubleUp extends JFrame {
 				if (userSentence.equalsIgnoreCase("/help")){
 					showHelp(results);
 				} else { 
-					results = Controller.executeCommand(userSentence, file, archive);					
+					results = Controller.executeCommand(userSentence, file, archive);	
+					assert results != null;
 					displayPanelTodayTasks.setText(results.printArrayList());
 					middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
-					textFieldResultsOut.setText(results.getFeedback()); // display results of command on the output TextField
-					//}
+					backwardsUserInput.push(userSentence);
+					textFieldResultsOut.setText(results.getFeedback());
 					textFieldCmdIn.setText("");  // clear input TextField
 				}
 			}
@@ -160,6 +200,7 @@ public class DoubleUp extends JFrame {
 					displayPanelTodayTasks.read(br, null);
 					br.close();
 				} catch (IOException e1) {
+					System.out.println("Help.txt is not found");
 				}
 				results.setTitleOfPanel("Help Screen:");
 				results.setFeedback("Press ESC to return to Today Tasks");
@@ -170,6 +211,7 @@ public class DoubleUp extends JFrame {
 	// Concats the different messages to form the welcome message for the
 	// welcome screen
 	private static String createWelcomeMessage(ArrayList<Integer> numOfTask) {
+		assert numOfTask != null;
 		String welcomeMessage = MSG_WELCOME;
 		welcomeMessage += "\n" + "\t" + String.format(MSG_PROGRESS_BAR, numOfTask.get(0), 
 				numOfTask.get(1), numOfTask.get(2));
@@ -205,4 +247,5 @@ public class DoubleUp extends JFrame {
 		String help = "\n" + MSG_HELP;
 		return help;
 	}
+
 }
