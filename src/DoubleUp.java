@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.Scanner;
@@ -171,17 +172,23 @@ public class DoubleUp extends JFrame {
 				showHelp();
 			}
 			private void showHelp() {
-				try 
-				{
-					FileReader fr = new FileReader("help.txt");
+				/*FileReader fr = new FileReader("help.txt");
 					BufferedReader br = new BufferedReader(fr);
 					displayPanelTodayTasks.read(br, null);
-					br.close();
-				} catch (IOException e1) {
-					System.out.println("Help.txt not found.");
-				}
+					br.close();*/
+				String helpfile = "/res/help.txt";
+				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
+				assert inputStream != null;
+
+				String theString = convertStreamToString(inputStream);
+				displayPanelTodayTasks.setText(theString);
 				textFieldResultsOut.setText("Press ESC to return to All Tasks");
 				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen:"));
+			}
+
+			String convertStreamToString(java.io.InputStream is) {
+				Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
+				return s.hasNext() ? s.next() : "";
 			}
 		};
 		Action showAll = new AbstractAction() {
@@ -225,7 +232,7 @@ public class DoubleUp extends JFrame {
 				}
 			}
 		};
-		
+
 		Action controlSpace = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				controlSpace();
