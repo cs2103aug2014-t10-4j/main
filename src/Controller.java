@@ -1,3 +1,4 @@
+import java.awt.Font;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -13,7 +14,8 @@ public class Controller {
 	private static final String MSG_EMPTY_TODAY = "No tasks for today!";
 	private static final String MSG_EMPTY_ALL_DAYS = "No tasks for anyday!";
 	private static final String MSG_INVALID_COMMAND = "Invalid command";
-
+    protected static final int PRESET_TYPE_DATE = Font.BOLD;//
+	protected static final int PRESET_TYPE_TIME = Font.BOLD;//
 	enum CommandType {
 		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_FILE, EDIT, EXIT, INVALID, SEARCH, SORT, HELP, REDO, UNDO;
 	};
@@ -29,8 +31,8 @@ public class Controller {
 			switch (commandType) {
 			case ADD_TEXT:
 				ArrayList<Task> tasksFound = findClash(taskToExecute);
-				if (tasksFound.isEmpty()){
-					results.setFeedback(Logic.addLineToFile(taskToExecute, file));
+				if (tasksFound.size() == 0){
+					results.setFeedback(Logic.add("add",taskToExecute, file));
 					results.setListOfTasks(Logic.getTempStorage());
 					return results;
 				} else {
@@ -42,7 +44,7 @@ public class Controller {
 							"Something is happening at the same time!",
 							JOptionPane.YES_NO_OPTION);
 					if (n == JOptionPane.YES_OPTION){
-						results.setFeedback(Logic.addLineToFile(taskToExecute, file));			
+						results.setFeedback(Logic.add("add",taskToExecute, file));			
 					} else {
 						results.setFeedback("Task is not added.");
 					}
@@ -66,7 +68,7 @@ public class Controller {
 						Task oneOutOfMany = new Task();
 						String userDeleteIndex = String.valueOf(splitIndex[j]); 
 						oneOutOfMany.setParams(userDeleteIndex);
-						feedback += Logic.deleteLineFromFile(oneOutOfMany, file, archive) + ", ";
+						feedback += Logic.delete("delete", oneOutOfMany, file, archive) + ", ";
 					}
 					results.setFeedback(feedback);
 				} else { 
@@ -276,6 +278,7 @@ public class Controller {
 		ArrayList<Task> everyTask = Logic.getTempStorage();
 		if (everyTask.size() !=0){
 			String date = everyTask.get(0).getDate();
+		
 			if (Task.getIsSortedByTime()){
 				if (date.equals(getTodayDate())){
 					toPrint += " " + createHorizLine("=", 20) + " " + date + " , Today " + createHorizLine("=", 20) + "\n";
