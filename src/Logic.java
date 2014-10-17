@@ -150,7 +150,7 @@ public class Logic {
 	}
 
 	public static ArrayList<Task> search(Task taskToFind) {
-		ArrayList<Task> searchResults = new ArrayList<Task>();
+		searchResults.clear();
 		assert tempStorage.size() >= 0 : "tempStorage.size() is negative";
 		for (int i = 0; i < tempStorage.size(); i++) {
 			Task taskInList = tempStorage.get(i);
@@ -290,13 +290,13 @@ public class Logic {
 		}
 		else{
 			for (int i=0;i<tempStorage.size();i++){
-				boolean isSorted=true;
+				
 				for(int j=0;j<tempStorage.size()-1;j++){
 					try{
 						if (tempStorage.get(j).getDate().equals("ft")&& !tempStorage.get(j+1).getDate().equals("ft")){
 							tempStorage.add(j+2,tempStorage.get(j));
 							tempStorage.remove(j);
-							isSorted= false;
+						
 						} else if (!tempStorage.get(j).getDate().equals("ft") && tempStorage.get(j+1).getDate().equals("ft")){
 							continue;
 
@@ -313,7 +313,7 @@ public class Logic {
 							if (dateOfFirstTask.compareTo(dateOfSecondTask) > 0) {
 								tempStorage.add(j + 2, tempStorage.get(j));
 								tempStorage.remove(j);
-								isSorted = false;
+							
 
 
 							} else if (dateOfFirstTask.compareTo(dateOfSecondTask) == 0) {
@@ -324,7 +324,7 @@ public class Logic {
 										&& tempStorage.get(j + 1).getTime() ==null) {
 									tempStorage.add(j + 2, tempStorage.get(j));
 									tempStorage.remove(j);
-									isSorted = false;
+		
 
 								} else {
 									Date timeOfFirstTask = new Date();
@@ -343,7 +343,7 @@ public class Logic {
 										tempStorage.add(j + 2,
 												tempStorage.get(j));
 										tempStorage.remove(j);
-										isSorted = false;
+									
 
 									}
 									if (timeOfFirstTask
@@ -355,14 +355,13 @@ public class Logic {
 						}
 					} catch(Exception e){
 					}
-					if (isSorted) {
-						return MSG_SUCCESSFUL_SORT + "date and time";
-					}
+				
+				
 				}
 
 			
 			}
-			return MSG_FAILED_SORT;
+			return MSG_SUCCESSFUL_SORT + "date and time";
 		}
 		
 	}
