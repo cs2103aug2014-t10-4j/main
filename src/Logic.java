@@ -149,34 +149,34 @@ public class Logic {
 		}
 	}
 
-	public static ArrayList<Task> search(Task task) {
-		searchResults.clear();
-		assert tempStorage.size() > 0 : "tempStorage.size() is negative";
+	public static ArrayList<Task> search(Task taskToFind) {
+		ArrayList<Task> searchResults = new ArrayList<Task>();
+		assert tempStorage.size() >= 0 : "tempStorage.size() is negative";
 		for (int i = 0; i < tempStorage.size(); i++) {
-			Task temp = tempStorage.get(i);
-			if (task.getName() != null && temp.getName() != null 
-					&& !temp.getName().toLowerCase().contains(task.getName().toLowerCase())) {
+			Task taskInList = tempStorage.get(i);
+			//Filtering name
+			if (taskToFind.getName() != null && taskInList.getName() != null 
+					&& ! taskInList.getName().toLowerCase().contains(taskToFind.getName().toLowerCase())) {
 				continue;
 			}
-			if (task.getDate() != null && temp.getDate() != null 
-					&& !temp.getDate().toLowerCase().contains(task.getDate().toLowerCase())) {
+			if (taskToFind.getDate() != null && taskInList.getDate() != null 
+					&& !taskInList.getDate().equals(taskToFind.getDate()) ) {
 				continue;
 			}
-			if (task.getTime() != null && temp.getTime() != null 
-					&& !temp.getTime().toLowerCase().contains(task.getTime().toLowerCase())) {
+			if (taskToFind.getTime() != null && taskInList.getTime() != null 
+					&& ! taskInList.getTime().equals(taskToFind.getTime())) {
 				continue;
 			}
-			if (task.getDetails() != null && temp.getDetails() != null 
-					&& !temp.getDetails().toLowerCase()
-					.contains(task.getDetails().toLowerCase())) {
+			//Because the one above will short circuit
+			if (taskToFind.getTime() != null && taskInList.getTime() == null ){
 				continue;
 			}
-			if (task.getImportance() != -1
-					&& temp.getImportance() != task
-					.getImportance()) {
+			if (taskToFind.getDetails() != null && taskInList.getDetails() != null 
+					&& !taskInList.getDetails().toLowerCase()
+					.contains(taskToFind.getDetails().toLowerCase())) {
 				continue;
 			}
-			searchResults.add(temp);
+			searchResults.add(taskInList);
 		}
 		undo.push("search");
 		return searchResults;

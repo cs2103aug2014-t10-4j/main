@@ -20,6 +20,8 @@ class Task {
 		this.details = splitTask[4];
 		if (splitTask[5] != null){
 			this.importance = Integer.parseInt(splitTask[5]);
+		} else {
+			this.importance = -1;
 		}
 		this.error = splitTask[6];
 		this.params = splitTask[7];
@@ -91,15 +93,15 @@ class Task {
 
 	//This method can be used to print tasks for debugging.
 	@Override
-	public String toString(){
+	public String toString() {
 		String sentence = "";
-		if (this.getTime() == null || this.getTime().equals("null") ){
+		if (this.getTime() == null || this.getTime().equals("null")) {
 			sentence +=  " [ **** ]   "; 
 		} else {
 			sentence +=  " [" + this.getTime() +"]   "; 
 		}
-		if (! isSortedByTime){
-			if (this.getDate() != null && !date.equals("null")){
+		if (!isSortedByTime) {
+			if (this.getDate() != null && !date.equals("null")) {
 				if (!this.getDate().equals("ft")){
 					sentence += "(" + printDateNicely() + ")   ";
 				} else {
@@ -108,7 +110,7 @@ class Task {
 			}
 		}
 		sentence += this.getName();
-		if (importance !=0) {
+		if (importance >0) {
 			sentence += " [" + printImportance(importance) + "]";
 		}
 		if (details != null && !details.equals("null")){

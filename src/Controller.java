@@ -29,7 +29,7 @@ public class Controller {
 			switch (commandType) {
 			case ADD_TEXT:
 				ArrayList<Task> tasksFound = findClash(taskToExecute);
-				if (tasksFound.size() == 0){
+				if (tasksFound.isEmpty()){
 					results.setFeedback(Logic.addLineToFile(taskToExecute, file));
 					results.setListOfTasks(Logic.getTempStorage());
 					return results;
