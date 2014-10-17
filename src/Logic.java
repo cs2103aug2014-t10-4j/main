@@ -302,29 +302,27 @@ public class Logic {
 
 							Date dateOfFirstTask = new Date();
 
-							dateOfFirstTask = dateFormat.parse(tempStorage.get(
-									j).getDate());
+							dateOfFirstTask = dateFormat.parse(tempStorage.get(j).getDate());
 
 							Date dateOfSecondTask = new Date();
-							dateOfSecondTask = dateFormat.parse(tempStorage
-									.get(j + 1).getDate());
+							dateOfSecondTask = dateFormat.parse(tempStorage.get(j + 1).getDate());
 
 							if (dateOfFirstTask.compareTo(dateOfSecondTask) > 0) {
 								tempStorage.add(j + 2, tempStorage.get(j));
 								tempStorage.remove(j);
 								isSorted = false;
 
-							} else if (dateOfFirstTask
-									.compareTo(dateOfSecondTask) == 0) {
-								if (tempStorage.get(j).getTime().equals("null")) {
+
+							} else if (dateOfFirstTask.compareTo(dateOfSecondTask) == 0) {
+								if (tempStorage.get(j).getTime()==null) {	
 									continue;
-								} else if (!tempStorage.get(j).getTime()
-										.equals("null")
-										&& tempStorage.get(j + 1).getTime()
-										.equals("null")) {
+
+								} else if (tempStorage.get(j).getTime() !=null
+										&& tempStorage.get(j + 1).getTime() ==null) {
 									tempStorage.add(j + 2, tempStorage.get(j));
 									tempStorage.remove(j);
 									isSorted = false;
+
 								} else {
 									Date timeOfFirstTask = new Date();
 
@@ -336,26 +334,36 @@ public class Logic {
 											.parse(tempStorage.get(j + 1)
 													.getTime());
 
+
 									if (timeOfFirstTask
 											.compareTo(timeOfSecondTask) > 0) {
 										tempStorage.add(j + 2,
 												tempStorage.get(j));
 										tempStorage.remove(j);
 										isSorted = false;
+
+									}
+									if (timeOfFirstTask
+											.compareTo(timeOfSecondTask) == 0) {
+										continue;
 									}
 								}
 							}
 						}
 					} catch(Exception e){
 					}
+					if (isSorted) {
+						return MSG_SUCCESSFUL_SORT + "date and time";
+					}
 				}
-				if (isSorted) {
-					return MSG_SUCCESSFUL_SORT + "date and time";
-				}
+
+			
 			}
 			return MSG_FAILED_SORT;
 		}
+		
 	}
+
 
 	public static String sortByAlphabet(ArrayList<Task> tempStorage) {
 		if (tempStorage.size() < 1) {
