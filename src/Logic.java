@@ -79,7 +79,7 @@ public class Logic {
 		String returnMessage;
 		if (command.equals("delete") || command.equals(redo)){
 			if(undo.size()!= 0 && undo.peek().equals("search")){
-				System.out.println("here it is");
+
 				returnMessage = deleteLineFromSearchList(task,searchResults,file,archive);
 				undo.push(command);
 				ArrayList<Task> deletedTask = new ArrayList<Task>();
@@ -202,7 +202,7 @@ public class Logic {
 					+tempStorage.get(i).getDetails()+tempStorage.get(i).getImportance()
 					+tempStorage.get(i).getError() + tempStorage.get(i).getParams();
 			if (currentTask.equals(name)) {
-				System.out.println("does it reach here");
+
 				archiveStorage.add(tempStorage.remove(i));
 				sortByDateAndTime(tempStorage);
 				sortByDateAndTime(archiveStorage);
@@ -420,19 +420,25 @@ public class Logic {
 		String returnMessage;
 		if (command.equals("edit")){
 			int taskNumber = getIndex(detailsOfTask);
-			ArrayList<Task> taskEdited = new ArrayList<Task>();
-			taskEdited.add(tempStorage.get(taskNumber));
+			ArrayList<Task> tasksEdited = new ArrayList<Task>();
+			Task originalTask = new Task();
+			originalTask = copyOfTask(originalTask, tempStorage.get(taskNumber));
+			tasksEdited.add(originalTask);
+			
+			
 			returnMessage = editTask(detailsOfTask, file, taskNumber);
-			taskEdited.add(tempStorage.get(taskNumber));
+			Task editedTask = tempStorage.get(taskNumber);
+
+			tasksEdited.add(editedTask);
 
 			sortByDateAndTime(tempStorage);
 			Storage.writeToFile(tempStorage, file);
 			undo.push(command);
-			undoTask.push(taskEdited);
+			undoTask.push(tasksEdited);
 
 			return returnMessage;
 		}
-		else if (command.equals("undo")||command.equals(redo)){
+		else if (command.equals("undo")||command.equals("redo")){
 			int taskNumber = getIndex(detailsOfTask);
 			returnMessage = editTask(detailsOfTask, file, taskNumber);
 			return returnMessage;
@@ -443,6 +449,16 @@ public class Logic {
 		}
 
 	}
+	
+	private static Task copyOfTask(Task newTask, Task originalTask){
+		newTask.setName(originalTask.getName());
+		newTask.setDate(originalTask.getDate());
+		newTask.setTime(originalTask.getTime());
+		newTask.setDetails(originalTask.getDetails());
+		newTask.setImportance(originalTask.getImportance());
+		return newTask;
+		
+	}
 	public static String editTask(Task detailsOfTask, File file, int taskNumber) {
 
 		if (detailsOfTask.getName() != null) {
@@ -451,7 +467,6 @@ public class Logic {
 		if (detailsOfTask.getDate() !=null) {
 			tempStorage.get(taskNumber).setDate(detailsOfTask.getDate());
 		}
-		System.out.println(detailsOfTask.getTime());
 		if (detailsOfTask.getTime()!=null) {
 			tempStorage.get(taskNumber).setTime(detailsOfTask.getTime());
 		}
@@ -480,7 +495,7 @@ public class Logic {
 				ArrayList<Task> taskToBeDeleted = new ArrayList<Task>();
 				taskToBeDeleted = undoTask.pop();
 
-				Integer taskNumber = tempStorage.indexOf(taskToBeDeleted.get(INITIAL_VALUE))+ 1;
+				Integer taskNumber = tempStorage.lastIndexOf(taskToBeDeleted.get(INITIAL_VALUE))+ 1;
 				taskToBeDeleted.get(INITIAL_VALUE).setParams(taskNumber.toString());
 
 				delete(command,taskToBeDeleted.get(INITIAL_VALUE),file,archive);
@@ -512,9 +527,15 @@ public class Logic {
 				Integer taskNumber = tempStorage.indexOf(taskToBeEdited.get(INITIAL_VALUE+1))+ 1;
 				taskToBeEdited.get(INITIAL_VALUE).setParams(taskNumber.toString());
 
+				Task undoEditedTask = new Task();
+				undoEditedTask = copyOfTask(undoEditedTask, taskToBeEdited.get(INITIAL_VALUE+1));
+
 				edit(command,taskToBeEdited.get(INITIAL_VALUE),file);
 				redo.push("edit");
-				taskToBeEdited.add(taskToBeEdited.remove(INITIAL_VALUE));
+
+				taskToBeEdited.remove(INITIAL_VALUE+1);
+				taskToBeEdited.add(undoEditedTask);
+
 				redoTask.push(taskToBeEdited);
 
 			}
@@ -555,18 +576,24 @@ public class Logic {
 
 			if(lastCommand.equals("edit")){
 				ArrayList<Task> taskToBeEdited = new ArrayList<Task>();
-				taskToBeEdited = undoTask.pop();
+				taskToBeEdited = redoTask.pop();
 
-				Integer taskNumber = tempStorage.indexOf(taskToBeEdited.get(INITIAL_VALUE+1))+ 1;
-				taskToBeEdited.get(INITIAL_VALUE).setParams(taskNumber.toString());
+				Integer taskNumber = tempStorage.indexOf(taskToBeEdited.get(INITIAL_VALUE))+ 1;
+				taskToBeEdited.get(INITIAL_VALUE+1).setParams(taskNumber.toString());
 
-				edit(command,taskToBeEdited.get(INITIAL_VALUE),file);
-				redo.push("edit");
-				taskToBeEdited.add(taskToBeEdited.remove(INITIAL_VALUE));
-				redoTask.push(taskToBeEdited);
 
+				Task redoEditedTask = new Task();
+				redoEditedTask = copyOfTask(redoEditedTask, taskToBeEdited.get(INITIAL_VALUE));
+
+				edit(command,taskToBeEdited.get(INITIAL_VALUE+1),file);
+				undo.push("edit");
+
+				taskToBeEdited.remove(INITIAL_VALUE);
+				taskToBeEdited.add(INITIAL_VALUE,redoEditedTask);
+				
+				undoTask.push(taskToBeEdited);
 			}
-			return MSG_UNDO_SUCCESS;
+			return MSG_REDO_SUCCESS;
 		}
 
 	}

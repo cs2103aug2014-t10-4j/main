@@ -124,9 +124,22 @@ class Task {
 	public boolean equals(Object obj) {
 		if (obj instanceof Task){
 			Task task = (Task) obj; 
-			return this.equals(task.getName()) && this.equals(task.getDate()) && this.equals(task.getTime()) &&
-					this.equals(task.getDetails()) && this.getImportance() == task.getImportance();
+			return compareStrings(this.getName(),task.getName()) && compareStrings(this.getDate(),task.getDate()) && 
+					compareStrings(this.getTime(),task.getTime()) && compareStrings(this.getDetails(),task.getDetails()) && 
+					this.getImportance() == task.getImportance();
 		} else {
+			return false;
+		}
+	}
+	
+	private boolean compareStrings (String firstLine, String secondLine){
+		if(firstLine !=null && secondLine != null){
+			return firstLine.equals(secondLine);
+		}
+		else if (firstLine == null && secondLine == null){
+			return true;
+		}
+		else{
 			return false;
 		}
 	}
