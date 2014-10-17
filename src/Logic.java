@@ -163,6 +163,9 @@ public class Logic {
 					&& !taskInList.getDate().equals(taskToFind.getDate()) ) {
 				continue;
 			}
+			if (taskToFind.getDate() != null && taskInList.getDate() == null ){
+				continue;
+			}
 			if (taskToFind.getTime() != null && taskInList.getTime() != null 
 					&& ! taskInList.getTime().equals(taskToFind.getTime())) {
 				continue;
