@@ -68,7 +68,7 @@ public class Controller {
 						Task oneOutOfMany = new Task();
 						String userDeleteIndex = String.valueOf(splitIndex[j]); 
 						oneOutOfMany.setParams(userDeleteIndex);
-						feedback += Logic.delete("delete", oneOutOfMany, file, archive) + ", ";
+						feedback += Logic.delete("delete", splitIndex.length, oneOutOfMany, file, archive) + ", ";
 					}
 					results.setFeedback(feedback);
 				} else { 

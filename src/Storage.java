@@ -26,7 +26,7 @@ public class Storage {
 			if (!input.hasNext()) {
 				input.close();
 			} else {
-				while (input.hasNext()) {
+				for(Integer i =0; input.hasNext(); i++) {
 					Task task = new Task();
 					String currentTask = input.nextLine();
 					task.setName(currentTask.substring(0, currentTask.indexOf(DIVIDER_DATE)));
@@ -63,6 +63,7 @@ public class Storage {
 
 
 					task.setImportance(Integer.parseInt(currentTask));
+					task.setParams(i.toString());
 					tempStorage.add(task);
 
 				}
