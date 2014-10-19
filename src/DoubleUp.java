@@ -179,10 +179,6 @@ public class DoubleUp extends JFrame {
 				showHelp();
 			}
 			private void showHelp() {
-				/*FileReader fr = new FileReader("help.txt");
-					BufferedReader br = new BufferedReader(fr);
-					displayPanelTodayTasks.read(br, null);
-					br.close();*/
 				String helpfile = "/res/helpV2.txt";
 				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
 				assert inputStream != null;
@@ -267,37 +263,40 @@ public class DoubleUp extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String userSentence = textFieldCmdIn.getText().trim();
 				ResultOfCommand results = new ResultOfCommand();
-				if (userSentence.equalsIgnoreCase("/help")){
+				if (userSentence.equalsIgnoreCase("show help")){
 					showHelp(results);
 				} else { 
 					results = Controller.executeCommand(userSentence, file, archive);	
 					assert results != null;
 					displayPanelTodayTasks.setText(results.printArrayList());
 					middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
-					backwardsUserInput.push(userSentence);
 					textFieldResultsOut.setText(results.getFeedback());
-					textFieldCmdIn.setText("");  // clear input TextField
 				}
+				backwardsUserInput.push(userSentence);
+				textFieldCmdIn.setText("");  // clear input TextField
 			}
 
 			private void showHelp(ResultOfCommand results) {
-				try 
-				{
-					FileReader fr = new FileReader("help.txt");
-					BufferedReader br = new BufferedReader(fr);
-					displayPanelTodayTasks.read(br, null);
-					br.close();
-				} catch (IOException e1) {
-					System.out.println("Help.txt is not found");
-				}
+				String helpfile = "/res/helpV2.txt";
+				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
+				assert inputStream != null;
+
+				String theString = convertStreamToString(inputStream);
+				displayPanelTodayTasks.setText(theString);
+				textFieldResultsOut.setText("Press ESC to return to All Tasks");
+				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen:"));
 				results.setTitleOfPanel("Help Screen:");
 				results.setFeedback("Press ESC to return to Today Tasks");
+			}
+
+			String convertStreamToString(java.io.InputStream is) {
+				Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
+				return s.hasNext() ? s.next() : "";
 			}
 		});
 	}
 
-	// Concats the different messages to form the welcome message for the
-	// welcome screen
+	// Concats the different messages to form the welcome message for the welcome screen
 	private static String createWelcomeMessage(ArrayList<Integer> numOfTask) {
 		assert numOfTask != null;
 		String welcomeMessage = MSG_WELCOME;

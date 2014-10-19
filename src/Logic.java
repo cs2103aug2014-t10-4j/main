@@ -26,7 +26,7 @@ public class Logic {
 	private static final String MSG_NO_TASKS_TO_SORT = "Not enough tasks to sort";
 	private static final String WRONG_FORMAT = "\"%s\" is wrong format";
 	private static final String BAD_INDEX_MESSAGE = "%d is not a valid number. Valid range is %d to %d.";
-	public static String ADD_MESSAGE = "Added to %s: \"%s\"";
+	public static String ADD_MESSAGE = "Added to %s: \"%s\". Type .u to undo.";
 	private static final int INITIAL_VALUE = 0;
 	private static final String NO_MESSAGE_DELETE = "Nothing to delete!";
 	private static final int INVAILD_NUMBER = -1;
@@ -34,7 +34,6 @@ public class Logic {
 
 	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
 	private static ArrayList<Task> archiveStorage = new ArrayList<Task>();
-
 	private static ArrayList<Task> searchResults = new ArrayList<Task>();
 	private static Stack<String> undo = new Stack<String>();
 	private static Stack<String> redo = new Stack<String>();

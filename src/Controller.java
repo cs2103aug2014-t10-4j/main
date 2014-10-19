@@ -19,7 +19,8 @@ public class Controller {
 	protected static final int PRESET_TYPE_TIME = Font.BOLD;//
 	enum CommandType {
 		ADD_TEXT, CLEAR_SCREEN, DELETE_ALL, DELETE_TEXT, EDIT, EXIT, HELP, INVALID, SEARCH, 
-		SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, SORT, SORT_ALPHA, SORT_IMPORTANCE, REDO, UNDO ;
+		SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, SHOW_DETAILS, HIDE_DETAILS,
+		SORT, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, REDO, UNDO,  ;
 	};
 
 	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
@@ -33,25 +34,23 @@ public class Controller {
 		case ADD_TEXT:
 			ArrayList<Task> tasksFound = findClash(taskToExecute);
 			if (tasksFound.size() == 0){
-				results.setFeedback(Logic.add("add",taskToExecute, file));
-				results.setListOfTasks(Logic.getTempStorage());
-				return results;
+				results.setFeedback(Logic.add("add", taskToExecute, file));
 			} else {
 				results.setListOfTasks(tasksFound);
 				JFrame frame = new JFrame();
 				int n = JOptionPane.showConfirmDialog(
 						frame,
-						"Continue adding?",
-						"Something is happening at the same time!",
+						"Something is happening at the same time! Continue adding?",
+						"Clash found",
 						JOptionPane.YES_NO_OPTION);
 				if (n == JOptionPane.YES_OPTION){
 					results.setFeedback(Logic.add("add",taskToExecute, file));			
 				} else {
 					results.setFeedback("Task is not added.");
 				}
-				results.setListOfTasks(Logic.getTempStorage());
-				return results;
 			}
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
 		case CLEAR_SCREEN:
 			results.setFeedback(MSG_SCREEN_CLEARED);
 			results.setListOfTasks(new ArrayList<Task>());
@@ -64,6 +63,7 @@ public class Controller {
 		case DELETE_TEXT:
 			String params = taskToExecute.getParams();
 			String feedback = "";
+			//Because multiple deletions is handled by Controller.
 			if (params != null){
 				String [] splitParams = params.split("\\s+");
 				int [] splitIndex = new int [splitParams.length];
@@ -75,11 +75,16 @@ public class Controller {
 					Task oneOutOfMany = new Task();
 					String userDeleteIndex = String.valueOf(splitIndex[j]); 
 					oneOutOfMany.setParams(userDeleteIndex);
-					feedback += Logic.delete("delete", oneOutOfMany, file, archive) + ", ";
+					if (j != 0){
+						feedback = ", " + Logic.delete("delete", oneOutOfMany, file, archive) + feedback;
+					} else {
+						feedback = Logic.delete("delete", oneOutOfMany, file, archive) + feedback;
+					}
 				}
+				feedback = feedback.substring(0,1).toUpperCase() + feedback.substring(1); // Capitalize first letter
 				results.setFeedback(feedback);
 			} else { 
-				results.setFeedback("You must add a number after /delete");
+				results.setFeedback("You must add a number after delete");
 			}
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
@@ -92,7 +97,7 @@ public class Controller {
 		case SEARCH:
 			results.setListOfTasks(Logic.search(taskToExecute) );
 			results.setFeedback("This is what is found.");
-			results.setTitleOfPanel("Search Results for \""+ getSearchTermOnly(userSentence) + "\"");
+			results.setTitleOfPanel("Search Results for \""+ getSearchTermOnly(taskToExecute) + "\"");
 			return results;
 		case SHOW_ALL:
 			results.setFeedback("These are all your tasks.");
@@ -100,9 +105,6 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		case SHOW_FLOATING:
-			// Cannot delete from floating list or today list now because
-			// number in floating list is different from tempStorage.
-			// Deleting and editing after search will be written with cmdHistory.
 			Task dateFloating = new Task ();
 			dateFloating.setDate("ft");
 			results.setListOfTasks( Logic.search(dateFloating));
@@ -110,12 +112,23 @@ public class Controller {
 			results.setTitleOfPanel("Floating Tasks:");
 			return results;
 		case SHOW_TODAY:
-			//Need to ignore importance? Set to null?
 			Task dateToday = new Task();
 			dateToday.setDate(getTodayDate());
 			results.setListOfTasks(Logic.search(dateToday));
 			results.setFeedback("These are your tasks for the day.");
 			results.setTitleOfPanel("Today Tasks:");
+			return results;
+		case SHOW_DETAILS:
+			Task.setIsDetailsShown(true);
+			results.setFeedback("Details are expanded.");
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel("All Tasks:");
+			return results;
+		case HIDE_DETAILS: 
+			Task.setIsDetailsShown(false);
+			results.setFeedback("Details are collapsed.");
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel("All Tasks:");
 			return results;
 		case SORT:
 			Task.setSortedByTime(true);
@@ -135,6 +148,8 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			results.setTitleOfPanel("All tasks by importance order");
 			return results;
+		case RESTORE:
+			return results; //stub
 		case UNDO: 
 			Logic.undo(file, archive);
 			results.setFeedback("Previous action is undone");
@@ -152,9 +167,18 @@ public class Controller {
 		}
 	}
 
-	private static String getSearchTermOnly(String userSentence) {
-		String firstWord = userSentence.trim().split("\\s+")[0];
-		return userSentence.replace(firstWord , "").trim();
+	private static String getSearchTermOnly(Task task) {
+		String searchTerm = "";
+		if (task.getName() != null){
+			searchTerm += task.getName();
+		}
+		if (task.getDate() != null){
+			searchTerm += " " + task.getDate();
+		}
+		if (task.getTime() != null){
+			searchTerm += " " + task.getTime();
+		}
+		return searchTerm;
 	}
 
 	//Sort index from smallest to largest for multiple deletion.
@@ -207,6 +231,8 @@ public class Controller {
 			return CommandType.EXIT;
 		} else if (commandTypeString.equalsIgnoreCase("help")) {
 			return CommandType.HELP;
+		} else if (commandTypeString.equalsIgnoreCase("hide details")) {
+			return CommandType.HIDE_DETAILS;
 		} else if (commandTypeString.equalsIgnoreCase("search")) {
 			return CommandType.SEARCH;
 		} else if (commandTypeString.equalsIgnoreCase("sort")) {
@@ -221,6 +247,10 @@ public class Controller {
 			return CommandType.SHOW_FLOATING;
 		} else if (commandTypeString.equalsIgnoreCase("show today")) {
 			return CommandType.SHOW_TODAY;
+		} else if (commandTypeString.equalsIgnoreCase("show details")) {
+			return CommandType.SHOW_DETAILS;
+		} else if (commandTypeString.equalsIgnoreCase("restore")) {
+			return CommandType.RESTORE;
 		} else if (commandTypeString.equalsIgnoreCase("redo")) {
 			return CommandType.REDO;
 		} else if (commandTypeString.equalsIgnoreCase("undo")) {
@@ -231,6 +261,7 @@ public class Controller {
 	}
 
 	private static String getFirstWord(String[] userCommand) {
+		assert userCommand.length >0;
 		String firstWord = userCommand[0];
 		return firstWord;
 	}
@@ -243,16 +274,7 @@ public class Controller {
 		}
 	}
 
-	public static ArrayList<Task> getFloatingList (){
-		ArrayList<Task> allTasks = Logic.getTempStorage();
-		ArrayList <Task> listOfFloating = new ArrayList<Task>();
-		for (int j=0; j < allTasks.size(); j++){
-			if (allTasks.get(j).getDate().equals("ft")){
-				listOfFloating.add(allTasks.get(j));
-			}
-		}
-		return listOfFloating;
-	} 
+	
 
 	public static String printArrayList(ArrayList<Task> listOfTasks){
 		String toPrint ="";
@@ -305,17 +327,6 @@ public class Controller {
 			line += charseq;
 		}
 		return line;
-	}
-
-	public static ArrayList<Task> getTodayList() {
-		ArrayList<Task> allTasks = Logic.getTempStorage();
-		ArrayList<Task> todayTasks = new ArrayList<Task>();
-		for (int j = 0 ; j< allTasks.size() ; j++){
-			if (allTasks.get(j).getDate().equals(getTodayDate())){
-				todayTasks.add(allTasks.get(j));
-			} 
-		}
-		return todayTasks;
 	}
 
 	//Same function as getCurrentDate except date is in another format
