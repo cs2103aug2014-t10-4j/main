@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.MenuItem;
 import java.awt.Panel;
 import java.awt.PopupMenu;
@@ -48,18 +49,18 @@ public class DoubleUp extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
+	private static final String MSG_WELCOME = "Welcome to DoubleUp! ";
 	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d overdue tasks, %d tasks due eventually and %d floating tasks.\n";
 	private static final String MSG_QOTD = "QOTD: \n";
 	private static final String MSG_GOAL = "Your goal is: ";
-	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!\n";
+	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!";
 	private static final String MSG_ENTER_COMMAND = "Enter a command: ";
 	private static final String MSG_RESULT = "Result: ";
 	private static final String FILE_TASK = "DoubleUp.txt";
 	private static final String FILE_ARCHIVE = "Archive.txt";
 
-	private static JTextField textFieldCmdIn, textFieldResultsOut;
-	private static JTextArea displayPanelTodayTasks;
+	private static JTextField textFieldCmdIn;
+	private static JTextArea displayPanelTodayTasks, textFieldResultsOut;
 	private static JPanel middleRow;
 	private static JFrame frame;
 
@@ -151,6 +152,9 @@ public class DoubleUp extends JFrame {
 		middleRow.setLayout(new BorderLayout());
 		displayPanelTodayTasks = new JTextArea();
 		displayPanelTodayTasks.setEditable(false);
+		displayPanelTodayTasks.setLineWrap(true);
+		displayPanelTodayTasks.setWrapStyleWord(true);
+		displayPanelTodayTasks.setMargin(new Insets(5,5,5,5));
 		displayPanelTodayTasks.setText(Controller.printEveryTask());
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		middleRow.add(scroll, BorderLayout.CENTER);
@@ -160,7 +164,10 @@ public class DoubleUp extends JFrame {
 		//feedback
 		JPanel lastRow = new JPanel();
 		lastRow.add(new JLabel(MSG_RESULT));
-		textFieldResultsOut = new JTextField(43);
+		textFieldResultsOut = new JTextArea(0, 43);
+		textFieldResultsOut.setLineWrap(true);
+		textFieldResultsOut.setWrapStyleWord(true);
+		textFieldResultsOut.setMargin(new Insets(5,5,5,5));
 		textFieldResultsOut.setEditable(false);  // read-only
 		textFieldResultsOut.setText(MSG_WELCOME + MSG_HELP);
 		lastRow.add(textFieldResultsOut);
@@ -176,7 +183,7 @@ public class DoubleUp extends JFrame {
 					BufferedReader br = new BufferedReader(fr);
 					displayPanelTodayTasks.read(br, null);
 					br.close();*/
-				String helpfile = "/res/help.txt";
+				String helpfile = "/res/helpV2.txt";
 				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
 				assert inputStream != null;
 

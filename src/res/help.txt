@@ -1,24 +1,25 @@
- COMMANDS	DESCRIPTION			EXAMPLE
+ COMMANDS		DESCRIPTION			EXAMPLE
 
  Basic Commands 
- /add	adds a task to your to do list 		/add 31/12/2015 assignment
- /delete	marks your task as completed 		/delete 1
- /edit 	updates your task with new details 	/edit 1 assignment, 
-				/edit 1 19:00 15/09/2014
- /search	searches for tasks that contain your 	/search assignment
-	search term. 				
- /showall	shows all your to do tasks		/showall
- /sort 	sorts your list by date and time. 		/sort
+ add		adds a task to your to do list 		add 31/12/2015 assignment
+ delete		marks your task as completed 		delete 1
+ edit 		updates your task with new details 	edit 1 assignment, 
+					edit 1 7pm 15 Oct
+ search		searches for tasks that contain your 	search assignment
+		search term. 				
+ show all		shows all your to do tasks		show all 
+ sort 		sorts your list by date and time. 		sort
 
  Advanced Commands 		
- /archive 	views all your completed tasks. 		/archive
- /deletearchive 	delete your achive forever. 		/deletearchive
- /goal 	changes your personal goal 		/goal Become the best Computer Engineer
- /imp 	sets importance level for a task 		/add Exam /imp 3, /edit Quiz /imp 1
- /repeat 	adds a periodic task 		/repeat lunch 12pm daily
- /showfloating	shows all your floating tasks		/showall
- /showtoday	shows all your to do tasks for today	/showtoday
- /sortalpha 	sorts your list alphabetically 		/sortalpha
- /sortimpt 	sorts your list by importance level 	/sortimpt
- /redo 	repeat your last action 		/redo
- /undo 	undo your last action 		/undo
+ archive 		views all your completed tasks. 		archive
+ delete all 		deletes all your tasks. 		delete all
+ set goal 		changes your personal goal 		set goal Become the best 
+ 					Computer Engineer
+ importance 		sets importance level for a task 		add Exam importance 3, 
+ 					edit Quiz importance 1
+ show floating		shows all your floating tasks		show all
+ show today		shows all your to do tasks for today	show today
+ sort alpha 		sorts your list alphabetically 		sort alpha
+ sort importance 	sorts your list by importance level 	sort importance
+ redo 		repeat your last action 		redo
+ undo 		undo your last action 		undo
