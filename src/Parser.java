@@ -4,6 +4,9 @@ public class Parser {
 	private static final String COM_SEARCH = "search";
 	private static final String COM_EDIT = "edit";
 	private static final String COM_DELETE = "delete";
+	private static final String COM_DELETE_ALL = "delete all";
+	private static final String COM_RESTORE = "restore";
+
 
 	// Position of various inputs
 	private static final int MAX_TYPES = 8;
@@ -27,9 +30,12 @@ public class Parser {
 			parseCommand(parsedInput, input, index, new ParserDelete());
 		} else if (parsedInput[COMMAND_POSITION].equals(COM_EDIT)) {
 			parseCommand(parsedInput, input, index, new ParserEdit());
-		} 
+		}else if (parsedInput[COMMAND_POSITION].equals(COM_RESTORE)) {
+			parseCommand(parsedInput, input, index, new ParserDelete());
+		}else if(parsedInput[COMMAND_POSITION].equals(COM_DELETE_ALL)){
+			parseCommand(parsedInput, input, index, new ParserDeleteAll());
+		}
 		return parsedInput;
-
 	}
 
 	private static void parseCommand(String[] parsedInput, String[] input,
@@ -37,6 +43,7 @@ public class Parser {
 		index.increment();
 		command.parse(parsedInput, input, index);
 	}
+
 }
 
 class Index {
