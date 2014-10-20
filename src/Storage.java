@@ -32,12 +32,12 @@ public class Storage {
 					task.setName(currentTask.substring(0, currentTask.indexOf(DIVIDER_DATE)));
 
 
-					currentTask = currentTask.replaceFirst(currentTask.substring(0,currentTask.indexOf(DIVIDER_DATE)),"");
+					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_DATE));
 					currentTask = currentTask.replaceFirst(DIVIDER_DATE,"");
 
 
 					task.setDate(currentTask.substring(0,currentTask.indexOf(DIVIDER_TIME)));
-					currentTask = currentTask.replaceFirst(currentTask.substring(0,currentTask.indexOf(DIVIDER_TIME)),"");
+					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_TIME));
 					currentTask = currentTask.replaceFirst((DIVIDER_TIME),"");
 					
 					String taskTime = currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS));
@@ -47,7 +47,7 @@ public class Storage {
 					else{
 						task.setTime(taskTime);
 					}
-					currentTask = currentTask.replaceFirst(currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS)),"");
+					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_DETAILS));
 					currentTask = currentTask.replaceFirst((DIVIDER_DETAILS),"");
 
 
@@ -58,7 +58,7 @@ public class Storage {
 					else{
 						task.setDetails(taskDetails);
 					}
-					currentTask = currentTask.replaceFirst(currentTask.substring(0,currentTask.indexOf(DIVIDER_IMPORTANCE)),"");
+					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_IMPORTANCE));
 					currentTask = currentTask.replaceFirst((DIVIDER_IMPORTANCE),"");
 
 
