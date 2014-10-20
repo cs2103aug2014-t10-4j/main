@@ -713,7 +713,7 @@ public class Logic {
 				taskToBeDeleted = redoTask.pop();
 
 				for(int i=0;i<taskToBeDeleted.size();i++){
-					Integer index = tempStorage.indexOf(taskToBeDeleted.get(i))+1;
+					Integer index = Integer.parseInt(taskToBeDeleted.get(i).getParams())+1;
 					Task taskToDelete = new Task();
 					taskToDelete.setParams(Integer.toString(index));
 					delete(command,taskToBeDeleted.size(), taskToDelete ,file,archive);
