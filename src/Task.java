@@ -127,7 +127,7 @@ class Task {
 			sentence += " [+] ";
 		}
 		if (details != null && !details.equals("null") && isDetailsShown){
-			sentence += "/n" + "/t" + details + " [-] ";
+			sentence += "\n" + "\t" + details + " [-] ";
 		}
 		return sentence;
 	}
