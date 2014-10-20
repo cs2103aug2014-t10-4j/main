@@ -162,4 +162,14 @@ class Task {
 
 		return toPrint;
 	}
+	
+	public void copyOfTask( Task task){
+		this.setName(task.getName());
+		this.setDate(task.getDate());
+		this.setTime(task.getTime());
+		this.setDetails(task.getDetails());
+		this.setImportance(task.getImportance());
+		this.setParams(task.getParams());
+		
+	}
 }

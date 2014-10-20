@@ -17,7 +17,7 @@ public class Storage {
 
 
 	// This function serves to write all the task in the text file into temp storage.
-	public static void copyToArrayList(File file, ArrayList<Task> tempStorage) {
+	public static boolean copyToArrayList(File file, ArrayList<Task> tempStorage) {
 		logger.log(Level.INFO, "going to start writing to tempStorage / archive");
 		Scanner input;
 		try {
@@ -71,9 +71,13 @@ public class Storage {
 			}
 		} catch (FileNotFoundException e) {
 			logger.log(Level.WARNING, "no storage.txt");
+			openFile("DoubleUp.txt");
+			openFile("Archive.txt");
+			return false;
 
 		}
 		logger.log(Level.INFO, "end of writing to tempStorage / archive");
+		return true;
 	}
 
 	// This function serves to write all the task in the tempStorage into the text file.
@@ -97,6 +101,7 @@ public class Storage {
 			fileWritten.close();
 		} catch (IOException e) {
 			logger.log(Level.INFO, "unable to write to Storage.txt / archive.txt");
+			
 			return false;
 		}
 		logger.log(Level.INFO, "end of writing to Storage.txt / archive.txt");
