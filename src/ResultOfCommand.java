@@ -55,6 +55,8 @@ public class ResultOfCommand {
 			if (Task.getIsSortedByTime()){
 				if (date.equals(getTodayDate())){
 					toPrint += String.format(DATE_WITH_LINE, date, ", Today");
+				} else if (date.equalsIgnoreCase("ft")){
+					toPrint += String.format(DATE_WITH_LINE, "Floating Tasks", "");
 				} else {	
 					toPrint += String.format(DATE_WITH_LINE, date, ", " + getDayOfWeek(date)); 
 				}

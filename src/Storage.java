@@ -18,7 +18,6 @@ public class Storage {
 
 	// This function serves to write all the task in the text file into temp storage.
 	public static boolean copyToArrayList(File file, ArrayList<Task> tempStorage) {
-		logger.log(Level.INFO, "going to start writing to tempStorage / archive");
 		Scanner input;
 		try {
 			input = new Scanner(file);
@@ -31,10 +30,8 @@ public class Storage {
 					String currentTask = input.nextLine();
 					task.setName(currentTask.substring(0, currentTask.indexOf(DIVIDER_DATE)));
 
-
 					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_DATE));
 					currentTask = currentTask.replaceFirst(DIVIDER_DATE,"");
-
 
 					task.setDate(currentTask.substring(0,currentTask.indexOf(DIVIDER_TIME)));
 					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_TIME));

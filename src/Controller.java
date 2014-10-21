@@ -1,4 +1,3 @@
-import java.awt.Font;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -7,7 +6,6 @@ import java.util.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-
 
 public class Controller {
 
@@ -57,10 +55,7 @@ public class Controller {
 		case DELETE_TODAY:
 			Task todayOnly = new Task();
 			todayOnly.setDate(getTodayDate());
-			results.setListOfTasks(Logic.search(todayOnly) );
-			results.setFeedback("This is what is found.");
-			results.setTitleOfPanel("Search Results for \""+ getSearchTermOnly(taskToExecute) + "\"");
-			return results;
+			return deleteDate(file, archive, results, todayOnly);
 		case DELETE_TEXT:
 			String params = taskToExecute.getParams();
 			String feedback = "";
@@ -180,6 +175,35 @@ public class Controller {
 		}
 	}
 
+	private static ResultOfCommand deleteDate(File file, File archive,
+			ResultOfCommand results, Task withParticularDate) {
+		ArrayList<Task> allThoseTasks= Logic.search(withParticularDate);
+		int [] splitIndexA = new int [allThoseTasks.size()];
+		for (int j = 0 ; j < allThoseTasks.size(); j++){
+			splitIndexA[j] = j+1;
+		}
+		String feedback1 ="";
+		for (int j = splitIndexA.length - 1; j >= 0; j--){
+			if (splitIndexA[j] > Logic.getTempStorage().size()){
+				feedback1 = String.format("item #%d is not found, ", splitIndexA[j]) + feedback1;
+				continue; //Because cannot delete numbers larger than list size
+			}
+			if (splitIndexA[j] <= 0){
+				feedback1 += "cannot delete index equal or below 0.";
+				break; //Because cannot delete zero or negative number
+			}
+			Task oneOutOfMany = new Task();
+			String userDeleteIndex = String.valueOf(splitIndexA[j]); 
+			oneOutOfMany.setParams(userDeleteIndex);
+			feedback1 = Logic.delete("delete", splitIndexA.length, oneOutOfMany, file, archive) +", " + feedback1 ;
+		}
+		feedback1 = capitalizeFirstLetter(feedback1);
+		feedback1 = endWithFulstop(feedback1);
+		results.setFeedback(feedback1);
+		results.setListOfTasks(Logic.getTempStorage());
+		return results;
+	}
+
 	private static String endWithFulstop(String feedback) {
 		if (feedback.endsWith(", ")){
 			feedback = feedback.substring(0, feedback.lastIndexOf(",")) + ".";
@@ -264,7 +288,7 @@ public class Controller {
 			return CommandType.HIDE_DETAILS;
 		} else if (commandTypeString.equalsIgnoreCase("search")) {
 			return CommandType.SEARCH;
-		} else if (commandTypeString.equalsIgnoreCase("sort")) {
+		} else if (commandTypeString.equalsIgnoreCase("sort time")) {
 			return CommandType.SORT;
 		} else if (commandTypeString.equalsIgnoreCase("sort alpha")) {
 			return CommandType.SORT_ALPHA;

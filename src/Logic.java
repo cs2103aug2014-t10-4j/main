@@ -14,8 +14,8 @@ import java.text.SimpleDateFormat;
 
 public class Logic {
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
-	private static final String MSG_FAIL_ADD = "Unable to add line.";
-	private static final String MSG_FAIL_DELETE = "Unable to delete line.";
+	private static final String MSG_FAIL_ADD = "Unable to add line";
+	private static final String MSG_FAIL_DELETE = "Unable to delete line";
 	private static final String MSG_FAIL_EDIT = "Unable to edit line.";
 	private static final String MSG_NO_PREVIOUS_ACTION = "Nothing to undo";
 	private static final String MSG_NO_FUTURE_ACTION = "Nothing to redo";
@@ -355,7 +355,6 @@ public class Logic {
 		while(!Storage.copyToArrayList(archive, archiveStorage)); 
 		ArrayList<Integer> numTask = new ArrayList<Integer>();
 		getNumTasks(numTask, tempStorage);
-
 		return numTask;
 	}
 
