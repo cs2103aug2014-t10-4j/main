@@ -241,7 +241,7 @@ public class Logic {
 	private static void getNumTasks(ArrayList<Integer> numTask,
 			ArrayList<Task> tempStorage) {
 		// Need to ensure correct format of date (as returned by parser) is used
-		SimpleDateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		Date currentDate = new Date();
 		try {
 			currentDate = dateFormat.parse(dateFormat.format(currentDate));
@@ -279,7 +279,7 @@ public class Logic {
 	}
 
 	public static String sortByDateAndTime(ArrayList<Task> tempStorage){
-		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
+		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 		DateFormat timeFormat = new SimpleDateFormat("HHmm");
 		dateFormat.setLenient(false);
 		timeFormat.setLenient(false);

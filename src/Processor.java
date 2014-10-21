@@ -65,7 +65,7 @@ public abstract class Processor {
 	protected final SimpleDateFormat timeFormatThree = new SimpleDateFormat(
 			"hha");
 	protected final SimpleDateFormat fullDateFormat = new SimpleDateFormat(
-			"ddMMyyyyHH:mm");
+			"dd/MM/yyyyHH:mm");
 
 	public abstract void process(String[] parsedInput, String[] input,
 			Index index);
