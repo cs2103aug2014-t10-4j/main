@@ -12,6 +12,7 @@ class Task {
 	private String error;
 	private String params;
 	private static boolean isSortedByTime;
+	private static boolean isDetailsShown;
 
 	public Task(String[] splitTask){
 		this.name = splitTask[1];
@@ -26,6 +27,7 @@ class Task {
 		this.error = splitTask[6];
 		this.params = splitTask[7];
 		isSortedByTime = true;
+		isDetailsShown = false;
 	}
 
 	public Task(){
@@ -37,6 +39,7 @@ class Task {
 		this.error = null;
 		this.params = null;
 		isSortedByTime = true;
+		isDetailsShown = false;
 	}
 
 	//Accessors
@@ -64,6 +67,10 @@ class Task {
 	public static boolean getIsSortedByTime(){
 		return isSortedByTime;
 	}
+	
+	public static boolean getIsDetailsShown(){
+		return isDetailsShown;
+	}
 
 	//Mutators
 	public void setName(String newName){
@@ -90,8 +97,11 @@ class Task {
 	public static void setSortedByTime(boolean sortedByTime){
 		isSortedByTime = sortedByTime;
 	}
+	public static void setIsDetailsShown(boolean shouldShowDetails){
+		isDetailsShown = shouldShowDetails;
+	}
 
-	//This method can be used to print tasks for debugging.
+	//This method can be used to print tasks for display.
 	@Override
 	public String toString() {
 		String sentence = "";
@@ -103,7 +113,7 @@ class Task {
 		if (!isSortedByTime) {
 			if (this.getDate() != null && !date.equals("null")) {
 				if (!this.getDate().equals("ft")){
-					sentence += "(" + printDateNicely() + ")   ";
+					sentence += "(" + date + ")   ";
 				} else {
 					sentence += "(" + this.date + ")   ";
 				}
@@ -113,8 +123,11 @@ class Task {
 		if (importance >0) {
 			sentence += " [" + printImportance(importance) + "]";
 		}
-		if (details != null && !details.equals("null")){
+		if (details != null && !details.equals("null") && !isDetailsShown){
 			sentence += " [+] ";
+		}
+		if (details != null && !details.equals("null") && isDetailsShown){
+			sentence += "\n" + "\t" + " [-] " + details;
 		}
 		return sentence;
 	}
@@ -149,17 +162,6 @@ class Task {
 		for (int j=0; j < num; j++){
 			toPrint += "!";
 		}
-		return toPrint;
-	}
-
-	private String printDateNicely (){
-		String temp = date;
-		String toPrint = temp.substring(0, 2);
-		toPrint += "/";
-		toPrint += temp.substring(2,4);
-		toPrint += "/";
-		toPrint += temp.substring(4);
-
 		return toPrint;
 	}
 	

@@ -72,13 +72,13 @@ class ParserSearch extends ParserCommand {
 
 	@Override
 	public void parse(String[] parsedInput, String[] input, Index index) {
-		//processNatDetails(parsedInput, input, index, new DetailsProcessor());
+		/*processNatDetails(parsedInput, input, index, new DetailsProcessor());*/
 		processType(parsedInput, input, index, new FutureDateProcessor(),
 				new NaturalProcessor());
 		processType(parsedInput, input, index, new FutureTimeProcessor(),
 				new NaturalProcessor());
-		processType(parsedInput, input, index, new ImportanceProcessor(),
-				new NaturalProcessor());
+		/*processType(parsedInput, input, index, new ImportanceProcessor(),
+				new NaturalProcessor());*/
 		processType(parsedInput, input, index, new TaskProcessor(),
 				new NaturalProcessor());
 		processEmpty(parsedInput);
@@ -104,3 +104,5 @@ class ParserEdit extends ParserCommand {
 	}
 
 }
+
+

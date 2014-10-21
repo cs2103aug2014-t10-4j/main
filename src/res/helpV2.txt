@@ -1,0 +1,22 @@
+IF YOU WANT TO:	TYPE LIKE THIS:		SHORTHAND:
+
+Basic actions
+add a task to your to-do-list	add 31 Dec 7pm test		.a 31 Dec 7pm test
+mark your task as completed	delete 1			.d 1
+change your task	edit 1 this is my new details		.e 1 this is my new details 
+find all tasks with a keyword	search assignment		.s assignment
+see everything in your list	show all			.sha 
+sort your list chronologically.	sort			.st
+
+Advanced actions
+delete all your tasks.	delete all			.da
+set your personal goal	set goal become the best software engineer
+set importance level for a task	add Exam importance 3		.a importance 3
+see all your floating tasks	show floating			.shf
+see all your tasks for today	show today			.sht
+see all your completed tasks.	show archive 	(not ready)
+see additional details	show details		(not ready)
+sort your list alphabetically	sort alpha			.sa
+sort your list by importance 	sort importance 		.si
+redo your last action	redo			.r
+undo your last action	undo			.u
