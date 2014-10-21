@@ -101,7 +101,7 @@ class Task {
 		isDetailsShown = shouldShowDetails;
 	}
 
-	//This method can be used to print tasks for debugging.
+	//This method can be used to print tasks for display.
 	@Override
 	public String toString() {
 		String sentence = "";
@@ -113,7 +113,7 @@ class Task {
 		if (!isSortedByTime) {
 			if (this.getDate() != null && !date.equals("null")) {
 				if (!this.getDate().equals("ft")){
-					sentence += "(" + printDateNicely() + ")   ";
+					sentence += "(" + date + ")   ";
 				} else {
 					sentence += "(" + this.date + ")   ";
 				}
@@ -127,7 +127,7 @@ class Task {
 			sentence += " [+] ";
 		}
 		if (details != null && !details.equals("null") && isDetailsShown){
-			sentence += "\n" + "\t" + details + " [-] ";
+			sentence += "\n" + "\t" + " [-] " + details;
 		}
 		return sentence;
 	}
@@ -149,17 +149,6 @@ class Task {
 		for (int j=0; j < num; j++){
 			toPrint += "!";
 		}
-		return toPrint;
-	}
-
-	private String printDateNicely (){
-		String temp = date;
-		String toPrint = temp.substring(0, 2);
-		toPrint += "/";
-		toPrint += temp.substring(2,4);
-		toPrint += "/";
-		toPrint += temp.substring(4);
-
 		return toPrint;
 	}
 }

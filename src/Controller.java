@@ -11,12 +11,6 @@ import javax.swing.JOptionPane;
 
 public class Controller {
 
-	private static final String MSG_SCREEN_CLEARED = "Screen is cleared. Type show all, show today or show floating again.";
-	private static final String MSG_EMPTY_TODAY = "No tasks for today!";
-	private static final String MSG_EMPTY_ALL_DAYS = "No tasks for anyday!";
-	private static final String MSG_INVALID_COMMAND = "Invalid command";
-	protected static final int PRESET_TYPE_DATE = Font.BOLD;//
-	protected static final int PRESET_TYPE_TIME = Font.BOLD;//
 	enum CommandType {
 		ADD_TEXT, CLEAR_SCREEN, DELETE_ALL, DELETE_TEXT, EDIT, EXIT, HELP, INVALID, SEARCH, 
 		SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, SHOW_DETAILS, HIDE_DETAILS,
@@ -52,7 +46,7 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		case CLEAR_SCREEN:
-			results.setFeedback(MSG_SCREEN_CLEARED);
+			results.setFeedback(Constants.MSG_SCREEN_CLEARED);
 			results.setListOfTasks(new ArrayList<Task>());
 			return results;
 		case DELETE_ALL:
@@ -68,20 +62,28 @@ public class Controller {
 				String [] splitParams = params.split("\\s+");
 				int [] splitIndex = new int [splitParams.length];
 				for (int j = 0; j < splitParams.length; j ++){
-					splitIndex[j] = Integer.parseInt(splitParams[j]);
+					int indexToDelete = Integer.parseInt(splitParams[j]);
+					if (indexToDelete > 0){
+						splitIndex[j] = indexToDelete;
+					} 
 				}
 				sortIndex(splitIndex);
 				for (int j = splitIndex.length - 1; j >= 0; j--){
+					if (splitIndex[j] > Logic.getTempStorage().size()){
+						feedback = String.format("item #%d is not found, ", splitIndex[j]) + feedback;
+						continue; //Because cannot delete numbers larger than list size
+					}
+					if (splitIndex[j] <= 0){
+						feedback += "cannot delete index equal or below 0.";
+						break; //Because cannot delete zero or negative number
+					}
 					Task oneOutOfMany = new Task();
 					String userDeleteIndex = String.valueOf(splitIndex[j]); 
 					oneOutOfMany.setParams(userDeleteIndex);
-					if (j != 0){
-						feedback = ", " + Logic.delete("delete", oneOutOfMany, file, archive) + feedback;
-					} else {
-						feedback = Logic.delete("delete", oneOutOfMany, file, archive) + feedback;
-					}
+					feedback = Logic.delete("delete", oneOutOfMany, file, archive) +", " + feedback ;
 				}
-				feedback = feedback.substring(0,1).toUpperCase() + feedback.substring(1); // Capitalize first letter
+				feedback = capitalizeFirstLetter(feedback);
+				feedback = endWithFulstop(feedback);
 				results.setFeedback(feedback);
 			} else { 
 				results.setFeedback("You must add a number after delete");
@@ -161,10 +163,28 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		default:
-			results.setFeedback(MSG_INVALID_COMMAND);
+			try {
+				results.setFeedback(taskToExecute.getError());
+			} catch (NullPointerException e){
+				results.setFeedback(Constants.MSG_INVALID_COMMAND);
+			}
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		}
+	}
+
+	private static String endWithFulstop(String feedback) {
+		if (feedback.endsWith(", ")){
+			feedback = feedback.substring(0, feedback.lastIndexOf(",")) + ".";
+		}
+		return feedback;
+	}
+
+	private static String capitalizeFirstLetter(String feedback) {
+		if (!feedback.isEmpty()){
+			feedback = feedback.substring(0,1).toUpperCase() + feedback.substring(1); // Capitalize first letter
+		}
+		return feedback;
 	}
 
 	private static String getSearchTermOnly(Task task) {
@@ -202,7 +222,7 @@ public class Controller {
 		if (taskToExecute.getDate().equals("ft")){
 			return new ArrayList<Task>();
 		}
-		//If time is null, means there is no time allocated for that task
+		//If time is null, means there is no time allocated for that task today
 		if (taskToExecute.getTime() == null){
 			return new ArrayList<Task>();
 		}
@@ -266,72 +286,8 @@ public class Controller {
 		return firstWord;
 	}
 
-	public static String printTodayList (ArrayList<Task> listOfTasks){
-		if (listOfTasks.size() ==0){
-			return MSG_EMPTY_TODAY;
-		} else {
-			return printArrayList(listOfTasks);
-		}
-	}
-
-	
-
-	public static String printArrayList(ArrayList<Task> listOfTasks){
-		String toPrint ="";
-		for (int j = 0; j < listOfTasks.size() ; j ++){
-			toPrint += " " + (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
-		}
-		return toPrint;
-	}
-
-	public static String printEveryTask(){
-		String toPrint = "";
-		ArrayList<Task> everyTask = Logic.getTempStorage();
-		if (everyTask.size() !=0){
-			String date = everyTask.get(0).getDate();
-
-			if (Task.getIsSortedByTime()){
-				if (date.equals(getTodayDate())){
-					toPrint += " " + createHorizLine("=", 20) + " " + date + " , Today " + createHorizLine("=", 20) + "\n";
-				} else {	
-					toPrint += " " + createHorizLine("=", 20) + " " + date + " " + createHorizLine("=", 20) + "\n";
-				}
-			}
-			for (int j = 0; j < everyTask.size() ; j ++){
-				String dateOfCurrentTask = everyTask.get(j).getDate();
-				if (! dateOfCurrentTask.equals(date)){
-					toPrint += "\n";
-					if (Task.getIsSortedByTime()){
-						if (dateOfCurrentTask.equals("ft")){
-							toPrint += " " + createHorizLine("=", 20) + " Floating Tasks "  + createHorizLine("=", 20)+ "\n" ;
-						} else if  (dateOfCurrentTask.equals(getTodayDate())){
-							toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " , Today " + createHorizLine("=", 20) + "\n";
-						} else {
-							toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
-						}
-					}
-				}
-				toPrint += " " + (j+1) + ". " + everyTask.get(j).toString() + "\n";
-				date = dateOfCurrentTask;
-			}
-			return toPrint;
-		} else {
-			return MSG_EMPTY_ALL_DAYS;
-		}
-	}
-
-	//Creates a horizontal line for formatting the User Interface.
-	private static String createHorizLine(String charseq, int numToDraw){
-		String line = "";
-		for (int i=0; i < numToDraw; i++){
-			line += charseq;
-		}
-		return line;
-	}
-
-	//Same function as getCurrentDate except date is in another format
 	private static String getTodayDate() {
-		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
+		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
 		Date date = new Date();
 		String reportDate = dateFormat.format(date);
 		return reportDate;
