@@ -1,7 +1,9 @@
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 /*
  * This class is used to store the results after executing a command.
@@ -12,6 +14,8 @@ public class ResultOfCommand {
 	private String feedback;
 	private String titleOfPanel;
 	private static final String MSG_EMPTY_TYPES = "No tasks for these types!";
+	private static final String DATE_WITH_LINE = " ========================= %s , %s ========================= \n";
+
 
 	public ResultOfCommand () {
 		listOfTasks = new ArrayList<Task>();
@@ -50,9 +54,9 @@ public class ResultOfCommand {
 			String date = listOfTasks.get(0).getDate();
 			if (Task.getIsSortedByTime()){
 				if (date.equals(getTodayDate())){
-					toPrint += " " + createHorizLine("=", 20) + " " + date + " , Today " + createHorizLine("=", 20) + "\n";
+					toPrint += String.format(DATE_WITH_LINE, date, "Today");
 				} else {	
-					toPrint += " " + createHorizLine("=", 20) + " " + date + " " + createHorizLine("=", 20) + "\n";
+					toPrint += String.format(DATE_WITH_LINE, date, getDayOfWeek(date)); 
 				}
 			}
 			for (int j = 0; j < listOfTasks.size() ; j ++){
@@ -61,11 +65,11 @@ public class ResultOfCommand {
 					toPrint += "\n";
 					if (Task.getIsSortedByTime()){
 						if (dateOfCurrentTask.equals("ft")){
-							toPrint += " " + createHorizLine("=", 20) + " Floating Tasks "  + createHorizLine("=", 20)+ "\n" ;
+							toPrint += String.format(DATE_WITH_LINE, "Floating Tasks", " ") + "\n";
 						} else if  (dateOfCurrentTask.equals(getTodayDate())){
-							toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " , Today " + createHorizLine("=", 20) + "\n";
+							toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, "Today");
 						} else {
-							toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
+							toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, getDayOfWeek(dateOfCurrentTask));
 						}
 					}
 				}
@@ -88,9 +92,21 @@ public class ResultOfCommand {
 	}
 	//Same function as getCurrentDate except date is in another format
 	private static String getTodayDate() {
-		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
+		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
 		Date date = new Date();
 		String reportDate = dateFormat.format(date);
 		return reportDate;
+	}
+	
+	
+	//Return the day of the week
+	private static String getDayOfWeek(String date){
+		try {
+			Date mydate = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.ENGLISH).parse(date);
+			return new SimpleDateFormat("EEE").format(mydate);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 }

@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
+import java.util.ResourceBundle.Control;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.logging.Level;
@@ -97,7 +98,6 @@ public class DoubleUp extends JFrame {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -155,10 +155,11 @@ public class DoubleUp extends JFrame {
 		displayPanelTodayTasks.setLineWrap(true);
 		displayPanelTodayTasks.setWrapStyleWord(true);
 		displayPanelTodayTasks.setMargin(new Insets(5,5,5,5));
-		displayPanelTodayTasks.setText(Controller.printEveryTask());
+		ResultOfCommand results = Controller.executeCommand("show all", file, archive);
+		displayPanelTodayTasks.setText(results.printArrayList());
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		middleRow.add(scroll, BorderLayout.CENTER);
-		middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks: "));
+		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 		cp.add(middleRow, BorderLayout.CENTER);
 
 		//feedback
@@ -199,8 +200,9 @@ public class DoubleUp extends JFrame {
 				showAll();
 			}
 			private void showAll() {
-				displayPanelTodayTasks.setText(Controller.printEveryTask());
-				middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks: "));
+				ResultOfCommand results = Controller.executeCommand("show all", file, archive);
+				displayPanelTodayTasks.setText(results.printArrayList());
+				middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 				textFieldResultsOut.setText("Press F2 for help.");
 			}
 		};
