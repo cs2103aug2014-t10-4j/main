@@ -11,8 +11,6 @@ import javax.swing.JOptionPane;
 
 public class Controller {
 
-	private static final String DATE_WITH_LINE = " ========================= %s ========================= \n";
-
 	enum CommandType {
 		ADD_TEXT, CLEAR_SCREEN, DELETE_ALL, DELETE_TEXT, EDIT, EXIT, HELP, INVALID, SEARCH, 
 		SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, SHOW_DETAILS, HIDE_DETAILS,
@@ -64,20 +62,28 @@ public class Controller {
 				String [] splitParams = params.split("\\s+");
 				int [] splitIndex = new int [splitParams.length];
 				for (int j = 0; j < splitParams.length; j ++){
-					splitIndex[j] = Integer.parseInt(splitParams[j]);
+					int indexToDelete = Integer.parseInt(splitParams[j]);
+					if (indexToDelete > 0){
+						splitIndex[j] = indexToDelete;
+					} 
 				}
 				sortIndex(splitIndex);
 				for (int j = splitIndex.length - 1; j >= 0; j--){
+					if (splitIndex[j] > Logic.getTempStorage().size()){
+						feedback = String.format("item #%d is not found, ", splitIndex[j]) + feedback;
+						continue; //Because cannot delete numbers larger than list size
+					}
+					if (splitIndex[j] <= 0){
+						feedback += "cannot delete index equal or below 0.";
+						break; //Because cannot delete zero or negative number
+					}
 					Task oneOutOfMany = new Task();
 					String userDeleteIndex = String.valueOf(splitIndex[j]); 
 					oneOutOfMany.setParams(userDeleteIndex);
-					if (j != 0){
-						feedback = ", " + Logic.delete("delete", oneOutOfMany, file, archive) + feedback;
-					} else {
-						feedback = Logic.delete("delete", oneOutOfMany, file, archive) + feedback;
-					}
+					feedback = Logic.delete("delete", oneOutOfMany, file, archive) +", " + feedback ;
 				}
-				feedback = feedback.substring(0,1).toUpperCase() + feedback.substring(1); // Capitalize first letter
+				feedback = capitalizeFirstLetter(feedback);
+				feedback = endWithFulstop(feedback);
 				results.setFeedback(feedback);
 			} else { 
 				results.setFeedback("You must add a number after delete");
@@ -165,6 +171,20 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		}
+	}
+
+	private static String endWithFulstop(String feedback) {
+		if (feedback.endsWith(", ")){
+			feedback = feedback.substring(0, feedback.lastIndexOf(",")) + ".";
+		}
+		return feedback;
+	}
+
+	private static String capitalizeFirstLetter(String feedback) {
+		if (!feedback.isEmpty()){
+			feedback = feedback.substring(0,1).toUpperCase() + feedback.substring(1); // Capitalize first letter
+		}
+		return feedback;
 	}
 
 	private static String getSearchTermOnly(Task task) {

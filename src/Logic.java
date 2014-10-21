@@ -21,15 +21,15 @@ public class Logic {
 	private static final String MSG_NO_FUTURE_ACTION = "Nothing to redo";
 	private static final String MSG_UNDO_SUCCESS = "Undo successful";
 	private static final String MSG_REDO_SUCCESS = "Redo successful";
-	private static final String DELETE_MESSAGE = "deleted from %s: \"%s\"";
-	private static final String MSG_FAILED_SORT = "Sorting failed";
-	private static final String MSG_SUCCESSFUL_SORT = "Successfully sorted by ";
+	private static final String MSG_DELETE_SUCCESS = "deleted from your list: \"%s\"";
+	private static final String MSG_SORT_FAILED = "Sorting failed";
+	private static final String MSG_SORT_SUCCESS = "Successfully sorted by ";
 	private static final String MSG_NO_TASKS_TO_SORT = "Not enough tasks to sort";
 	private static final String WRONG_FORMAT = "\"%s\" is wrong format";
-	private static final String BAD_INDEX_MESSAGE = "%d is not a valid number. Valid range is %d to %d.";
+	private static final String BAD_INDEX_MESSAGE = "%d is not a valid number to delete because valid range is %d to %d";
 	public static String ADD_MESSAGE = "Added to %s: \"%s\". Type .u to undo.";
 	private static final int INITIAL_VALUE = 0;
-	private static final String NO_MESSAGE_DELETE = "Nothing to delete!";
+	private static final String NO_MESSAGE_DELETE = "nothing to delete";
 	private static final int INVAILD_NUMBER = -1;
 	private static final String MSG_CLEARED_FILE = "List is cleared";
 
@@ -135,8 +135,7 @@ public class Logic {
 			return NO_MESSAGE_DELETE;
 		}
 		try {
-			String temp = String.format(DELETE_MESSAGE, file.getName(),
-					tempStorage.get(index).getName());
+			String temp = String.format(MSG_DELETE_SUCCESS, tempStorage.get(index).getName());
 			archiveStorage.add(tempStorage.remove(index));
 			sortByDateAndTime(tempStorage);
 			sortByDateAndTime(archiveStorage);
@@ -219,8 +218,7 @@ public class Logic {
 				Storage.writeToFile(archiveStorage, archive);
 			}
 		}
-		return String.format(DELETE_MESSAGE, file.getName(),
-				searchResults.get(index).getName());
+		return String.format(MSG_DELETE_SUCCESS, searchResults.get(index).getName());
 
 	}
 
@@ -365,7 +363,7 @@ public class Logic {
 				}
 
 			}
-			return MSG_SUCCESSFUL_SORT + "date and time";
+			return MSG_SORT_SUCCESS + "date and time";
 		}
 
 	}
@@ -388,10 +386,10 @@ public class Logic {
 					}
 				}
 				if (isSorted) {
-					return MSG_SUCCESSFUL_SORT + "alphabetical order.";
+					return MSG_SORT_SUCCESS + "alphabetical order.";
 				}
 			}
-			return MSG_FAILED_SORT;
+			return MSG_SORT_FAILED;
 		}
 	}
 
@@ -410,11 +408,11 @@ public class Logic {
 					}
 				}
 				if (isSorted) {
-					return MSG_SUCCESSFUL_SORT + "importance level.";
+					return MSG_SORT_SUCCESS + "importance level.";
 				}
 			}
 		}
-		return MSG_FAILED_SORT;
+		return MSG_SORT_FAILED;
 	}
 
 	// First task to store in the ArrayList undoTask is the original task before
