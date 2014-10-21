@@ -17,7 +17,7 @@ public class Storage {
 
 
 	// This function serves to write all the task in the text file into temp storage.
-	public static void copyToArrayList(File file, ArrayList<Task> tempStorage) {
+	public static boolean copyToArrayList(File file, ArrayList<Task> tempStorage) {
 		logger.log(Level.INFO, "going to start writing to tempStorage / archive");
 		Scanner input;
 		try {
@@ -26,18 +26,18 @@ public class Storage {
 			if (!input.hasNext()) {
 				input.close();
 			} else {
-				while (input.hasNext()) {
+				for(Integer i =0; input.hasNext(); i++) {
 					Task task = new Task();
 					String currentTask = input.nextLine();
 					task.setName(currentTask.substring(0, currentTask.indexOf(DIVIDER_DATE)));
 
 
-					currentTask = currentTask.replaceFirst(currentTask.substring(0,currentTask.indexOf(DIVIDER_DATE)),"");
+					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_DATE));
 					currentTask = currentTask.replaceFirst(DIVIDER_DATE,"");
 
 
 					task.setDate(currentTask.substring(0,currentTask.indexOf(DIVIDER_TIME)));
-					currentTask = currentTask.replaceFirst(currentTask.substring(0,currentTask.indexOf(DIVIDER_TIME)),"");
+					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_TIME));
 					currentTask = currentTask.replaceFirst((DIVIDER_TIME),"");
 					
 					String taskTime = currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS));
@@ -47,7 +47,7 @@ public class Storage {
 					else{
 						task.setTime(taskTime);
 					}
-					currentTask = currentTask.replaceFirst(currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS)),"");
+					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_DETAILS));
 					currentTask = currentTask.replaceFirst((DIVIDER_DETAILS),"");
 
 
@@ -58,11 +58,12 @@ public class Storage {
 					else{
 						task.setDetails(taskDetails);
 					}
-					currentTask = currentTask.replaceFirst(currentTask.substring(0,currentTask.indexOf(DIVIDER_IMPORTANCE)),"");
+					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_IMPORTANCE));
 					currentTask = currentTask.replaceFirst((DIVIDER_IMPORTANCE),"");
 
 
 					task.setImportance(Integer.parseInt(currentTask));
+					task.setParams(i.toString());
 					tempStorage.add(task);
 
 				}
@@ -70,9 +71,13 @@ public class Storage {
 			}
 		} catch (FileNotFoundException e) {
 			logger.log(Level.WARNING, "no storage.txt");
+			openFile("DoubleUp.txt");
+			openFile("Archive.txt");
+			return false;
 
 		}
 		logger.log(Level.INFO, "end of writing to tempStorage / archive");
+		return true;
 	}
 
 	// This function serves to write all the task in the tempStorage into the text file.
@@ -96,6 +101,7 @@ public class Storage {
 			fileWritten.close();
 		} catch (IOException e) {
 			logger.log(Level.INFO, "unable to write to Storage.txt / archive.txt");
+			
 			return false;
 		}
 		logger.log(Level.INFO, "end of writing to Storage.txt / archive.txt");
