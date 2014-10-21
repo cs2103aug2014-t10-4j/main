@@ -80,7 +80,8 @@ public class Logic {
 		String returnMessage;
 		if (command.equals("delete") || command.equals(redo)) {
 			if (undo.size() != 0 && undo.peek().equals("search")) {
-				System.out.println("here it is");
+				System.out.println(task.getParams());
+				//whileloop for multiple deletion here?
 				returnMessage = deleteLineFromSearchList(task, searchResults,
 						file, archive);
 				undo.push(command);
@@ -227,14 +228,9 @@ public class Logic {
 	// step 2 add these tasks one by one to the other temp storage(memory).
 	// step3 get the contain for the delete task. delete the task use equals .
 
-	public static String clearContent(File file) { // Changed by delvin, your
-													// file was not initialized
-													// without the parameters
+	public static String clearContent(File file) { 
 		tempStorage.clear();
-		Storage.writeToFile(new ArrayList<Task>(), file); // Changed by delvin.
-															// Using null will
-															// cause
-															// nullPointException.
+		Storage.writeToFile(new ArrayList<Task>(), file); 
 		return MSG_CLEARED_FILE;
 	}
 
@@ -251,8 +247,7 @@ public class Logic {
 		return tempStorage;
 	}
 
-	private static void getNumTasks(ArrayList<Integer> numTask,
-			ArrayList<Task> tempStorage) {
+	private static void getNumTasks(ArrayList<Integer> numTask, ArrayList<Task> tempStorage) {
 		// Need to ensure correct format of date (as returned by parser) is used
 		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 		Date currentDate = new Date();
@@ -271,8 +266,7 @@ public class Logic {
 				if (tempStorage.get(i).getDate().contains("ft")) {
 					floatingTask++;
 				} else {
-					Date dateOfCurrentTask = dateFormat.parse(tempStorage
-							.get(i).getDate());
+					Date dateOfCurrentTask = dateFormat.parse(tempStorage.get(i).getDate());
 					if (dateOfCurrentTask.compareTo(currentDate) == 0) {
 						todayTask++;
 					} else if (dateOfCurrentTask.compareTo(currentDate) == 1) {

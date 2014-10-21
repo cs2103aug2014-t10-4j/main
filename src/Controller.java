@@ -12,9 +12,9 @@ import javax.swing.JOptionPane;
 public class Controller {
 
 	enum CommandType {
-		ADD_TEXT, CLEAR_SCREEN, DELETE_ALL, DELETE_TEXT, EDIT, EXIT, HELP, INVALID, SEARCH, 
-		SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, SHOW_DETAILS, HIDE_DETAILS,
-		SORT, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, REDO, UNDO,  ;
+		ADD_TEXT, CLEAR_SCREEN, DELETE_ALL, DELETE_PAST, DELETE_TEXT, DELETE_TODAY, 
+		EDIT, EXIT, HELP, INVALID, SEARCH, SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, 
+		SHOW_DETAILS, HIDE_DETAILS, SORT, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, REDO, UNDO;
 	};
 
 	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
@@ -53,6 +53,13 @@ public class Controller {
 			results.setFeedback(Logic.clearContent(file));
 			results.setListOfTasks(Logic.getTempStorage());
 			results.setTitleOfPanel("All Tasks:");
+			return results;
+		case DELETE_TODAY:
+			Task todayOnly = new Task();
+			todayOnly.setDate(getTodayDate());
+			results.setListOfTasks(Logic.search(todayOnly) );
+			results.setFeedback("This is what is found.");
+			results.setTitleOfPanel("Search Results for \""+ getSearchTermOnly(taskToExecute) + "\"");
 			return results;
 		case DELETE_TEXT:
 			String params = taskToExecute.getParams();
@@ -245,6 +252,8 @@ public class Controller {
 			return CommandType.DELETE_TEXT;
 		} else if (commandTypeString.equalsIgnoreCase("delete all")) {
 			return CommandType.DELETE_ALL;
+		} else if (commandTypeString.equalsIgnoreCase("delete today")) {
+			return CommandType.DELETE_TODAY;
 		} else if (commandTypeString.equalsIgnoreCase("edit")) {
 			return CommandType.EDIT;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
