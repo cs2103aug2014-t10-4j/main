@@ -9,36 +9,39 @@ import javax.swing.JOptionPane;
 
 public class Controller {
 
+	private static final String MSG_USER_CONFIRMED_NO = "Task is not %sed.";
+	private static final String ACTION_EDIT = "edit";
+	private static final String ACTION_ADD = "add";
+	private static final String TITLE_JDIALOG_CLASH_FOUND = "Clash found";
+	private static final String MSG_CLASH_FOUND = "Something is happening at the same time! Continue %sing?";
+	private static final String DATE_FT = "ft";
+
 	enum CommandType {
 		ADD_TEXT, CLEAR_SCREEN, DELETE_ALL, DELETE_PAST, DELETE_TEXT, DELETE_TODAY, 
 		EDIT, EXIT, HELP, INVALID, SEARCH, SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, 
-		SHOW_DETAILS, HIDE_DETAILS, SORT, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, REDO, UNDO;
+		SHOW_DETAILS, HIDE_DETAILS, SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, REDO, UNDO;
 	};
 
 	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
 		CommandType commandType;
 		ResultOfCommand results = new ResultOfCommand();
 		String[] splitCommand = Parser.parseInput(userSentence);
-		String action = getFirstWord(splitCommand);
+		String action = getCommandWord(splitCommand);
 		commandType = determineCommandType(action);
 		Task taskToExecute = new Task(splitCommand);
 		switch (commandType) {
 		case ADD_TEXT:
 			ArrayList<Task> tasksFound = findClash(taskToExecute);
 			if (tasksFound.size() == 0){
-				results.setFeedback(Logic.add("add", taskToExecute, file));
+				results.setFeedback(Logic.add(ACTION_ADD, taskToExecute, file));
 			} else {
 				results.setListOfTasks(tasksFound);
 				JFrame frame = new JFrame();
-				int n = JOptionPane.showConfirmDialog(
-						frame,
-						"Something is happening at the same time! Continue adding?",
-						"Clash found",
-						JOptionPane.YES_NO_OPTION);
+				int n = confirmClashIsOk(frame, ACTION_ADD);
 				if (n == JOptionPane.YES_OPTION){
-					results.setFeedback(Logic.add("add",taskToExecute, file));			
+					results.setFeedback(Logic.add(ACTION_ADD,taskToExecute, file));			
 				} else {
-					results.setFeedback("Task is not added.");
+					results.setFeedback(String.format(MSG_USER_CONFIRMED_NO, ACTION_ADD));
 				}
 			}
 			results.setListOfTasks(Logic.getTempStorage());
@@ -93,7 +96,19 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		case EDIT:
-			results.setFeedback(Logic.edit("edit" /*stub*/, taskToExecute, file));
+			ArrayList<Task> clashFoundForEdit = findClash(taskToExecute);
+			if (clashFoundForEdit.size() == 0){
+				results.setFeedback(Logic.edit(ACTION_EDIT, taskToExecute, file));
+			} else {
+				results.setListOfTasks(clashFoundForEdit);
+				JFrame frame = new JFrame();
+				int n = confirmClashIsOk(frame, ACTION_EDIT);
+				if (n == JOptionPane.YES_OPTION){
+					results.setFeedback(Logic.edit(ACTION_EDIT, taskToExecute, file));			 
+				} else {
+					results.setFeedback(String.format(MSG_USER_CONFIRMED_NO, ACTION_EDIT));
+				}
+			}
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		case EXIT:
@@ -110,7 +125,7 @@ public class Controller {
 			return results;
 		case SHOW_FLOATING:
 			Task dateFloating = new Task ();
-			dateFloating.setDate("ft");
+			dateFloating.setDate(DATE_FT);
 			results.setListOfTasks( Logic.search(dateFloating));
 			results.setFeedback("These are your floating tasks.");
 			results.setTitleOfPanel("Floating Tasks:");
@@ -134,7 +149,7 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			results.setTitleOfPanel("All Tasks:");
 			return results;
-		case SORT:
+		case SORT_TIME:
 			Task.setSortedByTime(true);
 			results.setFeedback(Logic.sortByDateAndTime(Logic.getTempStorage()));
 			results.setListOfTasks(Logic.getTempStorage());
@@ -173,6 +188,15 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		}
+	}
+
+	private static int confirmClashIsOk(JFrame frame, String action) {
+		int n = JOptionPane.showConfirmDialog(
+				frame,
+				String.format(MSG_CLASH_FOUND, action),
+				TITLE_JDIALOG_CLASH_FOUND,
+				JOptionPane.YES_NO_OPTION);
+		return n;
 	}
 
 	private static ResultOfCommand deleteDate(File file, File archive,
@@ -250,7 +274,7 @@ public class Controller {
 	//Return any tasks with the same date and time as taskToExecute
 	private static ArrayList<Task> findClash(Task taskToExecute) {
 		//Do not check for clash if is floating, because it will always clash
-		if (taskToExecute.getDate().equals("ft")){
+		if (taskToExecute.getDate() != null && taskToExecute.getDate().equals(DATE_FT)){
 			return new ArrayList<Task>();
 		}
 		//If time is null, means there is no time allocated for that task today
@@ -268,7 +292,7 @@ public class Controller {
 		if (commandTypeString == null) {
 			throw new Error("command type string cannot be null!");
 		}
-		if (commandTypeString.equalsIgnoreCase("add")) {
+		if (commandTypeString.equalsIgnoreCase(ACTION_ADD)) {
 			return CommandType.ADD_TEXT;
 		} else if (commandTypeString.equalsIgnoreCase("clear")) {
 			return CommandType.CLEAR_SCREEN;
@@ -278,7 +302,7 @@ public class Controller {
 			return CommandType.DELETE_ALL;
 		} else if (commandTypeString.equalsIgnoreCase("delete today")) {
 			return CommandType.DELETE_TODAY;
-		} else if (commandTypeString.equalsIgnoreCase("edit")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_EDIT)) {
 			return CommandType.EDIT;
 		} else if (commandTypeString.equalsIgnoreCase("exit")) {
 			return CommandType.EXIT;
@@ -289,7 +313,7 @@ public class Controller {
 		} else if (commandTypeString.equalsIgnoreCase("search")) {
 			return CommandType.SEARCH;
 		} else if (commandTypeString.equalsIgnoreCase("sort time")) {
-			return CommandType.SORT;
+			return CommandType.SORT_TIME;
 		} else if (commandTypeString.equalsIgnoreCase("sort alpha")) {
 			return CommandType.SORT_ALPHA;
 		} else if (commandTypeString.equalsIgnoreCase("sort importance")) {
@@ -313,7 +337,7 @@ public class Controller {
 		}
 	}
 
-	private static String getFirstWord(String[] userCommand) {
+	private static String getCommandWord(String[] userCommand) {
 		assert userCommand.length >0;
 		String firstWord = userCommand[0];
 		return firstWord;
