@@ -52,46 +52,47 @@ public class ResultOfCommand {
 		String toPrint ="";
 		if (listOfTasks.size() !=0){
 			String date = listOfTasks.get(0).getDate();
-			if (Task.getIsSortedByTime()){
-				if (date.equals(getTodayDate())){
-					toPrint += String.format(DATE_WITH_LINE, date, ", Today");
-				} else if (date.equalsIgnoreCase("ft")){
-					toPrint += String.format(DATE_WITH_LINE, "Floating Tasks", "");
-				} else {	
-					toPrint += String.format(DATE_WITH_LINE, date, ", " + getDayOfWeek(date)); 
-				}
-			}
-			for (int j = 0; j < listOfTasks.size() ; j ++){
-				String dateOfCurrentTask = listOfTasks.get(j).getDate();
-				if ( dateOfCurrentTask != null && !dateOfCurrentTask.equals(date)){
-					toPrint += "\n";
-					if (Task.getIsSortedByTime()){
-						if (dateOfCurrentTask.equals("ft")){
-							toPrint += String.format(DATE_WITH_LINE, "Floating Tasks", "") + "\n";
-						} else if  (dateOfCurrentTask.equals(getTodayDate())){
-							toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, ", Today");
-						} else {
-							toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, ", " + getDayOfWeek(dateOfCurrentTask));
-						}
-					}
-				}
-				toPrint += " " + (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
-				date = dateOfCurrentTask;
-			}
-			return toPrint;
+			toPrint = printDateHeaders(toPrint, date);
+			return printTasks(toPrint, date);
 		} else {
 			return MSG_EMPTY_TYPES;
 		}
 	}
 
-	//Creates a horizontal line for formatting the User Interface.
-	private static String createHorizLine(String charseq, int numToDraw){
-		String line = "";
-		for (int i=0; i < numToDraw; i++){
-			line += charseq;
+	private String printTasks(String toPrint, String date) {
+		for (int j = 0; j < listOfTasks.size() ; j ++){
+			String dateOfCurrentTask = listOfTasks.get(j).getDate();
+			if ( dateOfCurrentTask != null && !dateOfCurrentTask.equals(date)){
+				toPrint += "\n";
+				if (Task.getIsSortedByTime()){
+					if (dateOfCurrentTask.equals("ft")){
+						toPrint += String.format(DATE_WITH_LINE, "Floating Tasks", "");
+					} else if  (dateOfCurrentTask.equals(getTodayDate())){
+						toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, ", Today");
+					} else {
+						toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, ", " + getDayOfWeek(dateOfCurrentTask));
+					}
+				}
+			}
+			toPrint += " " + (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
+			date = dateOfCurrentTask;
 		}
-		return line;
+		return toPrint;
 	}
+
+	private String printDateHeaders(String toPrint, String date) {
+		if (Task.getIsSortedByTime()){
+			if (date.equals(getTodayDate())){
+				toPrint += String.format(DATE_WITH_LINE, date, ", Today");
+			} else if (date.equalsIgnoreCase("ft")){
+				toPrint += String.format(DATE_WITH_LINE, "Floating Tasks", "");
+			} else {	
+				toPrint += String.format(DATE_WITH_LINE, date, ", " + getDayOfWeek(date)); 
+			}
+		}
+		return toPrint;
+	}
+
 	//Same function as getCurrentDate except date is in another format
 	private static String getTodayDate() {
 		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
@@ -99,7 +100,6 @@ public class ResultOfCommand {
 		String reportDate = dateFormat.format(date);
 		return reportDate;
 	}
-	
 	
 	//Return the day of the week
 	private static String getDayOfWeek(String date){

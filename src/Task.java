@@ -105,11 +105,26 @@ class Task {
 	@Override
 	public String toString() {
 		String sentence = "";
-		if (this.getTime() == null || this.getTime().equals("null")) {
+		sentence = printTime(sentence);
+		sentence = printDate(sentence);
+		sentence = printName(sentence);
+		sentence = printImportanceLevel(sentence);
+		sentence = printDetails(sentence);
+		return sentence;
+	}
+
+	private String printTime(String sentence) {
+		if (this.getDate().equalsIgnoreCase("ft")){
+			sentence += " ";
+		} else if (this.getTime() == null || this.getTime().equals("null")) {
 			sentence +=  " [ **** ]   "; 
 		} else {
 			sentence +=  " [" + this.getTime() +"]   "; 
 		}
+		return sentence;
+	}
+
+	private String printDate(String sentence) {
 		if (!isSortedByTime) {
 			if (this.getDate() != null && !date.equals("null")) {
 				if (!this.getDate().equals("ft")){
@@ -119,10 +134,22 @@ class Task {
 				}
 			}
 		}
+		return sentence;
+	}
+
+	private String printName(String sentence) {
 		sentence += this.getName();
+		return sentence;
+	}
+
+	private String printImportanceLevel(String sentence) {
 		if (importance >0) {
 			sentence += " [" + printImportance(importance) + "]";
 		}
+		return sentence;
+	}
+
+	private String printDetails(String sentence) {
 		if (details != null && !details.equals("null") && !isDetailsShown){
 			sentence += " [+] ";
 		}
@@ -132,7 +159,7 @@ class Task {
 		return sentence;
 	}
 
-	//This overrode method can perhaps be used for search and other methods.
+	//This override method can perhaps be used for search and other methods.
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Task){
