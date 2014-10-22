@@ -63,8 +63,8 @@ public class ResultOfCommand {
 		for (int j = 0; j < listOfTasks.size() ; j ++){
 			String dateOfCurrentTask = listOfTasks.get(j).getDate();
 			if ( dateOfCurrentTask != null && !dateOfCurrentTask.equals(date)){
-				toPrint += "\n";
 				if (Task.getIsSortedByTime()){
+					toPrint += "\n";
 					if (dateOfCurrentTask.equals("ft")){
 						toPrint += String.format(DATE_WITH_LINE, "Floating Tasks", "");
 					} else if  (dateOfCurrentTask.equals(getTodayDate())){
@@ -74,12 +74,20 @@ public class ResultOfCommand {
 					}
 				}
 			}
-			toPrint += " " + (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
+			toPrint += String.format("%2d.   ", j+1) + listOfTasks.get(j).toString() + "\n";
 			date = dateOfCurrentTask;
 		}
 		return toPrint;
 	}
 
+	public static String padRight(String s, int n) {
+	     return String.format("%1$-" + n + "s", s);  
+	}
+
+	public static String padLeft(String s, int n) {
+	    return String.format("%1$" + n + "s", s);  
+	}
+	
 	private String printDateHeaders(String toPrint, String date) {
 		if (Task.getIsSortedByTime()){
 			if (date.equals(getTodayDate())){

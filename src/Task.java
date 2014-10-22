@@ -11,8 +11,8 @@ class Task {
 	private int importance;
 	private String error;
 	private String params;
-	private static boolean isSortedByTime;
-	private static boolean isDetailsShown;
+	private static boolean isSortedByTime = true;
+	private static boolean isDetailsShown = false;
 
 	public Task(String[] splitTask){
 		this.name = splitTask[1];
@@ -26,8 +26,6 @@ class Task {
 		}
 		this.error = splitTask[6];
 		this.params = splitTask[7];
-		isSortedByTime = true;
-		isDetailsShown = false;
 	}
 
 	public Task(){
@@ -38,8 +36,6 @@ class Task {
 		this.importance = -1;
 		this.error = null;
 		this.params = null;
-		isSortedByTime = true;
-		isDetailsShown = false;
 	}
 
 	//Accessors
@@ -67,7 +63,7 @@ class Task {
 	public static boolean getIsSortedByTime(){
 		return isSortedByTime;
 	}
-	
+
 	public static boolean getIsDetailsShown(){
 		return isDetailsShown;
 	}
@@ -105,51 +101,67 @@ class Task {
 	@Override
 	public String toString() {
 		String sentence = "";
-		sentence = printTime(sentence);
-		sentence = printDate(sentence);
-		sentence = printName(sentence);
-		sentence = printImportanceLevel(sentence);
-		sentence = printDetails(sentence);
-		return sentence;
-	}
-
-	private String printTime(String sentence) {
-		if (this.getDate().equalsIgnoreCase("ft")){
-			sentence += " ";
-		} else if (this.getTime() == null || this.getTime().equals("null")) {
-			sentence +=  " [ **** ]   "; 
+		if (isSortedByTime){
+			sentence = String.format("%s %s %s %s %s ",
+					printTime(), printDate(), printName(), printImportanceLevel()
+					, printDetails());
 		} else {
-			sentence +=  " [" + this.getTime() +"]   "; 
+			sentence = String.format("%s %s %s %s %s ",
+					printDate(), printName(), printTime(), 
+					printImportanceLevel(), printDetails());
+
 		}
 		return sentence;
 	}
 
-	private String printDate(String sentence) {
+	private String printTime() {
+		String sentence = "";
+		if (this.getDate().equalsIgnoreCase("ft")){
+			sentence += " ";
+		} else if (this.getTime() == null || this.getTime().equals("null")) {
+			sentence +=  "[****]"; 
+		} else {
+			sentence +=  "[" + this.getTime() +"]"; 
+		}
+		return sentence;
+	}
+
+	private String printDate() {
+		String sentence = "";
 		if (!isSortedByTime) {
 			if (this.getDate() != null && !date.equals("null")) {
 				if (!this.getDate().equals("ft")){
-					sentence += "(" + date + ")   ";
+					sentence += "(" + date + ")";
+					sentence = padRight(sentence, 18);
 				} else {
-					sentence += "(" + this.date + ")   ";
+					sentence += "(Floating)";
+					sentence = padRight(sentence, 22);
 				}
 			}
 		}
 		return sentence;
 	}
 
-	private String printName(String sentence) {
-		sentence += this.getName();
+	private String printName() {
+		String sentence = "";
+		if (! isSortedByTime){
+			sentence += padRight(this.getName(), 40) ;
+		} else {
+			sentence += this.getName() ;
+		}
 		return sentence;
 	}
 
-	private String printImportanceLevel(String sentence) {
+	private String printImportanceLevel() {
+		String sentence = "";
 		if (importance >0) {
 			sentence += " [" + printImportance(importance) + "]";
 		}
 		return sentence;
 	}
 
-	private String printDetails(String sentence) {
+	private String printDetails() {
+		String sentence = "";
 		if (details != null && !details.equals("null") && !isDetailsShown){
 			sentence += " [+] ";
 		}
@@ -171,7 +183,7 @@ class Task {
 			return false;
 		}
 	}
-	
+
 	private boolean compareStrings (String firstLine, String secondLine){
 		if(firstLine !=null && secondLine != null){
 			return firstLine.equals(secondLine);
@@ -191,7 +203,7 @@ class Task {
 		}
 		return toPrint;
 	}
-	
+
 	public void copyOfTask( Task task){
 		this.setName(task.getName());
 		this.setDate(task.getDate());
@@ -199,6 +211,13 @@ class Task {
 		this.setDetails(task.getDetails());
 		this.setImportance(task.getImportance());
 		this.setParams(task.getParams());
-		
+	}
+
+	public static String padRight(String s, int n) {
+		return String.format("%1$-" + n + "s", s);  
+	}
+
+	public static String padLeft(String s, int n) {
+		return String.format("%1$" + n + "s", s);  
 	}
 }
