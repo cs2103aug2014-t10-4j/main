@@ -64,7 +64,7 @@ public class Logic {
 			return returnMessage;
 		}
 		if (command.equals("redo")){
-			returnMessage = addLineToFile(task,file,getIndex(task));
+			returnMessage = addLineToFile(task,file,getIndex(task)+1);
 			return returnMessage;
 		} else {
 			return MSG_FAIL_ADD;
@@ -532,7 +532,7 @@ public class Logic {
 			tasksEdited.add(originalTask);
 			
 			
-			returnMessage = editTask(detailsOfTask, file, taskNumber);
+			returnMessage = editTask(command, detailsOfTask, file, taskNumber);
 			Task editedTask = tempStorage.get(taskNumber);
 
 			tasksEdited.add(editedTask);
@@ -549,14 +549,14 @@ public class Logic {
 		}
 		else if (command.equals("undo")){
 			int taskNumber = getIndex(detailsOfTask);
-			returnMessage = editTask(detailsOfTask, file, taskNumber);
+			returnMessage = editTask(command, detailsOfTask, file, taskNumber);
 			sortByDateAndTime(tempStorage);
 			Storage.writeToFile(tempStorage, file);
 			return returnMessage;
 		}
 		else if (command.equals("redo")){
 			int taskNumber = getIndex(detailsOfTask)+1;
-			returnMessage = editTask(detailsOfTask, file, taskNumber);
+			returnMessage = editTask(command,detailsOfTask, file, taskNumber);
 			sortByDateAndTime(tempStorage);
 			Storage.writeToFile(tempStorage, file);
 			return returnMessage;
@@ -568,7 +568,7 @@ public class Logic {
 
 	}
 	
-	private static String editTask(Task detailsOfTask, File file, int taskNumber) {
+	private static String editTask(String command, Task detailsOfTask, File file, int taskNumber) {
 		if (detailsOfTask.getName() != null) {
 			tempStorage.get(taskNumber).setName(detailsOfTask.getName());
 		}
@@ -581,12 +581,16 @@ public class Logic {
 		if (detailsOfTask.getDetails() != null) {
 			tempStorage.get(taskNumber).setDetails(detailsOfTask.getDetails());
 		}
-
+		if(command.equals("undo")){
+			tempStorage.get(taskNumber).setImportance(
+					detailsOfTask.getImportance());
+		}
+		else{
 		if (detailsOfTask.getImportance() != INITIAL_VALUE - 1) {
 			tempStorage.get(taskNumber).setImportance(
 					detailsOfTask.getImportance());
 		}
-
+		}
 		return "success";
 
 	}
@@ -698,5 +702,21 @@ public class Logic {
 			return MSG_REDO_SUCCESS;
 		}
 
+	}
+	
+	public static String printTempStorage(){
+		String string="";
+		for (int i = 0; i< tempStorage.size(); i++){
+		Integer importance= tempStorage.get(i).getImportance();
+		string = string 
+				+ tempStorage.get(i).getName() 
+				+" "+ tempStorage.get(i).getDate()
+				+" "+ tempStorage.get(i).getTime()
+				+" "+ tempStorage.get(i).getDetails()
+				+" "+ importance.toString()
+				+" "+ tempStorage.get(i).getParams()
+				+"\n";
+		}
+		return string;
 	}
 }

@@ -68,8 +68,7 @@ public class Storage {
 			}
 		} catch (FileNotFoundException e) {
 			logger.log(Level.WARNING, "no storage.txt");
-			openFile("DoubleUp.txt");
-			openFile("Archive.txt");
+			openFile(file.getName());
 			return false;
 
 		}
@@ -131,3 +130,4 @@ public class Storage {
 		return file;
 	}
 }
+
