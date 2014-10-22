@@ -55,7 +55,9 @@ public class Logic {
 			redoTask.clear();
 			undo.push(command);
 			ArrayList<Task> addedTask = new ArrayList<Task>();
-			addedTask.add(task);
+			Task taskToAdd = new Task();
+			taskToAdd.copyOfTask(task);
+			addedTask.add(taskToAdd);
 			undoTask.push(addedTask);
 			return returnMessage;
 		}
