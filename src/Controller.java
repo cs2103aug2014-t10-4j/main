@@ -9,6 +9,9 @@ import javax.swing.JOptionPane;
 
 public class Controller {
 
+	private static final String MSG_FOUND_N_ITEMS = "Found %d items.";
+	private static final String MSG_ITEM_TO_DELETE_NOT_FOUND = "item #%d is not found, ";
+	private static final String MSG_CNT_DELETE_ZERO = "cannot delete index equal or below 0.";
 	private static final String MSG_USER_CONFIRMED_NO = "Task is not %sed.";
 	private static final String ACTION_EDIT = "edit";
 	private static final String ACTION_ADD = "add";
@@ -75,11 +78,11 @@ public class Controller {
 				sortIndex(splitIndex);
 				for (int j = splitIndex.length - 1; j >= 0; j--){
 					if (splitIndex[j] > Logic.getTempStorage().size()){
-						feedback = String.format("item #%d is not found, ", splitIndex[j]) + feedback;
+						feedback = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndex[j]) + feedback;
 						continue; //Because cannot delete numbers larger than list size
 					}
 					if (splitIndex[j] <= 0){
-						feedback += "cannot delete index equal or below 0.";
+						feedback += MSG_CNT_DELETE_ZERO;
 						break; //Because cannot delete zero or negative number
 					}
 					Task oneOutOfMany = new Task();
@@ -115,7 +118,8 @@ public class Controller {
 			System.exit(0);
 		case SEARCH:
 			results.setListOfTasks(Logic.search(taskToExecute) );
-			results.setFeedback("This is what is found.");
+			int numMatches = results.getListOfTasks().size();
+			results.setFeedback(String.format(MSG_FOUND_N_ITEMS, numMatches));
 			results.setTitleOfPanel("Search Results for \""+ getSearchTermOnly(taskToExecute) + "\"");
 			return results;
 		case SHOW_ALL:
@@ -209,11 +213,11 @@ public class Controller {
 		String feedback1 ="";
 		for (int j = splitIndexA.length - 1; j >= 0; j--){
 			if (splitIndexA[j] > Logic.getTempStorage().size()){
-				feedback1 = String.format("item #%d is not found, ", splitIndexA[j]) + feedback1;
+				feedback1 = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndexA[j]) + feedback1;
 				continue; //Because cannot delete numbers larger than list size
 			}
 			if (splitIndexA[j] <= 0){
-				feedback1 += "cannot delete index equal or below 0.";
+				feedback1 += MSG_CNT_DELETE_ZERO;
 				break; //Because cannot delete zero or negative number
 			}
 			Task oneOutOfMany = new Task();
