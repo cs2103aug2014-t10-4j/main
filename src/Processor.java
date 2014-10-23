@@ -326,23 +326,36 @@ class ImportanceProcessor extends Processor {
 				&& (isPartOfList(input[index.getValue()], LIST_IMPORTANCE))) {
 
 			if (isIndexValid(index.getValue() + 1, input)) {
-				try {
-					importance = Integer.parseInt(input[index.getValue() + 1]);
-				} catch (Exception e) {
-					assignErrorMsg(parsedInput, INVALID_IMPORTANCE);
-				}
-				if (importance < LOW_IMPT_LVL || importance > HIGH_IMPT_LVL) {
-					assignErrorMsg(parsedInput, INVALID_IMPORTANCE);
-				} else {
-					parsedInput[IMPT_POSITION] = Integer.toString(importance);
-					index.incrementByTwo();
-				}
+				if (isNextInteger(input, index.getValue())) {
+					try {
+						importance = Integer
+								.parseInt(input[index.getValue() + 1]);
+					} catch (Exception e) {
 
-			} else {
-				assignErrorMsg(parsedInput, INVALID_IMPORTANCE);
-			}
+					}
+					if (importance < LOW_IMPT_LVL || importance > HIGH_IMPT_LVL) {
+						assignErrorMsg(parsedInput, INVALID_IMPORTANCE);
+					} else {
+						parsedInput[IMPT_POSITION] = Integer
+								.toString(importance);
+						index.incrementByTwo();
+					}
+
+				}
+			}// else {
+				// assignErrorMsg(parsedInput, INVALID_IMPORTANCE);
+			// }
 
 		}
+	}
+
+	private boolean isNextInteger(String[] input, int index) {
+		try {
+			Integer.parseInt(input[index + 1]);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
