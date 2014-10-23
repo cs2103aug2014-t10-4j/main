@@ -331,6 +331,9 @@ public class Logic {
 	public static ArrayList<Task> getTempStorage() {
 		return tempStorage;
 	}
+	public static ArrayList<Task> getArchiveStorage() {
+		return archiveStorage;
+	}
 
 	private static void getNumTasks(ArrayList<Integer> numTask, ArrayList<Task> tempStorage) {
 		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
