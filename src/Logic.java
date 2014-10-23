@@ -706,6 +706,7 @@ public class Logic {
 
 	}
 	
+	// Following methods are used for junit testing.
 	public static String printTempStorage(){
 		String string="";
 		for (int i = 0; i< tempStorage.size(); i++){
@@ -720,5 +721,12 @@ public class Logic {
 				+"\n";
 		}
 		return string;
+	}
+	
+	public static void clearUndoRedo(){
+		undo.clear();
+		undoTask.clear();
+		redo.clear();
+		redoTask.clear();
 	}
 }
