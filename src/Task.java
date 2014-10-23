@@ -139,7 +139,8 @@ class Task {
 			Task task = (Task) obj; 
 			return compareStrings(this.getName(),task.getName()) && compareStrings(this.getDate(),task.getDate()) && 
 					compareStrings(this.getTime(),task.getTime()) && compareStrings(this.getDetails(),task.getDetails()) && 
-					this.getImportance() == task.getImportance();
+					this.getImportance() == task.getImportance() && compareStrings(this.getParams(),task.getParams()) && 
+					compareStrings(this.getError(),task.getError());
 		} else {
 			return false;
 		}

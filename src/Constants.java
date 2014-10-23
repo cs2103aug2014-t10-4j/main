@@ -74,6 +74,7 @@ public class Constants {
 			"ddMMyyyyHH:mm");
 	
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
+	public static final String TIME_FORMAT = "HHmm";
 	public static final String MSG_SCREEN_CLEARED = "Screen is cleared. Type show all, show today or show floating again.";
 	public static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
 	public static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";

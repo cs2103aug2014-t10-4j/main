@@ -38,11 +38,11 @@ public abstract class Processor {
 	protected final int IMPT_POSITION = 5;
 	protected final int ERROR_MSG_POSITION = 6;
 	protected final int PARAMETER_POSITION = 7;
-	protected final String DATE_NAME = "Date";
-	protected final String TIME_NAME = "Time";
-	protected final String TASK_NAME = "Task name";
-	protected final String PARAMETERS_NAME = "Parameters";
-	protected final String IMPT_NAME = "Importance level";
+	protected final String DATE_NAME = "date";
+	protected final String TIME_NAME = "time";
+	protected final String TASK_NAME = "task name";
+	protected final String PARAMETERS_NAME = "parameters";
+	protected final String IMPT_NAME = "importance level";
 
 	protected final String[] LIST_MONTHS = { "january", "jan", "february",
 			"feb", "march", "mar", "april", "apr", "may", "june", "jun",
