@@ -1,4 +1,3 @@
-import java.awt.Font;
 import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -8,174 +7,308 @@ import java.util.Date;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-
 public class Controller {
 
-	private static final String MSG_EMPTY_TODAY = "No tasks for today!";
-	private static final String MSG_EMPTY_ALL_DAYS = "No tasks for anyday!";
-	private static final String MSG_INVALID_COMMAND = "Invalid command";
-    protected static final int PRESET_TYPE_DATE = Font.BOLD;//
-	protected static final int PRESET_TYPE_TIME = Font.BOLD;//
+	private static final String DATE_FT = "ft";
+	private static final String ERROR_NULL_COMMAND = "command type string cannot be null!";
+	private static final String ACTION_VIEW_ARCHIVE = "view archive";
+	private static final String ACTION_UNDO = "undo";
+	private static final String ACTION_REDO = "redo";
+	private static final String ACTION_RESTORE = "restore";
+	private static final String ACTION_SHOW_DETAILS = "show details";
+	private static final String ACTION_SHOW_TODAY = "show today";
+	private static final String ACTION_SHOW_FLOATING = "show floating";
+	private static final String ACTION_SHOW_ALL = "show all";
+	private static final String ACTION_SORT_IMPORTANCE = "sort importance";
+	private static final String ACTION_SORT_ALPHA = "sort alpha";
+	private static final String ACTION_SORT_TIME = "sort time";
+	private static final String ACTION_SEARCH = "search";
+	private static final String ACTION_HIDE_DETAILS = "hide details";
+	private static final String ACTION_HELP = "help";
+	private static final String ACTION_EXIT = "exit";
+	private static final String ACTION_EDIT = "edit";
+	private static final String ACTION_DELETE_TODAY = "delete today";
+	private static final String ACTION_DELETE_ALL = "delete all";
+	private static final String ACTION_DELETE = "delete";
+	private static final String ACTION_CLEAR_ARCHIVE = "clear archive";
+	private static final String ACTION_CLEAR = "clear";
+	private static final String ACTION_ADD = "add";
+	
+	private static final String TITLE_ARCHIVED_TASKS = "Archived Tasks (view-only)";
+	private static final String MSG_ARCHIVED_TASKS = "These are all your completed and archive tasks.";
+	private static final String MSG_CNT_DELETE_ZERO = "cannot delete index equal or below 0.";
+	private static final String MSG_CLASH_FOUND = "Something is happening at the same time! Continue %sing?";
+	private static final String MSG_DELETE_NO_INDEX = "You must add a number after delete";
+	private static final String MSG_FOUND_N_ITEMS = "Found %d items.";
+	private static final String MSG_HIDE_DETAILS_SUCCESS = "Details are collapsed.";
+	private static final String MSG_ITEM_TO_DELETE_NOT_FOUND = "item #%d is not found, ";
+	private static final String MSG_USER_CONFIRMED_NO = "Task is not %sed.";
+	private static final String MSG_SHOW_FLOATING_SUCCESS = "These are your floating tasks.";
+	private static final String MSG_SHOW_TODAY_SUCCESS = "These are your tasks for the day.";
+	private static final String MSG_SHOW_DETAILS_SUCCESS = "Details are expanded.";
+	private static final String MSG_SHOW_ALL_SUCCESS = "These are all your tasks.";
+	private static final String MSG_UNDO_SUCCESS = "Previous action is undone";
+	private static final String MSG_REDO_SUCCESS = "Previous action is done again";
+	
+	private static final String TITLE_ALL_TASKS = "All Tasks:";
+	private static final String TITLE_ALPHABETICAL_ORDER = "All tasks by alphabetical order";
+	private static final String TITLE_FLOATING_TASKS = "Floating Tasks:";
+	private static final String TITLE_IMPORTANCE_ORDER = "All tasks by importance order";
+	private static final String TITLE_JDIALOG_CLASH_FOUND = "Clash found";
+	private static final String TITLE_SEARCH_RESULTS = "Search Results for \"%s\"";
+	private static final String TITLE_TODAY_TASKS = "Today Tasks:";
+
 	enum CommandType {
-		ADD_TEXT, DISPLAY_TEXT, DELETE_TEXT, CLEAR_FILE, EDIT, EXIT, INVALID, SEARCH, SORT, HELP, REDO, UNDO;
+		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_PAST, DELETE_TEXT, 
+		DELETE_TODAY, EDIT, EXIT, HELP, HIDE_DETAILS, INVALID, SEARCH, SHOW_ALL, SHOW_FLOATING, 
+		SHOW_TODAY, SHOW_DETAILS, SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, 
+		REDO, UNDO, VIEW_ARCHIVE;
 	};
 
 	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
 		CommandType commandType;
 		ResultOfCommand results = new ResultOfCommand();
-		if (userSentence.contains(" ")){
-			String[] splitCommand = Parser.parseInput(userSentence);
-			String action = getFirstWord(splitCommand);
-			commandType = determineCommandType(action);
-			Task taskToExecute = new Task(splitCommand);
-			switch (commandType) {
-			case ADD_TEXT:
-				ArrayList<Task> tasksFound = findClash(taskToExecute);
-				if (tasksFound.size() == 0){
-					results.setFeedback(Logic.add("add",taskToExecute, file));
-					results.setListOfTasks(Logic.getTempStorage());
-					return results;
-				} else {
-					results.setListOfTasks(tasksFound);
-					JFrame frame = new JFrame();
-					int n = JOptionPane.showConfirmDialog(
-							frame,
-							"Continue adding?",
-							"Something is happening at the same time!",
-							JOptionPane.YES_NO_OPTION);
-					if (n == JOptionPane.YES_OPTION){
-						results.setFeedback(Logic.add("add",taskToExecute, file));			
-					} else {
-						results.setFeedback("Task is not added.");
-					}
-					results.setListOfTasks(Logic.getTempStorage());
-					return results;
-				}
-				/*results.setListOfTasks(Logic.getTempStorage());
-				results.setFeedback(Logic.addLineToFile(taskToExecute, file));
-				return results;*/
-			case DELETE_TEXT:
-				String params = taskToExecute.getParams();
-				String feedback = "";
-				if (params != null){
-					String [] splitParams = params.split("\\s+");
-					int [] splitIndex = new int [splitParams.length];
-					for (int j = 0; j < splitParams.length; j ++){
-						splitIndex[j] = Integer.parseInt(splitParams[j]);
-					}
-					sortIndex(splitIndex);
-					for (int j = splitIndex.length - 1; j >= 0; j--){
-						Task oneOutOfMany = new Task();
-						String userDeleteIndex = String.valueOf(splitIndex[j]); 
-						oneOutOfMany.setParams(userDeleteIndex);
-						feedback += Logic.delete("delete", oneOutOfMany, file, archive) + ", ";
-					}
-					results.setFeedback(feedback);
-				} else { 
-					results.setFeedback("You must add a number after /delete");
-				}
-				results.setListOfTasks(Logic.getTempStorage());
-				return results;
-			case EDIT:
-				results.setFeedback(Logic.edit("edit" /*stub*/, taskToExecute, file));
-				results.setListOfTasks(Logic.getTempStorage());
-				return results;
-			case SEARCH:
-				results.setListOfTasks(Logic.search(taskToExecute) );
-				results.setFeedback("This is what is found.");
-				results.setTitleOfPanel("Search Results for \""+ getSearchTermOnly(userSentence) + "\"");
-				return results;
-			/*case UNDO: 
-				Logic.undo(file, archive); //ACTIVATE THIS METHOD WHEN YOU THINK IT CAN WORK
-				results.setFeedback("Previous action is undone");
-				results.setListOfTasks(Logic.getTempStorage());
-				return results;
-			case REDO:
-				Logic.redo(file, archive); //ACTIVATE THIS METHOD WHEN YOU THINK IT CAN WORK
-				results.setFeedback("Previous action is done again");
-				results.setListOfTasks(Logic.getTempStorage());
-				return results;*/ 
-				//Activate all these above after Parser can accept one word commands
-			default:
-				results.setFeedback(MSG_INVALID_COMMAND);
-				results.setListOfTasks(Logic.getTempStorage());
-				return results;
-			}
-		} else { 
-			if (userSentence.equalsIgnoreCase("exit")) {
-				System.exit(0);
-			} else if (userSentence.equalsIgnoreCase("deleteall")) {
-				results.setFeedback(Logic.clearContent(file));
-				results.setListOfTasks(Logic.getTempStorage());
-				results.setTitleOfPanel("All Tasks:");
-				return results;
-			} else if (userSentence.equalsIgnoreCase("sort")) {
-				Task.setSortedByTime(true);
-				results.setFeedback(Logic.sortByDateAndTime(Logic.getTempStorage()));
-				results.setListOfTasks(Logic.getTempStorage());
-				results.setTitleOfPanel("All Tasks:");
-				return results;
-			} else if (userSentence.equalsIgnoreCase("sortalpha")) {
-				Task.setSortedByTime(false);
-				results.setFeedback(Logic.sortByAlphabet(Logic.getTempStorage()));
-				results.setListOfTasks(Logic.getTempStorage());
-				results.setTitleOfPanel("All tasks by alphabetical order");
-				return results;
-			} else if (userSentence.equalsIgnoreCase("sortimpt")) {
-				Task.setSortedByTime(false);
-				results.setFeedback(Logic.sortByImportance(Logic.getTempStorage()));
-				results.setListOfTasks(Logic.getTempStorage());
-				results.setTitleOfPanel("All tasks by importance order");
-				return results;
-			} else if (userSentence.equalsIgnoreCase("showfloating")) {
-				// Cannot delete from floating list or today list now because
-				// number in floating list is different from tempStorage.
-				// Deleting and editing after search will be written with cmdHistory.
-				Task dateFloating = new Task ();
-				dateFloating.setDate("ft");
-				results.setListOfTasks( Logic.search(dateFloating));
-				results.setFeedback("These are your floating tasks.");
-				results.setTitleOfPanel("Floating Tasks:");
-				return results;
-			} else if (userSentence.equalsIgnoreCase("showtoday")) {
-				//Need to ignore importance? Set to null?
-				Task dateToday = new Task();
-				dateToday.setDate(getTodayDate());
-				results.setListOfTasks(Logic.search(dateToday));
-				results.setFeedback("These are your tasks for the day.");
-				results.setTitleOfPanel("Today Tasks:");
-				return results;
-			} else if (userSentence.equalsIgnoreCase("showall")) {
-				results.setFeedback("These are all your tasks.");
-				results.setTitleOfPanel("All Tasks:");
-				results.setListOfTasks(Logic.getTempStorage());
-				return results;
-			} else if (userSentence.equalsIgnoreCase("clear")) {
-				results.setFeedback("Screen is cleared. Type showall, showtoday or showfloating again.");
-				results.setListOfTasks(new ArrayList<Task>());
-				return results;
-			} else if (userSentence.equalsIgnoreCase("redo")) {
-				Logic.redo(file, archive);
-				results.setFeedback("Redo is called");
-				results.setListOfTasks(Logic.getTempStorage());
-				return results;
-			} else if (userSentence.equalsIgnoreCase("undo")) {
-				Logic.undo(file, archive);
-				results.setFeedback("Undo is called");
-				results.setListOfTasks(Logic.getTempStorage());
-				return results;
+		String[] splitCommand = Parser.parseInput(userSentence);
+		String action = getCommandWord(splitCommand);
+		commandType = determineCommandType(action);
+		Task taskToExecute = new Task(splitCommand);
+		switch (commandType) {
+		case ADD_TEXT:
+			ArrayList<Task> tasksFound = findClash(taskToExecute);
+			if (tasksFound.size() == 0){
+				results.setFeedback(Logic.add(ACTION_ADD, taskToExecute, file));
 			} else {
-				results.setFeedback(MSG_INVALID_COMMAND);
-				results.setListOfTasks(Logic.getTempStorage());
-				return results;
+				results.setListOfTasks(tasksFound);
+				JFrame frame = new JFrame();
+				int n = confirmClashIsOk(frame, ACTION_ADD);
+				if (n == JOptionPane.YES_OPTION){
+					results.setFeedback(Logic.add(ACTION_ADD,taskToExecute, file));			
+				} else {
+					results.setFeedback(String.format(MSG_USER_CONFIRMED_NO, ACTION_ADD));
+				}
 			}
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case CLEAR_SCREEN:
+			results.setFeedback(Constants.MSG_SCREEN_CLEARED);
+			results.setListOfTasks(new ArrayList<Task>());
+			return results;
+		case CLEAR_ARCHIVE:
+			//results.setFeedback(Logic.clearContent(archive)); 
+			// no method to clear archive
+			results.setListOfTasks(Logic.getArchiveStorage());
+			results.setTitleOfPanel(TITLE_ARCHIVED_TASKS);
+			return results;
+		case DELETE_ALL:
+			results.setFeedback(Logic.clearContent(file));
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel(TITLE_ALL_TASKS);
+			return results;
+		case DELETE_TODAY:
+			Task todayOnly = new Task();
+			todayOnly.setDate(getTodayDate());
+			return deleteDate(file, archive, results, todayOnly);
+		case DELETE_TEXT:
+			String params = taskToExecute.getParams();
+			String feedback = "";
+			//Because multiple deletions is handled by Controller.
+			if (params != null){
+				String [] splitParams = params.split("\\s+");
+				int [] splitIndex = new int [splitParams.length];
+				for (int j = 0; j < splitParams.length; j ++){
+					int indexToDelete = Integer.parseInt(splitParams[j]);
+					if (indexToDelete > 0){
+						splitIndex[j] = indexToDelete;
+					} 
+				}
+				sortIndex(splitIndex);
+				for (int j = splitIndex.length - 1; j >= 0; j--){
+					if (splitIndex[j] > Logic.getTempStorage().size()){
+						feedback = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndex[j]) + feedback;
+						continue; //Because cannot delete numbers larger than list size
+					}
+					if (splitIndex[j] <= 0){
+						feedback += MSG_CNT_DELETE_ZERO;
+						break; //Because cannot delete zero or negative number
+					}
+					Task oneOutOfMany = new Task();
+					String userDeleteIndex = String.valueOf(splitIndex[j]); 
+					oneOutOfMany.setParams(userDeleteIndex);
+					feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) +", " + feedback ;
+				}
+				feedback = capitalizeFirstLetter(feedback);
+				feedback = endWithFulstop(feedback);
+				results.setFeedback(feedback);
+			} else { 
+				results.setFeedback(MSG_DELETE_NO_INDEX);
+			}
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case EDIT:
+			ArrayList<Task> clashFoundForEdit = findClash(taskToExecute);
+			if (clashFoundForEdit.size() == 0){
+				results.setFeedback(Logic.edit(ACTION_EDIT, taskToExecute, file));
+			} else {
+				results.setListOfTasks(clashFoundForEdit);
+				JFrame frame = new JFrame();
+				int n = confirmClashIsOk(frame, ACTION_EDIT);
+				if (n == JOptionPane.YES_OPTION){
+					results.setFeedback(Logic.edit(ACTION_EDIT, taskToExecute, file));			 
+				} else {
+					results.setFeedback(String.format(MSG_USER_CONFIRMED_NO, ACTION_EDIT));
+				}
+			}
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case EXIT:
+			System.exit(0);
+		case SEARCH:
+			results.setListOfTasks(Logic.search(taskToExecute));
+			int numMatches = results.getListOfTasks().size();
+			results.setFeedback(String.format(MSG_FOUND_N_ITEMS, numMatches));
+			results.setTitleOfPanel(String.format(TITLE_SEARCH_RESULTS, getSearchTermOnly(taskToExecute)));
+			return results;
+		case SHOW_ALL:
+			results.setFeedback(MSG_SHOW_ALL_SUCCESS);
+			results.setTitleOfPanel(TITLE_ALL_TASKS);
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case SHOW_FLOATING:
+			Task dateFloating = new Task ();
+			dateFloating.setDate(DATE_FT);
+			results.setListOfTasks( Logic.search(dateFloating));
+			results.setFeedback(MSG_SHOW_FLOATING_SUCCESS);
+			results.setTitleOfPanel(TITLE_FLOATING_TASKS);
+			return results;
+		case SHOW_TODAY:
+			Task dateToday = new Task();
+			dateToday.setDate(getTodayDate());
+			results.setListOfTasks(Logic.search(dateToday));
+			results.setFeedback(MSG_SHOW_TODAY_SUCCESS);
+			results.setTitleOfPanel(TITLE_TODAY_TASKS);
+			return results;
+		case SHOW_DETAILS:
+			Task.setIsDetailsShown(true);
+			results.setFeedback(MSG_SHOW_DETAILS_SUCCESS);
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel(TITLE_ALL_TASKS);
+			return results;
+		case HIDE_DETAILS: 
+			Task.setIsDetailsShown(false);
+			results.setFeedback(MSG_HIDE_DETAILS_SUCCESS);
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel(TITLE_ALL_TASKS);
+			return results;
+		case SORT_TIME:
+			Task.setSortedByTime(true);
+			results.setFeedback(Logic.sortByDateAndTime(Logic.getTempStorage()));
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel(TITLE_ALL_TASKS);
+			return results;
+		case SORT_ALPHA:
+			Task.setSortedByTime(false);
+			results.setFeedback(Logic.sortByAlphabet(Logic.getTempStorage()));
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel(TITLE_ALPHABETICAL_ORDER);
+			return results;
+		case SORT_IMPORTANCE:
+			Task.setSortedByTime(false);
+			results.setFeedback(Logic.sortByImportance(Logic.getTempStorage()));
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel(TITLE_IMPORTANCE_ORDER);
+			return results;
+		case RESTORE:
+			return results; //stub
+		case UNDO: 
+			Logic.undo(file, archive);
+			results.setFeedback(MSG_UNDO_SUCCESS);
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case REDO:
+			Logic.redo(file, archive); 
+			results.setFeedback(MSG_REDO_SUCCESS);
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case VIEW_ARCHIVE:
+			results.setTitleOfPanel(TITLE_ARCHIVED_TASKS);
+			results.setFeedback(MSG_ARCHIVED_TASKS);
+			results.setListOfTasks(Logic.getArchiveStorage());
+			return results;
+		default:
+			try {
+				results.setFeedback(taskToExecute.getError());
+			} catch (NullPointerException e){
+				results.setFeedback(Constants.MSG_INVALID_COMMAND);
+			}
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
 		}
+	}
+
+	private static int confirmClashIsOk(JFrame frame, String action) {
+		int n = JOptionPane.showConfirmDialog(
+				frame,
+				String.format(MSG_CLASH_FOUND, action),
+				TITLE_JDIALOG_CLASH_FOUND,
+				JOptionPane.YES_NO_OPTION);
+		return n;
+	}
+
+	private static ResultOfCommand deleteDate(File file, File archive,
+			ResultOfCommand results, Task withParticularDate) {
+		ArrayList<Task> allThoseTasks= Logic.search(withParticularDate);
+		int [] splitIndexA = new int [allThoseTasks.size()];
+		for (int j = 0 ; j < allThoseTasks.size(); j++){
+			splitIndexA[j] = j+1;
+		}
+		String feedback1 ="";
+		for (int j = splitIndexA.length - 1; j >= 0; j--){
+			if (splitIndexA[j] > Logic.getTempStorage().size()){
+				feedback1 = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndexA[j]) + feedback1;
+				continue; //Because cannot delete numbers larger than list size
+			}
+			if (splitIndexA[j] <= 0){
+				feedback1 += MSG_CNT_DELETE_ZERO;
+				break; //Because cannot delete zero or negative number
+			}
+			Task oneOutOfMany = new Task();
+			String userDeleteIndex = String.valueOf(splitIndexA[j]); 
+			oneOutOfMany.setParams(userDeleteIndex);
+			feedback1 = Logic.delete(ACTION_DELETE, splitIndexA.length, oneOutOfMany, file, archive) +", " + feedback1 ;
+		}
+		feedback1 = capitalizeFirstLetter(feedback1);
+		feedback1 = endWithFulstop(feedback1);
+		results.setFeedback(feedback1);
+		results.setListOfTasks(Logic.getTempStorage());
 		return results;
 	}
 
-	private static String getSearchTermOnly(String userSentence) {
-		String firstWord = userSentence.trim().split("\\s+")[0];
-		return userSentence.replace(firstWord , "").trim();
+	private static String endWithFulstop(String feedback) {
+		if (feedback.endsWith(", ")){
+			feedback = feedback.substring(0, feedback.lastIndexOf(",")) + ".";
+		}
+		return feedback;
+	}
+
+	private static String capitalizeFirstLetter(String feedback) {
+		if (!feedback.isEmpty()){
+			feedback = feedback.substring(0,1).toUpperCase() + feedback.substring(1); // Capitalize first letter
+		}
+		return feedback;
+	}
+
+	private static String getSearchTermOnly(Task task) {
+		String searchTerm = "";
+		if (task.getName() != null){
+			searchTerm += task.getName();
+		}
+		if (task.getDate() != null){
+			searchTerm += " " + task.getDate();
+		}
+		if (task.getTime() != null){
+			searchTerm += " " + task.getTime();
+		}
+		return searchTerm;
 	}
 
 	//Sort index from smallest to largest for multiple deletion.
@@ -196,10 +329,10 @@ public class Controller {
 	//Return any tasks with the same date and time as taskToExecute
 	private static ArrayList<Task> findClash(Task taskToExecute) {
 		//Do not check for clash if is floating, because it will always clash
-		if (taskToExecute.getDate().equals("ft")){
+		if (taskToExecute.getDate() != null && taskToExecute.getDate().equals(DATE_FT)){
 			return new ArrayList<Task>();
 		}
-		//If time is null, means there is no time allocated for that task
+		//If time is null, means there is no time allocated for that task today
 		if (taskToExecute.getTime() == null){
 			return new ArrayList<Task>();
 		}
@@ -212,126 +345,65 @@ public class Controller {
 	// This method is used to determine the command types given the first word of the command.
 	private static CommandType determineCommandType(String commandTypeString) {
 		if (commandTypeString == null) {
-			throw new Error("command type string cannot be null!");
+			throw new Error(ERROR_NULL_COMMAND);
 		}
-		if (commandTypeString.equalsIgnoreCase("add")) {
+		if (commandTypeString.equalsIgnoreCase(ACTION_ADD)) {
 			return CommandType.ADD_TEXT;
-		} else if (commandTypeString.equalsIgnoreCase("display")) {
-			return CommandType.DISPLAY_TEXT;
-		} else if (commandTypeString.equalsIgnoreCase("delete")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_CLEAR)) {
+			return CommandType.CLEAR_SCREEN;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_CLEAR_ARCHIVE)) {
+			return CommandType.CLEAR_ARCHIVE;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_DELETE)) {
 			return CommandType.DELETE_TEXT;
-		} else if (commandTypeString.equalsIgnoreCase("clear")) {
-			return CommandType.CLEAR_FILE;
-		} else if (commandTypeString.equalsIgnoreCase("edit")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_DELETE_ALL)) {
+			return CommandType.DELETE_ALL;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_DELETE_TODAY)) {
+			return CommandType.DELETE_TODAY;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_EDIT)) {
 			return CommandType.EDIT;
-		} else if (commandTypeString.equalsIgnoreCase("exit")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_EXIT)) {
 			return CommandType.EXIT;
-		} else if (commandTypeString.equalsIgnoreCase("search")) {
-			return CommandType.SEARCH;
-		} else if (commandTypeString.equalsIgnoreCase("sort")) {
-			return CommandType.SORT;
-		} else if (commandTypeString.equalsIgnoreCase("help")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_HELP)) {
 			return CommandType.HELP;
-		} else if (commandTypeString.equalsIgnoreCase("redo")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_HIDE_DETAILS)) {
+			return CommandType.HIDE_DETAILS;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SEARCH)) {
+			return CommandType.SEARCH;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SORT_TIME)) {
+			return CommandType.SORT_TIME;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SORT_ALPHA)) {
+			return CommandType.SORT_ALPHA;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SORT_IMPORTANCE)) {
+			return CommandType.SORT_IMPORTANCE;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SHOW_ALL)) {
+			return CommandType.SHOW_ALL;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SHOW_FLOATING)) {
+			return CommandType.SHOW_FLOATING;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SHOW_TODAY)) {
+			return CommandType.SHOW_TODAY;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SHOW_DETAILS)) {
+			return CommandType.SHOW_DETAILS;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_RESTORE)) {
+			return CommandType.RESTORE;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_REDO)) {
 			return CommandType.REDO;
-		} else if (commandTypeString.equalsIgnoreCase("undo")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_UNDO)) {
 			return CommandType.UNDO;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_VIEW_ARCHIVE)) {
+			return CommandType.VIEW_ARCHIVE;
 		} else {
 			return CommandType.INVALID;
 		}
 	}
 
-	private static String getFirstWord(String[] userCommand) {
+	private static String getCommandWord(String[] userCommand) {
+		assert userCommand.length >0;
 		String firstWord = userCommand[0];
 		return firstWord;
 	}
 
-	public static String printTodayList (ArrayList<Task> listOfTasks){
-		if (listOfTasks.size() ==0){
-			return MSG_EMPTY_TODAY;
-		} else {
-			return printArrayList(listOfTasks);
-		}
-	}
-
-	public static ArrayList<Task> getFloatingList (){
-		ArrayList<Task> allTasks = Logic.getTempStorage();
-		ArrayList <Task> listOfFloating = new ArrayList<Task>();
-		for (int j=0; j < allTasks.size(); j++){
-			if (allTasks.get(j).getDate().equals("ft")){
-				listOfFloating.add(allTasks.get(j));
-			}
-		}
-		return listOfFloating;
-	} 
-
-	public static String printArrayList(ArrayList<Task> listOfTasks){
-		String toPrint ="";
-		for (int j = 0; j < listOfTasks.size() ; j ++){
-			toPrint += " " + (j+1) + ". " + listOfTasks.get(j).toString() + "\n";
-		}
-		return toPrint;
-	}
-
-	public static String printEveryTask(){
-		String toPrint = "";
-		ArrayList<Task> everyTask = Logic.getTempStorage();
-		if (everyTask.size() !=0){
-			String date = everyTask.get(0).getDate();
-		
-			if (Task.getIsSortedByTime()){
-				if (date.equals(getTodayDate())){
-					toPrint += " " + createHorizLine("=", 20) + " " + date + " , Today " + createHorizLine("=", 20) + "\n";
-				} else {	
-					toPrint += " " + createHorizLine("=", 20) + " " + date + " " + createHorizLine("=", 20) + "\n";
-				}
-			}
-			for (int j = 0; j < everyTask.size() ; j ++){
-				String dateOfCurrentTask = everyTask.get(j).getDate();
-				if (! dateOfCurrentTask.equals(date)){
-					toPrint += "\n";
-					if (Task.getIsSortedByTime()){
-						if (dateOfCurrentTask.equals("ft")){
-							toPrint += " " + createHorizLine("=", 20) + " Floating Tasks "  + createHorizLine("=", 20)+ "\n" ;
-						} else if  (dateOfCurrentTask.equals(getTodayDate())){
-							toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " , Today " + createHorizLine("=", 20) + "\n";
-						} else {
-							toPrint += " " + createHorizLine("=", 20) + " " + dateOfCurrentTask + " " + createHorizLine("=", 20)+ "\n" ;
-						}
-					}
-				}
-				toPrint += " " + (j+1) + ". " + everyTask.get(j).toString() + "\n";
-				date = dateOfCurrentTask;
-			}
-			return toPrint;
-		} else {
-			return MSG_EMPTY_ALL_DAYS;
-		}
-	}
-
-	//Creates a horizontal line for formatting the User Interface.
-	private static String createHorizLine(String charseq, int numToDraw){
-		String line = "";
-		for (int i=0; i < numToDraw; i++){
-			line += charseq;
-		}
-		return line;
-	}
-
-	public static ArrayList<Task> getTodayList() {
-		ArrayList<Task> allTasks = Logic.getTempStorage();
-		ArrayList<Task> todayTasks = new ArrayList<Task>();
-		for (int j = 0 ; j< allTasks.size() ; j++){
-			if (allTasks.get(j).getDate().equals(getTodayDate())){
-				todayTasks.add(allTasks.get(j));
-			} 
-		}
-		return todayTasks;
-	}
-
-	//Same function as getCurrentDate except date is in another format
 	private static String getTodayDate() {
-		DateFormat dateFormat = new SimpleDateFormat("ddMMyyyy");
+		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
 		Date date = new Date();
 		String reportDate = dateFormat.format(date);
 		return reportDate;

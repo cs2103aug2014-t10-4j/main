@@ -11,7 +11,8 @@ class Task {
 	private int importance;
 	private String error;
 	private String params;
-	private static boolean isSortedByTime;
+	private static boolean isSortedByTime = true;
+	private static boolean isDetailsShown = false;
 
 	public Task(String[] splitTask){
 		this.name = splitTask[1];
@@ -25,7 +26,6 @@ class Task {
 		}
 		this.error = splitTask[6];
 		this.params = splitTask[7];
-		isSortedByTime = true;
 	}
 
 	public Task(){
@@ -36,7 +36,6 @@ class Task {
 		this.importance = -1;
 		this.error = null;
 		this.params = null;
-		isSortedByTime = true;
 	}
 
 	//Accessors
@@ -65,6 +64,10 @@ class Task {
 		return isSortedByTime;
 	}
 
+	public static boolean getIsDetailsShown(){
+		return isDetailsShown;
+	}
+
 	//Mutators
 	public void setName(String newName){
 		this.name = newName;
@@ -90,43 +93,105 @@ class Task {
 	public static void setSortedByTime(boolean sortedByTime){
 		isSortedByTime = sortedByTime;
 	}
+	public static void setIsDetailsShown(boolean shouldShowDetails){
+		isDetailsShown = shouldShowDetails;
+	}
 
-	//This method can be used to print tasks for debugging.
+	//This method can be used to print tasks for display.
 	@Override
 	public String toString() {
 		String sentence = "";
-		if (this.getTime() == null || this.getTime().equals("null")) {
-			sentence +=  " [ **** ]   "; 
+		if (isSortedByTime){
+			sentence = String.format("%s %s %s %s %s ",
+					printTime(), printDate(), printName(), printImportanceLevel()
+					, printDetails());
 		} else {
-			sentence +=  " [" + this.getTime() +"]   "; 
-		}
-		if (!isSortedByTime) {
-			if (this.getDate() != null && !date.equals("null")) {
-				if (!this.getDate().equals("ft")){
-					sentence += "(" + printDateNicely() + ")   ";
-				} else {
-					sentence += "(" + this.date + ")   ";
-				}
-			}
-		}
-		sentence += this.getName();
-		if (importance >0) {
-			sentence += " [" + printImportance(importance) + "]";
-		}
-		if (details != null && !details.equals("null")){
-			sentence += " [+] ";
+			sentence = String.format("%s %s %s %s %s ",
+					printDate(), printName(), printTime(), 
+					printImportanceLevel(), printDetails());
+
 		}
 		return sentence;
 	}
 
-	//This overrode method can perhaps be used for search and other methods.
+	private String printTime() {
+		String sentence = "";
+		if (this.getDate().equalsIgnoreCase("ft")){
+			sentence += " ";
+		} else if (this.getTime() == null || this.getTime().equals("null")) {
+			sentence +=  "[****]"; 
+		} else {
+			sentence +=  "[" + this.getTime() +"]"; 
+		}
+		return sentence;
+	}
+
+	private String printDate() {
+		String sentence = "";
+		if (!isSortedByTime) {
+			if (this.getDate() != null && !date.equals("null")) {
+				if (!this.getDate().equals("ft")){
+					sentence += "(" + date + ")";
+					sentence = padRight(sentence, 18);
+				} else {
+					sentence += "(Floating)";
+					sentence = padRight(sentence, 22);
+				}
+			}
+		}
+		return sentence;
+	}
+
+	private String printName() {
+		String sentence = "";
+		if (! isSortedByTime){
+			sentence += padRight(this.getName(), 40) ;
+		} else {
+			sentence += this.getName() ;
+		}
+		return sentence;
+	}
+
+	private String printImportanceLevel() {
+		String sentence = "";
+		if (importance >0) {
+			sentence += " [" + printImportance(importance) + "]";
+		}
+		return sentence;
+	}
+
+	private String printDetails() {
+		String sentence = "";
+		if (details != null && !details.equals("null") && !isDetailsShown){
+			sentence += " [+] ";
+		}
+		if (details != null && !details.equals("null") && isDetailsShown){
+			sentence += "\n" + "\t" + " [-] " + details;
+		}
+		return sentence;
+	}
+
+	//This override method can perhaps be used for search and other methods.
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Task){
 			Task task = (Task) obj; 
-			return this.equals(task.getName()) && this.equals(task.getDate()) && this.equals(task.getTime()) &&
-					this.equals(task.getDetails()) && this.getImportance() == task.getImportance();
+			return compareStrings(this.getName(),task.getName()) && compareStrings(this.getDate(),task.getDate()) && 
+					compareStrings(this.getTime(),task.getTime()) && compareStrings(this.getDetails(),task.getDetails()) && 
+					this.getImportance() == task.getImportance();
 		} else {
+			return false;
+		}
+	}
+
+	private boolean compareStrings (String firstLine, String secondLine){
+		if(firstLine !=null && secondLine != null){
+			return firstLine.equals(secondLine);
+		}
+		else if (firstLine == null && secondLine == null){
+			return true;
+		}
+		else{
 			return false;
 		}
 	}
@@ -139,14 +204,20 @@ class Task {
 		return toPrint;
 	}
 
-	private String printDateNicely (){
-		String temp = date;
-		String toPrint = temp.substring(0, 2);
-		toPrint += "/";
-		toPrint += temp.substring(2,4);
-		toPrint += "/";
-		toPrint += temp.substring(4);
+	public void copyOfTask( Task task){
+		this.setName(task.getName());
+		this.setDate(task.getDate());
+		this.setTime(task.getTime());
+		this.setDetails(task.getDetails());
+		this.setImportance(task.getImportance());
+		this.setParams(task.getParams());
+	}
 
-		return toPrint;
+	public static String padRight(String s, int n) {
+		return String.format("%1$-" + n + "s", s);  
+	}
+
+	public static String padLeft(String s, int n) {
+		return String.format("%1$" + n + "s", s);  
 	}
 }

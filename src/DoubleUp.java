@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.MenuItem;
 import java.awt.Panel;
 import java.awt.PopupMenu;
@@ -15,11 +16,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.Scanner;
@@ -47,18 +46,18 @@ public class DoubleUp extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
+	private static final String MSG_WELCOME = "Welcome to DoubleUp! ";
 	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d overdue tasks, %d tasks due eventually and %d floating tasks.\n";
 	private static final String MSG_QOTD = "QOTD: \n";
 	private static final String MSG_GOAL = "Your goal is: ";
-	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!\n";
+	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!";
 	private static final String MSG_ENTER_COMMAND = "Enter a command: ";
 	private static final String MSG_RESULT = "Result: ";
 	private static final String FILE_TASK = "DoubleUp.txt";
 	private static final String FILE_ARCHIVE = "Archive.txt";
 
-	private static JTextField textFieldCmdIn, textFieldResultsOut;
-	private static JTextArea displayPanelTodayTasks;
+	private static JTextField textFieldCmdIn;
+	private static JTextArea displayPanelTodayTasks, textFieldResultsOut;
 	private static JPanel middleRow;
 	private static JFrame frame;
 
@@ -95,7 +94,6 @@ public class DoubleUp extends JFrame {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 
@@ -150,16 +148,23 @@ public class DoubleUp extends JFrame {
 		middleRow.setLayout(new BorderLayout());
 		displayPanelTodayTasks = new JTextArea();
 		displayPanelTodayTasks.setEditable(false);
-		displayPanelTodayTasks.setText(Controller.printEveryTask());
+		displayPanelTodayTasks.setLineWrap(true);
+		displayPanelTodayTasks.setWrapStyleWord(true);
+		displayPanelTodayTasks.setMargin(new Insets(5,5,5,5));
+		ResultOfCommand results = Controller.executeCommand("show all", file, archive);
+		displayPanelTodayTasks.setText(results.printArrayList());
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		middleRow.add(scroll, BorderLayout.CENTER);
-		middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks: "));
+		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 		cp.add(middleRow, BorderLayout.CENTER);
 
 		//feedback
 		JPanel lastRow = new JPanel();
 		lastRow.add(new JLabel(MSG_RESULT));
-		textFieldResultsOut = new JTextField(43);
+		textFieldResultsOut = new JTextArea(0, 43);
+		textFieldResultsOut.setLineWrap(true);
+		textFieldResultsOut.setWrapStyleWord(true);
+		textFieldResultsOut.setMargin(new Insets(5,5,5,5));
 		textFieldResultsOut.setEditable(false);  // read-only
 		textFieldResultsOut.setText(MSG_WELCOME + MSG_HELP);
 		lastRow.add(textFieldResultsOut);
@@ -171,17 +176,19 @@ public class DoubleUp extends JFrame {
 				showHelp();
 			}
 			private void showHelp() {
-				try 
-				{
-					FileReader fr = new FileReader("help.txt");
-					BufferedReader br = new BufferedReader(fr);
-					displayPanelTodayTasks.read(br, null);
-					br.close();
-				} catch (IOException e1) {
-					System.out.println("Help.txt not found.");
-				}
+				String helpfile = "/res/helpV2.txt";
+				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
+				assert inputStream != null;
+
+				String theString = convertStreamToString(inputStream);
+				displayPanelTodayTasks.setText(theString);
 				textFieldResultsOut.setText("Press ESC to return to All Tasks");
 				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen:"));
+			}
+
+			String convertStreamToString(java.io.InputStream is) {
+				Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
+				return s.hasNext() ? s.next() : "";
 			}
 		};
 		Action showAll = new AbstractAction() {
@@ -189,8 +196,9 @@ public class DoubleUp extends JFrame {
 				showAll();
 			}
 			private void showAll() {
-				displayPanelTodayTasks.setText(Controller.printEveryTask());
-				middleRow.setBorder(BorderFactory.createTitledBorder("All Tasks: "));
+				ResultOfCommand results = Controller.executeCommand("show all", file, archive);
+				displayPanelTodayTasks.setText(results.printArrayList());
+				middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 				textFieldResultsOut.setText("Press F2 for help.");
 			}
 		};
@@ -225,7 +233,7 @@ public class DoubleUp extends JFrame {
 				}
 			}
 		};
-		
+
 		Action controlSpace = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				controlSpace();
@@ -253,37 +261,40 @@ public class DoubleUp extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String userSentence = textFieldCmdIn.getText().trim();
 				ResultOfCommand results = new ResultOfCommand();
-				if (userSentence.equalsIgnoreCase("/help")){
+				if (userSentence.equalsIgnoreCase("show help")){
 					showHelp(results);
 				} else { 
 					results = Controller.executeCommand(userSentence, file, archive);	
 					assert results != null;
 					displayPanelTodayTasks.setText(results.printArrayList());
 					middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
-					backwardsUserInput.push(userSentence);
 					textFieldResultsOut.setText(results.getFeedback());
-					textFieldCmdIn.setText("");  // clear input TextField
 				}
+				backwardsUserInput.push(userSentence);
+				textFieldCmdIn.setText("");  // clear input TextField
 			}
 
 			private void showHelp(ResultOfCommand results) {
-				try 
-				{
-					FileReader fr = new FileReader("help.txt");
-					BufferedReader br = new BufferedReader(fr);
-					displayPanelTodayTasks.read(br, null);
-					br.close();
-				} catch (IOException e1) {
-					System.out.println("Help.txt is not found");
-				}
+				String helpfile = "/res/helpV2.txt";
+				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
+				assert inputStream != null;
+
+				String theString = convertStreamToString(inputStream);
+				displayPanelTodayTasks.setText(theString);
+				textFieldResultsOut.setText("Press ESC to return to All Tasks");
+				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen:"));
 				results.setTitleOfPanel("Help Screen:");
 				results.setFeedback("Press ESC to return to Today Tasks");
+			}
+
+			String convertStreamToString(java.io.InputStream is) {
+				Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
+				return s.hasNext() ? s.next() : "";
 			}
 		});
 	}
 
-	// Concats the different messages to form the welcome message for the
-	// welcome screen
+	// Concats the different messages to form the welcome message for the welcome screen
 	private static String createWelcomeMessage(ArrayList<Integer> numOfTask) {
 		assert numOfTask != null;
 		String welcomeMessage = MSG_WELCOME;
