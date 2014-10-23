@@ -9,20 +9,60 @@ import javax.swing.JOptionPane;
 
 public class Controller {
 
-	private static final String MSG_FOUND_N_ITEMS = "Found %d items.";
-	private static final String MSG_ITEM_TO_DELETE_NOT_FOUND = "item #%d is not found, ";
-	private static final String MSG_CNT_DELETE_ZERO = "cannot delete index equal or below 0.";
-	private static final String MSG_USER_CONFIRMED_NO = "Task is not %sed.";
-	private static final String ACTION_EDIT = "edit";
-	private static final String ACTION_ADD = "add";
-	private static final String TITLE_JDIALOG_CLASH_FOUND = "Clash found";
-	private static final String MSG_CLASH_FOUND = "Something is happening at the same time! Continue %sing?";
 	private static final String DATE_FT = "ft";
+	private static final String ERROR_NULL_COMMAND = "command type string cannot be null!";
+	private static final String ACTION_VIEW_ARCHIVE = "view archive";
+	private static final String ACTION_UNDO = "undo";
+	private static final String ACTION_REDO = "redo";
+	private static final String ACTION_RESTORE = "restore";
+	private static final String ACTION_SHOW_DETAILS = "show details";
+	private static final String ACTION_SHOW_TODAY = "show today";
+	private static final String ACTION_SHOW_FLOATING = "show floating";
+	private static final String ACTION_SHOW_ALL = "show all";
+	private static final String ACTION_SORT_IMPORTANCE = "sort importance";
+	private static final String ACTION_SORT_ALPHA = "sort alpha";
+	private static final String ACTION_SORT_TIME = "sort time";
+	private static final String ACTION_SEARCH = "search";
+	private static final String ACTION_HIDE_DETAILS = "hide details";
+	private static final String ACTION_HELP = "help";
+	private static final String ACTION_EXIT = "exit";
+	private static final String ACTION_EDIT = "edit";
+	private static final String ACTION_DELETE_TODAY = "delete today";
+	private static final String ACTION_DELETE_ALL = "delete all";
+	private static final String ACTION_DELETE = "delete";
+	private static final String ACTION_CLEAR_ARCHIVE = "clear archive";
+	private static final String ACTION_CLEAR = "clear";
+	private static final String ACTION_ADD = "add";
+	
+	private static final String TITLE_ARCHIVED_TASKS = "Archived Tasks (view-only)";
+	private static final String MSG_ARCHIVED_TASKS = "These are all your completed and archive tasks.";
+	private static final String MSG_CNT_DELETE_ZERO = "cannot delete index equal or below 0.";
+	private static final String MSG_CLASH_FOUND = "Something is happening at the same time! Continue %sing?";
+	private static final String MSG_DELETE_NO_INDEX = "You must add a number after delete";
+	private static final String MSG_FOUND_N_ITEMS = "Found %d items.";
+	private static final String MSG_HIDE_DETAILS_SUCCESS = "Details are collapsed.";
+	private static final String MSG_ITEM_TO_DELETE_NOT_FOUND = "item #%d is not found, ";
+	private static final String MSG_USER_CONFIRMED_NO = "Task is not %sed.";
+	private static final String MSG_SHOW_FLOATING_SUCCESS = "These are your floating tasks.";
+	private static final String MSG_SHOW_TODAY_SUCCESS = "These are your tasks for the day.";
+	private static final String MSG_SHOW_DETAILS_SUCCESS = "Details are expanded.";
+	private static final String MSG_SHOW_ALL_SUCCESS = "These are all your tasks.";
+	private static final String MSG_UNDO_SUCCESS = "Previous action is undone";
+	private static final String MSG_REDO_SUCCESS = "Previous action is done again";
+	
+	private static final String TITLE_ALL_TASKS = "All Tasks:";
+	private static final String TITLE_ALPHABETICAL_ORDER = "All tasks by alphabetical order";
+	private static final String TITLE_FLOATING_TASKS = "Floating Tasks:";
+	private static final String TITLE_IMPORTANCE_ORDER = "All tasks by importance order";
+	private static final String TITLE_JDIALOG_CLASH_FOUND = "Clash found";
+	private static final String TITLE_SEARCH_RESULTS = "Search Results for \"%s\"";
+	private static final String TITLE_TODAY_TASKS = "Today Tasks:";
 
 	enum CommandType {
-		ADD_TEXT, CLEAR_SCREEN, DELETE_ALL, DELETE_PAST, DELETE_TEXT, DELETE_TODAY, 
-		EDIT, EXIT, HELP, INVALID, SEARCH, SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, 
-		SHOW_DETAILS, HIDE_DETAILS, SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, REDO, UNDO;
+		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_PAST, DELETE_TEXT, 
+		DELETE_TODAY, EDIT, EXIT, HELP, HIDE_DETAILS, INVALID, SEARCH, SHOW_ALL, SHOW_FLOATING, 
+		SHOW_TODAY, SHOW_DETAILS, SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, 
+		REDO, UNDO, VIEW_ARCHIVE;
 	};
 
 	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
@@ -53,10 +93,16 @@ public class Controller {
 			results.setFeedback(Constants.MSG_SCREEN_CLEARED);
 			results.setListOfTasks(new ArrayList<Task>());
 			return results;
+		case CLEAR_ARCHIVE:
+			//results.setFeedback(Logic.clearContent(archive)); 
+			// no method to clear archive
+			results.setListOfTasks(Logic.getArchiveStorage());
+			results.setTitleOfPanel(TITLE_ARCHIVED_TASKS);
+			return results;
 		case DELETE_ALL:
 			results.setFeedback(Logic.clearContent(file));
 			results.setListOfTasks(Logic.getTempStorage());
-			results.setTitleOfPanel("All Tasks:");
+			results.setTitleOfPanel(TITLE_ALL_TASKS);
 			return results;
 		case DELETE_TODAY:
 			Task todayOnly = new Task();
@@ -88,13 +134,13 @@ public class Controller {
 					Task oneOutOfMany = new Task();
 					String userDeleteIndex = String.valueOf(splitIndex[j]); 
 					oneOutOfMany.setParams(userDeleteIndex);
-					feedback = Logic.delete("delete", splitIndex.length, oneOutOfMany, file, archive) +", " + feedback ;
+					feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) +", " + feedback ;
 				}
 				feedback = capitalizeFirstLetter(feedback);
 				feedback = endWithFulstop(feedback);
 				results.setFeedback(feedback);
 			} else { 
-				results.setFeedback("You must add a number after delete");
+				results.setFeedback(MSG_DELETE_NO_INDEX);
 			}
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
@@ -117,71 +163,76 @@ public class Controller {
 		case EXIT:
 			System.exit(0);
 		case SEARCH:
-			results.setListOfTasks(Logic.search(taskToExecute) );
+			results.setListOfTasks(Logic.search(taskToExecute));
 			int numMatches = results.getListOfTasks().size();
 			results.setFeedback(String.format(MSG_FOUND_N_ITEMS, numMatches));
-			results.setTitleOfPanel("Search Results for \""+ getSearchTermOnly(taskToExecute) + "\"");
+			results.setTitleOfPanel(String.format(TITLE_SEARCH_RESULTS, getSearchTermOnly(taskToExecute)));
 			return results;
 		case SHOW_ALL:
-			results.setFeedback("These are all your tasks.");
-			results.setTitleOfPanel("All Tasks:");
+			results.setFeedback(MSG_SHOW_ALL_SUCCESS);
+			results.setTitleOfPanel(TITLE_ALL_TASKS);
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		case SHOW_FLOATING:
 			Task dateFloating = new Task ();
 			dateFloating.setDate(DATE_FT);
 			results.setListOfTasks( Logic.search(dateFloating));
-			results.setFeedback("These are your floating tasks.");
-			results.setTitleOfPanel("Floating Tasks:");
+			results.setFeedback(MSG_SHOW_FLOATING_SUCCESS);
+			results.setTitleOfPanel(TITLE_FLOATING_TASKS);
 			return results;
 		case SHOW_TODAY:
 			Task dateToday = new Task();
 			dateToday.setDate(getTodayDate());
 			results.setListOfTasks(Logic.search(dateToday));
-			results.setFeedback("These are your tasks for the day.");
-			results.setTitleOfPanel("Today Tasks:");
+			results.setFeedback(MSG_SHOW_TODAY_SUCCESS);
+			results.setTitleOfPanel(TITLE_TODAY_TASKS);
 			return results;
 		case SHOW_DETAILS:
 			Task.setIsDetailsShown(true);
-			results.setFeedback("Details are expanded.");
+			results.setFeedback(MSG_SHOW_DETAILS_SUCCESS);
 			results.setListOfTasks(Logic.getTempStorage());
-			results.setTitleOfPanel("All Tasks:");
+			results.setTitleOfPanel(TITLE_ALL_TASKS);
 			return results;
 		case HIDE_DETAILS: 
 			Task.setIsDetailsShown(false);
-			results.setFeedback("Details are collapsed.");
+			results.setFeedback(MSG_HIDE_DETAILS_SUCCESS);
 			results.setListOfTasks(Logic.getTempStorage());
-			results.setTitleOfPanel("All Tasks:");
+			results.setTitleOfPanel(TITLE_ALL_TASKS);
 			return results;
 		case SORT_TIME:
 			Task.setSortedByTime(true);
 			results.setFeedback(Logic.sortByDateAndTime(Logic.getTempStorage()));
 			results.setListOfTasks(Logic.getTempStorage());
-			results.setTitleOfPanel("All Tasks:");
+			results.setTitleOfPanel(TITLE_ALL_TASKS);
 			return results;
 		case SORT_ALPHA:
 			Task.setSortedByTime(false);
 			results.setFeedback(Logic.sortByAlphabet(Logic.getTempStorage()));
 			results.setListOfTasks(Logic.getTempStorage());
-			results.setTitleOfPanel("All tasks by alphabetical order");
+			results.setTitleOfPanel(TITLE_ALPHABETICAL_ORDER);
 			return results;
 		case SORT_IMPORTANCE:
 			Task.setSortedByTime(false);
 			results.setFeedback(Logic.sortByImportance(Logic.getTempStorage()));
 			results.setListOfTasks(Logic.getTempStorage());
-			results.setTitleOfPanel("All tasks by importance order");
+			results.setTitleOfPanel(TITLE_IMPORTANCE_ORDER);
 			return results;
 		case RESTORE:
 			return results; //stub
 		case UNDO: 
 			Logic.undo(file, archive);
-			results.setFeedback("Previous action is undone");
+			results.setFeedback(MSG_UNDO_SUCCESS);
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		case REDO:
 			Logic.redo(file, archive); 
-			results.setFeedback("Previous action is done again");
+			results.setFeedback(MSG_REDO_SUCCESS);
 			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case VIEW_ARCHIVE:
+			results.setTitleOfPanel(TITLE_ARCHIVED_TASKS);
+			results.setFeedback(MSG_ARCHIVED_TASKS);
+			results.setListOfTasks(Logic.getArchiveStorage());
 			return results;
 		default:
 			try {
@@ -223,7 +274,7 @@ public class Controller {
 			Task oneOutOfMany = new Task();
 			String userDeleteIndex = String.valueOf(splitIndexA[j]); 
 			oneOutOfMany.setParams(userDeleteIndex);
-			feedback1 = Logic.delete("delete", splitIndexA.length, oneOutOfMany, file, archive) +", " + feedback1 ;
+			feedback1 = Logic.delete(ACTION_DELETE, splitIndexA.length, oneOutOfMany, file, archive) +", " + feedback1 ;
 		}
 		feedback1 = capitalizeFirstLetter(feedback1);
 		feedback1 = endWithFulstop(feedback1);
@@ -294,48 +345,52 @@ public class Controller {
 	// This method is used to determine the command types given the first word of the command.
 	private static CommandType determineCommandType(String commandTypeString) {
 		if (commandTypeString == null) {
-			throw new Error("command type string cannot be null!");
+			throw new Error(ERROR_NULL_COMMAND);
 		}
 		if (commandTypeString.equalsIgnoreCase(ACTION_ADD)) {
 			return CommandType.ADD_TEXT;
-		} else if (commandTypeString.equalsIgnoreCase("clear")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_CLEAR)) {
 			return CommandType.CLEAR_SCREEN;
-		} else if (commandTypeString.equalsIgnoreCase("delete")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_CLEAR_ARCHIVE)) {
+			return CommandType.CLEAR_ARCHIVE;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_DELETE)) {
 			return CommandType.DELETE_TEXT;
-		} else if (commandTypeString.equalsIgnoreCase("delete all")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_DELETE_ALL)) {
 			return CommandType.DELETE_ALL;
-		} else if (commandTypeString.equalsIgnoreCase("delete today")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_DELETE_TODAY)) {
 			return CommandType.DELETE_TODAY;
 		} else if (commandTypeString.equalsIgnoreCase(ACTION_EDIT)) {
 			return CommandType.EDIT;
-		} else if (commandTypeString.equalsIgnoreCase("exit")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_EXIT)) {
 			return CommandType.EXIT;
-		} else if (commandTypeString.equalsIgnoreCase("help")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_HELP)) {
 			return CommandType.HELP;
-		} else if (commandTypeString.equalsIgnoreCase("hide details")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_HIDE_DETAILS)) {
 			return CommandType.HIDE_DETAILS;
-		} else if (commandTypeString.equalsIgnoreCase("search")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SEARCH)) {
 			return CommandType.SEARCH;
-		} else if (commandTypeString.equalsIgnoreCase("sort time")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SORT_TIME)) {
 			return CommandType.SORT_TIME;
-		} else if (commandTypeString.equalsIgnoreCase("sort alpha")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SORT_ALPHA)) {
 			return CommandType.SORT_ALPHA;
-		} else if (commandTypeString.equalsIgnoreCase("sort importance")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SORT_IMPORTANCE)) {
 			return CommandType.SORT_IMPORTANCE;
-		} else if (commandTypeString.equalsIgnoreCase("show all")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SHOW_ALL)) {
 			return CommandType.SHOW_ALL;
-		} else if (commandTypeString.equalsIgnoreCase("show floating")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SHOW_FLOATING)) {
 			return CommandType.SHOW_FLOATING;
-		} else if (commandTypeString.equalsIgnoreCase("show today")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SHOW_TODAY)) {
 			return CommandType.SHOW_TODAY;
-		} else if (commandTypeString.equalsIgnoreCase("show details")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_SHOW_DETAILS)) {
 			return CommandType.SHOW_DETAILS;
-		} else if (commandTypeString.equalsIgnoreCase("restore")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_RESTORE)) {
 			return CommandType.RESTORE;
-		} else if (commandTypeString.equalsIgnoreCase("redo")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_REDO)) {
 			return CommandType.REDO;
-		} else if (commandTypeString.equalsIgnoreCase("undo")) {
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_UNDO)) {
 			return CommandType.UNDO;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_VIEW_ARCHIVE)) {
+			return CommandType.VIEW_ARCHIVE;
 		} else {
 			return CommandType.INVALID;
 		}
