@@ -373,7 +373,7 @@ public class Logic {
 
 	public static String sortByDateAndTime(ArrayList<Task> tempStorage) {
 		DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-		DateFormat timeFormat = new SimpleDateFormat("HHmm");
+		DateFormat timeFormat = new SimpleDateFormat("HH:mm");
 		dateFormat.setLenient(false);
 		timeFormat.setLenient(false);
 		if (tempStorage.size() < 1) {
