@@ -13,8 +13,8 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,22 +26,26 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.plaf.metal.MetalIconFactory;
 
-public class DoubleUp extends JFrame {
+import org.jnativehook.GlobalScreen;
+import org.jnativehook.NativeHookException;
+import org.jnativehook.NativeInputEvent;
+import org.jnativehook.keyboard.NativeKeyEvent;
+import org.jnativehook.keyboard.NativeKeyListener;
+
+public class DoubleUp extends JFrame implements NativeKeyListener , WindowListener{
+	private static final String ACTION_SHOW_ALL = "show all";
+	private static final String TITLE_MAIN_WINDOW = "DoubleUp To-do-List";
 	/**
 	 * 
 	 */
@@ -61,58 +65,133 @@ public class DoubleUp extends JFrame {
 	private static JPanel middleRow;
 	private static JFrame frame;
 
-	private static Stack <String> backwardsUserInput, forwardUserInput;
+	private static Stack <String> backwardsUserInput = new Stack<String>();
+	private static Stack <String> forwardUserInput = new Stack<String>();
 
 	public static File file, archive;
 
+	public DoubleUp() {
+		setTitle(TITLE_MAIN_WINDOW);
+		//setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		addComponentsToPane(getContentPane());
+		setMinimumSize(new Dimension(650,600));
+		setVisible(true);
+		addWindowListener(this);
+		Logger logger = Logger.getLogger("myLogger");
+		logger.log(Level.INFO, "Successfully create GUI");
+	}
+	
 	public static void main(String[] args) {
 		file = Storage.openFile(FILE_TASK);
 		archive = Storage.openFile(FILE_ARCHIVE);
-		backwardsUserInput = new Stack<String>();
-		forwardUserInput = new Stack<String>();
 		ArrayList<Integer> overview = Logic.init(file, archive);
-		TrayIcon icon = new TrayIcon(getImage(), "DoubleUp", 
-				createPopupMenu());
-		icon.addActionListener(new ActionListener() {
+		new DoubleUp();
+		TrayIcon icon = new TrayIcon(getImage(), "DoubleUp", createPopupMenu());
+		/*icon.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "Hey, you pressed me!");
+				//JOptionPane.showMessageDialog(null, "Hey, you pressed me!");
 			}
-		});
+		});*/
 		try {
 			SystemTray.getSystemTray().add(icon);
 		} catch (AWTException e1) {
 			e1.printStackTrace();
 		}
-
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				createAndShowGUI();
-			}
-		});
-
+		
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-
-		icon.displayMessage("Welcome to DoubleUp!", String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
+		icon.displayMessage(MSG_WELCOME, String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
 				TrayIcon.MessageType.INFO);
 	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+		//Initialze native hook.
+		try {
+			GlobalScreen.registerNativeHook();
+		}
+		catch (NativeHookException ex) {
+			System.err.println("There was a problem registering the native hook.");
+			System.err.println(ex.getMessage());
+			ex.printStackTrace();
+			System.exit(1);
+		}
+		GlobalScreen.getInstance().addNativeKeyListener(this);
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		GlobalScreen.unregisterNativeHook();
+		System.runFinalization();
+		System.exit(0);
+	}
+
+	@Override
+	public void nativeKeyPressed(NativeKeyEvent e) {
+		System.out.println("Key Pressed: " + NativeKeyEvent.getKeyText(e.getKeyCode()));
+		if (e.getKeyCode() == NativeKeyEvent.VC_ESCAPE) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					showAll();
+				}
+			});
+		} else if (e.getKeyCode() == NativeKeyEvent.VC_F2){
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					showHelp();
+				}
+			});
+		} else if (e.getKeyCode() == NativeKeyEvent.VC_UP){
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					goBack();
+				}
+			});
+		} else if (e.getKeyCode() == NativeKeyEvent.VC_DOWN){
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					goForward();
+				}
+			});
+		}
+		 else if (e.getKeyCode() == NativeKeyEvent.VC_DOWN){
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					goForward();
+				}
+			});
+		 }
+		 else if (e.getKeyCode() == NativeKeyEvent.VC_SPACE && 
+				 NativeInputEvent.getModifiersText(e.getModifiers()).equals(
+                 "Ctrl")) {
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						controlSpace();
+					}
+				});
+			}
+	}
+
+	
 
 	private static Image getImage() throws HeadlessException {
 		Icon defaultIcon = MetalIconFactory.getTreeHardDriveIcon();
 		Image img = new BufferedImage(defaultIcon.getIconWidth(), 
 				defaultIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
 		defaultIcon.paintIcon(new Panel(), img.getGraphics(), 0, 0);
-
 		return img;
 	}
 
 	private static PopupMenu createPopupMenu() throws HeadlessException {
 		PopupMenu menu = new PopupMenu();
-
 		MenuItem exit = new MenuItem("Exit");
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -120,12 +199,11 @@ public class DoubleUp extends JFrame {
 			}
 		});
 		menu.add(exit);
-
 		return menu;
 	}
 
 	public static void createAndShowGUI() {
-		frame = new JFrame("DoubleUp To-do-List");
+		frame = new JFrame(TITLE_MAIN_WINDOW);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addComponentsToPane(frame.getContentPane());
 		frame.setMinimumSize(new Dimension(650,600));
@@ -151,14 +229,14 @@ public class DoubleUp extends JFrame {
 		displayPanelTodayTasks.setLineWrap(true);
 		displayPanelTodayTasks.setWrapStyleWord(true);
 		displayPanelTodayTasks.setMargin(new Insets(5,5,5,5));
-		ResultOfCommand results = Controller.executeCommand("show all", file, archive);
+		ResultOfCommand results = Controller.executeCommand(ACTION_SHOW_ALL, file, archive);
 		displayPanelTodayTasks.setText(results.printArrayList());
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		middleRow.add(scroll, BorderLayout.CENTER);
 		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 		cp.add(middleRow, BorderLayout.CENTER);
 
-		//feedback
+		//Feedback field below
 		JPanel lastRow = new JPanel();
 		lastRow.add(new JLabel(MSG_RESULT));
 		textFieldResultsOut = new JTextArea(0, 43);
@@ -167,95 +245,12 @@ public class DoubleUp extends JFrame {
 		textFieldResultsOut.setMargin(new Insets(5,5,5,5));
 		textFieldResultsOut.setEditable(false);  // read-only
 		textFieldResultsOut.setText(MSG_WELCOME + MSG_HELP);
+		//textFieldResultsOut.setBackground(Color.YELLOW);
+
 		lastRow.add(textFieldResultsOut);
 		cp.add(lastRow, BorderLayout.SOUTH);
 
-		Action showHelp = new AbstractAction() {
-			private static final long serialVersionUID = 1L;
-			public void actionPerformed(ActionEvent e) {
-				showHelp();
-			}
-			private void showHelp() {
-				String helpfile = "/res/helpV2.txt";
-				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
-				assert inputStream != null;
-
-				String theString = convertStreamToString(inputStream);
-				displayPanelTodayTasks.setText(theString);
-				textFieldResultsOut.setText("Press ESC to return to All Tasks");
-				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen:"));
-			}
-
-			String convertStreamToString(java.io.InputStream is) {
-				Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
-				return s.hasNext() ? s.next() : "";
-			}
-		};
-		Action showAll = new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				showAll();
-			}
-			private void showAll() {
-				ResultOfCommand results = Controller.executeCommand("show all", file, archive);
-				displayPanelTodayTasks.setText(results.printArrayList());
-				middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
-				textFieldResultsOut.setText("Press F2 for help.");
-			}
-		};
-
-		Action goBack = new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				goBack();
-			}
-			private void goBack() {
-				try {
-					if (!backwardsUserInput.empty()){
-						forwardUserInput.push(backwardsUserInput.pop());
-						textFieldCmdIn.setText(forwardUserInput.peek());
-					}
-				} catch (EmptyStackException e) {
-					e.printStackTrace();
-				}
-			}
-		};
-		Action goForward = new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				goForward();
-			}
-			private void goForward() {
-				try {
-					if (!forwardUserInput.empty()){
-						backwardsUserInput.push(forwardUserInput.pop());
-						textFieldCmdIn.setText(forwardUserInput.peek());
-					}
-				} catch (EmptyStackException e) {
-					textFieldCmdIn.setText("");
-				}
-			}
-		};
-
-		Action controlSpace = new AbstractAction() {
-			public void actionPerformed(ActionEvent e) {
-				controlSpace();
-			}
-			private void controlSpace() {
-				frame.setState(Frame.ICONIFIED);
-				//frame.setState(Frame.NORMAL);
-			}
-		};
-
-		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("F2"), "showHelp");
-		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "showall");
-		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "goBack");
-		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "goForward");
-		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_MASK), "controlSpace" );
-
-		textFieldCmdIn.getActionMap().put("showHelp", showHelp);
-		textFieldCmdIn.getActionMap().put("showall", showAll);
-		textFieldCmdIn.getActionMap().put("goBack", goBack);
-		textFieldCmdIn.getActionMap().put("goForward", goForward);
-		textFieldCmdIn.getActionMap().put("controlSpace", controlSpace);
-
+		//This is to add listener for textfield at top
 		textFieldCmdIn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -331,6 +326,87 @@ public class DoubleUp extends JFrame {
 	private static String createHelpMsg(){
 		String help = "\n" + MSG_HELP;
 		return help;
+	}
+
+
+
+	@Override
+	public void nativeKeyReleased(NativeKeyEvent e) {
+
+	}
+
+	@Override
+	public void nativeKeyTyped(NativeKeyEvent arg0) {
+	}
+
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+	}
+
+	private void showHelp() {
+		String helpfile = "/res/helpV2.txt";
+		InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
+		assert inputStream != null;
+
+		String theString = convertStreamToString(inputStream);
+		displayPanelTodayTasks.setText(theString);
+		textFieldResultsOut.setText("Press ESC to return to All Tasks");
+		middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen:"));
+	}
+
+	private String convertStreamToString(java.io.InputStream is) {
+		Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
+		return s.hasNext() ? s.next() : "";
+	}
+
+	private void showAll() {
+		ResultOfCommand results = Controller.executeCommand(ACTION_SHOW_ALL, file, archive);
+		displayPanelTodayTasks.setText(results.printArrayList());
+		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
+		textFieldResultsOut.setText("Press F2 for help.");
+	}
+	
+	private void goBack() {
+		try {
+			if (!backwardsUserInput.empty()){
+				forwardUserInput.push(backwardsUserInput.pop());
+				textFieldCmdIn.setText(forwardUserInput.peek());
+			}
+		} catch (EmptyStackException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void goForward() {
+		try {
+			if (!forwardUserInput.empty()){
+				backwardsUserInput.push(forwardUserInput.pop());
+				textFieldCmdIn.setText(forwardUserInput.peek());
+			}
+		} catch (EmptyStackException e) {
+			textFieldCmdIn.setText("");
+		}
+	}
+	
+	private void controlSpace() {
+		if (isFocused()){
+			setState(Frame.ICONIFIED);
+		} else {
+			setState(Frame.NORMAL);
+		}
 	}
 
 }
