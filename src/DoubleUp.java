@@ -91,25 +91,23 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		archive = Storage.openFile(FILE_ARCHIVE);
 		ArrayList<Integer> overview = Logic.init(file, archive);
 		new DoubleUp();
-		TrayIcon icon = new TrayIcon(getImage(), "DoubleUp", createPopupMenu());
-		/*icon.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				//JOptionPane.showMessageDialog(null, "Hey, you pressed me!");
-			}
-		});*/
-		try {
-			SystemTray.getSystemTray().add(icon);
-		} catch (AWTException e1) {
-			e1.printStackTrace();
-		}
+		if (SystemTray.isSupported()) {
+			TrayIcon icon = new TrayIcon(getImage(), "DoubleUp", createPopupMenu());
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
+			try {
+				SystemTray.getSystemTray().add(icon);
+			} catch (AWTException e1) {
+				e1.printStackTrace();
+			}
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			icon.displayMessage(MSG_WELCOME, String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
+					TrayIcon.MessageType.INFO);
 		}
-		icon.displayMessage(MSG_WELCOME, String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
-				TrayIcon.MessageType.INFO);
 	}
 
 	@Override
@@ -152,8 +150,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		}
 	}
 
-
-
 	private static Image getImage() throws HeadlessException {
 		Icon defaultIcon = MetalIconFactory.getTreeHardDriveIcon();
 		Image img = new BufferedImage(defaultIcon.getIconWidth(), 
@@ -164,12 +160,16 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	private static PopupMenu createPopupMenu() throws HeadlessException {
 		PopupMenu menu = new PopupMenu();
+		MenuItem aboutUs = new MenuItem("About DoubleUp");
+		MenuItem help = new MenuItem("Help Contents");
 		MenuItem exit = new MenuItem("Exit");
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
 		});
+		menu.add(aboutUs);
+		menu.add(help);
 		menu.add(exit);
 		return menu;
 	}
