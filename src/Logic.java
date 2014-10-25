@@ -117,17 +117,9 @@ public class Logic {
 		}
 
 		if(command.equals(COMMAND_ADD)){
-			Integer taskNumber;
 			
-			if (tempStorage.size() == 0){
-				taskNumber = INITIAL_VALUE+1;
-			}
-			
-			else{
-				int LastTaskLocation = tempStorage.size()-1;
-				taskNumber = Integer.parseInt(tempStorage.get(LastTaskLocation).getParams()) + 1;
-			}
-			
+			Integer taskNumber = tempStorage.size()+1;
+
 			task.setParams(taskNumber.toString());
 			Task taskToAdd = new Task();
 			taskToAdd.copyOfTask(task); 
@@ -197,7 +189,7 @@ public class Logic {
 			originalTask.copyOfTask(tempStorage.get(taskNumber));
 			tasksEdited.add(originalTask);
 
-			returnMessage = editTask(command, detailsOfTask, file, taskNumber);
+			returnMessage = editTask(detailsOfTask, file, taskNumber);
 			
 			Task editedTask = new Task();
 			editedTask.copyOfTask(tempStorage.get(taskNumber));
@@ -213,19 +205,11 @@ public class Logic {
 
 			return returnMessage;
 		}
-		else if (command.equals(COMMAND_UNDO)){
+		else if (command.equals(COMMAND_UNDO)||command.equals(COMMAND_REDO)){
 			
 			int taskNumber = getIndex(detailsOfTask);
 			
-			returnMessage = editTask(command, detailsOfTask, file, taskNumber);
-			
-			return returnMessage;
-		}
-		else if (command.equals(COMMAND_REDO)){
-			
-			int taskNumber = getIndex(detailsOfTask);
-			
-			returnMessage = editTask(command,detailsOfTask, file, taskNumber);
+			returnMessage = editUndoRedo( detailsOfTask, file, taskNumber);
 			
 			return returnMessage;
 		}
@@ -246,7 +230,7 @@ public class Logic {
 
 
 
-	private static String editTask(String command, Task detailsOfTask, File file, int taskNumber) {
+	private static String editTask(Task detailsOfTask, File file, int taskNumber) {
 		String todayDate = getTodayDateAndTime();
 
 		try {
@@ -274,15 +258,10 @@ public class Logic {
 			if (detailsOfTask.getDetails() != null) {
 				tempStorage.get(taskNumber).setDetails(detailsOfTask.getDetails());
 			}
-			if(command.equals(COMMAND_UNDO)||command.equals(COMMAND_REDO)){
+
+			if (detailsOfTask.getImportance() != INITIAL_VALUE - 1) {
 				tempStorage.get(taskNumber).setImportance(
 						detailsOfTask.getImportance());
-			}
-			else{
-				if (detailsOfTask.getImportance() != INITIAL_VALUE - 1) {
-					tempStorage.get(taskNumber).setImportance(
-							detailsOfTask.getImportance());
-				}
 			} 
 		}catch (ParseException e) {
 			// TODO Auto-generated catch block
@@ -292,6 +271,21 @@ public class Logic {
 
 	}
 	
+	private static String editUndoRedo(Task detailsOfTask, File file, int taskNumber) {
+
+		tempStorage.get(taskNumber).setTime(detailsOfTask.getTime());
+
+		tempStorage.get(taskNumber).setName(detailsOfTask.getName());
+
+		tempStorage.get(taskNumber).setDate(detailsOfTask.getDate());
+
+		tempStorage.get(taskNumber).setDetails(detailsOfTask.getDetails());
+
+		tempStorage.get(taskNumber).setImportance(detailsOfTask.getImportance());
+
+		return MSG_EDIT_SUCCESS;
+
+	}
 	
 
 	public static String delete(String command, int numOfTaskToDelete, Task task, File file, File archive){
@@ -399,7 +393,7 @@ public class Logic {
 				int index = getIndex(task);
 				Task taskToDelete = new Task();
 				taskToDelete.copyOfTask(tempStorage.get(index));
-				
+
 				returnMessage = deleteLineFromFile(index,task,file,archive);
 				
 				if( commandCheck == null){
@@ -644,9 +638,13 @@ public class Logic {
 			
 			if(lastCommand.equals(COMMAND_DELETE)|| lastCommand.equals(COMMAND_DELETE_ALL)){
 				ArrayList<Task> taskToBeAdded = undoTask.pop();
+				Task taskToAdd = new Task();
 				
 				for(int i=0;i<taskToBeAdded.size();i++){
-					add(COMMAND_UNDO,taskToBeAdded.get(i),file);
+					
+					taskToAdd.copyOfTask(taskToBeAdded.get(i));
+					
+					add(COMMAND_UNDO,taskToAdd,file);
 				}
 
 				redo.push(lastCommand);
@@ -695,8 +693,9 @@ public class Logic {
 				ArrayList<Task> taskToBeDeleted = redoTask.pop();
 				
 				for(int i=0;i<taskToBeDeleted.size();i++){
-				
+
 					delete(COMMAND_REDO,taskToBeDeleted.size(), taskToBeDeleted.get(i) ,file,archive);
+
 				}
 				
 				undo.push(COMMAND_DELETE);
@@ -744,26 +743,44 @@ public class Logic {
 			return MSG_NO_TASKS_TO_SORT;
 		} else {
 
-			for (int i = 0; i < tempStorage.size(); i++) {
+			try {
+				for (int i = 0; i < tempStorage.size(); i++) {
 
-				boolean isSorted = true;
+					boolean isSorted = true;
 
-				for (int j = 0; j < tempStorage.size() - 1; j++) {
-					try {
+					for (int j = 0; j < tempStorage.size() - 1; j++) {
+
+
+						int firstTaskOrder = Integer.parseInt(tempStorage.get(j).getParams());
+						int secondTaskOrder = Integer.parseInt(tempStorage.get(j+1).getParams());
 
 						if (tempStorage.get(j).getDate().equals("ft")
 								&& !tempStorage.get(j + 1).getDate()
 								.equals("ft")) {
+
 							tempStorage.add(j + 2, tempStorage.get(j));
 							tempStorage.remove(j);
 							isSorted = false;
+							continue;
 
 						} else if (!tempStorage.get(j).getDate().equals("ft")
 								&& tempStorage.get(j + 1).getDate()
 								.equals("ft")) {
+
 							continue;
 
-						} else {
+						} else if( tempStorage.get(j).getDate().equals("ft")
+								&& tempStorage.get(j + 1).getDate()
+								.equals("ft")) {
+
+							if(firstTaskOrder>secondTaskOrder){
+								tempStorage.add(j + 2, tempStorage.get(j));
+								tempStorage.remove(j);
+								isSorted = false;
+							}
+
+							continue;
+						}else {
 
 							dateFirst = dateFormat.parse(tempStorage.get(
 									j).getDate());
@@ -775,6 +792,7 @@ public class Logic {
 								tempStorage.add(j + 2, tempStorage.get(j));
 								tempStorage.remove(j);
 								isSorted = false;
+								continue;
 
 							} else if (dateFirst
 									.compareTo(dateSecond) == 0) {
@@ -788,6 +806,7 @@ public class Logic {
 									tempStorage.add(j + 2, tempStorage.get(j));
 									tempStorage.remove(j);
 									isSorted = false;
+									continue;
 
 								} else {
 
@@ -805,17 +824,32 @@ public class Logic {
 												tempStorage.get(j));
 										tempStorage.remove(j);
 										isSorted = false;
+										continue;
+									}else if (timeFirst.compareTo(timeSecond) == 0){
 
+										if(firstTaskOrder>secondTaskOrder){
+											tempStorage.add(j + 2, tempStorage.get(j));
+											tempStorage.remove(j);
+											isSorted = false;
+										}
+										continue;
 									}
 									else {
 										continue;
 									}
 								}
 							}
+							else{
+								continue;
+							}
 						}
-					} catch (ParseException e) {
+
+					}
+					if (isSorted) {
+						return  MSG_SORT_SUCCESS + "date and time";
 					}
 				}
+			} catch (ParseException e) {
 			}
 			return MSG_SORT_SUCCESS + "date and time";
 		}
@@ -897,6 +931,7 @@ public class Logic {
 					+" "+ tempStorage.get(i).getParams()
 					+"\n";
 		}
+		
 		return string;
 	}
 
@@ -921,6 +956,16 @@ public class Logic {
 		undoTask.clear();
 		redo.clear();
 		redoTask.clear();
+	}
+	
+	public static void sortAlpha(){
+		sortByAlphabet(tempStorage);
+	}
+	public static void sortChrono(){
+		sortByDateAndTime(tempStorage);
+	}
+	public static void sortImportance(){
+		sortByImportance(tempStorage);
 	}
 
 }
