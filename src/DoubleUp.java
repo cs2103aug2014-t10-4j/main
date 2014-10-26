@@ -20,6 +20,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.Scanner;
@@ -63,6 +65,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	private static final String MSG_RESULT = "Result: ";
 	private static final String FILE_TASK = "DoubleUp.txt";
 	private static final String FILE_ARCHIVE = "Archive.txt";
+	private static final String FILE_LOCK = "Lock.txt";
 
 	private static JTextField textFieldCmdIn;
 	private static JTextArea displayPanelTodayTasks, textFieldResultsOut;
@@ -72,7 +75,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	private static Stack <String> backwardsUserInput = new Stack<String>();
 	private static Stack <String> forwardUserInput = new Stack<String>();
 
-	public static File file, archive;
+	private static File file, archive;
+	private static Logger logger = Logger.getLogger("myLogger");
 
 	public DoubleUp() {
 		setTitle(TITLE_MAIN_WINDOW);
@@ -82,31 +86,32 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		setMinimumSize(new Dimension(650,600));
 		setVisible(true);
 		addWindowListener(this);
-		Logger logger = Logger.getLogger("myLogger");
 		logger.log(Level.INFO, "Successfully create GUI");
 	}
 
 	public static void main(String[] args) {
-		file = Storage.openFile(FILE_TASK);
-		archive = Storage.openFile(FILE_ARCHIVE);
-		ArrayList<Integer> overview = Logic.init(file, archive);
-		new DoubleUp();
-		if (SystemTray.isSupported()) {
-			TrayIcon icon = new TrayIcon(getImage(), "DoubleUp", createPopupMenu());
+		if (lockInstance()){
+			file = Storage.openFile(FILE_TASK);
+			archive = Storage.openFile(FILE_ARCHIVE);
+			ArrayList<Integer> overview = Logic.init(file, archive);
+			new DoubleUp();
+			if (SystemTray.isSupported()) {
+				TrayIcon icon = new TrayIcon(getImage(), "DoubleUp", createPopupMenu());
 
-			try {
-				SystemTray.getSystemTray().add(icon);
-			} catch (AWTException e1) {
-				e1.printStackTrace();
-			}
+				try {
+					SystemTray.getSystemTray().add(icon);
+				} catch (AWTException e1) {
+					e1.printStackTrace();
+				}
 
-			try {
-				Thread.sleep(500);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+				icon.displayMessage(MSG_WELCOME, String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
+						TrayIcon.MessageType.INFO);
 			}
-			icon.displayMessage(MSG_WELCOME, String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
-					TrayIcon.MessageType.INFO);
 		}
 	}
 
@@ -422,15 +427,43 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		}
 		repaint();
 	}
-	 @Override 
+	//Windows has an issue where it will not allow application windows to steal focus.
+	//It will only flash the icon.
+	@Override 
 	public void toFront() {
 		int sta=super.getExtendedState()&~JFrame.ICONIFIED&JFrame.NORMAL;
-
 		super.setExtendedState(sta);
 		super.setAlwaysOnTop(true);
 		super.toFront();
 		super.requestFocus();
 		super.setAlwaysOnTop(false);
 	}
+
+	private static boolean lockInstance() {
+		try {
+			final File lockfile = new File(FILE_LOCK);
+			final RandomAccessFile randomAccessFile = new RandomAccessFile(lockfile, "rw");
+			final FileLock fileLock = randomAccessFile.getChannel().tryLock();
+			if (fileLock != null) {
+				Runtime.getRuntime().addShutdownHook(new Thread() {
+					public void run() {
+						try {
+							fileLock.release();
+							randomAccessFile.close();
+							lockfile.delete();
+						} catch (Exception e) {
+							logger.log(Level.WARNING, "Unable to remove lock file: " + FILE_LOCK, e);
+						}
+					}
+				});
+				return true;
+			}
+		} catch (Exception e) {
+			logger.log(Level.WARNING, "Unable to create and/or lock file: " + FILE_LOCK, e);
+		}
+		return false;
+	}
+
+
 
 }
