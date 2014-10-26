@@ -36,7 +36,7 @@ public class Controller {
 	private static final String ACTION_CLEAR_ARCHIVE = "clear archive";
 	private static final String ACTION_CLEAR = "clear";
 	private static final String ACTION_ADD = "add";
-	
+
 	private static final String TITLE_ARCHIVED_TASKS = "Archived Tasks (view-only)";
 	private static final String MSG_ARCHIVED_TASKS = "These are all your completed and archive tasks.";
 	private static final String MSG_CNT_DELETE_ZERO = "cannot delete index equal or below 0.";
@@ -52,7 +52,7 @@ public class Controller {
 	private static final String MSG_SHOW_ALL_SUCCESS = "These are all your tasks.";
 	private static final String MSG_UNDO_SUCCESS = "Previous action is undone";
 	private static final String MSG_REDO_SUCCESS = "Previous action is done again";
-	
+
 	private static final String TITLE_ALL_TASKS = "All Tasks:";
 	private static final String TITLE_ALPHABETICAL_ORDER = "All tasks by alphabetical order";
 	private static final String TITLE_FLOATING_TASKS = "Floating Tasks:";
@@ -75,6 +75,7 @@ public class Controller {
 		String action = getCommandWord(splitCommand);
 		commandType = determineCommandType(action);
 		Task taskToExecute = new Task(splitCommand);
+		String feedback = "";
 		switch (commandType) {
 		case ADD_TEXT:
 			ArrayList<Task> tasksFound = findClash(taskToExecute);
@@ -112,14 +113,30 @@ public class Controller {
 			taskWithThisDate.setDate(taskToExecute.getDate());
 			return deleteDate(file, archive, results, taskWithThisDate);
 		case DELETE_PAST:
-			return results;
+			//Force sort by time first
+			Task.setSortedByTime(true);
+			Logic.sortByDateAndTime(Logic.getTempStorage());
+			int indexToDeleteBefore = Logic.getFirstIndexNotOverdue();
+			try {
+				int [] indexUpToToday = new int [indexToDeleteBefore]; 
+				for (int j = 0; j < indexUpToToday.length; j++){
+					indexUpToToday[j]= j+1;
+				}
+				deleteMultiple(file, archive, results, feedback, indexUpToToday);
+				results.setFeedback("All past tasks have been deleted.");
+				results.setListOfTasks(Logic.getTempStorage());
+				return results;
+			} catch (NegativeArraySizeException e) {
+				results.setFeedback("There are no past tasks to be deleted.");
+				results.setListOfTasks(Logic.getTempStorage());
+				return results;
+			}
 		case DELETE_TODAY:
 			Task todayOnly = new Task();
 			todayOnly.setDate(getTodayDate());
 			return deleteDate(file, archive, results, todayOnly);
 		case DELETE_TEXT:
 			String params = taskToExecute.getParams();
-			String feedback = "";
 			//Because multiple deletions is handled by Controller.
 			if (params != null){
 				String [] splitParams = params.split("\\s+");
@@ -131,23 +148,7 @@ public class Controller {
 					} 
 				}
 				sortIndex(splitIndex);
-				for (int j = splitIndex.length - 1; j >= 0; j--){
-					if (splitIndex[j] > Logic.getTempStorage().size()){
-						feedback = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndex[j]) + feedback;
-						continue; //Because cannot delete numbers larger than list size
-					}
-					if (splitIndex[j] <= 0){
-						feedback += MSG_CNT_DELETE_ZERO;
-						break; //Because cannot delete zero or negative number
-					}
-					Task oneOutOfMany = new Task();
-					String userDeleteIndex = String.valueOf(splitIndex[j]); 
-					oneOutOfMany.setParams(userDeleteIndex);
-					feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) +", " + feedback ;
-				}
-				feedback = capitalizeFirstLetter(feedback);
-				feedback = endWithFulstop(feedback);
-				results.setFeedback(feedback);
+				deleteMultiple(file, archive, results, feedback, splitIndex);
 			} else { 
 				results.setFeedback(MSG_DELETE_NO_INDEX);
 			}
@@ -254,6 +255,27 @@ public class Controller {
 		}
 	}
 
+	private static void deleteMultiple(File file, File archive,
+			ResultOfCommand results, String feedback, int[] splitIndex) {
+		for (int j = splitIndex.length - 1; j >= 0; j--){
+			if (splitIndex[j] > Logic.getTempStorage().size()){
+				feedback = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndex[j]) + feedback;
+				continue; //Because cannot delete numbers larger than list size
+			}
+			if (splitIndex[j] <= 0){
+				feedback += MSG_CNT_DELETE_ZERO;
+				break; //Because cannot delete zero or negative number
+			}
+			Task oneOutOfMany = new Task();
+			String userDeleteIndex = String.valueOf(splitIndex[j]); 
+			oneOutOfMany.setParams(userDeleteIndex);
+			feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) +", " + feedback ;
+		}
+		feedback = capitalizeFirstLetter(feedback);
+		feedback = endWithFulstop(feedback);
+		results.setFeedback(feedback);
+	}
+
 	private static int confirmClashIsOk(JFrame frame, String action) {
 		int n = JOptionPane.showConfirmDialog(
 				frame,
@@ -276,23 +298,7 @@ public class Controller {
 			splitIndexA[j] = j+1;
 		}
 		String feedback1 ="";
-		for (int j = splitIndexA.length - 1; j >= 0; j--){
-			if (splitIndexA[j] > Logic.getTempStorage().size()){
-				feedback1 = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndexA[j]) + feedback1;
-				continue; //Because cannot delete numbers larger than list size
-			}
-			if (splitIndexA[j] <= 0){
-				feedback1 += MSG_CNT_DELETE_ZERO;
-				break; //Because cannot delete zero or negative number
-			}
-			Task oneOutOfMany = new Task();
-			String userDeleteIndex = String.valueOf(splitIndexA[j]); 
-			oneOutOfMany.setParams(userDeleteIndex);
-			feedback1 = Logic.delete(ACTION_DELETE, splitIndexA.length, oneOutOfMany, file, archive) +", " + feedback1 ;
-		}
-		feedback1 = capitalizeFirstLetter(feedback1);
-		feedback1 = endWithFulstop(feedback1);
-		results.setFeedback(feedback1);
+		deleteMultiple(file, archive, results, feedback1, splitIndexA);
 		results.setListOfTasks(Logic.getTempStorage());
 		return results;
 	}

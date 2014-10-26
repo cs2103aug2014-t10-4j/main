@@ -7,13 +7,12 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Stack;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 public class Logic {
-	
+
 	private static final String BAD_INDEX_MESSAGE = "%d is not a valid number to delete because valid range is %d to %d";
 	private static final String DATE_FT = "ft";
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
@@ -233,7 +232,7 @@ public class Logic {
 			if (taskToFind.getName() != null
 					&& taskInList.getName() != null
 					&& !taskInList.getName().toLowerCase()
-							.contains(taskToFind.getName().toLowerCase())) {
+					.contains(taskToFind.getName().toLowerCase())) {
 				continue;
 			}
 			if (taskToFind.getDate() != null && taskInList.getDate() != null
@@ -254,7 +253,7 @@ public class Logic {
 			if (taskToFind.getDetails() != null
 					&& taskInList.getDetails() != null
 					&& !taskInList.getDetails().toLowerCase()
-							.contains(taskToFind.getDetails().toLowerCase())) {
+					.contains(taskToFind.getDetails().toLowerCase())) {
 				continue;
 			}
 			searchResults.add(taskInList);
@@ -297,17 +296,17 @@ public class Logic {
 
 	public static String clearContent(File file) {
 		if(tempStorage.size()>0){
-		ArrayList<Task> deletedTask = new ArrayList<Task>();
-		for(int i =0; i<tempStorage.size(); i++){
-			Task taskToDelete = new Task();	
-			taskToDelete.copyOfTask( tempStorage.get(i));
-			deletedTask.add(taskToDelete);
-		}
-		tempStorage.clear();
-		Storage.writeToFile(new ArrayList<Task>(), file); 
-		undo.push(Constants.COM_CLEAR_ALL);
-		undoTask.push(deletedTask);
-		return MSG_CLEAR_FILE_SUCCESS;
+			ArrayList<Task> deletedTask = new ArrayList<Task>();
+			for(int i =0; i<tempStorage.size(); i++){
+				Task taskToDelete = new Task();	
+				taskToDelete.copyOfTask( tempStorage.get(i));
+				deletedTask.add(taskToDelete);
+			}
+			tempStorage.clear();
+			Storage.writeToFile(new ArrayList<Task>(), file); 
+			undo.push(Constants.COM_CLEAR_ALL);
+			undoTask.push(deletedTask);
+			return MSG_CLEAR_FILE_SUCCESS;
 		}
 		else{
 			return MSG_CLEAR_FILE_FAIL;
@@ -378,13 +377,13 @@ public class Logic {
 					try {
 						if (tempStorage.get(j).getDate().equals(DATE_FT)
 								&& !tempStorage.get(j + 1).getDate()
-										.equals(DATE_FT)) {
+								.equals(DATE_FT)) {
 							tempStorage.add(j + 2, tempStorage.get(j));
 							tempStorage.remove(j);
 
 						} else if (!tempStorage.get(j).getDate().equals(DATE_FT)
 								&& tempStorage.get(j + 1).getDate()
-										.equals(DATE_FT)) {
+								.equals(DATE_FT)) {
 							continue;
 						} else {
 							Date dateOfFirstTask = new Date();
@@ -445,7 +444,7 @@ public class Logic {
 				boolean isSorted = true;
 				for (int j = 0; j < tempStorage.size() - 1; j++) {
 					if (tempStorage.get(j).getName().compareToIgnoreCase(
-									tempStorage.get(j + 1).getName()) > 0) {
+							tempStorage.get(j + 1).getName()) > 0) {
 						tempStorage.add(j + 2, tempStorage.get(j));
 						tempStorage.remove(j);
 						isSorted = false;
@@ -523,7 +522,7 @@ public class Logic {
 			return MSG_EDIT_FAIL;
 		}
 	}
-	
+
 	private static String editTask(Task detailsOfTask, File file, int taskNumber) {
 		if (detailsOfTask.getName() != null) {
 			tempStorage.get(taskNumber).setName(detailsOfTask.getName());
@@ -599,7 +598,7 @@ public class Logic {
 			return MSG_UNDO_SUCCESS;
 		}
 	}
-	
+
 	public static String redo(File file, File archive) {
 		if (redo.empty()) {
 			return MSG_NO_PREVIOUS_ACTION;
@@ -642,4 +641,67 @@ public class Logic {
 			return MSG_REDO_SUCCESS;
 		}
 	}
+
+	//Returns first index of non-overdue. Use in deleting past tasks before that index.
+	public static int getFirstIndexNotOverdue() {
+		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+		Date currentDate = new Date();
+		currentDate = removeTime(currentDate);
+		for (int i = 0; i < tempStorage.size(); i++) {
+			if (tempStorage.get(i).getDate().contains(DATE_FT)) {
+				return i;
+			} else {
+				try {
+					Date dateOfCurrentTask = dateFormat.parse(tempStorage.get(i).getDate());
+					dateOfCurrentTask = removeTime(dateOfCurrentTask);
+					if (dateOfCurrentTask.compareTo(currentDate) >= 0) {
+						return i;
+					}
+				} catch (ParseException e) {
+				}
+			}
+		}
+		return tempStorage.size()-1;
+	}
+
+	private static String getTodayDate() {
+		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
+		Date date = new Date();
+		String reportDate = dateFormat.format(date);
+		return reportDate;
+	}
+
+	/*//Precond: temp storage is sorted by time already.
+	public static String deletePast(File file){
+		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+		Date currentDate = new Date();
+		for (int i = 0; i < tempStorage.size(); i++) {
+			if (tempStorage.get(i).getDate().contains(DATE_FT)) {
+				break;
+			} else {
+				Date dateOfCurrentTask;
+				try {
+					dateOfCurrentTask = dateFormat.parse(tempStorage.get(i).getDate());
+					if (dateOfCurrentTask.compareTo(currentDate) <= 0) {
+						tempStorage.remove(i);
+						Storage.writeToFile(tempStorage, file);
+					} else {
+						break;
+					}
+				} catch (ParseException e) {
+				}
+			}
+		}
+		return "All past tasks have been deleted.";
+	}*/
+	
+	public static Date removeTime(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        return cal.getTime();
+    }
 }
