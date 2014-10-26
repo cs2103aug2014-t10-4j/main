@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 
 public class Controller {
 
+	private static final String MSG_NO_TASK_FOR_DATE = "There is no task found for %s.";
 	private static final String DATE_FT = "ft";
 	private static final String ERROR_NULL_COMMAND = "command type string cannot be null!";
 	private static final String ACTION_VIEW_ARCHIVE = "view archive";
@@ -27,6 +28,8 @@ public class Controller {
 	private static final String ACTION_HELP = "help";
 	private static final String ACTION_EXIT = "exit";
 	private static final String ACTION_EDIT = "edit";
+	private static final String ACTION_DELETE_DATE = "delete date";
+	private static final String ACTION_DELETE_PAST= "delete past";
 	private static final String ACTION_DELETE_TODAY = "delete today";
 	private static final String ACTION_DELETE_ALL = "delete all";
 	private static final String ACTION_DELETE = "delete";
@@ -59,7 +62,7 @@ public class Controller {
 	private static final String TITLE_TODAY_TASKS = "Today Tasks:";
 
 	enum CommandType {
-		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_PAST, DELETE_TEXT, 
+		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, DELETE_TEXT, 
 		DELETE_TODAY, EDIT, EXIT, HELP, HIDE_DETAILS, INVALID, SEARCH, SHOW_ALL, SHOW_FLOATING, 
 		SHOW_TODAY, SHOW_DETAILS, SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, 
 		REDO, UNDO, VIEW_ARCHIVE;
@@ -103,6 +106,12 @@ public class Controller {
 			results.setFeedback(Logic.clearContent(file));
 			results.setListOfTasks(Logic.getTempStorage());
 			results.setTitleOfPanel(TITLE_ALL_TASKS);
+			return results;
+		case DELETE_DATE:
+			Task taskWithThisDate = new Task();
+			taskWithThisDate.setDate(taskToExecute.getDate());
+			return deleteDate(file, archive, results, taskWithThisDate);
+		case DELETE_PAST:
 			return results;
 		case DELETE_TODAY:
 			Task todayOnly = new Task();
@@ -257,6 +266,11 @@ public class Controller {
 	private static ResultOfCommand deleteDate(File file, File archive,
 			ResultOfCommand results, Task withParticularDate) {
 		ArrayList<Task> allThoseTasks= Logic.search(withParticularDate);
+		if (allThoseTasks.isEmpty()){
+			results.setFeedback(String.format(MSG_NO_TASK_FOR_DATE, withParticularDate.getDate()));
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		}
 		int [] splitIndexA = new int [allThoseTasks.size()];
 		for (int j = 0 ; j < allThoseTasks.size(); j++){
 			splitIndexA[j] = j+1;
@@ -357,6 +371,10 @@ public class Controller {
 			return CommandType.DELETE_TEXT;
 		} else if (commandTypeString.equalsIgnoreCase(ACTION_DELETE_ALL)) {
 			return CommandType.DELETE_ALL;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_DELETE_DATE)) {
+			return CommandType.DELETE_DATE;
+		} else if (commandTypeString.equalsIgnoreCase(ACTION_DELETE_PAST)) {
+			return CommandType.DELETE_PAST;
 		} else if (commandTypeString.equalsIgnoreCase(ACTION_DELETE_TODAY)) {
 			return CommandType.DELETE_TODAY;
 		} else if (commandTypeString.equalsIgnoreCase(ACTION_EDIT)) {

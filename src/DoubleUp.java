@@ -75,7 +75,8 @@ public class DoubleUp extends JFrame {
 				createPopupMenu());
 		icon.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "Hey, you pressed me!");
+				frame.setState(Frame.NORMAL);
+				textFieldCmdIn.requestFocus();
 			}
 		});
 		try {
@@ -83,20 +84,17 @@ public class DoubleUp extends JFrame {
 		} catch (AWTException e1) {
 			e1.printStackTrace();
 		}
-
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
 				createAndShowGUI();
 			}
 		});
-
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
-
 		icon.displayMessage("Welcome to DoubleUp!", String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
 				TrayIcon.MessageType.INFO);
 	}
@@ -106,13 +104,11 @@ public class DoubleUp extends JFrame {
 		Image img = new BufferedImage(defaultIcon.getIconWidth(), 
 				defaultIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
 		defaultIcon.paintIcon(new Panel(), img.getGraphics(), 0, 0);
-
 		return img;
 	}
 
 	private static PopupMenu createPopupMenu() throws HeadlessException {
 		PopupMenu menu = new PopupMenu();
-
 		MenuItem exit = new MenuItem("Exit");
 		exit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -120,7 +116,6 @@ public class DoubleUp extends JFrame {
 			}
 		});
 		menu.add(exit);
-
 		return menu;
 	}
 
@@ -191,6 +186,7 @@ public class DoubleUp extends JFrame {
 				return s.hasNext() ? s.next() : "";
 			}
 		};
+		
 		Action showAll = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				showAll();
@@ -261,7 +257,7 @@ public class DoubleUp extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				String userSentence = textFieldCmdIn.getText().trim();
 				ResultOfCommand results = new ResultOfCommand();
-				if (userSentence.equalsIgnoreCase("show help")){
+				if (userSentence.equalsIgnoreCase("help") || userSentence.equalsIgnoreCase(".h")){
 					showHelp(results);
 				} else { 
 					results = Controller.executeCommand(userSentence, file, archive);	
