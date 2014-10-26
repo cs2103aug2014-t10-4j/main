@@ -9,14 +9,16 @@ public class LogicTest {
 	private static final String MSG_CLEARED_FILE = "List is cleared";
 	private static final String MSG_SORT_SUCCESS = "Successfully sorted by alphabetical order.";
 	private static final String MSG_SORT_SUCCESS_1 = "Successfully sorted by importance level.";
+	private static final String MSG_SORT_SUCCESS_2 = "Successfully sorted by date and time.";
+	
 	
 	String[] splitTask = {null,"testing", null, null, null, null, null , null};
 	Task task = new Task(splitTask);
-	String[] splitTask1 = {null,"testing task","22/10/2014","0000", "some many works need to do", "1", 
+	String[] splitTask1 = {null,"testing task","22/12/2014","0000", "some many works need to do", "1", 
 			null , null};
 	Task task1 = new Task(splitTask1);
 	
-	String[] splitTask2 = {null,"apple",null, null, null,"2", null, null};
+	String[] splitTask2 = {null,"apple",null, "1/12/2014","1212","2", null, null};
 	Task task2 = new Task(splitTask2);
 
 	String[] splitTask3 = {null,"banana", null, null, null,"3", null, null};
@@ -85,6 +87,11 @@ public class LogicTest {
 	public void Test_sortByImportance(){
 		String expected = String.format(MSG_SORT_SUCCESS_1);
 		assertEquals(expected, Logic.sortByImportance(List1));	
+	}
+	@Test
+	public void Test_sortByDateAndTime(){
+		String expected = String.format(MSG_SORT_SUCCESS_2);
+		assertEquals(expected, Logic.sortByDateAndTime(List1));	
 	}
 
 }
