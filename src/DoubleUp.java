@@ -409,9 +409,28 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	private void controlSpace() {
 		if (isFocused()){
 			setState(Frame.ICONIFIED);
-		} else {
+		} /*else if (!isActive()){
 			setState(Frame.NORMAL);
+			toFront();
+		}*/
+		else { 
+			setState(Frame.NORMAL);
+			setVisible(true);
+			toFront();
+			textFieldCmdIn.requestFocus();
+			repaint();
 		}
+		repaint();
+	}
+	 @Override 
+	public void toFront() {
+		int sta=super.getExtendedState()&~JFrame.ICONIFIED&JFrame.NORMAL;
+
+		super.setExtendedState(sta);
+		super.setAlwaysOnTop(true);
+		super.toFront();
+		super.requestFocus();
+		super.setAlwaysOnTop(false);
 	}
 
 }
