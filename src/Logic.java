@@ -9,8 +9,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Stack;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 
 public class Logic {
 	private static final String DATE_FORMAT = "dd/MM/yyyy";
@@ -638,10 +636,11 @@ public class Logic {
 			
 			if(lastCommand.equals(COMMAND_DELETE)|| lastCommand.equals(COMMAND_DELETE_ALL)){
 				ArrayList<Task> taskToBeAdded = undoTask.pop();
-				Task taskToAdd = new Task();
+				
 				
 				for(int i=0;i<taskToBeAdded.size();i++){
 					
+					Task taskToAdd = new Task();
 					taskToAdd.copyOfTask(taskToBeAdded.get(i));
 					
 					add(COMMAND_UNDO,taskToAdd,file);
@@ -678,7 +677,7 @@ public class Logic {
 	
 	public static String redo(File file, File archive) {
 		if (redo.empty()) {
-			return MSG_NO_PREVIOUS_ACTION;
+			return MSG_NO_FUTURE_ACTION;
 		} else {
 			String lastCommand = redo.pop();
 			
