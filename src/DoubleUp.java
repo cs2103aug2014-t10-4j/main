@@ -35,6 +35,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -50,6 +51,7 @@ import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
 public class DoubleUp extends JFrame implements NativeKeyListener , WindowListener{
+	private static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running.";
 	private static final String ACTION_SHOW_ALL = "show all";
 	private static final String TITLE_MAIN_WINDOW = "DoubleUp To-do-List";
 	/**
@@ -95,23 +97,28 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			archive = Storage.openFile(FILE_ARCHIVE);
 			ArrayList<Integer> overview = Logic.init(file, archive);
 			new DoubleUp();
-			if (SystemTray.isSupported()) {
-				TrayIcon icon = new TrayIcon(getImage(), "DoubleUp", createPopupMenu());
+			initSystemTray(overview);
+		} else {
+			JOptionPane.showMessageDialog(frame, MSG_PREVIOUS_INSTANCE);
+		}
+	}
 
-				try {
-					SystemTray.getSystemTray().add(icon);
-				} catch (AWTException e1) {
-					e1.printStackTrace();
-				}
-
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-				icon.displayMessage(MSG_WELCOME, String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
-						TrayIcon.MessageType.INFO);
+	private static void initSystemTray(ArrayList<Integer> overview) {
+		if (SystemTray.isSupported()) {
+			TrayIcon icon = new TrayIcon(getImage(), "DoubleUp", createPopupMenu());
+			try {
+				SystemTray.getSystemTray().add(icon);
+			} catch (AWTException e1) {
+				e1.printStackTrace();
 			}
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			icon.displayMessage(MSG_WELCOME, String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
+					TrayIcon.MessageType.INFO);
 		}
 	}
 
@@ -414,11 +421,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	private void controlSpace() {
 		if (isFocused()){
 			setState(Frame.ICONIFIED);
-		} /*else if (!isActive()){
-			setState(Frame.NORMAL);
-			toFront();
-		}*/
-		else { 
+		} else { 
 			setState(Frame.NORMAL);
 			setVisible(true);
 			toFront();
@@ -431,7 +434,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	//It will only flash the icon.
 	@Override 
 	public void toFront() {
-		int sta=super.getExtendedState()&~JFrame.ICONIFIED&JFrame.NORMAL;
+		int sta = super.getExtendedState() &~ JFrame.ICONIFIED & JFrame.NORMAL;
 		super.setExtendedState(sta);
 		super.setAlwaysOnTop(true);
 		super.toFront();
