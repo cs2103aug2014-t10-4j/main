@@ -663,39 +663,9 @@ public class Logic {
 		}
 		return tempStorage.size()-1;
 	}
-
-	private static String getTodayDate() {
-		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
-		Date date = new Date();
-		String reportDate = dateFormat.format(date);
-		return reportDate;
-	}
-
-	/*//Precond: temp storage is sorted by time already.
-	public static String deletePast(File file){
-		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-		Date currentDate = new Date();
-		for (int i = 0; i < tempStorage.size(); i++) {
-			if (tempStorage.get(i).getDate().contains(DATE_FT)) {
-				break;
-			} else {
-				Date dateOfCurrentTask;
-				try {
-					dateOfCurrentTask = dateFormat.parse(tempStorage.get(i).getDate());
-					if (dateOfCurrentTask.compareTo(currentDate) <= 0) {
-						tempStorage.remove(i);
-						Storage.writeToFile(tempStorage, file);
-					} else {
-						break;
-					}
-				} catch (ParseException e) {
-				}
-			}
-		}
-		return "All past tasks have been deleted.";
-	}*/
 	
-	public static Date removeTime(Date date) {
+	//For use in delete past. Need to remove time of all dates for comparison.
+	private static Date removeTime(Date date) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         cal.set(Calendar.HOUR_OF_DAY, 0);
