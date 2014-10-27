@@ -68,18 +68,17 @@ public class Storage {
 			}
 		} catch (FileNotFoundException e) {
 			logger.log(Level.WARNING, "no storage.txt");
-			openFile("DoubleUp.txt");
-			openFile("Archive.txt");
+			openFile(file.getName());
 			return false;
 
 		}
-		logger.log(Level.INFO, "end of writing to tempStorage / archive");
+		logger.log(Level.INFO, "end of writing to temporary storage");
 		return true;
 	}
 
 	// This function serves to write all the task in the tempStorage into the text file.
 	public static boolean writeToFile(ArrayList<Task> tempStorage, File file) {
-		logger.log(Level.INFO, "going to start writing to Storage.txt / archive.txt");
+		logger.log(Level.INFO, "going to start writing to writing to " + file.getName());
 		BufferedWriter fileWritten;
 		String toWriteInFile;
 		try {
@@ -101,7 +100,7 @@ public class Storage {
 			
 			return false;
 		}
-		logger.log(Level.INFO, "end of writing to Storage.txt / archive.txt");
+		logger.log(Level.INFO, "end of writing to " + file.getName());
 		return true;
 
 	}
@@ -131,3 +130,4 @@ public class Storage {
 		return file;
 	}
 }
+
