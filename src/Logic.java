@@ -937,25 +937,25 @@ public class Logic {
 	}
 	
 	//Returns first index of non-overdue. Use in deleting past tasks before that index.
-		public static int getFirstIndexNotOverdue() {
+		public static int getFirstNotOverdueInList() {
 			SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
 			Date currentDate = new Date();
 			currentDate = removeTime(currentDate);
 			for (int i = 0; i < tempStorage.size(); i++) {
 				if (tempStorage.get(i).getDate().contains(DATE_FT)) {
-					return i;
+					return i+1;
 				} else {
 					try {
 						Date dateOfCurrentTask = dateFormat.parse(tempStorage.get(i).getDate());
 						dateOfCurrentTask = removeTime(dateOfCurrentTask);
 						if (dateOfCurrentTask.compareTo(currentDate) >= 0) {
-							return i;
+							return i+1;
 						}
 					} catch (ParseException e) {
 					}
 				}
 			}
-			return tempStorage.size()-1;
+			return tempStorage.size()+1;
 		}
 		
 		//For use in delete past. Need to remove time of all dates for comparison.

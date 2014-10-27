@@ -10,6 +10,8 @@ import javax.swing.UIManager;
 
 public class Controller {
 
+	private static final String MSG_DELETE_PAST_FAIL = "There are no past tasks to be deleted.";
+	private static final String MSG_DELETE_PAST_SUCCESS = "All past tasks have been deleted.";
 	private static final String MSG_NO_TASK_FOR_DATE = "There is no task found for %s.";
 	private static final String DATE_FT = "ft";
 	private static final String ERROR_NULL_COMMAND = "command type string cannot be null!";
@@ -118,18 +120,24 @@ public class Controller {
 			//Force sort by time first
 			Task.setSortedByTime(true);
 			Logic.sortByDateAndTime(Logic.getTempStorage());
-			int indexToDeleteBefore = Logic.getFirstIndexNotOverdue();
+			int indexToDeleteBefore = Logic.getFirstNotOverdueInList();
 			try {
-				int [] indexUpToToday = new int [indexToDeleteBefore]; 
-				for (int j = 0; j < indexUpToToday.length; j++){
-					indexUpToToday[j]= j+1;
+				if (indexToDeleteBefore > 1){
+					int [] indexesToDelete = new int [indexToDeleteBefore-1]; 
+					for (int j = 0; j < indexesToDelete.length; j++){
+						indexesToDelete[j]= j+1;
+					}
+					deleteMultiple(file, archive, results, feedback, indexesToDelete);
+					results.setFeedback(MSG_DELETE_PAST_SUCCESS);
+					results.setListOfTasks(Logic.getTempStorage());
+					return results;
+				} else {
+					results.setFeedback(MSG_DELETE_PAST_FAIL);
+					results.setListOfTasks(Logic.getTempStorage());
+					return results;
 				}
-				deleteMultiple(file, archive, results, feedback, indexUpToToday);
-				results.setFeedback("All past tasks have been deleted.");
-				results.setListOfTasks(Logic.getTempStorage());
-				return results;
 			} catch (NegativeArraySizeException e) {
-				results.setFeedback("There are no past tasks to be deleted.");
+				results.setFeedback(MSG_DELETE_PAST_FAIL);
 				results.setListOfTasks(Logic.getTempStorage());
 				return results;
 			}
