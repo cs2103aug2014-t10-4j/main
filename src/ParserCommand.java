@@ -4,22 +4,22 @@ public abstract class ParserCommand {
 	private final String ERROR = "error";
 
 	public abstract void parse(String[] parsedInput, String[] input, Index index);
-
+/*
 	protected static void processNatDetails(String[] parsedInput,
 			String[] input, Index index, DetailsProcessor processor) {
 		processor.processNatural(parsedInput, input, index);
 	}
-
+*/
 	protected void processType(String[] parsedInput, String[] input,
 			Index index, Processor processor, NaturalProcessor natProcessor) {
 		natProcessor.process(parsedInput, input, index, processor);
 	}
-
+/*
 	protected void processDirect(String[] parsedInput, String[] input,
 			Index index, Processor processor) {
 		processor.process(parsedInput, input, index);
 	}
-
+*/
 	protected void processEmpty(String[] parsedInput) {
 		if (isAllNull(parsedInput)) {
 			assignErrorMsg(parsedInput, "No type found.");
@@ -40,13 +40,14 @@ public abstract class ParserCommand {
 		}
 		return true;
 	}
-
 }
 
 class ParserAdd extends ParserCommand {
 	@Override
 	public void parse(String[] parsedInput, String[] input, Index index) {
-		processNatDetails(parsedInput, input, index, new DetailsProcessor());
+		//processNatDetails(parsedInput, input, index, new DetailsProcessor());
+		processType(parsedInput, input, index, new DetailsProcessor(),
+				new NaturalProcessor());
 		processType(parsedInput, input, index, new AutoDateProcessor(),
 				new NaturalProcessor());
 		processType(parsedInput, input, index, new FutureTimeProcessor(),
@@ -62,7 +63,24 @@ class ParserDelete extends ParserCommand {
 
 	@Override
 	public void parse(String[] parsedInput, String[] input, Index index) {
-		processDirect(parsedInput, input, index, new MultiParaProcessor());
+		//processDirect(parsedInput, input, index, new MultiParaProcessor());
+		processType(parsedInput, input, index, new MultiParaProcessor(),
+				new StrictNaturalProcessor());
+	processType(parsedInput, input, index, new TaskProcessor(),
+				new AntiNaturalProcessor());
+
+	}
+
+}
+class ParserDeleteDate extends ParserCommand {
+
+	@Override
+	public void parse(String[] parsedInput, String[] input, Index index) {
+		
+		processType(parsedInput, input, index, new DateProcessor(),
+				new StrictNaturalProcessor());
+	processType(parsedInput, input, index, new TaskProcessor(),
+				new AntiNaturalProcessor());
 
 	}
 
@@ -73,9 +91,9 @@ class ParserSearch extends ParserCommand {
 	@Override
 	public void parse(String[] parsedInput, String[] input, Index index) {
 		/*processNatDetails(parsedInput, input, index, new DetailsProcessor());*/
-		processType(parsedInput, input, index, new FutureDateProcessor(),
+		processType(parsedInput, input, index, new DateProcessor(),
 				new NaturalProcessor());
-		processType(parsedInput, input, index, new FutureTimeProcessor(),
+		processType(parsedInput, input, index, new TimeProcessor(),
 				new NaturalProcessor());
 		/*processType(parsedInput, input, index, new ImportanceProcessor(),
 				new NaturalProcessor());*/
@@ -90,7 +108,9 @@ class ParserEdit extends ParserCommand {
 
 	@Override
 	public void parse(String[] parsedInput, String[] input, Index index) {
-		processNatDetails(parsedInput, input, index, new DetailsProcessor());
+		//processNatDetails(parsedInput, input, index, new DetailsProcessor());
+		processType(parsedInput, input, index, new DetailsProcessor(),
+				new NaturalProcessor());
 		processType(parsedInput, input, index, new FutureDateProcessor(),
 				new NaturalProcessor());
 		processType(parsedInput, input, index, new FutureTimeProcessor(),

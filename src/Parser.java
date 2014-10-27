@@ -1,11 +1,13 @@
 public class Parser {
+	
+	private static final String SEARCH_TODAY = "search today";
+	private static final String COM_SHOW_TODAY = "show today";
 	// Commands
 	private static final String COM_ADD = "add";
 	private static final String COM_SEARCH = "search";
 	private static final String COM_EDIT = "edit";
 	private static final String COM_DELETE = "delete";
-	private static final String COM_DELETE_ALL = "delete all";
-	private static final String COM_RESTORE = "restore";
+	private static final String COM_DELETE_DATE = "delete date";
 
 
 	// Position of various inputs
@@ -17,9 +19,12 @@ public class Parser {
 		inputFromUser = inputFromUser.replaceAll("\\s+", " ");
 		String[] input = inputFromUser.trim().split(" ");
 		Index index = new Index();
-
+		processType(parsedInput, input, index, new CommandProcessor(),
+				new NaturalProcessor());
+		/*
 		CommandProcessor cmdPro = new CommandProcessor();
 		cmdPro.process(parsedInput, input, index);
+		*/
 		if (parsedInput[COMMAND_POSITION] == null) {
 			parseCommand(parsedInput, input, index, new ParserAdd());
 		} else if (parsedInput[COMMAND_POSITION].equals(COM_ADD)) {
@@ -30,19 +35,25 @@ public class Parser {
 			parseCommand(parsedInput, input, index, new ParserDelete());
 		} else if (parsedInput[COMMAND_POSITION].equals(COM_EDIT)) {
 			parseCommand(parsedInput, input, index, new ParserEdit());
-		}else if (parsedInput[COMMAND_POSITION].equals(COM_RESTORE)) {
-			parseCommand(parsedInput, input, index, new ParserDelete());
+		}else if(parsedInput[COMMAND_POSITION].equals(COM_DELETE_DATE)){
+			parseCommand(parsedInput, input, index, new ParserDeleteDate());
+		}else if(parsedInput[COMMAND_POSITION].equals(COM_SHOW_TODAY)){
+			parsedInput=Parser.parseInput(SEARCH_TODAY);
 		}
 		return parsedInput;
-	}
+	} 
 
 	private static void parseCommand(String[] parsedInput, String[] input,
 			Index index, ParserCommand command) {
-		index.increment();
 		command.parse(parsedInput, input, index);
+	}
+	private static void processType(String[] parsedInput, String[] input,
+			Index index, Processor processor, NaturalProcessor natProcessor) {
+		natProcessor.process(parsedInput, input, index, processor);
 	}
 
 }
+
 
 class Index {
 	private int value;

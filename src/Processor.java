@@ -1,4 +1,6 @@
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,24 +68,64 @@ public abstract class Processor {
 			"hha");
 	protected final SimpleDateFormat fullDateFormat = new SimpleDateFormat(
 			"dd/MM/yyyyHH:mm");
+	protected final String[] LIST_DETAILS = { ".details", ".dtl" };
 
 	public abstract void process(String[] parsedInput, String[] input,
 			Index index);
 
-	protected boolean isRegexMatch(Integer index, String[] input,
-			String regexPattern) {
+	protected boolean isRegexMatch(String input, String regexPattern) {
 		Pattern pattern = Pattern.compile(regexPattern);
 		try {
-			Matcher matchPattern = pattern.matcher(input[index]);
+			Matcher matchPattern = pattern.matcher(input);
 			matchPattern.find();
 			if (matchPattern.group().length() != 0) {
 				return true;
 			}
-		} catch (Exception e) {
+		} catch (IllegalStateException | NullPointerException e) {
 			return false;
 		}
 		return false;
 	}
+
+	protected void assignNull(String[] parsedInput) {
+		if (parsedInput[getItemPosition()].equals("")) {
+			parsedInput[getItemPosition()] = null;
+		}
+	}
+	// check if a String is part of the list
+		protected boolean isPartOfList(String[] input,Index index, String[] list) {
+			for (int i = 0; i < list.length; i++) {
+				if (input == null) {
+					return false;
+				}
+				if(isMatchString(input,index,list[i])){
+					return true;
+				}
+			}
+			return false;
+
+		}
+	protected boolean isMatchString(String[] input, Index index, String command) {
+		String[] possibleCommand = command.split(" ");
+		int startIndex = index.getValue();
+		for (int i = 0; i < possibleCommand.length; i++) {
+			if (!isIndexValid(index.getValue(), input)) {
+				index.setValue(startIndex);
+				return false;
+			}
+			if (!possibleCommand[i].equalsIgnoreCase(input[index.getValue()])) {
+				index.setValue(startIndex);
+				return false;
+			}
+			if (i == possibleCommand.length - 1) {
+				break;
+			}
+			index.increment();
+		}
+		// index.setValue(startIndex);
+		return true;
+	}
+	
 
 	protected boolean isIndexValid(int index, String[] input) {
 		if (index >= input.length || index < 0) {
@@ -129,34 +171,131 @@ public abstract class Processor {
 
 	public abstract String getItemName();
 
-	public abstract void processSpecial(String[] parsedInput, String[] input,
-			Index index);
+	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		putAllFullStop(input, fullStopArr);
+	}
+
+	protected static void putAllFullStop(String[] input,
+			ArrayList<Integer> fullStopArr) {
+		int origin;
+		for (int i = fullStopArr.size() - 1; i >= 0; i--) {
+			int position = fullStopArr.get(i);
+			origin = position;
+			if (input[position] == null) {
+				position = getPossibleLastWord(input, position);
+				if (position < 0) {
+					break;
+				}
+				i = removeCollision(fullStopArr, i, position);
+				putFullStop(input, position, origin);
+			} else {
+				putFullStop(input, position, origin);
+			}
+		}
+	}
+
+	private static int getPossibleLastWord(String[] input, int position) {
+		while (position >= 0 && input[position] == null) {
+			position--;
+		}
+		return position;
+	}
+
+	private static int removeCollision(ArrayList<Integer> fullStopArr, int i,
+			int position) {
+		for (int j = i - 1; j >= 0; j--) {
+			if (fullStopArr.get(j) >= position) {
+				fullStopArr.remove(j);
+				i--;
+			}
+		}
+		return i;
+	}
+
+	private static void putFullStop(String[] input, int position, int origin) {
+		if (origin == position) {
+			input[position] = input[position] + ".";
+		} else if (!isLastWord(input, position)) {
+			input[position] = input[position] + ".";
+		}
+
+	}
+
+	protected static void removeAllFullStop(String[] input,
+			ArrayList<Integer> fullStopArr) {
+		for (int i = 0; i < input.length; i++) {
+			if (isLastWord(input, i)) {
+				removeFullStop(input, i);
+				fullStopArr.add(i);
+			}
+		}
+	}
+
+	private static boolean isLastWord(String[] input, int index) {
+		/*
+		 * if((input[index].length()>=2)&&!input[index].substring(input[index ].
+		 * length() - 1, input[index].length()).equals("\\.")){
+		 */
+		if (input[index] == null) {
+			return false;
+		} else if (input[index].length() == 0) {
+			return false;
+		} else if (input[index].charAt(input[index].length() - 1) == '.') {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private static void removeFullStop(String[] input, int index) {
+		input[index] = input[index].substring(0, input[index].length() - 1);
+		if (input[index].length() == 0) {
+			input[index] = null;
+		}
+	}
+
+	public void processBefore(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		removeAllFullStop(input, fullStopArr);
+	}
 
 }
 
-class TaskProcessor extends Processor {
+class TaskProcessor extends DetailsProcessor {
 	public int getItemPosition() {
 		return TASK_NAME_POSITION;
 	}
 
-	public void process(String[] parsedInput, String[] input, Index index) {
-		// process taskname
-		String taskName = new String("");
-		while (isIndexValid(index.getValue(), input)
-		/* && !isPartOfList(input[index.getValue()], LIST_DETAILS) */) {
-			if (input[index.getValue()] != null) {
-				if (input[index.getValue()].length() > 0
-						&& input[index.getValue()].charAt(0) == '/') {
-					input[index.getValue()] = input[index.getValue()]
-							.substring(1, input[index.getValue()].length());
-				}
-				taskName = taskName + input[index.getValue()] + " ";
-			}
-			index.increment();
-		}
-		taskName = taskName.trim();
-		checkAndAssignTask(parsedInput, taskName);
+	@Override
+	public void processBefore(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		parsedInput[getItemPosition()] = "";
+		// index.reset();
 	}
+
+	@Override
+	protected void removeSlashes(String[] input, Index index) {
+		if (input[index.getValue()].length() > 0
+				&& input[index.getValue()].charAt(0) == '/') {
+			input[index.getValue()] = input[index.getValue()].substring(1,
+					input[index.getValue()].length());
+		}
+	}
+
+	// checkAndAssignTask(parsedInput, taskName);
+
+	/*
+	 * public void process(String[] parsedInput, String[] input, Index index) {
+	 * // process taskname String taskName = new String(""); while
+	 * (isIndexValid(index.getValue(), input)) { if (input[index.getValue()] !=
+	 * null) { if (input[index.getValue()].length() > 0 &&
+	 * input[index.getValue()].charAt(0) == '/') { input[index.getValue()] =
+	 * input[index.getValue()] .substring(1, input[index.getValue()].length());
+	 * } taskName = taskName + input[index.getValue()] + " "; }
+	 * index.increment(); } taskName = taskName.trim();
+	 * checkAndAssignTask(parsedInput, taskName); }
+	 */
 
 	protected void checkAndAssignTask(String[] parsedInput, String taskName) {
 		if (!isEmpty(taskName)) {
@@ -170,24 +309,29 @@ class TaskProcessor extends Processor {
 		return TASK_NAME;
 	}
 
-	@Override
-	public void processSpecial(String[] parsedInput, String[] input, Index index) {
-	};
-
 }
 
 class SingleParaProcessor extends Processor {
 	public void process(String[] parsedInput, String[] input, Index index) {
-		if (isIndexValid(index.getValue(), input)) {
-			try {
-				int parameter = Integer.parseInt(input[index.getValue()]);
-				parsedInput[PARAMETER_POSITION] = Integer.toString(parameter);
-				index.increment();
-			} catch (Exception e) {
-				// not needed for now
-				// assignErrorMsg(parsedInput, INVALID_PARAMETER);
-			}
+		if (isIndexValid(index.getValue(), input)
+				&& isInteger(input[index.getValue()])) {
+			assignPara(parsedInput, index, input);
 		}
+	}
+
+	protected void assignPara(String[] parsedInput, Index index, String[] input) {
+		parsedInput[getItemPosition()] = Integer.toString(Integer
+				.parseInt(input[index.getValue()]));
+		index.increment();
+	}
+
+	private boolean isInteger(String possiblePara) {
+		try {
+			Integer.parseInt(possiblePara);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
@@ -200,44 +344,53 @@ class SingleParaProcessor extends Processor {
 		return PARAMETERS_NAME;
 	}
 
-	@Override
-	public void processSpecial(String[] parsedInput, String[] input, Index index) {
-	};
-
 }
 
 class MultiParaProcessor extends SingleParaProcessor {
-	public void process(String[] parsedInput, String[] input, Index index) {
-		index.reset();
+	@Override
+	public void processBefore(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		removeAllFullStop(input, fullStopArr);
+		parsedInput[getItemPosition()] = "";
+		// index.reset();
+	}
 
-		String possibleParameter = checkAndAdd(input, index);
-		if (possibleParameter.equalsIgnoreCase(INVALID_PARAMETER)) {
-			assignErrorMsg(parsedInput, INVALID_PARAMETER);
-		} else {
-			parsedInput[PARAMETER_POSITION] = possibleParameter.trim();
+	@Override
+	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		assignNull(parsedInput);
+		if (parsedInput[getItemPosition()] != null) {
+			parsedInput[getItemPosition()] = parsedInput[getItemPosition()]
+					.trim();
+			assignNull(parsedInput);
 		}
 	}
 
-	protected String checkAndAdd(String[] input, Index index) {
-		String possibleParmeter = new String("");
-		while (isIndexValid(index.getValue(), input)) {
-			if (input[index.getValue()] != null) {
-				try {
-					Integer.parseInt(input[index.getValue()]);
-					possibleParmeter = possibleParmeter + " "
-							+ input[index.getValue()];
-				} catch (Exception e) {
-					return INVALID_PARAMETER;
-				}
-			}
-			index.increment();
-		}
-		// sortItems(parsedInput, input, index);
-		return possibleParmeter;
+	protected void assignPara(String[] parsedInput, Index index, String[] input) {
+		parsedInput[getItemPosition()] = parsedInput[getItemPosition()] + " "
+				+ Integer.toString(Integer.parseInt(input[index.getValue()]));
+		input[index.getValue()] = null;
 	}
 
 	/*
-	 * protected void sortItems(String[] parsedInput, String[] input, Index
+	 * public void process(String[] parsedInput, String[] input, Index index) {
+	 * index.reset(); ArrayList<Integer> fullStopArr = new ArrayList<Integer>();
+	 * processBefore(input, fullStopArr, parsedInput, index); String
+	 * possibleParameter = checkAndAdd(input, index); if
+	 * (possibleParameter.equalsIgnoreCase(INVALID_PARAMETER)) {
+	 * assignErrorMsg(parsedInput, INVALID_PARAMETER); } else {
+	 * parsedInput[PARAMETER_POSITION] = possibleParameter.trim(); }
+	 * processAfter(input, fullStopArr, parsedInput, index); }
+	 * 
+	 * protected String checkAndAdd(String[] input, Index index) { String
+	 * possibleParmeter = new String(""); while (isIndexValid(index.getValue(),
+	 * input)) { if (input[index.getValue()] != null) { try {
+	 * Integer.parseInt(input[index.getValue()]); possibleParmeter =
+	 * possibleParmeter + " " + input[index.getValue()]; } catch (Exception e) {
+	 * return INVALID_PARAMETER; } } index.increment(); } //
+	 * sortItems(parsedInput, input, index); return possibleParmeter; }
+	 * 
+	 * /* protected void sortItems(String[] parsedInput, String[] input, Index
 	 * index) { for (int j = index.getValue(); j < input.length; j++) { for (int
 	 * i = index.getValue(); i < input.length - 1; i++) {
 	 * checkAndSwapItems(parsedInput, input, i); } } }
@@ -259,56 +412,96 @@ class MultiParaProcessor extends SingleParaProcessor {
 	 */
 }
 
-class DetailsProcessor extends TaskProcessor {
+class DetailsProcessor extends Processor {
+	private static final String NAME_DETAILS = null;
+
+	@Override
 	public int getItemPosition() {
 		return DETAILS_POSITION;
 	}
 
-	public void processNatural(String[] parsedInput, String[] input, Index index) {
-		String info = new String("");
-		while (isIndexValid(index.getValue(), input)) {
-			info = info + " " + input[index.getValue()];
-			input[index.getValue()] = null;
-			index.increment();
-		}
-		info = info.trim();
-		if (info.length() == 0) {
-			info = null;
-		}
-		parsedInput[DETAILS_POSITION] = info;
-	}
-
-	// process details
-	public void process(String[] parsedInput, String[] input, Index index) {
-		if (isIndexValid(index.getValue(), input)
-		/* && (isPartOfList(input[index.getValue()], LIST_DETAILS)) */) {
-			index.increment();
-			String info = new String("");
-			while (isIndexValid(index.getValue(), input)) {
-				info = info + input[index.getValue()] + " ";
-				index.increment();
-			}
-			info = info.trim();
-			if (isEmpty(info)) {
-				assignErrorMsg(parsedInput, EMPTY_DETAILS_MSG);
-			}
-			parsedInput[DETAILS_POSITION] = info;
-		}
-	}
-}
-
-class StrictTaskProcessor extends TaskProcessor {
 	@Override
-	protected void checkAndAssignTask(String[] parsedInput, String taskName) {
-		if (!isEmpty(taskName)) {
+	public void processBefore(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		// index.reset();
+		while (isIndexValid(index.getValue(), input)) {
+			if (isPartOfList(input[index.getValue()], LIST_DETAILS)) {
+				input[index.getValue()] = null;
+				index.increment();
+				break;
+			}
+			index.increment();
+		}
+		parsedInput[getItemPosition()] = "";
+		/*
+		 * if (isIndexValid(index.getValue(), input) &&
+		 * isPartOfList(input[index.getValue()], LIST_DETAILS)) {
+		 * input[index.getValue()] = null; index.increment(); }
+		 */
+	}
 
-			parsedInput[TASK_NAME_POSITION] = taskName;
-		} else {
-			assignErrorMsg(parsedInput, EMPTY_TASKNAME_MSG);
+	@Override
+	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		assignNull(parsedInput);
+		if (parsedInput[getItemPosition()] != null) {
+			parsedInput[getItemPosition()] = parsedInput[getItemPosition()]
+					.trim();
+			assignNull(parsedInput);
 		}
 	}
 
+	@Override
+	public void process(String[] parsedInput, String[] input, Index index) {
+		// process taskname
+		if (input[index.getValue()] != null) {
+			removeSlashes(input, index);
+			parsedInput[getItemPosition()] = parsedInput[getItemPosition()]
+					+ input[index.getValue()] + " ";
+			input[index.getValue()] = null;
+		}
+	}
+
+	protected void removeSlashes(String[] input, Index index) {
+	}
+
+	/*
+	 * public void processNatural(String[] parsedInput, String[] input, Index
+	 * index) { String info = new String(""); if (isIndexValid(index.getValue(),
+	 * input) && isPartOfList(input[index.getValue()], LIST_DETAILS)) {
+	 * input[index.getValue()] = null; index.increment(); } while
+	 * (isIndexValid(index.getValue(), input)) { info = info + " " +
+	 * input[index.getValue()]; input[index.getValue()] = null;
+	 * index.increment(); } info = info.trim(); if (info.length() == 0) { info =
+	 * null; } parsedInput[DETAILS_POSITION] = info; }
+	 */
+	/*
+	 * // process details public void process(String[] parsedInput, String[]
+	 * input, Index index) {
+	 * 
+	 * if (isIndexValid(index.getValue(), input)) { index.increment(); String
+	 * info = new String(""); while (isIndexValid(index.getValue(), input)) {
+	 * info = info + input[index.getValue()] + " "; index.increment(); } info =
+	 * info.trim(); if (isEmpty(info)) { assignErrorMsg(parsedInput,
+	 * EMPTY_DETAILS_MSG); } parsedInput[DETAILS_POSITION] = info; } }
+	 */
+	@Override
+	public String getItemName() {
+		return NAME_DETAILS;
+	}
 }
+
+/*
+ * class StrictTaskProcessor extends TaskProcessor {
+ * 
+ * @Override protected void checkAndAssignTask(String[] parsedInput, String
+ * taskName) { if (!isEmpty(taskName)) {
+ * 
+ * parsedInput[TASK_NAME_POSITION] = taskName; } else {
+ * assignErrorMsg(parsedInput, EMPTY_TASKNAME_MSG); } }
+ * 
+ * }
+ */
 
 class ImportanceProcessor extends Processor {
 	protected final int NUM_INVALID = -1;
@@ -326,23 +519,36 @@ class ImportanceProcessor extends Processor {
 				&& (isPartOfList(input[index.getValue()], LIST_IMPORTANCE))) {
 
 			if (isIndexValid(index.getValue() + 1, input)) {
-				try {
-					importance = Integer.parseInt(input[index.getValue() + 1]);
-				} catch (Exception e) {
-					assignErrorMsg(parsedInput, INVALID_IMPORTANCE);
-				}
-				if (importance < LOW_IMPT_LVL || importance > HIGH_IMPT_LVL) {
-					assignErrorMsg(parsedInput, INVALID_IMPORTANCE);
-				} else {
-					parsedInput[IMPT_POSITION] = Integer.toString(importance);
-					index.incrementByTwo();
-				}
+				if (isNextInteger(input, index.getValue())) {
+					try {
+						importance = Integer
+								.parseInt(input[index.getValue() + 1]);
+					} catch (Exception e) {
 
-			} else {
-				assignErrorMsg(parsedInput, INVALID_IMPORTANCE);
-			}
+					}
+					if (importance < LOW_IMPT_LVL || importance > HIGH_IMPT_LVL) {
+						assignErrorMsg(parsedInput, INVALID_IMPORTANCE);
+					} else {
+						parsedInput[IMPT_POSITION] = Integer
+								.toString(importance);
+						index.incrementByTwo();
+					}
+
+				}
+			}// else {
+				// assignErrorMsg(parsedInput, INVALID_IMPORTANCE);
+			// }
 
 		}
+	}
+
+	private boolean isNextInteger(String[] input, int index) {
+		try {
+			Integer.parseInt(input[index + 1]);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
@@ -350,10 +556,6 @@ class ImportanceProcessor extends Processor {
 
 		return IMPT_NAME;
 	}
-
-	@Override
-	public void processSpecial(String[] parsedInput, String[] input, Index index) {
-	};
 
 }
 
@@ -375,7 +577,8 @@ class TimeProcessor extends Processor {
 							.equalsIgnoreCase(FLOATING_TASK)) {
 
 			} else if (validateTime(possibleTime, parsedInput[DATE_POSITION])) {
-				parsedInput[TIME_POSITION] = removeColon(possibleTime);
+				// parsedInput[TIME_POSITION] = removeColon(possibleTime);
+				parsedInput[TIME_POSITION] = possibleTime;
 				index.increment();
 			} else {
 
@@ -393,7 +596,7 @@ class TimeProcessor extends Processor {
 		try {
 			Date date = new Date();
 			date = timeFormatOne.parse(possibleTime);
-		} catch (Exception e) {
+		} catch (ParseException e) {
 			return false;
 		}
 		return true;
@@ -405,31 +608,34 @@ class TimeProcessor extends Processor {
 
 	protected String getPossibleTime(Index index, String[] input) {
 		String possibleTime = null;
-		if (isTimeFormatOne(index.getValue(), input)) {
+		if (isRegexMatch(input[index.getValue()], PATTERN_TIME_ONE)) {
 			possibleTime = input[index.getValue()];
-		} else if (isTimeFormatTwo(index.getValue(), input)) {
+		} else if (isRegexMatch(input[index.getValue()], PATTERN_TIME_TWO)) {
 			possibleTime = input[index.getValue()];
 			possibleTime = replaceFullStop(possibleTime);
 			possibleTime = reformatTimeTwo(possibleTime);
-		} else if (isTimeFormatThree(index.getValue(), input)) {
+		} else if (isRegexMatch(input[index.getValue()], PATTERN_TIME_THREE)) {
 			possibleTime = input[index.getValue()];
 			possibleTime = reformatTimeThree(possibleTime);
+		} else if (isIndexValid(index.getValue() + 1, input)
+				&& isRegexMatch(
+						input[index.getValue()] + input[index.getValue() + 1],
+						PATTERN_TIME_TWO)) {
+			possibleTime = input[index.getValue()]
+					+ input[index.getValue() + 1];
+			possibleTime = replaceFullStop(possibleTime);
+			possibleTime = reformatTimeTwo(possibleTime);
+			index.increment();
+		} else if (isIndexValid(index.getValue() + 1, input)
+				&& isRegexMatch(
+						input[index.getValue()] + input[index.getValue() + 1],
+						PATTERN_TIME_THREE)) {
+			possibleTime = input[index.getValue()]
+					+ input[index.getValue() + 1];
+			possibleTime = reformatTimeThree(possibleTime);
+			index.increment();
 		}
 		return possibleTime;
-	}
-
-	protected boolean isTimeFormatOne(Integer index, String[] input) {
-		if (isRegexMatch(index, input, PATTERN_TIME_ONE)) {
-			return true;
-		}
-		return false;
-	}
-
-	protected boolean isTimeFormatThree(Integer index, String[] input) {
-		if (isRegexMatch(index, input, PATTERN_TIME_THREE)) {
-			return true;
-		}
-		return false;
 	}
 
 	protected String removeColon(String possibleTime) {
@@ -444,7 +650,7 @@ class TimeProcessor extends Processor {
 		Date date = new Date();
 		try {
 			date = timeFormatTwo.parse(possibleTime);
-		} catch (Exception e) {
+		} catch (ParseException e) {
 			return INVALID_TIME;
 		}
 		return timeFormatOne.format(date);
@@ -458,7 +664,7 @@ class TimeProcessor extends Processor {
 		Date date = new Date();
 		try {
 			date = timeFormatThree.parse(possibleTime);
-		} catch (Exception e) {
+		} catch (ParseException e) {
 			return INVALID_TIME;
 		}
 		return timeFormatOne.format(date);
@@ -471,21 +677,10 @@ class TimeProcessor extends Processor {
 		return possibleTime;
 	}
 
-	protected boolean isTimeFormatTwo(Integer index, String[] input) {
-		if (isRegexMatch(index, input, PATTERN_TIME_TWO)) {
-			return true;
-		}
-		return false;
-	}
-
 	@Override
 	public String getItemName() {
 		return TIME_NAME;
 	}
-
-	@Override
-	public void processSpecial(String[] parsedInput, String[] input, Index index) {
-	};
 
 }
 
@@ -503,7 +698,7 @@ class FutureTimeProcessor extends TimeProcessor {
 				if (possibleDate.compareTo(today) < 0) {
 					return false;
 				}
-			} catch (Exception e) {
+			} catch (ParseException e) {
 				return false;
 			}
 			return true;
@@ -550,16 +745,11 @@ class DateProcessor extends Processor {
 		index.increment();
 	}
 
-	protected String removeSlashes(String possibleDate) {
-		Date date = new Date();
-		try {
-			date = dateFormat.parse(possibleDate);
-		} catch (Exception e) {
-			return null;
-		}
-		return finalDateFormat.format(date);
-	}
-
+	/*
+	 * protected String removeSlashes(String possibleDate) { Date date = new
+	 * Date(); try { date = dateFormat.parse(possibleDate); } catch (Exception
+	 * e) { return null; } return finalDateFormat.format(date); }
+	 */
 	protected String getPossibleDate(Index index, String[] input) {
 
 		String possibleDate = null;
@@ -568,7 +758,7 @@ class DateProcessor extends Processor {
 			possibleDate = formatDate(index.getValue(), input,
 					new FirstDateFormatter());
 		} else if (isSpelledDateOne(index.getValue(), input)) {
-			if (isRegexMatch(index.getValue(), input, PATTERN_DATE_TWO)) {
+			if (isRegexMatch(input[index.getValue()], PATTERN_DATE_TWO)) {
 				possibleDate = formatDate(index.getValue(), input,
 						new SpelledDateOneFormatter());
 				index.incrementByTwo();
@@ -576,7 +766,7 @@ class DateProcessor extends Processor {
 				possibleDate = INVALID_DATE;
 			}
 		} else if (isSpelledDateTwo(index.getValue(), input)) {
-			if (isRegexMatch(index.getValue(), input, PATTERN_DATE_TWO)) {
+			if (isRegexMatch(input[index.getValue()], PATTERN_DATE_TWO)) {
 				possibleDate = formatDate(index.getValue(), input,
 						new SpelledDateTwoFormatter());
 				index.increment();
@@ -601,17 +791,16 @@ class DateProcessor extends Processor {
 
 	}
 
-	private String getTodayDate() {
-		Date today = new Date();
-		return dateFormat.format(today);
-	}
-
+	/*
+	 * private String getTodayDate() { Date today = new Date(); return
+	 * dateFormat.format(today); }
+	 */
 	protected String assignDate(String[] input, Index index) {
 		return null;
 	}
 
 	protected boolean isDateFormatOne(Integer index, String[] input) {
-		return isRegexMatch(index, input, PATTERN_DATE_ONE);
+		return isRegexMatch(input[index], PATTERN_DATE_ONE);
 	}
 
 	protected boolean isFloatingTask(int value, String[] input) {
@@ -628,11 +817,11 @@ class DateProcessor extends Processor {
 	// mar
 	// 2015)
 	protected boolean isSpelledDateOne(Integer index, String[] input) {
-		if (isRegexMatch(index, input, PATTERN_DATE_POSSIBLE)
+		if (isRegexMatch(input[index], PATTERN_DATE_POSSIBLE)
 				&& (isIndexValid(index + 1, input) && isPartOfList(
 						input[index + 1], LIST_MONTHS))
 				&& isIndexValid(index + 2, input)
-				&& isRegexMatch(index + 2, input, PATTERN_YEAR)) {
+				&& isRegexMatch(input[index + 2], PATTERN_YEAR)) {
 			return true;
 		} else {
 			return false;
@@ -651,7 +840,7 @@ class DateProcessor extends Processor {
 			} else if (!isDateValid(date, today)) {
 				return false;
 			}
-		} catch (Exception e) {
+		} catch (ParseException e) {
 			return false;
 		}
 		return true;
@@ -665,7 +854,7 @@ class DateProcessor extends Processor {
 	}
 
 	protected boolean isSpelledDateTwo(Integer index, String[] input) {
-		if (isRegexMatch(index, input, PATTERN_DATE_POSSIBLE)
+		if (isRegexMatch(input[index], PATTERN_DATE_POSSIBLE)
 				&& (isIndexValid(index + 1, input) && isPartOfList(
 						input[index + 1], LIST_MONTHS))) {
 			return true;
@@ -683,10 +872,6 @@ class DateProcessor extends Processor {
 		return DATE_NAME;
 	}
 
-	@Override
-	public void processSpecial(String[] parsedInput, String[] input, Index index) {
-	};
-
 }
 
 class FutureDateProcessor extends DateProcessor {
@@ -703,7 +888,9 @@ class FutureDateProcessor extends DateProcessor {
 
 class AutoDateProcessor extends FutureDateProcessor {
 	@Override
-	public void processSpecial(String[] parsedInput, String[] input, Index index) {
+	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		putAllFullStop(input, fullStopArr);
 		if (parsedInput[ERROR_MSG_POSITION] == null) {
 			String possibleDate = null;
 			if (parsedInput[DATE_POSITION] == null) {
@@ -726,7 +913,7 @@ class NaturalProcessor {
 	// list of prepositions and determiners
 	protected final String[] LIST_REMOVABLES = { "and", "about", "after",
 			"around", "as", "at", "before", "be", "behind", "below", "beneath",
-			"beside", "besides", "between", "beyond", "but", "by",
+			"beside", "besides", "between", "beyond", "due", "but", "by",
 			"concerning", "considering", "despite", "down", "during", "except",
 			"excepting", "excluding", "following", "for", "from", "in",
 			"inside", "into", "like", "minus", "near", "of", "off", "on",
@@ -752,11 +939,25 @@ class NaturalProcessor {
 	 */
 	public void process(String[] parsedInput, String[] input, Index index,
 			Processor processor) {
-		if (processor instanceof DateProcessor
+		index.reset();
+		ArrayList<Integer> fullStopArr = new ArrayList<Integer>();
+		/*
+		 * if (!(processor instanceof DetailsProcessor||processor instanceof
+		 * TaskProcessor)){ processor.processBefore(input, fullStopArr,
+		 * parsedInput, index);
+		 * 
+		 * }
+		 */
+		processor.processBefore(input, fullStopArr, parsedInput, index);
+		if (processor instanceof TaskProcessor
+				|| processor instanceof DetailsProcessor
+				|| processor instanceof MultiParaProcessor) {
+			collectProcess(parsedInput, input, index, processor);
+		} else if (processor instanceof DateProcessor
 				|| processor instanceof TimeProcessor) {
 			backwardProcess(parsedInput, input, index, processor);
 		} else {
-			index.reset();
+
 			while (isIndexValid(index.getValue(), input)) {
 				int startPosition = index.getValue();
 				processor.process(parsedInput, input, index);
@@ -766,9 +967,9 @@ class NaturalProcessor {
 					for (int i = startPosition; i < index.getValue(); i++) {
 						input[i] = null;
 					}
-					if (processor instanceof ImportanceProcessor) {
-						backWordCleaner(input, startPosition - 1);
-					}
+
+					cleanWordBackward(input, startPosition - 1, processor);
+					cleanWordForward(input, index.getValue(), processor);
 					break;
 					/*
 					 * if (processor instanceof DateProcessor || processor
@@ -779,10 +980,34 @@ class NaturalProcessor {
 				index.increment();
 			}
 		}
-
-		processor.processSpecial(parsedInput, input, index);
-		// to be overridden
+		processor.processAfter(input, fullStopArr, parsedInput, index);
+		/*
+		 * if (!(processor instanceof DetailsProcessor||processor instanceof
+		 * TaskProcessor)) {
+		 * 
+		 * processor.processAfter(input, fullStopArr, parsedInput, index); }
+		 */
 		assignErrorMsg(parsedInput, processor);
+	}
+
+	private void cleanWordForward(String[] input, int index, Processor processor) {
+		if (processor instanceof CommandProcessor) {
+			while (isIndexValid(index, input)
+					&& isPartOfList(input[index], LIST_REMOVABLES)
+					&& input[index] != null) {
+				input[index] = null;
+				index++;
+			}
+		}
+
+	}
+
+	private void collectProcess(String[] parsedInput, String[] input,
+			Index index, Processor processor) {
+		while (isIndexValid(index.getValue(), input)) {
+			processor.process(parsedInput, input, index);
+			index.increment();
+		}
 	}
 
 	private void backwardProcess(String[] parsedInput, String[] input,
@@ -797,7 +1022,7 @@ class NaturalProcessor {
 				for (int i = startPosition; i < index.getValue(); i++) {
 					input[i] = null;
 				}
-				backWordCleaner(input, startPosition - 1);
+				cleanWordBackward(input, startPosition - 1, processor);
 				break;
 			}
 			index.decrement();
@@ -805,24 +1030,29 @@ class NaturalProcessor {
 	}
 
 	protected void assignErrorMsg(String[] parsedInput, Processor processor) {
-	};
+	}
 
-	private void backWordCleaner(String[] input, int index) {
-		while (isIndexValid(index, input)
-				&& isPartOfList(input[index], LIST_REMOVABLES)
-				&& input[index] != null) {
-			input[index] = null;
-			index--;
+	private void cleanWordBackward(String[] input, int index,
+			Processor processor) {
+		if (processor instanceof DateProcessor
+				|| processor instanceof TimeProcessor
+				|| processor instanceof ImportanceProcessor
+				|| processor instanceof CommandProcessor) {
+			while (isIndexValid(index, input)
+					&& isPartOfList(input[index], LIST_REMOVABLES)
+					&& input[index] != null) {
+				input[index] = null;
+				index--;
+			}
 		}
 
 	}
 
-	private void cleanErrorMsg(String[] parsedInput) {
-		if (parsedInput[ERROR_MSG_POSITION] != null) {
-			parsedInput[ERROR_MSG_POSITION] = null;
-		}
-	}
-
+	/*
+	 * private void cleanErrorMsg(String[] parsedInput) { if
+	 * (parsedInput[ERROR_MSG_POSITION] != null) {
+	 * parsedInput[ERROR_MSG_POSITION] = null; } }
+	 */
 	protected boolean isIndexValid(int index, String[] input) {
 		if (index >= input.length || index < 0) {
 			return false;
@@ -860,13 +1090,15 @@ class StrictNaturalProcessor extends NaturalProcessor {
 		parsedInput[COMMAND_POSITION] = ERROR;
 	}
 }
+
 class AntiNaturalProcessor extends NaturalProcessor {
-	private final String EXTRA_ITEM_MSG = "There are extra parameters. Pls remove them.";
+	private final String EXTRA_ITEM_MSG = "There are extra attributes. Pls remove them.";
+
 	@Override
 	protected void assignErrorMsg(String[] parsedInput, Processor processor) {
 		if (parsedInput[processor.getItemPosition()] != null
 				&& parsedInput[ERROR_MSG_POSITION] == null) {
-			assignErrorMsg(parsedInput,EXTRA_ITEM_MSG);
+			assignErrorMsg(parsedInput, EXTRA_ITEM_MSG);
 		}
 	}
 
@@ -877,21 +1109,8 @@ class AntiNaturalProcessor extends NaturalProcessor {
 }
 
 class CommandProcessor extends Processor {
-	private static final String ERROR_MSG_ONE_COMMAND = "This is a one word command. You cannot have extra parameters";
+	private static final String ERROR_MSG_SPECIAL_COM = "This is a special command. You cannot input extra attributes";
 	private static final String COMMAND_NAME = "Command";
-	// list of prepositions and determiners
-	protected final String[] LIST_REMOVABLES = { "and", "about", "after",
-			"around", "as", "at", "before", "be", "behind", "below", "beneath",
-			"beside", "besides", "between", "beyond", "but", "by",
-			"concerning", "considering", "	despite", "	down", "	during",
-			"	except", "excepting", "	excluding", "	following", "for", "	from",
-			"in", "inside", "	into", "like", "minus", "	near", "of", "off",
-			"on", "onto", "	opposite", "outside", "	over", "past", "per",
-			"plus", "	regarding", "	round", "save", "since", "that", "than",
-			"through", "to", "toward", "towards", "under", "	underneath",
-			"unlike", "until", "up", "upon", "versus", "via", "which", "with",
-			"within", "without", "is", "are", "the" };
-	protected final String[] LIST_DETAILS = { ".details", ".dtl" };
 	private final int COMMAND_POSITION = 0;
 	// List of commands
 	private final String[] LIST_ADD = { "add", ".a", "added", "adding" };
@@ -906,7 +1125,7 @@ class CommandProcessor extends Processor {
 			".sft" };
 	private final String[] LIST_EXIT = { "exit", ".e" };
 	private final String[] LIST_CLEAR = { "clear", ".c" };
-	private final String[] LIST_RESTORE = { "restore", ".rs" };
+	// private final String[] LIST_RESTORE = { "restore", ".rs" };
 	private final String[] LIST_SHOW_ALL = { "show all", ".sha" };
 	private final String[] LIST_SHOW_TODAY = { "show today", ".sht" };
 	private final String[] LIST_SORT_IMPT = { "sort importance", "sort impt",
@@ -916,23 +1135,35 @@ class CommandProcessor extends Processor {
 	private final String[] LIST_DELETE_PAST = { "delete past", ".dp" };
 	private final String[] LIST_DELETE_TODAY = { "delete today", ".dtd" };
 	private final String[] LIST_SORT_TIME = { "sort time", ".st", };
-	private final String[] 	LIST_SHOW_DETAILS = { "show details", ".sd", };
-	private final String[] 	LIST_HIDE_DETAILS = { "hide details", ".hd", };
-	public void process(String[] parsedInput, String[] input, Index index) {
+	private final String[] LIST_SHOW_DETAILS = { "show details", ".sd", };
+	private final String[] LIST_HIDE_DETAILS = { "hide details", ".hd", };
+	private final String[] LIST_VIEW_ARCHIVE = { "view archive", ".va", };
+	private final String[] LIST_CLEAR_ARCHIVE = { "clear archive", ".ca", };
+	private final String[] LIST_DELETE_DATE = { "delete date", ".dd", };
 
-		while (isIndexValid(index.getValue(), input)) {
-			if (isPartOfList(input[index.getValue()], LIST_DETAILS)) {
-				input[index.getValue()] = null;
-				break;
-			}
+	public void process(String[] parsedInput, String[] input, Index index) {
+		/*
+		 * ArrayList<Integer> fullStopArr = new ArrayList<Integer>();
+		 * processBefore(input, fullStopArr, parsedInput, index);
+		 */
+		// while (isIndexValid(index.getValue(), input)) {
+		// if (isPartOfList(input[index.getValue()], LIST_DETAILS)) {
+		// break;
+		// }
+		if (isPartOfList(input[index.getValue()], LIST_DETAILS)) {
+			index.setValue(input.length);
+		} else {
 			assignIfPossible(parsedInput, input, index);
-			index.increment();
 		}
+
+		// index.increment();
+		// }
 		/*
 		 * if (isIndexValid(index.getValue(), input) && isLastWord(input,
 		 * index.getValue())) { removeFullStop(input, index.getValue()); }
 		 */
-		assignAddIfPossible(parsedInput, input, index);
+		// assignAddIfPossible(parsedInput, input, index);
+		// processAfter(input, fullStopArr, parsedInput, index);
 
 	}
 
@@ -943,51 +1174,52 @@ class CommandProcessor extends Processor {
 		}
 	}
 
+	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		putAllFullStop(input, fullStopArr);
+		assignAddIfPossible(parsedInput, input, index);
+	}
+
 	private void assignIfPossible(String[] parsedInput, String[] input,
 			Index index) {
 		if (isIndexValid(index.getValue(), input)) {
 			if (parsedInput[COMMAND_POSITION] == null) {
-				int startIndex = index.getValue();
+				// int startIndex = index.getValue();
 				String command = getCommand(input, index, parsedInput);
 				if (command != null) {
 					assignCommand(parsedInput, input, index, command);
-					removeCommand(input, index.getValue(), startIndex);
-					frontWordCleaner(input, startIndex + 1);
-					backWordCleaner(input, index.getValue() - 1);
+					// removeCommand(input, index.getValue(), startIndex);
+					// frontWordCleaner(input, index.getValue() + 1);
+					// backWordCleaner(input, startIndex - 1);
 				}
 			}
 		}
 	}
-
+/*
 	private void removeCommand(String[] input, int index, int startIndex) {
 		// if (startIndex > index.getValue()) {
-		while (index <= startIndex) {
+		while (index >= startIndex) {
 			if (isIndexValid(index, input)) {
 				input[index] = null;
 			}
 
-			index++;
+			index--;
 		}
 		// } else if (startIndex == index.getValue()) {
 		// input[startIndex] = null;
 		// }
 	}
-
+*/
 	private void assignCommand(String[] parsedInput, String[] input,
-			Index index, String possibleCommand) {
-		parsedInput[COMMAND_POSITION] = possibleCommand;
+			Index index, String command) {
+		parsedInput[COMMAND_POSITION] = command;
+		index.increment();
 	}
 
 	private String getCommand(String[] input, Index index, String[] parsedInput) {
 
 		if (isPartOfList(input[index.getValue()], LIST_ADD)) {
 			return getFirstMember(LIST_ADD);
-		} else if (isPartOfList(input[index.getValue()], LIST_DELETE)) {
-			if (isIndexValid(index.getValue()+1, input)&&(input[index.getValue() + 1].equalsIgnoreCase("all")
-					|| input[index.getValue() + 1].equalsIgnoreCase("past")|| input[index.getValue() + 1].equalsIgnoreCase("today"))) {
-				return null;
-			}
-			return getFirstMember(LIST_DELETE);
 		} else if (isPartOfList(input[index.getValue()], LIST_EDIT)) {
 			return getFirstMember(LIST_EDIT);
 		} else if (isPartOfList(input[index.getValue()], LIST_SEARCH)) {
@@ -998,116 +1230,117 @@ class CommandProcessor extends Processor {
 			return getFirstMember(LIST_REDO);
 		} else if (isPartOfList(input[index.getValue()], LIST_EXIT)) {
 			return getFirstMember(LIST_EXIT);
-		} else if (isPartOfList(input[index.getValue()], LIST_CLEAR)) {
+		} else if (isSpecialCommand(input, index, LIST_CLEAR_ARCHIVE, parsedInput)) {
+			return getFirstMember(LIST_CLEAR_ARCHIVE);
+		} else if (isSpecialCommand(input, index, LIST_CLEAR, parsedInput)) {
 			return getFirstMember(LIST_CLEAR);
-		} else if (isPartOfList(input[index.getValue()], LIST_RESTORE)) {
-			return getFirstMember(LIST_UNDO);
-		} else if (isOneWordCom(input, index, LIST_SHOW_FLOATING, parsedInput)) {
+		} /*
+		 * else if (isPartOfList(input[index.getValue()], LIST_RESTORE)) {
+		 * return getFirstMember(LIST_RESTORE); }
+		 */else if (isSpecialCommand(input, index, LIST_SHOW_FLOATING, parsedInput)) {
 			return getFirstMember(LIST_SHOW_FLOATING);
-		} else if (isOneWordCom(input, index, LIST_SHOW_ALL, parsedInput)) {
+		} else if (isSpecialCommand(input, index, LIST_SHOW_ALL, parsedInput)) {
 			return getFirstMember(LIST_SHOW_ALL);
-		} else if (isOneWordCom(input, index, LIST_SHOW_DETAILS, parsedInput)) {
+		} else if (isSpecialCommand(input, index, LIST_SHOW_DETAILS, parsedInput)) {
 			return getFirstMember(LIST_SHOW_DETAILS);
-		}else if (isOneWordCom(input, index, LIST_HIDE_DETAILS, parsedInput)) {
+		} else if (isSpecialCommand(input, index, LIST_HIDE_DETAILS, parsedInput)) {
 			return getFirstMember(LIST_HIDE_DETAILS);
-		} else if (isOneWordCom(input, index, LIST_SORT_IMPT, parsedInput)) {
+		} else if (isSpecialCommand(input, index, LIST_SORT_IMPT, parsedInput)) {
 			return getFirstMember(LIST_SORT_IMPT);
-		} else if (isOneWordCom(input, index, LIST_SORT_ALPHA, parsedInput)) {
+		} else if (isSpecialCommand(input, index, LIST_SORT_ALPHA, parsedInput)) {
 			return getFirstMember(LIST_SORT_ALPHA);
-		} else if (isOneWordCom(input, index, LIST_SORT_TIME, parsedInput)) {
+		} else if (isSpecialCommand(input, index, LIST_SORT_TIME, parsedInput)) {
 			return getFirstMember(LIST_SORT_TIME);
-		}else if (isOneWordCom(input, index, LIST_DELETE_ALL,parsedInput)) {
+		} else if (isSpecialCommand(input, index, LIST_DELETE_ALL, parsedInput)) {
 			return getFirstMember(LIST_DELETE_ALL);
-		}else if (isOneWordCom(input, index, LIST_DELETE_PAST,parsedInput)) {
+		} else if (isSpecialCommand(input, index, LIST_DELETE_PAST, parsedInput)) {
 			return getFirstMember(LIST_DELETE_PAST);
-		}else if (isOneWordCom(input, index, LIST_DELETE_TODAY,parsedInput)) {
+		} else if (isSpecialCommand(input, index, LIST_DELETE_TODAY, parsedInput)) {
 			return getFirstMember(LIST_DELETE_TODAY);
+		} else if (isPartOfList(input, index, LIST_DELETE_DATE)) {
+			return getFirstMember(LIST_DELETE_DATE);
+		} else if (isPartOfList(input[index.getValue()], LIST_DELETE)) {
+			return getFirstMember(LIST_DELETE);
+		} else if (isSpecialCommand(input, index, LIST_SHOW_TODAY, parsedInput)) {
+			return getFirstMember(LIST_SHOW_TODAY);
+		} else if (isSpecialCommand(input, index, LIST_SHOW_TODAY, parsedInput)) {
+			return getFirstMember(LIST_SHOW_TODAY);
+		} else if (isSpecialCommand(input, index, LIST_VIEW_ARCHIVE, parsedInput)) {
+			return getFirstMember(LIST_VIEW_ARCHIVE);
 		}
 		return null;
 	}
 
 	// check if a String is part of the list
-	private boolean isOneWordCom(String[] input, Index index, String[] list,
+	private boolean isSpecialCommand(String[] input, Index index, String[] list,
 			String[] parsedInput) {
-		int startIndex = index.getValue();
+		// int startIndex = index.getValue();
 		for (int i = 0; i < list.length; i++) {
 			if (input == null) {
 				return false;
 			}
-			if (isFirstInstance(index.getValue(), list[i])
+			if (isFirstInstance(index.getValue())
 					&& isMatchString(input, index, list[i])) {
-				if (isRestEmpty(input, startIndex)) {
+				if (isRestEmpty(input, index.getValue())) {
 					return true;
 				} else {
-					assignErrorMsg(parsedInput, ERROR_MSG_ONE_COMMAND);
+					assignErrorMsg(parsedInput, ERROR_MSG_SPECIAL_COM);
 				}
 			}
 		}
 		return false;
 	}
 
-	private boolean isPartOfList(String[] input, Index index, String[] list) {
-		for (int i = 0; i < list.length; i++) {
-			if (input == null) {
-				return false;
-			}
-			if (isMatchString(input, index, list[i])) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private boolean isFirstInstance(int index, String command) {
-		return index == (command.split(" ")).length - 1;
+	/*
+	 * // check if a String is part of the list private boolean
+	 * isOneWordCom(String[] input, Index index, String[] list, String[]
+	 * parsedInput) { int startIndex = index.getValue(); for (int i = 0; i <
+	 * list.length; i++) { if (input == null) { return false; } if
+	 * (isFirstInstance(index.getValue(), list[i]) && isMatchString(input,
+	 * index, list[i])) { if (isRestEmpty(input, startIndex)) { return true; }
+	 * else { assignErrorMsg(parsedInput, ERROR_MSG_ONE_COMMAND); } } } return
+	 * false; } /* private boolean isPartOfList(String[] input, Index index,
+	 * String[] list) { for (int i = 0; i < list.length; i++) { if (input ==
+	 * null) { return false; } if (isMatchString(input, index, list[i])) {
+	 * return true; } } return false; }
+	 */
+	/*
+	 * private boolean isFirstInstance(int index, String command) { return index
+	 * == (command.split(" ")).length - 1; }
+	 */
+	private boolean isFirstInstance(int index) {
+		return index == 0;
 	}
 
 	private boolean isRestEmpty(String[] input, int index) {
-		if (input.length - 1 == index) {
+		if ((input.length - 1) == index) {
 			return true;
 		}
 		return false;
 	}
 
-	private boolean isLastWord(String[] input, int index) {
-		/*
-		 * if((input[index].length()>=2)&&!input[index].substring(input[index ].
-		 * length() - 1, input[index].length()).equals("\\.")){
-		 */
-		if (input[index] == null) {
-			return false;
-		}
-		if (input[index].charAt(input[index].length() - 1) == '.') {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	private void removeFullStop(String[] input, int index) {
-		input[index] = input[index].substring(0, input[index].length() - 1);
-	}
-
-	private boolean isMatchString(String[] input, Index index, String command) {
-		String[] possibleCommand = command.split(" ");
-		int startIndex = index.getValue();
-		for (int i = possibleCommand.length - 1; i >= 0; i--) {
-			if (!isIndexValid(index.getValue(), input)) {
-				index.setValue(startIndex);
-				return false;
-			}
-			if (!possibleCommand[i].equalsIgnoreCase(input[index.getValue()])) {
-				index.setValue(startIndex);
-				return false;
-			}
-			if (i == 0) {
-				break;
-			}
-			index.decrement();
-		}
-		// index.setValue(startIndex);
-		return true;
-	}
+	/*
+	 * private boolean isLastWord(String[] input, int index) { /*
+	 * if((input[index].length()>=2)&&!input[index].substring(input[index ].
+	 * length() - 1, input[index].length()).equals("\\.")){
+	 * 
+	 * if (input[index] == null) { return false; } if
+	 * (input[index].charAt(input[index].length() - 1) == '.') { return true; }
+	 * else { return false; } }
+	 * 
+	 * private void removeFullStop(String[] input, int index) { input[index] =
+	 * input[index].substring(0, input[index].length() - 1); }
+	 */
+	/*
+	 * private boolean isMatchString(String[] input, Index index, String
+	 * command) { String[] possibleCommand = command.split(" "); int startIndex
+	 * = index.getValue(); for (int i = possibleCommand.length - 1; i >= 0; i--)
+	 * { if (!isIndexValid(index.getValue(), input)) {
+	 * index.setValue(startIndex); return false; } if
+	 * (!possibleCommand[i].equalsIgnoreCase(input[index.getValue()])) {
+	 * index.setValue(startIndex); return false; } if (i == 0) { break; }
+	 * index.decrement(); } // index.setValue(startIndex); return true; }
+	 */
 
 	private String getFirstMember(String[] list) {
 		return list[0];
@@ -1117,26 +1350,21 @@ class CommandProcessor extends Processor {
 	 * private boolean isIndexValid(int index, String[] input) { if (index >=
 	 * input.length || index < 0) { return false; } else { return true; } }
 	 */
-	private void backWordCleaner(String[] input, int index) {
-		while (isIndexValid(index, input)
-				&& isPartOfList(input[index], LIST_REMOVABLES)
-				&& input[index] != null) {
-			input[index] = null;
-			index--;
-		}
-
-	}
-
-	private void frontWordCleaner(String[] input, int index) {
-		while (isIndexValid(index, input)
-				&& isPartOfList(input[index], LIST_REMOVABLES)
-				&& input[index] != null) {
-			input[index] = null;
-			index++;
-		}
-
-	}
-
+	/*
+	 * private void backWordCleaner(String[] input, int index) { while
+	 * (isIndexValid(index, input) && isPartOfList(input[index],
+	 * LIST_REMOVABLES) && input[index] != null) { input[index] = null; index--;
+	 * }
+	 * 
+	 * }
+	 * 
+	 * private void frontWordCleaner(String[] input, int index) { while
+	 * (isIndexValid(index, input) && isPartOfList(input[index],
+	 * LIST_REMOVABLES) && input[index] != null) { input[index] = null; index++;
+	 * }
+	 * 
+	 * }
+	 */
 	@Override
 	public int getItemPosition() {
 		return COMMAND_POSITION;
@@ -1146,9 +1374,5 @@ class CommandProcessor extends Processor {
 	public String getItemName() {
 		return COMMAND_NAME;
 	}
-
-	@Override
-	public void processSpecial(String[] parsedInput, String[] input, Index index) {
-	};
 
 }

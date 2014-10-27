@@ -26,6 +26,7 @@ public class Constants {
 	public static final String COM_DISPLAY = "display";
 	public static final String COM_REDO = "redo";
 	public static final String COM_UNDO = "undo";
+	public static final String COM_CLEAR_ALL = "clear all";
 
 	protected static final String INVALID_TIME = "invalid time";
 	public static final String ERROR = "error";
