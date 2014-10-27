@@ -84,14 +84,15 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	public DoubleUp() {
 		try {
-		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-		        if ("Nimbus".equals(info.getName())) {
-		            UIManager.setLookAndFeel(info.getClassName());
-		            break;
-		        }
-		    }
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
 		} catch (Exception e) {
-		    // If Nimbus is not available, you can set the GUI to another look and feel.
+			// If Nimbus is not available, you can set the GUI to another look and feel.
+			//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
 		setTitle(TITLE_MAIN_WINDOW);
 		//setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -99,6 +100,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		addComponentsToPane(getContentPane());
 		setMinimumSize(new Dimension(650,600));
 		setVisible(true);
+		setResizable(false);
 		addWindowListener(this);
 		logger.log(Level.INFO, "Successfully create GUI");
 	}
@@ -245,7 +247,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 		lastRow.add(textFieldResultsOut);
 		cp.add(lastRow, BorderLayout.SOUTH);
-		
+
 		UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
 
 		Action showHelp = new AbstractAction() {
@@ -269,7 +271,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				return s.hasNext() ? s.next() : "";
 			}
 		};
-		
+
 		Action showAll = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				showAll();
