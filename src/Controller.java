@@ -6,6 +6,7 @@ import java.util.Date;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
 
 public class Controller {
 
@@ -85,6 +86,7 @@ public class Controller {
 				results.setListOfTasks(tasksFound);
 				JFrame frame = new JFrame();
 				int n = confirmClashIsOk(frame, ACTION_ADD);
+				UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
 				if (n == JOptionPane.YES_OPTION){
 					results.setFeedback(Logic.add(ACTION_ADD,taskToExecute, file));			
 				} else {

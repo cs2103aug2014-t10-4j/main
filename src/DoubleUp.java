@@ -39,6 +39,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalIconFactory;
 
 public class DoubleUp extends JFrame {
@@ -164,6 +165,8 @@ public class DoubleUp extends JFrame {
 		textFieldResultsOut.setText(MSG_WELCOME + MSG_HELP);
 		lastRow.add(textFieldResultsOut);
 		cp.add(lastRow, BorderLayout.SOUTH);
+		
+		UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
 
 		Action showHelp = new AbstractAction() {
 			private static final long serialVersionUID = 1L;
