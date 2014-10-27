@@ -42,6 +42,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalIconFactory;
 
 import org.jnativehook.GlobalScreen;
@@ -233,6 +234,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 		lastRow.add(textFieldResultsOut);
 		cp.add(lastRow, BorderLayout.SOUTH);
+		
+		UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
 
 		Action showHelp = new AbstractAction() {
 			private static final long serialVersionUID = 1L;
@@ -255,6 +258,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				return s.hasNext() ? s.next() : "";
 			}
 		};
+		
 		Action showAll = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				showAll();
@@ -314,7 +318,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			public void actionPerformed(ActionEvent e) {
 				String userSentence = textFieldCmdIn.getText().trim();
 				ResultOfCommand results = new ResultOfCommand();
-				if (userSentence.equalsIgnoreCase("show help")){
+				if (userSentence.equalsIgnoreCase("help") || userSentence.equalsIgnoreCase(".h")){
 					showHelp(results);
 				} else { 
 					results = Controller.executeCommand(userSentence, file, archive);	

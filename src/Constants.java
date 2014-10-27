@@ -26,6 +26,7 @@ public class Constants {
 	public static final String COM_DISPLAY = "display";
 	public static final String COM_REDO = "redo";
 	public static final String COM_UNDO = "undo";
+	public static final String COM_CLEAR_ALL = "clear all";
 
 	protected static final String INVALID_TIME = "invalid time";
 	public static final String ERROR = "error";
@@ -74,6 +75,7 @@ public class Constants {
 			"ddMMyyyyHH:mm");
 	
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
+	public static final String TIME_FORMAT = "HHmm";
 	public static final String MSG_SCREEN_CLEARED = "Screen is cleared. Type show all, show today or show floating again.";
 	public static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
 	public static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
