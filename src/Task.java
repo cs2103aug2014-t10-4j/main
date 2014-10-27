@@ -162,12 +162,16 @@ class Task {
 
 	private String printDetails() {
 		String sentence = "";
+		if (details != null && details.equals("")){
+			return sentence;
+		}
 		if (details != null && !details.equals("null") && !isDetailsShown){
 			sentence += " [+] ";
 		}
 		if (details != null && !details.equals("null") && isDetailsShown){
 			sentence += "\n" + "\t" + " [-] " + details;
 		}
+		
 		return sentence;
 	}
 

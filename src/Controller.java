@@ -156,6 +156,9 @@ public class Controller {
 			return results;
 		case EDIT:
 			ArrayList<Task> clashFoundForEdit = findClash(taskToExecute);
+			if (taskToExecute.getDetails() !=null && taskToExecute.getDetails().equals("")){
+				Task.setIsDetailsShown(false);
+			}
 			if (clashFoundForEdit.size() == 0){
 				results.setFeedback(Logic.edit(ACTION_EDIT, taskToExecute, file));
 			} else {
@@ -262,10 +265,10 @@ public class Controller {
 				feedback = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndex[j]) + feedback;
 				continue; //Because cannot delete numbers larger than list size
 			}
-			if (splitIndex[j] <= 0){
+			/*if (splitIndex[j] <= 0){
 				feedback += MSG_CNT_DELETE_ZERO;
-				break; //Because cannot delete zero or negative number
-			}
+				return; //Because cannot delete zero or negative number
+			}*/
 			Task oneOutOfMany = new Task();
 			String userDeleteIndex = String.valueOf(splitIndex[j]); 
 			oneOutOfMany.setParams(userDeleteIndex);

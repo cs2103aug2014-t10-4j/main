@@ -265,6 +265,11 @@ public class Logic {
 			if (detailsOfTask.getDetails() != null) {
 				tempStorage.get(taskNumber).setDetails(detailsOfTask.getDetails());
 			}
+			
+			else if (detailsOfTask.getDetails() != null && detailsOfTask.getDetails().equals("")){
+				tempStorage.get(taskNumber).setDetails(null);
+			}
+			
 
 			if (detailsOfTask.getImportance() != INITIAL_VALUE - 1) {
 				tempStorage.get(taskNumber).setImportance(

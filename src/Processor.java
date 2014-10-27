@@ -266,6 +266,16 @@ class TaskProcessor extends DetailsProcessor {
 	public int getItemPosition() {
 		return TASK_NAME_POSITION;
 	}
+	@Override
+	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		assignNull(parsedInput);
+		if (parsedInput[getItemPosition()] != null) {
+			parsedInput[getItemPosition()] = parsedInput[getItemPosition()]
+					.trim();
+			assignNull(parsedInput);
+		}
+	}
 
 	@Override
 	public void processBefore(String[] input, ArrayList<Integer> fullStopArr,
@@ -424,15 +434,20 @@ class DetailsProcessor extends Processor {
 	public void processBefore(String[] input, ArrayList<Integer> fullStopArr,
 			String[] parsedInput, Index index) {
 		// index.reset();
+		boolean isDetailsCom = false;
 		while (isIndexValid(index.getValue(), input)) {
 			if (isPartOfList(input[index.getValue()], LIST_DETAILS)) {
 				input[index.getValue()] = null;
 				index.increment();
+				isDetailsCom = true;
 				break;
 			}
 			index.increment();
 		}
-		parsedInput[getItemPosition()] = "";
+		if(!isDetailsCom){
+			parsedInput[getItemPosition()] = "";	
+		}
+		
 		/*
 		 * if (isIndexValid(index.getValue(), input) &&
 		 * isPartOfList(input[index.getValue()], LIST_DETAILS)) {
@@ -443,11 +458,10 @@ class DetailsProcessor extends Processor {
 	@Override
 	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
 			String[] parsedInput, Index index) {
-		assignNull(parsedInput);
+		
 		if (parsedInput[getItemPosition()] != null) {
 			parsedInput[getItemPosition()] = parsedInput[getItemPosition()]
 					.trim();
-			assignNull(parsedInput);
 		}
 	}
 
