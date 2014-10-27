@@ -14,6 +14,8 @@ import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -33,18 +35,21 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.plaf.metal.MetalIconFactory;
-import javax.swing.UIManager.*;
 
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
@@ -65,7 +70,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	private static final String MSG_QOTD = "QOTD: \n";
 	private static final String MSG_GOAL = "Your goal is: ";
 	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!";
-	private static final String MSG_ENTER_COMMAND = "Enter a command: ";
+	private static final String MSG_ENTER_COMMAND = "Enter a command:";
 	private static final String MSG_RESULT = "Result: ";
 	private static final String FILE_TASK = "DoubleUp.txt";
 	private static final String FILE_ARCHIVE = "Archive.txt";
@@ -83,17 +88,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	private static Logger logger = Logger.getLogger("myLogger");
 
 	public DoubleUp() {
-		try {
-			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-				if ("Nimbus".equals(info.getName())) {
-					UIManager.setLookAndFeel(info.getClassName());
-					break;
-				}
-			}
-		} catch (Exception e) {
-			// If Nimbus is not available, you can set the GUI to another look and feel.
-			//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}
+		setLookAndFeel();
 		setTitle(TITLE_MAIN_WINDOW);
 		//setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -117,15 +112,38 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		}
 	}
 
+	private void setLookAndFeel() {
+		try {
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (Exception e) {
+			// If Nimbus is not available, you can set the GUI to another look and feel.
+			//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		}
+	}
+
 	private static void initSystemTray(ArrayList<Integer> overview) {
 		if (SystemTray.isSupported()) {
-			TrayIcon icon = new TrayIcon(getImage(), "DoubleUp", createPopupMenu());
+			TrayIcon icon = new TrayIcon(getImage(), "DoubleUp", null);
+			final JPopupMenu jpopup = createJPopupMenu();
+			icon.addMouseListener(new MouseAdapter() {
+		        public void mouseReleased(MouseEvent e) {
+		            if (e.isPopupTrigger()) {
+		                jpopup.setLocation(e.getX(), e.getY());
+		                jpopup.setInvoker(jpopup);
+		                jpopup.setVisible(true);
+		            }
+		        }
+		    });
 			try {
 				SystemTray.getSystemTray().add(icon);
 			} catch (AWTException e1) {
 				e1.printStackTrace();
 			}
-
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e1) {
@@ -134,6 +152,38 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			icon.displayMessage(MSG_WELCOME, String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
 					TrayIcon.MessageType.INFO);
 		}
+	}
+
+	private static JPopupMenu createJPopupMenu() {
+		final JPopupMenu jpopup = new JPopupMenu();
+
+		JMenuItem aboutUsMI = new JMenuItem("About DoubleUp", new ImageIcon("javacup.gif"));
+		aboutUsMI.setMnemonic((int) 'a');
+		/*aboutUsMI.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_A, 
+		        java.awt.Event.CTRL_MASK));*/
+		jpopup.add(aboutUsMI);
+		
+		JMenuItem helpMI = new JMenuItem("Help", new ImageIcon("javacup.gif"));
+		helpMI.setMnemonic('H');
+		helpMI.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_F2, 
+		        java.awt.Event.CTRL_MASK));
+		jpopup.add(helpMI);
+		
+		jpopup.addSeparator();
+		JMenuItem exitMI = new JMenuItem("Exit");
+		exitMI.setMnemonic('E');
+		exitMI.setAccelerator(KeyStroke.getKeyStroke(
+		        java.awt.event.KeyEvent.VK_E, 
+		        java.awt.Event.CTRL_MASK));
+		exitMI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		jpopup.add(exitMI);
+		return jpopup;
 	}
 
 	@Override
@@ -184,22 +234,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		return img;
 	}
 
-	private static PopupMenu createPopupMenu() throws HeadlessException {
-		PopupMenu menu = new PopupMenu();
-		MenuItem aboutUs = new MenuItem("About DoubleUp");
-		MenuItem help = new MenuItem("Help Contents");
-		MenuItem exit = new MenuItem("Exit");
-		exit.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
-			}
-		});
-		menu.add(aboutUs);
-		menu.add(help);
-		menu.add(exit);
-		return menu;
-	}
-
 	public static void createAndShowGUI() {
 		frame = new JFrame(TITLE_MAIN_WINDOW);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -215,6 +249,10 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		//Top panel for Command
 		JPanel topRow = new JPanel();
 		topRow.add(new JLabel(MSG_ENTER_COMMAND));
+		/*JSeparator vert = new JSeparator(SwingConstants.VERTICAL);
+		vert.setPreferredSize(new Dimension(3, 30));
+		vert.setBackground(Color.black);
+        topRow.add(vert);*/
 		textFieldCmdIn = new JTextField(30);
 		topRow.add(textFieldCmdIn);
 		cp.add(topRow, BorderLayout.NORTH);
@@ -431,10 +469,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	public void windowIconified(WindowEvent e) {
 	}
 
-
-
-
-
 	private void controlSpace() {
 		if (isFocused()){
 			setState(Frame.ICONIFIED);
@@ -483,7 +517,4 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		}
 		return false;
 	}
-
-
-
 }
