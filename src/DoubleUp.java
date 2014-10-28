@@ -30,6 +30,7 @@ import java.util.EmptyStackException;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
@@ -103,6 +104,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	public static void main(String[] args) {
+		Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+		logger.setLevel(Level.OFF);
 		if (lockInstance()){
 			file = Storage.openFile(FILE_TASK);
 			archive = Storage.openFile(FILE_ARCHIVE);
