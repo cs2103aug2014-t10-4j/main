@@ -294,7 +294,6 @@ public class Logic {
 
 	public static String delete(String command, int numOfTaskToDelete, Task task, File file, File archive){
 		String returnMessage;
-		
 		if (tempStorage.size() == 0) {
 			if(undo.size()!=0 && undo.peek().equals(COMMAND_MIDWAY_DELETE)){
 				undo.pop();
@@ -353,7 +352,7 @@ public class Logic {
 					}
 				}
 				
-				if(undo.peek().equals(COMMAND_MIDWAY_DELETE)){
+				if(commandCheck.equals(COMMAND_MIDWAY_DELETE)){
 					ArrayList<Task> deletedTask = undoTask.pop();
 					deletedTask.add(taskToDelete);
 					assert(deletedTask.size() <= numOfTaskToDelete);
