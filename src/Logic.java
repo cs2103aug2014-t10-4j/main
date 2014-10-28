@@ -554,6 +554,19 @@ public class Logic {
 			return NO_MESSAGE_CLEAR;
 		}
 	}
+	
+	public static String clearArchive(File file) {
+		if(archiveStorage.size()>0){
+
+		archiveStorage.clear();
+		Storage.writeToFile(new ArrayList<Task>(), file); 
+
+		return MSG_CLEARED_FILE;
+		
+		}else{
+			return NO_MESSAGE_CLEAR;
+		}
+	}
 
 	private static int getIndex(Task task) {
 		try {
