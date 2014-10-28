@@ -296,9 +296,20 @@ public class Logic {
 		String returnMessage;
 		
 		if (tempStorage.size() == 0) {
+			if(undo.size()!=0 && undo.peek().equals(COMMAND_MIDWAY_DELETE)){
+				undo.pop();
+				undo.push(COMMAND_DELETE);
+			}
 			return MSG_NTH_DELETE;
 			
-		} else if (command.equals(COMMAND_DELETE)){
+		} 
+		if(Integer.parseInt(task.getParams())<=0 && command.equals(COMMAND_DELETE)){
+			if(undo.size()!=0 && undo.peek().equals(COMMAND_MIDWAY_DELETE)){
+				undo.pop();
+				undo.push(COMMAND_DELETE);
+			}
+			return MSG_FAIL_DELETE;
+		}else if (command.equals(COMMAND_DELETE)){
 			String commandCheck = null;
 			
 			if(undo.size()!=0 && undo.peek().equals(COMMAND_MIDWAY_DELETE)){
