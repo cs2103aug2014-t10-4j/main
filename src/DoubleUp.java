@@ -2,6 +2,7 @@ import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Image;
@@ -89,6 +90,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	public DoubleUp() {
 		setLookAndFeel();
+		UIManager.put("Label.font", new Font("Tahoma", Font.BOLD, 13));
 		setTitle(TITLE_MAIN_WINDOW);
 		//setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
