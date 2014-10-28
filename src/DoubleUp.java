@@ -342,8 +342,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				String theString = convertStreamToString(inputStream);
 				displayPanelTodayTasks.setText(theString);
 				textFieldResultsOut.setText("Press ESC to return to All Tasks");
-				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen:"));
-				results.setTitleOfPanel("Help Screen:");
+				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen"));
+				results.setTitleOfPanel("Help Screen");
 				results.setFeedback("Press ESC to return to Today Tasks");
 			}
 
