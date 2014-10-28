@@ -358,7 +358,6 @@ public class Logic {
 					assert(deletedTask.size() <= numOfTaskToDelete);
 					
 					if(deletedTask.size()== numOfTaskToDelete){
-						undo.pop(); // remove COMMAND_MIDWAY_DELETE
 						undo.pop(); // remove COMMAND_SEARCH
 						sortByDateAndTime(tempStorage);
 						sortByDateAndTime(archiveStorage);
