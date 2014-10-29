@@ -72,11 +72,9 @@ public class Constants {
 			"hha");
 	public static final SimpleDateFormat fullDateFormat = new SimpleDateFormat(
 			"ddMMyyyyHH:mm");
-
+	public static final SimpleDateFormat fullDateFormatTwo = new SimpleDateFormat(
+			"dd/MM/yyyyHH:mm");
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
-
-	public static final String TIME_FORMAT = "HH:mm";
-
 	public static final String DATE_FT = "ft";
 	
 	//Feedback 

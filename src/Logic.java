@@ -28,6 +28,10 @@ public class Logic {
 	public static ArrayList<Integer> init(File file, File archive) {
 		while(!Storage.copyToArrayList(file, tempStorage));
 		while(!Storage.copyToArrayList(archive, archiveStorage)); 
+		sortByDateAndTime(tempStorage);
+		Storage.writeToFile(tempStorage, file);
+		sortByDateAndTime(archiveStorage);
+		Storage.writeToFile(archiveStorage, archive);
 		ArrayList<Integer> numTask = new ArrayList<Integer>();
 		getNumTasks(numTask, tempStorage);
 		return numTask;
@@ -42,11 +46,10 @@ public class Logic {
 	}
 
 	private static void getNumTasks(ArrayList<Integer> numTask, ArrayList<Task> tempStorage) {
-		// Need to ensure correct format of date (as returned by parser) is used
-		SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
+
 		Date currentDate = new Date();
 		try {
-			currentDate = dateFormat.parse(dateFormat.format(currentDate));
+			currentDate = Constants.dateFormat.parse(Constants.dateFormat.format(currentDate));
 		} catch (ParseException e1) {
 			e1.printStackTrace();
 		}
@@ -60,7 +63,7 @@ public class Logic {
 				if (tempStorage.get(i).getDate().contains("ft")) {
 					floatingTask++;
 				} else {
-					Date dateOfCurrentTask = dateFormat.parse(tempStorage.get(i).getDate());
+					Date dateOfCurrentTask = Constants.dateFormat.parse(tempStorage.get(i).getDate());
 					if (dateOfCurrentTask.compareTo(currentDate) == 0) {
 						todayTask++;
 					} else if (dateOfCurrentTask.compareTo(currentDate) == 1) {
@@ -224,9 +227,8 @@ public class Logic {
 	}
 
 	private static String getTodayDateAndTime() {
-		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT+Constants.TIME_FORMAT);
 		Date date = new Date();
-		String reportCurrent = dateFormat.format(date);
+		String reportCurrent = Constants.fullDateFormatTwo.format(date);
 		return reportCurrent;
 	}
 
@@ -236,10 +238,10 @@ public class Logic {
 		try {
 			if (detailsOfTask.getTime()!=null) {
 
-				Date taskDateAndTime = new SimpleDateFormat(Constants.DATE_FORMAT+Constants.TIME_FORMAT).parse(
+				Date taskDateAndTime =  Constants.fullDateFormatTwo.parse(
 						tempStorage.get(taskNumber).getDate()+detailsOfTask.getTime());
 				
-				Date currentDateAndTime = new SimpleDateFormat(Constants.DATE_FORMAT+Constants.TIME_FORMAT).parse(todayDate);
+				Date currentDateAndTime =  Constants.fullDateFormatTwo.parse(todayDate);
 				
 				if(taskDateAndTime.compareTo(currentDateAndTime)<0){
 					return Constants.MSG_TIME_PASSED;
@@ -740,14 +742,12 @@ public class Logic {
 	}
 	//3 method of Sorting
 	public static String sortByDateAndTime(ArrayList<Task> tempStorage) {
-		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
-		DateFormat timeFormat = new SimpleDateFormat(Constants.TIME_FORMAT);
 		Date dateFirst = new Date();
 		Date dateSecond = new Date();
 		Date timeFirst = new Date();
 		Date timeSecond = new Date();
-		dateFormat.setLenient(false);
-		timeFormat.setLenient(false);
+		Constants.dateFormat.setLenient(false);
+		Constants.timeFormatOne.setLenient(false);
 
 		if (tempStorage.size() < 1) {
 			return Constants.MSG_NO_TASKS_TO_SORT;
@@ -785,10 +785,10 @@ public class Logic {
 							continue;
 						}else {
 
-							dateFirst = dateFormat.parse(tempStorage.get(
+							dateFirst = Constants.dateFormat.parse(tempStorage.get(
 									j).getDate());
 
-							dateSecond = dateFormat.parse(tempStorage
+							dateSecond = Constants.dateFormat.parse(tempStorage
 									.get(j + 1).getDate());
 
 							if (dateFirst.compareTo(dateSecond) > 0) {
@@ -814,10 +814,10 @@ public class Logic {
 								} else {
 
 
-									timeFirst = timeFormat
+									timeFirst = Constants.timeFormatOne
 											.parse(tempStorage.get(j).getTime());
 
-									timeSecond = timeFormat
+									timeSecond = Constants.timeFormatOne
 											.parse(tempStorage.get(j + 1)
 													.getTime());
 
@@ -974,7 +974,6 @@ public class Logic {
 	
 	//Returns first index of non-overdue. Use in deleting past tasks before that index.
 		public static int getFirstNotOverdueInList() {
-			SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
 			Date currentDate = new Date();
 			currentDate = removeTime(currentDate);
 			for (int i = 0; i < tempStorage.size(); i++) {
@@ -982,7 +981,7 @@ public class Logic {
 					return i+1;
 				} else {
 					try {
-						Date dateOfCurrentTask = dateFormat.parse(tempStorage.get(i).getDate());
+						Date dateOfCurrentTask = Constants.dateFormat.parse(tempStorage.get(i).getDate());
 						dateOfCurrentTask = removeTime(dateOfCurrentTask);
 						if (dateOfCurrentTask.compareTo(currentDate) >= 0) {
 							return i+1;
