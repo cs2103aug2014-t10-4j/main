@@ -60,7 +60,7 @@ import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
 public class DoubleUp extends JFrame implements NativeKeyListener , WindowListener{
-	private static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running.";
+	private static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running. Press Ctrl + Space to open it.";
 	private static final String ACTION_SHOW_ALL = "show all";
 	private static final String TITLE_MAIN_WINDOW = "DoubleUp To-do-List";
 	/**
@@ -311,7 +311,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		JLabel resultsCmd = new JLabel(MSG_RESULT);
 		Color white = Color.decode("#FDFAF3");
 		lastRow.add(resultsCmd);
-		textFieldResultsOut = new JTextArea(0, 43);
+		textFieldResultsOut = new JTextArea(0, 60);
 		textFieldResultsOut.setLineWrap(true);
 		textFieldResultsOut.setWrapStyleWord(true);
 		textFieldResultsOut.setMargin(new Insets(5,5,5,5));

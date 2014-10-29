@@ -14,7 +14,7 @@ public class ResultOfCommand {
 	private String feedback;
 	private String titleOfPanel;
 	private static final String MSG_EMPTY_TYPES = "No tasks for these types!";
-	private static final String DATE_WITH_LINE = " ======================= %s%s ======================= \n";
+	private static final String DATE_WITH_LINE = " ============================ %s%s ============================ \n";
 
 
 	public ResultOfCommand () {
@@ -65,12 +65,16 @@ public class ResultOfCommand {
 			if ( dateOfCurrentTask != null && !dateOfCurrentTask.equals(date)){
 				if (Task.getIsSortedByTime()){
 					toPrint += "\n";
+					String dayOfWeek = "";
 					if (dateOfCurrentTask.equals("ft")){
-						toPrint += String.format(DATE_WITH_LINE, "Floating Tasks", "");
+						dayOfWeek = padRight("", 3);
+						toPrint += String.format(DATE_WITH_LINE, "Floating Tasks", dayOfWeek);
 					} else if  (dateOfCurrentTask.equals(getTodayDate())){
-						toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, ", Today");
+						dayOfWeek = padRight(", Today", 7);
+						toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, dayOfWeek);
 					} else {
-						toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, ", " + getDayOfWeek(dateOfCurrentTask));
+						dayOfWeek = padRight(getDayOfWeek(date), 5);
+						toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, ", " + dayOfWeek); 
 					}
 				}
 			}
@@ -98,7 +102,7 @@ public class ResultOfCommand {
 				dayOfWeek = padRight("", 9);
 				toPrint += String.format(DATE_WITH_LINE, "Floating Tasks", "");
 			} else {	
-				dayOfWeek = padRight(getDayOfWeek(date), 9);
+				dayOfWeek = padRight(getDayOfWeek(date), 5);
 				toPrint += String.format(DATE_WITH_LINE, date, ", " + dayOfWeek); 
 			}
 		}
