@@ -193,7 +193,7 @@ public class Logic {
 			lastCommand = undo.pop();
 		}
 		
-		if (lastCommand.equals(COMMAND_SEARCH)){
+		if (lastCommand!= null && lastCommand.equals(COMMAND_SEARCH)){
 			int taskNumber = getIndex(detailsOfTask);
 			
 			for (int i = 0; i < tempStorage.size(); i++) {
@@ -274,6 +274,7 @@ public class Logic {
 
 	private static String editTask(Task detailsOfTask, File file, int taskNumber) {
 		String todayDate = getTodayDateAndTime();
+		System.out.println(todayDate);
 		try {
 			if (detailsOfTask.getTime()!=null) {
 
