@@ -123,6 +123,7 @@ class SpelledDateTwoFormatter extends SpelledDateOneFormatter {
 	}
 }
 
+//Formats date with initial format of 1st mar 2015 or 1st mar 15 to 01/03/2015
 class SpelledDateOneFormatter extends DateFormatter {
 
 	private static final String EMPTY_STRING = "";

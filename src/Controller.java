@@ -41,7 +41,7 @@ public class Controller {
 	private static final String ACTION_ADD = "add";
 
 	private static final String TITLE_ARCHIVED_TASKS = "Archived Tasks (view-only)";
-	private static final String MSG_ARCHIVED_TASKS = "These are all your completed and archive tasks.";
+	private static final String MSG_ARCHIVED_TASKS = "These are all your completed and archived tasks.";
 	private static final String MSG_CNT_DELETE_ZERO = "cannot delete index equal or below 0.";
 	private static final String MSG_CLASH_FOUND = "Something is happening at the same time! Continue %sing?";
 	private static final String MSG_DELETE_NO_INDEX = "You must add a number after delete";
@@ -56,7 +56,7 @@ public class Controller {
 	private static final String MSG_UNDO_SUCCESS = "Previous action is undone";
 	private static final String MSG_REDO_SUCCESS = "Previous action is done again";
 
-	private static final String TITLE_ALL_TASKS = "All Tasks:";
+	private static final String TITLE_ALL_TASKS = "All Tasks";
 	private static final String TITLE_ALPHABETICAL_ORDER = "All tasks by alphabetical order";
 	private static final String TITLE_FLOATING_TASKS = "Floating Tasks:";
 	private static final String TITLE_IMPORTANCE_ORDER = "All tasks by importance order";
@@ -102,8 +102,7 @@ public class Controller {
 			results.setListOfTasks(new ArrayList<Task>());
 			return results;
 		case CLEAR_ARCHIVE:
-			//results.setFeedback(Logic.clearContent(archive)); 
-			// no method to clear archive
+			results.setFeedback(Logic.clearArchive(archive)); 
 			results.setListOfTasks(Logic.getArchiveStorage());
 			results.setTitleOfPanel(TITLE_ARCHIVED_TASKS);
 			return results;
@@ -336,10 +335,16 @@ public class Controller {
 			searchTerm += task.getName();
 		}
 		if (task.getDate() != null){
-			searchTerm += " " + task.getDate();
+			if (searchTerm.length()>0){
+				searchTerm += " ";
+			}
+			searchTerm += task.getDate();
 		}
 		if (task.getTime() != null){
-			searchTerm += " " + task.getTime();
+			if (searchTerm.length()>0){
+				searchTerm += " ";
+			}
+			searchTerm += task.getTime();
 		}
 		return searchTerm;
 	}
