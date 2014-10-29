@@ -188,8 +188,42 @@ public class Logic {
 	// Second task to store is the task after editing
 	public static String edit(String command, Task detailsOfTask, File file) {
 		String returnMessage;
+		String lastCommand = null;
 		if(undo.size()!= 0 && undo.peek().equals(COMMAND_SEARCH)){
-			undo.pop();
+			lastCommand = undo.pop();
+		}
+		
+		if (lastCommand != null && lastCommand.equals(COMMAND_SEARCH)){
+			int taskNumber = getIndex(detailsOfTask);
+			
+			for (int i = 0; i < tempStorage.size(); i++) {
+
+				if (searchResults.get(taskNumber).equals(tempStorage.get(i))) {
+					
+					ArrayList<Task> tasksEdited = new ArrayList<Task>();
+					Task originalTask = new Task();
+					originalTask.copyOfTask(tempStorage.get(i));
+					tasksEdited.add(originalTask);
+					
+					returnMessage = editTask(detailsOfTask, file, i);
+					
+					Task editedTask = new Task();
+					editedTask.copyOfTask(tempStorage.get(i));
+					tasksEdited.add(editedTask);
+
+					sortByDateAndTime(tempStorage);
+					Storage.writeToFile(tempStorage, file);
+					
+					undo.push(command);
+					undoTask.push(tasksEdited);
+					redo.clear();
+					redoTask.clear();
+
+					return returnMessage;
+				}
+			}
+
+			
 		}
 		if (command.equals(COMMAND_EDIT)){
 			
@@ -294,11 +328,21 @@ public class Logic {
 
 	public static String delete(String command, int numOfTaskToDelete, Task task, File file, File archive){
 		String returnMessage;
-		
 		if (tempStorage.size() == 0) {
+			if(undo.size()!=0 && undo.peek().equals(COMMAND_MIDWAY_DELETE)){
+				undo.pop();
+				undo.push(COMMAND_DELETE);
+			}
 			return MSG_NTH_DELETE;
 			
-		} else if (command.equals(COMMAND_DELETE)){
+		} 
+		if(Integer.parseInt(task.getParams())<=0 && command.equals(COMMAND_DELETE)){
+			if(undo.size()!=0 && undo.peek().equals(COMMAND_MIDWAY_DELETE)){
+				undo.pop();
+				undo.push(COMMAND_DELETE);
+			}
+			return MSG_FAIL_DELETE;
+		}else if (command.equals(COMMAND_DELETE)){
 			String commandCheck = null;
 			
 			if(undo.size()!=0 && undo.peek().equals(COMMAND_MIDWAY_DELETE)){
@@ -342,13 +386,12 @@ public class Logic {
 					}
 				}
 				
-				if(undo.peek().equals(COMMAND_MIDWAY_DELETE)){
+				if(commandCheck.equals(COMMAND_MIDWAY_DELETE)){
 					ArrayList<Task> deletedTask = undoTask.pop();
 					deletedTask.add(taskToDelete);
 					assert(deletedTask.size() <= numOfTaskToDelete);
 					
 					if(deletedTask.size()== numOfTaskToDelete){
-						undo.pop(); // remove COMMAND_MIDWAY_DELETE
 						undo.pop(); // remove COMMAND_SEARCH
 						sortByDateAndTime(tempStorage);
 						sortByDateAndTime(archiveStorage);
@@ -520,6 +563,9 @@ public class Logic {
 	}
 	
 	public static String clearContent(File file) {
+		if(undo.size()!= 0 && undo.peek().equals(COMMAND_SEARCH)){
+			undo.pop();
+		} 
 		if(tempStorage.size()>0){
 			
 		ArrayList<Task> deletedTask = new ArrayList<Task>();
@@ -536,6 +582,22 @@ public class Logic {
 		
 		undo.push(COMMAND_DELETE_ALL);
 		undoTask.push(deletedTask);
+
+		return MSG_CLEARED_FILE;
+		
+		}else{
+			return NO_MESSAGE_CLEAR;
+		}
+	}
+	
+	public static String clearArchive(File file) {
+		if(undo.size()!= 0 && undo.peek().equals(COMMAND_SEARCH)){
+			undo.pop();
+		} 
+		if(archiveStorage.size()>0){
+
+		archiveStorage.clear();
+		Storage.writeToFile(new ArrayList<Task>(), file); 
 
 		return MSG_CLEARED_FILE;
 		
@@ -599,7 +661,11 @@ public class Logic {
 	public static String undo(File file, File archive) {
 		if (undo.empty()) {
 			return MSG_NO_PREVIOUS_ACTION;
+		}else if(undo.size()!= 0 && undo.peek().equals(COMMAND_SEARCH)){
+			undo.pop();
+			return undo(file,archive);
 		} else {
+
 			String lastCommand = undo.pop();
 			
 			if(lastCommand.equals(COMMAND_ADD)){
@@ -658,7 +724,10 @@ public class Logic {
 	public static String redo(File file, File archive) {
 		if (redo.empty()) {
 			return MSG_NO_FUTURE_ACTION;
-		} else {
+		}else if(undo.size()!= 0 && undo.peek().equals(COMMAND_SEARCH)){
+			undo.pop();
+			return redo(file,archive);
+		}  else {
 			String lastCommand = redo.pop();
 			
 			if(lastCommand.equals(COMMAND_ADD)){
