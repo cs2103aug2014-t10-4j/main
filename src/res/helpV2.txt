@@ -12,7 +12,6 @@ sort your list chronologically.	sort			.st
 delete all your tasks.		delete all		.da
 delete all past tasks.		delete past		.dp
 delete all today tasks.		delete today		.dtd
-set your personal goal	set goal become the best software engineer
 set importance level for a task	add Exam importance 3	.a importance 3
 see all your floating tasks	show floating		.shf
 see all your tasks for today	show today		.sht

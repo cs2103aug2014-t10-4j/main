@@ -308,7 +308,9 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		
 		//Feedback field below
 		JPanel lastRow = new JPanel();
-		lastRow.add(new JLabel(MSG_RESULT));
+		JLabel resultsCmd = new JLabel(MSG_RESULT);
+		Color white = Color.decode("#FDFAF3");
+		lastRow.add(resultsCmd);
 		textFieldResultsOut = new JTextArea(0, 43);
 		textFieldResultsOut.setLineWrap(true);
 		textFieldResultsOut.setWrapStyleWord(true);
@@ -326,7 +328,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		Color white = Color.decode("#FDFAF3");
 		textFieldResultsOut.setBackground(white);
 */
-		Color white = Color.decode("#FDFAF3");
+		//Color white = Color.decode("#FDFAF3");
 		middleRow.setBackground(white);
 
 		UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
