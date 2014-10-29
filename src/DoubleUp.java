@@ -94,7 +94,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		setTitle(TITLE_MAIN_WINDOW);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addComponentsToPane(getContentPane());
-		setMinimumSize(new Dimension(650,700));
+		setMinimumSize(new Dimension(730,700));
 		setVisible(true);
 		setResizable(false);
 		addWindowListener(this);
@@ -287,11 +287,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		//Top panel for Command
 		JPanel topRow = new JPanel();
 		topRow.add(new JLabel(MSG_ENTER_COMMAND));
-		/*JSeparator vert = new JSeparator(SwingConstants.VERTICAL);
-		vert.setPreferredSize(new Dimension(3, 30));
-		vert.setBackground(Color.black);
-        topRow.add(vert);*/
-		textFieldCmdIn = new JTextField(30);
+		textFieldCmdIn = new JTextField(40);
 		topRow.add(textFieldCmdIn);
 		cp.add(topRow, BorderLayout.NORTH);
 
