@@ -2,6 +2,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,11 +42,11 @@ public abstract class Processor {
 	protected final int IMPT_POSITION = 5;
 	protected final int ERROR_MSG_POSITION = 6;
 	protected final int PARAMETER_POSITION = 7;
-	protected final String DATE_NAME = "date";
-	protected final String TIME_NAME = "time";
-	protected final String TASK_NAME = "task name";
-	protected final String PARAMETERS_NAME = "parameters";
-	protected final String IMPT_NAME = "importance level";
+	protected final String DATE_NAME = "Date";
+	protected final String TIME_NAME = "Time";
+	protected final String TASK_NAME = "Task name";
+	protected final String PARAMETERS_NAME = "Parameters";
+	protected final String IMPT_NAME = "Importance level";
 
 	protected final String[] LIST_MONTHS = { "january", "jan", "february",
 			"feb", "march", "mar", "april", "apr", "may", "june", "jun",
@@ -266,6 +268,7 @@ class TaskProcessor extends DetailsProcessor {
 	public int getItemPosition() {
 		return TASK_NAME_POSITION;
 	}
+
 	@Override
 	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
 			String[] parsedInput, Index index) {
@@ -276,7 +279,6 @@ class TaskProcessor extends DetailsProcessor {
 			assignNull(parsedInput);
 		}
 	}
-
 	@Override
 	public void processBefore(String[] input, ArrayList<Integer> fullStopArr,
 			String[] parsedInput, Index index) {
@@ -434,18 +436,14 @@ class DetailsProcessor extends Processor {
 	public void processBefore(String[] input, ArrayList<Integer> fullStopArr,
 			String[] parsedInput, Index index) {
 		// index.reset();
-		boolean isDetailsCom = false;
 		while (isIndexValid(index.getValue(), input)) {
 			if (isPartOfList(input[index.getValue()], LIST_DETAILS)) {
 				input[index.getValue()] = null;
+				parsedInput[getItemPosition()] = "";
 				index.increment();
-				isDetailsCom = true;
 				break;
 			}
 			index.increment();
-		}
-		if(!isDetailsCom){
-			parsedInput[getItemPosition()] = "";	
 		}
 		
 		/*
@@ -458,7 +456,6 @@ class DetailsProcessor extends Processor {
 	@Override
 	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
 			String[] parsedInput, Index index) {
-		
 		if (parsedInput[getItemPosition()] != null) {
 			parsedInput[getItemPosition()] = parsedInput[getItemPosition()]
 					.trim();
@@ -728,10 +725,10 @@ class DateProcessor extends Processor {
 	public int getItemPosition() {
 		return DATE_POSITION;
 	}
+	private static Logger logger = Logger.getLogger("Date processor");
 
 	public void process(String[] parsedInput, String[] input, Index index) {
 
-		// process date
 		int initialIndex = index.getValue();
 		if (isIndexValid(index.getValue(), input)) {
 			String possibleDate = getPossibleDate(index, input);
@@ -741,12 +738,23 @@ class DateProcessor extends Processor {
 				parsedInput[DATE_POSITION] = FLOATING_TASK;
 				index.increment();
 			} else if (validateDate(possibleDate)) {
+				possibleDate = addZeroes(possibleDate);
 				assignDate(parsedInput, index, possibleDate);
 			} else {
 				assignErrorMsg(parsedInput, INVALID_DATE);
 				index.setValue(initialIndex);
 			}
 		}
+	}
+	//Method adds zeroes in the date where needed
+	private String addZeroes(String possibleDate) {
+		Date date = new Date();
+		try {
+			date = dateFormat.parse(possibleDate);
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, "Error when adding zeroes");
+		}
+		return dateFormat.format(date);
 	}
 
 	protected boolean isDateValid(Date date, Date today) {
@@ -1148,7 +1156,7 @@ class CommandProcessor extends Processor {
 	private final String[] LIST_DELETE_ALL = { "delete all", ".da" };
 	private final String[] LIST_DELETE_PAST = { "delete past", ".dp" };
 	private final String[] LIST_DELETE_TODAY = { "delete today", ".dtd" };
-	private final String[] LIST_SORT_TIME = { "sort time", ".st", };
+	private final String[] LIST_SORT_TIME = { "sort time","sort", ".st", };
 	private final String[] LIST_SHOW_DETAILS = { "show details", ".sd", };
 	private final String[] LIST_HIDE_DETAILS = { "hide details", ".hd", };
 	private final String[] LIST_VIEW_ARCHIVE = { "view archive", ".va", };
