@@ -846,7 +846,7 @@ public class Logic {
 						}
 					}
 					if (isSorted) {
-						return  Constants.MSG_SORT_SUCCESS + "date and time";
+						return  String.format(Constants.MSG_SORT_SUCCESS, "date and time");
 					}
 				}
 			} catch (ParseException e) {

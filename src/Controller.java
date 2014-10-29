@@ -335,10 +335,16 @@ public class Controller {
 			searchTerm += task.getName();
 		}
 		if (task.getDate() != null){
-			searchTerm += " " + task.getDate();
+			if (searchTerm.length()>0){
+				searchTerm += " ";
+			}
+			searchTerm += task.getDate();
 		}
 		if (task.getTime() != null){
-			searchTerm += " " + task.getTime();
+			if (searchTerm.length()>0){
+				searchTerm += " ";
+			}
+			searchTerm += task.getTime();
 		}
 		return searchTerm;
 	}
