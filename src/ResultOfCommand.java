@@ -73,7 +73,7 @@ public class ResultOfCommand {
 						dayOfWeek = padRight(", Today", 7);
 						toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, dayOfWeek);
 					} else {
-						dayOfWeek = padRight(getDayOfWeek(date), 5);
+						dayOfWeek = padRight(getDayOfWeek(dateOfCurrentTask), 5);
 						toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, ", " + dayOfWeek); 
 					}
 				}
