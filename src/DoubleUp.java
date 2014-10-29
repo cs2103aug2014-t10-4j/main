@@ -91,10 +91,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	public DoubleUp() {
 		setLookAndFeel();
-		
-		//UIManager.put("Label.font", new Font("Tahoma", Font.BOLD, 13));
 		setTitle(TITLE_MAIN_WINDOW);
-		//setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addComponentsToPane(getContentPane());
 		setMinimumSize(new Dimension(650,600));
@@ -327,6 +324,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		Color white = Color.decode("#FDFAF3");
 		textFieldResultsOut.setBackground(white);
 */
+		Color white = Color.decode("#FDFAF3");
+		middleRow.setBackground(white);
 
 		UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
 
@@ -342,6 +341,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 				String theString = convertStreamToString(inputStream);
 				displayPanelTodayTasks.setText(theString);
+				displayPanelTodayTasks.setCaretPosition(0);
 				textFieldResultsOut.setText("Press ESC to return to All Tasks");
 				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen:"));
 			}
@@ -359,6 +359,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			private void showAll() {
 				ResultOfCommand results = Controller.executeCommand("show all", file, archive);
 				displayPanelTodayTasks.setText(results.printArrayList());
+				displayPanelTodayTasks.setCaretPosition(0);
 				middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 				textFieldResultsOut.setText("Press F2 for help.");
 			}
@@ -432,9 +433,10 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				String theString = convertStreamToString(inputStream);
 				displayPanelTodayTasks.setText(theString);
 				textFieldResultsOut.setText("Press ESC to return to All Tasks");
-				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen:"));
-				results.setTitleOfPanel("Help Screen:");
+				middleRow.setBorder(BorderFactory.createTitledBorder("Help Screen"));
+				results.setTitleOfPanel("Help Screen");
 				results.setFeedback("Press ESC to return to Today Tasks");
+				displayPanelTodayTasks.setCaretPosition(0);
 			}
 
 			String convertStreamToString(java.io.InputStream is) {
