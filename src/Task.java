@@ -107,7 +107,7 @@ class Task {
 					, printDetails());
 		} else {
 			sentence = String.format("%s %s %s %s %s ",
-					printDate(), printName(), printTime(), 
+					printDate(), printTime(), printName(), 
 					printImportanceLevel(), printDetails());
 
 		}

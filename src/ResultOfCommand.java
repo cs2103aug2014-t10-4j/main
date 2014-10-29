@@ -20,7 +20,7 @@ public class ResultOfCommand {
 	public ResultOfCommand () {
 		listOfTasks = new ArrayList<Task>();
 		feedback = "";
-		titleOfPanel="All Tasks";
+		titleOfPanel="All Tasks:";
 	}
 
 	//Accessors

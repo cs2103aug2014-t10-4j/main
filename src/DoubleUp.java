@@ -94,7 +94,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		setTitle(TITLE_MAIN_WINDOW);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addComponentsToPane(getContentPane());
-		setMinimumSize(new Dimension(650,600));
+		setMinimumSize(new Dimension(650,700));
 		setVisible(true);
 		setResizable(false);
 		addWindowListener(this);
@@ -265,8 +265,11 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		//InputStream is = DoubleUp.class.getResourceAsStream("/res/Lintel-Regular.otf");	
 		try {
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
-			Font sizedFont = font.deriveFont(15f);
+			Font sizedFont = font.deriveFont(15f); 
 			UIManager.getLookAndFeelDefaults().put("defaultFont", sizedFont);
+			sizedFont = font.deriveFont(Font.BOLD, 15f); 
+			UIManager.getLookAndFeelDefaults().put("Label.font", sizedFont);
+
 		} catch (FontFormatException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -420,6 +423,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 					displayPanelTodayTasks.setText(results.printArrayList());
 					middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 					textFieldResultsOut.setText(results.getFeedback());
+					displayPanelTodayTasks.setCaretPosition(0);
 				}
 				backwardsUserInput.push(userSentence);
 				textFieldCmdIn.setText("");  // clear input TextField

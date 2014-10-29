@@ -818,7 +818,7 @@ public class Logic {
 						}
 					}
 					if (isSorted) {
-						return  MSG_SORT_SUCCESS + "date and time";
+						return String.format(MSG_SORT_SUCCESS, "date and time");
 					}
 				}
 			} catch (ParseException e) {
