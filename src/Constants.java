@@ -1,7 +1,6 @@
 import java.awt.Font;
 import java.text.SimpleDateFormat;
 
-
 public class Constants {
 	public static final int RESET = 0;
 	public static final String INVALID_PARAMETER = "Invalid parameter";
@@ -19,15 +18,15 @@ public class Constants {
 	public static final String PATTERN_TIME_THREE = "^\\d{1,2}([a][m]|[p][m])$";
 	public static final String PATTERN_TIME_TWO = "^\\d{1,2}([:.](\\d{2}))(([a][m])|([p][m]))$";
 	// Commands
-	public static final String COM_ADD = "add";
-	public static final String COM_SEARCH = "search";
-	public static final String COM_EDIT = "edit";
-	public static final String COM_DELETE = "delete";
+	public static final String COMMAND_ADD = "add";
+	public static final String COMMAND_DELETE = "delete";
+	public static final String COMMAND_EDIT = "edit";
+	public static final String COMMAND_UNDO = "undo";
+	public static final String COMMAND_REDO = "redo";
+	public static final String COMMAND_SEARCH = "search";
+	public static final String COMMAND_DELETE_ALL = "delete all";
+	public static final String COMMAND_MIDWAY_DELETE = "still deleting";
 	public static final String COM_DISPLAY = "display";
-	public static final String COM_REDO = "redo";
-	public static final String COM_UNDO = "undo";
-	public static final String COM_CLEAR_ALL = "clear all";
-
 	protected static final String INVALID_TIME = "invalid time";
 	public static final String ERROR = "error";
 	public static final String INVALID_DATE = "invalid Date";
@@ -73,7 +72,7 @@ public class Constants {
 			"hha");
 	public static final SimpleDateFormat fullDateFormat = new SimpleDateFormat(
 			"ddMMyyyyHH:mm");
-	
+
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
 	public static final String TIME_FORMAT = "HHmm";
 	public static final String MSG_SCREEN_CLEARED = "Screen is cleared. Type show all, show today or show floating again.";
@@ -106,6 +105,5 @@ public class Constants {
 	public static final String DIVIDER_IMPORTANCE = "//!@#DOUBLEUP_DIVIDER_IMPORTANCE#@!//";
 	protected static final int PRESET_TYPE_DATE = Font.BOLD;
 	protected static final int PRESET_TYPE_TIME = Font.BOLD;
-
 
 }
