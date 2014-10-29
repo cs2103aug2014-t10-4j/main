@@ -1,15 +1,15 @@
 import java.awt.AWTException;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontFormatException;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Insets;
-import java.awt.MenuItem;
 import java.awt.Panel;
-import java.awt.PopupMenu;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
@@ -22,6 +22,7 @@ import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
@@ -30,7 +31,6 @@ import java.util.EmptyStackException;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.swing.AbstractAction;
@@ -91,7 +91,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	public DoubleUp() {
 		setLookAndFeel();
-		UIManager.put("Label.font", new Font("Tahoma", Font.BOLD, 13));
+		
+		//UIManager.put("Label.font", new Font("Tahoma", Font.BOLD, 13));
 		setTitle(TITLE_MAIN_WINDOW);
 		//setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -118,6 +119,17 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	private void setLookAndFeel() {
+		Color white = Color.decode("#FDFAF3");
+		Color blue = Color.decode("#ADC5DD");
+		//Color blue = Color.decode("#2B98A2");
+		Color champagneGold = Color.decode("#F7E7CE");
+		//UIManager.put("nimbusBlueGrey", blue);
+        UIManager.put("nimbusFocus", blue);
+
+		//UIManager.put("nimbusBase", blue);
+		//UIManager.put("control", white);
+		UIManager.put("control", champagneGold);
+
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 				if ("Nimbus".equals(info.getName())) {
@@ -129,6 +141,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			// If Nimbus is not available, you can set the GUI to another look and feel.
 			//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
+
+
 	}
 
 	private static void initSystemTray(ArrayList<Integer> overview) {
@@ -250,6 +264,22 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	public static void addComponentsToPane(Container cp){
+		InputStream is = DoubleUp.class.getResourceAsStream("/res/Dosis-SemiBold.ttf");	
+		//InputStream is = DoubleUp.class.getResourceAsStream("/res/Lintel-Regular.otf");	
+		try {
+			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+			Font sizedFont = font.deriveFont(15f);
+			UIManager.getLookAndFeelDefaults().put("defaultFont", sizedFont);
+		} catch (FontFormatException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
+		
 		cp.setLayout(new BorderLayout());
 		//Top panel for Command
 		JPanel topRow = new JPanel();
@@ -276,7 +306,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		middleRow.add(scroll, BorderLayout.CENTER);
 		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 		cp.add(middleRow, BorderLayout.CENTER);
-
+		
 		//Feedback field below
 		JPanel lastRow = new JPanel();
 		lastRow.add(new JLabel(MSG_RESULT));
@@ -290,6 +320,13 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 		lastRow.add(textFieldResultsOut);
 		cp.add(lastRow, BorderLayout.SOUTH);
+		
+	/*	Color blue = Color.decode("#ADC5DD");
+		displayPanelTodayTasks.setBackground(blue);
+		textFieldCmdIn.setBackground(blue);
+		Color white = Color.decode("#FDFAF3");
+		textFieldResultsOut.setBackground(white);
+*/
 
 		UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
 
