@@ -317,6 +317,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		textFieldResultsOut.setMargin(new Insets(5,5,5,5));
 		textFieldResultsOut.setEditable(false);  // read-only
 		textFieldResultsOut.setText(MSG_WELCOME + MSG_HELP);
+		textFieldResultsOut.setFocusable(false);
 		//textFieldResultsOut.setBackground(Color.YELLOW);
 
 		lastRow.add(textFieldResultsOut);
