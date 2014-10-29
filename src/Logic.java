@@ -311,7 +311,7 @@ public class Logic {
 					commandCheck= undo.pop();
 				}
 			// DELETE FROM SEARCH LIST
-			if(undo.size()!=0 && undo.peek().equals(Constants.COMMAND_SEARCH)){
+			if(undo.size()!=0 && undo.peek().equals(Constants.COMMAND_SEARCH) && searchResults.size()!=0){
 				int index = getIndex(task);
 				Task taskToDelete = new Task();
 				taskToDelete.copyOfTask(searchResults.get(index));
@@ -379,6 +379,9 @@ public class Logic {
 			}
 			// DELETE FROM NORMAL STORAGE
 			else{
+				if(undo.size()!=0 && undo.peek().equals(Constants.COMMAND_SEARCH) && searchResults.size()==0){
+					undo.pop();
+				}
 				int index = getIndex(task);
 				Task taskToDelete = new Task();
 				taskToDelete.copyOfTask(tempStorage.get(index));
