@@ -13,11 +13,8 @@ import java.util.Stack;
 
 public class Logic {
 
-	private static final String DATE_FT = "ft";
-	private static final String DATE_FORMAT = "dd/MM/yyyy";
-	
-	private static final String TIME_FORMAT = "HHmm";
-	
+
+
 	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
 	private static ArrayList<Task> archiveStorage = new ArrayList<Task>();
 	private static ArrayList<Task> searchResults = new ArrayList<Task>();
@@ -46,7 +43,7 @@ public class Logic {
 
 	private static void getNumTasks(ArrayList<Integer> numTask, ArrayList<Task> tempStorage) {
 		// Need to ensure correct format of date (as returned by parser) is used
-		SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+		SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
 		Date currentDate = new Date();
 		try {
 			currentDate = dateFormat.parse(dateFormat.format(currentDate));
@@ -743,8 +740,8 @@ public class Logic {
 	}
 	//3 method of Sorting
 	public static String sortByDateAndTime(ArrayList<Task> tempStorage) {
-		DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-		DateFormat timeFormat = new SimpleDateFormat(TIME_FORMAT);
+		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
+		DateFormat timeFormat = new SimpleDateFormat(Constants.TIME_FORMAT);
 		Date dateFirst = new Date();
 		Date dateSecond = new Date();
 		Date timeFirst = new Date();
@@ -757,7 +754,6 @@ public class Logic {
 		} else {
 			try {
 				for (int i = 0; i < tempStorage.size(); i++) {
-
 					boolean isSorted = true;
 
 					for (int j = 0; j < tempStorage.size() - 1; j++) {
@@ -766,21 +762,21 @@ public class Logic {
 						int firstTaskOrder = Integer.parseInt(tempStorage.get(j).getParams());
 						int secondTaskOrder = Integer.parseInt(tempStorage.get(j+1).getParams());
 
-						if (tempStorage.get(j).getDate().equals("ft")
+						if (tempStorage.get(j).getDate().equals(Constants.DATE_FT)
 								&& !tempStorage.get(j + 1).getDate()
-								.equals("ft")) {
+								.equals(Constants.DATE_FT)) {
 							tempStorage.add(j + 2, tempStorage.get(j));
 							tempStorage.remove(j);
 							isSorted = false;
 							continue;
 
-						} else if (!tempStorage.get(j).getDate().equals(DATE_FT)
+						} else if (!tempStorage.get(j).getDate().equals(Constants.DATE_FT)
 								&& tempStorage.get(j + 1).getDate()
-								.equals("ft")) {
+								.equals(Constants.DATE_FT)) {
 							continue;
-						} else if( tempStorage.get(j).getDate().equals("ft")
+						} else if( tempStorage.get(j).getDate().equals(Constants.DATE_FT)
 								&& tempStorage.get(j + 1).getDate()
-								.equals("ft")) {
+								.equals(Constants.DATE_FT)) {
 							if(firstTaskOrder>secondTaskOrder){
 								tempStorage.add(j + 2, tempStorage.get(j));
 								tempStorage.remove(j);
@@ -855,6 +851,7 @@ public class Logic {
 						return  String.format(Constants.MSG_SORT_SUCCESS, "date and time");
 					}
 				}
+				
 			} catch (ParseException e) {
 			}
 			return String.format(Constants.MSG_SORT_SUCCESS, "date and time");
@@ -977,11 +974,11 @@ public class Logic {
 	
 	//Returns first index of non-overdue. Use in deleting past tasks before that index.
 		public static int getFirstNotOverdueInList() {
-			SimpleDateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+			SimpleDateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
 			Date currentDate = new Date();
 			currentDate = removeTime(currentDate);
 			for (int i = 0; i < tempStorage.size(); i++) {
-				if (tempStorage.get(i).getDate().contains(DATE_FT)) {
+				if (tempStorage.get(i).getDate().contains(Constants.DATE_FT)) {
 					return i+1;
 				} else {
 					try {

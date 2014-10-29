@@ -77,6 +77,7 @@ public class Constants {
 
 	public static final String TIME_FORMAT = "HH:mm";
 
+	private static final String DATE_FT = "ft";
 	
 	//Feedback 
 	public static final String ADD_MESSAGE = "Added to %s: \"%s\". Type .u to undo.";
