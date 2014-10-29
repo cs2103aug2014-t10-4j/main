@@ -180,8 +180,43 @@ public class Logic {
 	// Second task to store is the task after editing
 	public static String edit(String command, Task detailsOfTask, File file) {
 		String returnMessage;
+		
+		String lastCommand = null;
 		if(undo.size()!= 0 && undo.peek().equals(Constants.COMMAND_SEARCH)){
-			undo.pop();
+			lastCommand = undo.pop();
+		}
+		
+		if (lastCommand != null && lastCommand.equals(Constants.COMMAND_SEARCH)){
+			int taskNumber = getIndex(detailsOfTask);
+			
+			for (int i = 0; i < tempStorage.size(); i++) {
+
+				if (searchResults.get(taskNumber).equals(tempStorage.get(i))) {
+					
+					ArrayList<Task> tasksEdited = new ArrayList<Task>();
+					Task originalTask = new Task();
+					originalTask.copyOfTask(tempStorage.get(i));
+					tasksEdited.add(originalTask);
+					
+					returnMessage = editTask(detailsOfTask, file, i);
+					
+					Task editedTask = new Task();
+					editedTask.copyOfTask(tempStorage.get(i));
+					tasksEdited.add(editedTask);
+
+					sortByDateAndTime(tempStorage);
+					Storage.writeToFile(tempStorage, file);
+					
+					undo.push(command);
+					undoTask.push(tasksEdited);
+					redo.clear();
+					redoTask.clear();
+
+					return returnMessage;
+				}
+			}
+
+			
 		}
 		if (command.equals(Constants.COMMAND_EDIT)){
 			
@@ -521,6 +556,9 @@ public class Logic {
 	}
 	
 	public static String clearContent(File file) {
+		if(undo.size()!= 0 && undo.peek().equals(Constants.COMMAND_SEARCH)){
+			undo.pop();
+		} 
 		if(tempStorage.size()>0){
 			
 		ArrayList<Task> deletedTask = new ArrayList<Task>();
@@ -546,6 +584,9 @@ public class Logic {
 	}
 	
 	public static String clearArchive(File file) {
+		if(undo.size()!= 0 && undo.peek().equals(Constants.COMMAND_SEARCH)){
+			undo.pop();
+		} 
 		if(archiveStorage.size()>0){
 
 		archiveStorage.clear();
@@ -613,7 +654,11 @@ public class Logic {
 	public static String undo(File file, File archive) {
 		if (undo.empty()) {
 			return MSG_NO_PREVIOUS_ACTION;
+		}else if(undo.size()!= 0 && undo.peek().equals(Constants.COMMAND_SEARCH)){
+			undo.pop();
+			return undo(file,archive);
 		} else {
+
 			String lastCommand = undo.pop();
 			
 			if(lastCommand.equals(Constants.COMMAND_ADD)){
@@ -672,7 +717,10 @@ public class Logic {
 	public static String redo(File file, File archive) {
 		if (redo.empty()) {
 			return MSG_NO_FUTURE_ACTION;
-		} else {
+		}else if(undo.size()!= 0 && undo.peek().equals(Constants.COMMAND_SEARCH)){
+			undo.pop();
+			return redo(file,archive);
+		}  else {
 			String lastCommand = redo.pop();
 			
 			if(lastCommand.equals(Constants.COMMAND_ADD)){
