@@ -74,7 +74,9 @@ public class Constants {
 			"ddMMyyyyHH:mm");
 
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
-	public static final String TIME_FORMAT = "HHmm";
+
+	public static final String TIME_FORMAT = "HH:mm";
+
 	
 	//Feedback 
 	public static final String ADD_MESSAGE = "Added to %s: \"%s\". Type .u to undo.";
@@ -94,6 +96,7 @@ public class Constants {
 	public static final String MSG_NO_TASKS_TO_SORT = "Not enough tasks to sort";	
 	public static final String MSG_TIME_PASSED = "The time have passed";
 	public static final String WRONG_FORMAT = "\"%s\" is wrong format";
+
 	public static final String MSG_SCREEN_CLEARED = "Screen is cleared. Type show all, show today or show floating again.";
 	public static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
 	public static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";

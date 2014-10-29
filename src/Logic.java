@@ -152,7 +152,9 @@ public class Logic {
 			lastCommand = undo.pop();
 		}
 		
+
 		if (lastCommand != null && lastCommand.equals(Constants.COMMAND_SEARCH)){
+
 			int taskNumber = getIndex(detailsOfTask);
 			
 			for (int i = 0; i < tempStorage.size(); i++) {
@@ -233,6 +235,7 @@ public class Logic {
 
 	private static String editTask(Task detailsOfTask, File file, int taskNumber) {
 		String todayDate = getTodayDateAndTime();
+		System.out.println(todayDate);
 		try {
 			if (detailsOfTask.getTime()!=null) {
 
@@ -308,7 +311,7 @@ public class Logic {
 					commandCheck= undo.pop();
 				}
 			// DELETE FROM SEARCH LIST
-			if(undo.size()!=0 && undo.peek().equals(Constants.COMMAND_SEARCH)){
+			if(undo.size()!=0 && undo.peek().equals(Constants.COMMAND_SEARCH) && searchResults.size()!=0){
 				int index = getIndex(task);
 				Task taskToDelete = new Task();
 				taskToDelete.copyOfTask(searchResults.get(index));
@@ -376,6 +379,9 @@ public class Logic {
 			}
 			// DELETE FROM NORMAL STORAGE
 			else{
+				if(undo.size()!=0 && undo.peek().equals(Constants.COMMAND_SEARCH) && searchResults.size()==0){
+					undo.pop();
+				}
 				int index = getIndex(task);
 				Task taskToDelete = new Task();
 				taskToDelete.copyOfTask(tempStorage.get(index));
@@ -911,6 +917,11 @@ public class Logic {
 			}
 		}
 		return Constants. MSG_SORT_FAIL;
+	}
+	
+	//To remove the search in the undo list after searching for clash
+	public static void undoPopForSearchClash(){
+		undo.pop();
 	}
 
 	// Following methods are used for junit testing.
