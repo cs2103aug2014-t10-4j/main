@@ -915,6 +915,11 @@ public class Logic {
 		}
 		return Constants. MSG_SORT_FAIL;
 	}
+	
+	//To remove the search in the undo list after searching for clash
+	public static void undoPopForSearchClash(){
+		undo.pop();
+	}
 
 	// Following methods are used for junit testing.
 	public static String printTempStorage(){

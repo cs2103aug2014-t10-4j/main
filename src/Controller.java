@@ -377,7 +377,9 @@ public class Controller {
 		Task tempTask = new Task();
 		tempTask.setDate(taskToExecute.getDate());
 		tempTask.setTime(taskToExecute.getTime());
-		return Logic.search(tempTask);
+		ArrayList<Task> searchResult = Logic.search(tempTask);
+		Logic.undoPopForSearchClash();
+		return searchResult;
 	}
 
 	// This method is used to determine the command types given the first word of the command.
