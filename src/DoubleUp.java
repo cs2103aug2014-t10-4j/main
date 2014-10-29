@@ -261,13 +261,14 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	public static void addComponentsToPane(Container cp){
-		InputStream is = DoubleUp.class.getResourceAsStream("/res/Dosis-SemiBold.ttf");	
+		InputStream is = DoubleUp.class.getResourceAsStream("/res/monaco.ttf");	
 		//InputStream is = DoubleUp.class.getResourceAsStream("/res/Lintel-Regular.otf");	
 		try {
+			
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
-			Font sizedFont = font.deriveFont(15f); 
+			Font sizedFont = font.deriveFont(13f); 
 			UIManager.getLookAndFeelDefaults().put("defaultFont", sizedFont);
-			sizedFont = font.deriveFont(Font.BOLD, 15f); 
+			sizedFont = font.deriveFont(Font.BOLD, 13f); 
 			UIManager.getLookAndFeelDefaults().put("Label.font", sizedFont);
 
 		} catch (FontFormatException e1) {
@@ -277,6 +278,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		//UIManager.getLookAndFeelDefaults().put("defaultFont", 
+			//		new Font("Courier", Font.PLAIN, 14));
 		
 		
 		
