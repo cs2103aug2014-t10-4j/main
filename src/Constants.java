@@ -1,7 +1,6 @@
 import java.awt.Font;
 import java.text.SimpleDateFormat;
 
-
 public class Constants {
 	public static final int RESET = 0;
 	public static final String INVALID_PARAMETER = "Invalid parameter";
@@ -19,15 +18,15 @@ public class Constants {
 	public static final String PATTERN_TIME_THREE = "^\\d{1,2}([a][m]|[p][m])$";
 	public static final String PATTERN_TIME_TWO = "^\\d{1,2}([:.](\\d{2}))(([a][m])|([p][m]))$";
 	// Commands
-	public static final String COM_ADD = "add";
-	public static final String COM_SEARCH = "search";
-	public static final String COM_EDIT = "edit";
-	public static final String COM_DELETE = "delete";
+	public static final String COMMAND_ADD = "add";
+	public static final String COMMAND_DELETE = "delete";
+	public static final String COMMAND_EDIT = "edit";
+	public static final String COMMAND_UNDO = "undo";
+	public static final String COMMAND_REDO = "redo";
+	public static final String COMMAND_SEARCH = "search";
+	public static final String COMMAND_DELETE_ALL = "delete all";
+	public static final String COMMAND_MIDWAY_DELETE = "still deleting";
 	public static final String COM_DISPLAY = "display";
-	public static final String COM_REDO = "redo";
-	public static final String COM_UNDO = "undo";
-	public static final String COM_CLEAR_ALL = "clear all";
-
 	protected static final String INVALID_TIME = "invalid time";
 	public static final String ERROR = "error";
 	public static final String INVALID_DATE = "invalid Date";
@@ -73,9 +72,28 @@ public class Constants {
 			"hha");
 	public static final SimpleDateFormat fullDateFormat = new SimpleDateFormat(
 			"ddMMyyyyHH:mm");
-	
+
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
 	public static final String TIME_FORMAT = "HHmm";
+	
+	//Feedback 
+	public static final String ADD_MESSAGE = "Added to %s: \"%s\". Type .u to undo.";
+	public static final String MSG_FAIL_ADD = "Unable to add line";
+	public static final String MSG_FAIL_DELETE = "Unable to delete line";
+	public static final String MSG_FAIL_EDIT = "Unable to edit line.";
+	public static final String MSG_DELETE_FAIL = "Unable to delete line";
+	public static final String MSG_DELETE_SUCCESS = "deleted from your list: \"%s\"";
+	public static final String MSG_EDIT_SUCCESS = "Successfully edited.";
+	public static final String MSG_NO_PREVIOUS_ACTION = "Nothing to undo";
+	public static final String MSG_NO_FUTURE_ACTION = "Nothing to redo";
+	public static final String MSG_NTH_DELETE = "nothing to delete";	
+	public static final String MSG_UNDO_SUCCESS = "Undo successful";
+	public static final String MSG_REDO_SUCCESS = "Redo successful";
+	public static final String MSG_SORT_FAIL = "Sorting failed";
+	public static final String MSG_SORT_SUCCESS = "Successfully sorted by %s.";
+	public static final String MSG_NO_TASKS_TO_SORT = "Not enough tasks to sort";	
+	public static final String MSG_TIME_PASSED = "The time have passed";
+	public static final String WRONG_FORMAT = "\"%s\" is wrong format";
 	public static final String MSG_SCREEN_CLEARED = "Screen is cleared. Type show all, show today or show floating again.";
 	public static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
 	public static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
@@ -91,21 +109,17 @@ public class Constants {
 	public static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 	public static final String MSG_MISSING_FILE = "File not found.";
 	public static final String MSG_INVALID_COMMAND = "Invalid command";
-	public static final String MSG_FAIL_ADD = "Unable to add line.";
 	public static final String DELETE_MESSAGE = "deleted from %s: \"%s\"";
-	public static final String WRONG_FORMAT = "\"%s\" is wrong format";
+	public static final String MSG_CLEARED_FILE = "List is cleared";
+	public static final String NO_MESSAGE_CLEAR = "Nothing to clear!";
 	public static final String BAD_INDEX_MESSAGE = "%d is not a valid number.Valid range is %d to %d.";
 	public static final int INITIAL_VALUE = 0;
 	public static final String NO_MESSAGE_DELETE = "nothing to delete!";
 	public static final int INVAILD_NUMBER = -1;
-	public static final int MAXIMUM_UNDO_TIMES = 30;
-	public static final int MAXIMUM_REDO_TIMES = 30;
 	public static final String DIVIDER_DATE = "//!@#DOUBLEUP_DIVIDER_DATE#@!//";
 	public static final String DIVIDER_TIME = "//!@#DOUBLEUP_DIVIDER_TIME#@!//";
 	public static final String DIVIDER_DETAILS = "//!@#DOUBLEUP_DIVIDER_DETAILS#@!//";
 	public static final String DIVIDER_IMPORTANCE = "//!@#DOUBLEUP_DIVIDER_IMPORTANCE#@!//";
-	protected static final int PRESET_TYPE_DATE = Font.BOLD;
-	protected static final int PRESET_TYPE_TIME = Font.BOLD;
 
 
 }
