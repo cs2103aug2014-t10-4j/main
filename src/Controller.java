@@ -56,7 +56,7 @@ public class Controller {
 	private static final String MSG_UNDO_SUCCESS = "Previous action is undone";
 	private static final String MSG_REDO_SUCCESS = "Previous action is done again";
 
-	private static final String TITLE_ALL_TASKS = "All Tasks";
+	private static final String TITLE_ALL_TASKS = "All Tasks:";
 	private static final String TITLE_ALPHABETICAL_ORDER = "All tasks by alphabetical order";
 	private static final String TITLE_FLOATING_TASKS = "Floating Tasks:";
 	private static final String TITLE_IMPORTANCE_ORDER = "All tasks by importance order";

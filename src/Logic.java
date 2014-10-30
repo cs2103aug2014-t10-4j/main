@@ -742,6 +742,7 @@ public class Logic {
 	}
 	//3 method of Sorting
 	public static String sortByDateAndTime(ArrayList<Task> tempStorage) {
+		Task.setSortedByTime(true);
 		Date dateFirst = new Date();
 		Date dateSecond = new Date();
 		Date timeFirst = new Date();
