@@ -1162,6 +1162,9 @@ class CommandProcessor extends Processor {
 	private final String[] LIST_VIEW_ARCHIVE = { "view archive", ".va", };
 	private final String[] LIST_CLEAR_ARCHIVE = { "clear archive", ".ca", };
 	private final String[] LIST_DELETE_DATE = { "delete date", ".dd", };
+	private final String[] LIST_SHOW_THIS_WEEK = { "show this week",".stw" };
+	private final String[] LIST_SHOW_WEEK = { "show week", ".sw", };
+	private final String[] LIST_SHOW_NEXT_WEEK = { "show next week",".snw" };
 
 	public void process(String[] parsedInput, String[] input, Index index) {
 		/*
@@ -1289,7 +1292,12 @@ class CommandProcessor extends Processor {
 			return getFirstMember(LIST_SHOW_TODAY);
 		} else if (isSpecialCommand(input, index, LIST_VIEW_ARCHIVE, parsedInput)) {
 			return getFirstMember(LIST_VIEW_ARCHIVE);
-		}
+		}else if (isSpecialCommand(input, index, LIST_SHOW_WEEK, parsedInput)) {
+			return getFirstMember(LIST_SHOW_WEEK);
+		} else if (isSpecialCommand(input, index, LIST_SHOW_THIS_WEEK, parsedInput)) {
+			return getFirstMember(LIST_SHOW_THIS_WEEK);
+		}  else if (isSpecialCommand(input, index, LIST_SHOW_NEXT_WEEK, parsedInput)) {
+			return getFirstMember(LIST_SHOW_NEXT_WEEK);
 		return null;
 	}
 
