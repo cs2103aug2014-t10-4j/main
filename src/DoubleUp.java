@@ -72,7 +72,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final String MSG_WELCOME = "Welcome to DoubleUp! ";
-	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d overdue tasks, %d tasks due eventually and %d floating tasks.\n";
+	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today,\n %d overdue tasks, %d tasks due\n eventually and %d floating tasks.";
 	private static final String MSG_QOTD = "QOTD: \n";
 	private static final String MSG_GOAL = "Your goal is: ";
 	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!";
@@ -102,6 +102,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		setVisible(true);
 		setResizable(false);
 		addWindowListener(this);
+		setLocationRelativeTo(null);
 		logger.log(Level.INFO, "Successfully create GUI");
 	}
 
