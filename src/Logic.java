@@ -827,12 +827,14 @@ public class Logic {
 						}
 					}
 					if (isSorted) {
+						Task.setSortedByTime(true);
 						return  String.format(Constants.MSG_SORT_SUCCESS, "date and time");
 					}
 				}
 				
 			} catch (ParseException e) {
 			}
+			Task.setSortedByTime(true);
 			return String.format(Constants.MSG_SORT_SUCCESS, "date and time");
 		}
 	}
