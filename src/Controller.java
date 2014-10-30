@@ -53,8 +53,6 @@ public class Controller {
 	private static final String MSG_SHOW_TODAY_SUCCESS = "These are your tasks for the day.";
 	private static final String MSG_SHOW_DETAILS_SUCCESS = "Details are expanded.";
 	private static final String MSG_SHOW_ALL_SUCCESS = "These are all your tasks.";
-	private static final String MSG_UNDO_SUCCESS = "Previous action is undone";
-	private static final String MSG_REDO_SUCCESS = "Previous action is done again";
 
 	private static final String TITLE_ALL_TASKS = "All Tasks";
 	private static final String TITLE_ALPHABETICAL_ORDER = "All tasks by alphabetical order";
@@ -242,13 +240,11 @@ public class Controller {
 		case RESTORE:
 			return results; //stub
 		case UNDO: 
-			Logic.undo(file, archive);
-			results.setFeedback(MSG_UNDO_SUCCESS);
+			results.setFeedback(Logic.undo(file, archive));
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		case REDO:
-			Logic.redo(file, archive); 
-			results.setFeedback(MSG_REDO_SUCCESS);
+			results.setFeedback(Logic.redo(file, archive));
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		case VIEW_ARCHIVE:

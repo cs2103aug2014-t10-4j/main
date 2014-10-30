@@ -85,11 +85,11 @@ public class Constants {
 	public static final String MSG_DELETE_FAIL = "Unable to delete line";
 	public static final String MSG_DELETE_SUCCESS = "deleted from your list: \"%s\"";
 	public static final String MSG_EDIT_SUCCESS = "Successfully edited.";
-	public static final String MSG_NO_PREVIOUS_ACTION = "Nothing to undo";
-	public static final String MSG_NO_FUTURE_ACTION = "Nothing to redo";
-	public static final String MSG_NTH_DELETE = "nothing to delete";	
-	public static final String MSG_UNDO_SUCCESS = "Undo successful";
-	public static final String MSG_REDO_SUCCESS = "Redo successful";
+	public static final String MSG_NO_PREVIOUS_ACTION = "No previous action to be undone";
+	public static final String MSG_NO_FUTURE_ACTION = "No previous action to be redone";
+	public static final String MSG_NTH_DELETE = "Nothing to delete";	
+	public static final String MSG_UNDO_SUCCESS = "Previous action is undone";
+	public static final String MSG_REDO_SUCCESS = "Previous action is done again";
 	public static final String MSG_SORT_FAIL = "Sorting failed";
 	public static final String MSG_SORT_SUCCESS = "Successfully sorted by %s.";
 	public static final String MSG_NO_TASKS_TO_SORT = "Not enough tasks to sort";	
