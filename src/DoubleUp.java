@@ -318,6 +318,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		ResultOfCommand results = Controller.executeCommand(ACTION_SHOW_ALL, file, archive);
 		displayPanelTodayTasks.setText(results.printArrayList());
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scroll.setBorder(null);
 		middleRow.add(scroll, BorderLayout.CENTER);
 		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 		cp.add(middleRow, BorderLayout.CENTER);
