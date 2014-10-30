@@ -50,7 +50,7 @@ class ParserAdd extends ParserCommand {
 				new NaturalProcessor());
 		processType(parsedInput, input, index, new AutoDateProcessor(),
 				new NaturalProcessor());
-		processType(parsedInput, input, index, new FutureTimeProcessor(),
+		processType(parsedInput, input, index, new TimeProcessor(),
 				new NaturalProcessor());
 		processType(parsedInput, input, index, new ImportanceProcessor(),
 				new NaturalProcessor());
@@ -111,9 +111,9 @@ class ParserEdit extends ParserCommand {
 		//processNatDetails(parsedInput, input, index, new DetailsProcessor());
 		processType(parsedInput, input, index, new DetailsProcessor(),
 				new NaturalProcessor());
-		processType(parsedInput, input, index, new FutureDateProcessor(),
+		processType(parsedInput, input, index, new DateProcessor(),
 				new NaturalProcessor());
-		processType(parsedInput, input, index, new FutureTimeProcessor(),
+		processType(parsedInput, input, index, new TimeProcessor(),
 				new NaturalProcessor());
 		processType(parsedInput, input, index, new ImportanceProcessor(),
 				new NaturalProcessor());
