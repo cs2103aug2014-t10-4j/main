@@ -226,37 +226,20 @@ public class Logic {
 
 	}
 
-	private static String getTodayDateAndTime() {
-		Date date = new Date();
-		String reportCurrent = Constants.fullDateFormatTwo.format(date);
-		return reportCurrent;
-	}
-
 	private static String editTask(Task detailsOfTask, File file, int taskNumber) {
-		String todayDate = getTodayDateAndTime();
-		System.out.println(todayDate);
-		try {
-			if (detailsOfTask.getTime()!=null) {
-
-				Date taskDateAndTime =  Constants.fullDateFormatTwo.parse(
-						tempStorage.get(taskNumber).getDate()+detailsOfTask.getTime());
-				
-				Date currentDateAndTime =  Constants.fullDateFormatTwo.parse(todayDate);
-				
-				if(taskDateAndTime.compareTo(currentDateAndTime)<0){
-					return Constants.MSG_TIME_PASSED;
-				}
-
-				tempStorage.get(taskNumber).setTime(detailsOfTask.getTime());
-
-			}
+		
 			if (detailsOfTask.getName() != null) {
 				tempStorage.get(taskNumber).setName(detailsOfTask.getName());
 			}
+
 			if (detailsOfTask.getDate() != null) {
 				tempStorage.get(taskNumber).setDate(detailsOfTask.getDate());
 			}
 
+			if (detailsOfTask.getTime()!=null) {
+				tempStorage.get(taskNumber).setTime(detailsOfTask.getTime());
+			}
+			
 			if (detailsOfTask.getDetails() != null) {
 				tempStorage.get(taskNumber).setDetails(detailsOfTask.getDetails());
 			}
@@ -265,16 +248,12 @@ public class Logic {
 				tempStorage.get(taskNumber).setDetails(null);
 			}
 			
-
 			if (detailsOfTask.getImportance() != Constants.INITIAL_VALUE - 1) {
 				tempStorage.get(taskNumber).setImportance(
 						detailsOfTask.getImportance());
 			} 
-		}catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return Constants.MSG_EDIT_SUCCESS;
+		
+			return Constants.MSG_EDIT_SUCCESS;
 	}
 	
 	private static String editUndoRedo(Task detailsOfTask, File file, int taskNumber) {
