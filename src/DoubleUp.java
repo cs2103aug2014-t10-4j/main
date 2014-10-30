@@ -131,6 +131,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		//UIManager.put("nimbusBase", blue);
 		//UIManager.put("control", white);
 		UIManager.put("control", champagneGold);
+		UIManager.put("ScrollPane[Enabled].borderPainter", white);
+		UIManager.put("TextArea[Enabled+NotInScrollPane].borderPainter", white);
 
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -318,7 +320,9 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		ResultOfCommand results = Controller.executeCommand(ACTION_SHOW_ALL, file, archive);
 		displayPanelTodayTasks.setText(results.printArrayList());
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		scroll.setBorder(null);
+		Color white = Color.decode(COLOR_SNOW_WHITE);
+		Color blue = Color.decode("#ADC5DD");
+		//scroll.setBorder(BorderFactory.createLineBorder(blue));
 		middleRow.add(scroll, BorderLayout.CENTER);
 		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 		cp.add(middleRow, BorderLayout.CENTER);
@@ -331,7 +335,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		JLabel doubleupIcon = new JLabel(icon, JLabel.CENTER);
 		lastRow.add(doubleupIcon);
 		JLabel resultsCmd = new JLabel(MSG_RESULT);
-		Color white = Color.decode(COLOR_SNOW_WHITE);
 		lastRow.add(resultsCmd);
 		/*try {
 			BufferedImage icon = ImageIO.read(DoubleUp.class.getResource("res/up-arrow.png"));
