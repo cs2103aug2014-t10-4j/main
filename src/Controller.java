@@ -61,6 +61,7 @@ public class Controller {
 	private static final String TITLE_JDIALOG_CLASH_FOUND = "Clash found";
 	private static final String TITLE_SEARCH_RESULTS = "Search Results for \"%s\"";
 	private static final String TITLE_TODAY_TASKS = "Today Tasks:";
+	private static final int MAX_LEN_FEEDBACK = 300;
 
 	enum CommandType {
 		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, DELETE_TEXT, 
@@ -281,6 +282,22 @@ public class Controller {
 			oneOutOfMany.setParams(userDeleteIndex);
 			feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) + "," + feedback ;
 		}
+		String firstPart = "";
+		String secondPart = "";
+		if (feedback.length() > MAX_LEN_FEEDBACK){
+			firstPart = feedback.substring(0, MAX_LEN_FEEDBACK);
+			//feedback = feedback.substring(0, MAX_LEN_FEEDBACK);
+			int lastCommaIndex = firstPart.lastIndexOf(",");
+			if (lastCommaIndex != -1){
+				firstPart = firstPart.substring(0, lastCommaIndex) + ", ...";
+			}
+			secondPart = feedback.substring(MAX_LEN_FEEDBACK);
+			int lastCommaSecondPart = secondPart.lastIndexOf(",", secondPart.length()- 2);
+			if (lastCommaSecondPart != -1){
+				secondPart = secondPart.substring(lastCommaSecondPart);
+			}
+			feedback = firstPart + secondPart;
+		}
 		feedback = capitalizeFirstLetter(feedback);
 		feedback = endWithFulstop(feedback);
 		feedback = feedback.replace("deleted", "");
@@ -318,6 +335,8 @@ public class Controller {
 		if (feedback.endsWith(",")){
 			feedback = feedback.substring(0, feedback.lastIndexOf(",")) + " from your list.";
 		}
+		if (feedback.endsWith("..."))
+			feedback = feedback + " from your list.";
 		return feedback;
 	}
 
