@@ -44,6 +44,7 @@ public class Controller {
 	private static final String MSG_ARCHIVED_TASKS = "These are all your completed and archived tasks.";
 	private static final String MSG_CLASH_FOUND = "Something is happening at the same time! Continue %sing?";
 	private static final String MSG_DELETE_NO_INDEX = "You must add a number after delete";
+	private static final String MSG_DELETED_TODAY = "All today tasks have been cleared.";
 	private static final String MSG_FOUND_N_ITEMS = "Found %d items.";
 	private static final String MSG_HIDE_DETAILS_SUCCESS = "Details are collapsed.";
 	private static final String MSG_ITEM_TO_DELETE_NOT_FOUND = "item #%d is not found, ";
@@ -140,7 +141,9 @@ public class Controller {
 		case DELETE_TODAY:
 			Task todayOnly = new Task();
 			todayOnly.setDate(getTodayDate());
-			return deleteDate(file, archive, results, todayOnly);
+			deleteDate(file, archive, results, todayOnly);
+			results.setFeedback(MSG_DELETED_TODAY);
+			return results;
 		case DELETE_TEXT:
 			String params = taskToExecute.getParams();
 			//Because multiple deletions is handled by Controller.
@@ -304,7 +307,7 @@ public class Controller {
 		for (int j = 0 ; j < allThoseTasks.size(); j++){
 			splitIndexA[j] = j+1;
 		}
-		String feedback1 ="";
+		String feedback1 = "";
 		deleteMultiple(file, archive, results, feedback1, splitIndexA);
 		results.setListOfTasks(Logic.getTempStorage());
 		return results;
