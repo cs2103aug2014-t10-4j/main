@@ -31,6 +31,7 @@ import java.util.EmptyStackException;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
@@ -48,6 +49,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -62,6 +64,10 @@ import org.jnativehook.keyboard.NativeKeyListener;
 
 public class DoubleUp extends JFrame implements NativeKeyListener , WindowListener{
 
+	private static final int SIZE_WIDTH_TEXT_AREA_RESULTS = 63;
+	private static final int SIZE_TEXT_FIELD_CMD_IN = 40;
+	private static final int LEN_OF_DISPLAY_PANEL = 60;
+
 	/**
 	 * 
 	 */
@@ -69,7 +75,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 
 	private static JTextField textFieldCmdIn;
-	private static JTextArea displayPanelTodayTasks, textFieldResultsOut;
+	private static JTextPane displayPanelTodayTasks;
+	private static JTextArea textFieldResultsOut;
 	private static JPanel middleRow;
 	private static JFrame frame;
 
@@ -109,7 +116,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	private void setLookAndFeel() {
 		Color white = Color.decode(Constants.COLOR_SNOW_WHITE);
 		Color blue = Color.decode(Constants.COLOR_LIGHT_BLUE);
-		//Color blue = Color.decode("#2B98A2");
 		Color champagneGold = Color.decode(Constants.COLOR_CHAMPAGNE_GOLD);
 		UIManager.put("nimbusBlueGrey", blue);
 
@@ -204,9 +210,10 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	public void windowOpened(WindowEvent e) {
 		//Initialze native hook.
 		try {
+			LogManager.getLogManager().reset();
 			GlobalScreen.registerNativeHook();
 			Logger nativeHookLogger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
-			nativeHookLogger.setLevel(Level.OFF);
+			nativeHookLogger.setLevel(Level.WARNING);
 		}
 		catch (NativeHookException ex) {
 			System.err.println("There was a problem registering the native hook.");
@@ -287,17 +294,18 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		//Top panel for Command
 		JPanel topRow = new JPanel();
 		topRow.add(new JLabel(Constants.MSG_ENTER_COMMAND));
-		textFieldCmdIn = new JTextField(40);
+		textFieldCmdIn = new JTextField(SIZE_TEXT_FIELD_CMD_IN);
+		textFieldCmdIn.setDocument (new JTextFieldLimit(LEN_OF_DISPLAY_PANEL));
 		topRow.add(textFieldCmdIn);
 		cp.add(topRow, BorderLayout.NORTH);
 
 		// Today panel
 		middleRow = new JPanel();
 		middleRow.setLayout(new BorderLayout());
-		displayPanelTodayTasks = new JTextArea();
+		displayPanelTodayTasks = new JTextPane();
 		displayPanelTodayTasks.setEditable(false);
-		displayPanelTodayTasks.setLineWrap(true);
-		displayPanelTodayTasks.setWrapStyleWord(true);
+		//displayPanelTodayTasks.setLineWrap(true);
+		//displayPanelTodayTasks.setWrapStyleWord(true);
 		displayPanelTodayTasks.setMargin(new Insets(5,5,5,5));
 		ResultOfCommand results = Controller.executeCommand(Constants.ACTION_SHOW_ALL, file, archive);
 		displayPanelTodayTasks.setText(results.printArrayList());
@@ -317,12 +325,14 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		JLabel resultsCmd = new JLabel(Constants.MSG_RESULT);
 		lastRow.add(resultsCmd);
 
-		textFieldResultsOut = new JTextArea(0, 60);
+		textFieldResultsOut = new JTextArea(0, SIZE_WIDTH_TEXT_AREA_RESULTS);
 		textFieldResultsOut.setLineWrap(true);
 		textFieldResultsOut.setWrapStyleWord(true);
 		textFieldResultsOut.setMargin(new Insets(5,5,5,5));
 		textFieldResultsOut.setEditable(false);  // read-only
 		textFieldResultsOut.setText(Constants.MSG_WELCOME + Constants.MSG_HELP);
+		textFieldResultsOut.setLineWrap(true);
+		textFieldResultsOut.setWrapStyleWord(true);
 		//textFieldResultsOut.setFocusable(false);
 		/*JScrollPane scrollResults  = new JScrollPane(textFieldResultsOut, 
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);

@@ -61,7 +61,7 @@ public class Controller {
 	private static final String TITLE_JDIALOG_CLASH_FOUND = "Clash found";
 	private static final String TITLE_SEARCH_RESULTS = "Search Results for \"%s\"";
 	private static final String TITLE_TODAY_TASKS = "Today Tasks:";
-	private static final int MAX_LEN_FEEDBACK = 300;
+	private static final int MAX_LEN_FEEDBACK = 240;
 
 	enum CommandType {
 		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, DELETE_TEXT, 
@@ -280,7 +280,15 @@ public class Controller {
 			Task oneOutOfMany = new Task();
 			String userDeleteIndex = String.valueOf(splitIndex[j]); 
 			oneOutOfMany.setParams(userDeleteIndex);
-			feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) + "," + feedback ;
+			if (splitIndex[j] > 0){
+				feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, 
+						file, archive) + "," + feedback ;
+			} else  {
+				feedback = capitalizeFirstLetter(feedback);
+				feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, 
+						file, archive) + ". " + feedback ;
+				
+			}
 		}
 		String firstPart = "";
 		String secondPart = "";
