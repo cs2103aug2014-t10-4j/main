@@ -42,7 +42,6 @@ public class Controller {
 
 	private static final String TITLE_ARCHIVED_TASKS = "Archived Tasks (view-only)";
 	private static final String MSG_ARCHIVED_TASKS = "These are all your completed and archived tasks.";
-	private static final String MSG_CNT_DELETE_ZERO = "cannot delete index equal or below 0.";
 	private static final String MSG_CLASH_FOUND = "Something is happening at the same time! Continue %sing?";
 	private static final String MSG_DELETE_NO_INDEX = "You must add a number after delete";
 	private static final String MSG_FOUND_N_ITEMS = "Found %d items.";
@@ -277,7 +276,7 @@ public class Controller {
 			Task oneOutOfMany = new Task();
 			String userDeleteIndex = String.valueOf(splitIndex[j]); 
 			oneOutOfMany.setParams(userDeleteIndex);
-			feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) +",\n" + feedback ;
+			feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) + ", " + feedback ;
 		}
 		feedback = capitalizeFirstLetter(feedback);
 		feedback = endWithFulstop(feedback);
@@ -313,7 +312,7 @@ public class Controller {
 
 	private static String endWithFulstop(String feedback) {
 		if (feedback.endsWith(", ")){
-			feedback = feedback.substring(0, feedback.lastIndexOf(",\n")) + " from your list.";
+			feedback = feedback.substring(0, feedback.lastIndexOf(", ")) + " from your list.";
 		}
 		return feedback;
 	}

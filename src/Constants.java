@@ -2,6 +2,17 @@ import java.awt.Font;
 import java.text.SimpleDateFormat;
 
 public class Constants {
+	public static final String MSG_WELCOME = "Welcome to DoubleUp! ";
+	public static final String MSG_PROGRESS_BAR = "You have %d tasks due today,\n %d overdue tasks, %d tasks due\n eventually and %d floating tasks.";
+	public static final String MSG_QOTD = "QOTD: \n";
+	public static final String MSG_GOAL = "Your goal is: ";
+	public static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!";
+	public static final String MSG_ENTER_COMMAND = "Enter a command:";
+	public static final String MSG_RESULT = "Result: ";
+	public static final String FILE_TASK = "DoubleUp.txt";
+	public static final String FILE_ARCHIVE = "Archive.txt";
+	public static final String FILE_LOCK = "Lock.txt";
+	
 	public static final int RESET = 0;
 	public static final String INVALID_PARAMETER = "Invalid parameter";
 	public static final String EMPTY_DETAILS_MSG = "No details were found. Please input your details";
@@ -83,7 +94,7 @@ public class Constants {
 	public static final String MSG_FAIL_DELETE = "Unable to delete line";
 	public static final String MSG_FAIL_EDIT = "Unable to edit line.";
 	public static final String MSG_DELETE_FAIL = "Unable to delete line";
-	public static final String MSG_DELETE_SUCCESS = "deleted:  %d. %s \n";
+	public static final String MSG_DELETE_SUCCESS = "deleted:  %d. %s";
 	public static final String MSG_EDIT_SUCCESS = "Successfully edited.";
 	public static final String MSG_NO_PREVIOUS_ACTION = "No previous action to be undone";
 	public static final String MSG_NO_FUTURE_ACTION = "No previous action to be redone";
@@ -97,17 +108,11 @@ public class Constants {
 	public static final String WRONG_FORMAT = "\"%s\" is wrong format";
 
 	public static final String MSG_SCREEN_CLEARED = "Screen is cleared. Type show all, show today or show floating again.";
-	public static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
-	public static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
-	public static final String MSG_QOTD = "QOTD: \n";
-	public static final String MSG_GOAL = "Your goal is: ";
-	public static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
 	public static final String MSG_EMPTY_FILE = "%s is empty.";
 	public static final String MSG_EMPTY_TODAY = "No tasks for today!";
 	public static final String MSG_EMPTY_ALL_DAYS = "No tasks for anyday!";
 	public static final String MSG_EMPTY_FLOATING = "No floating tasks!";
 	public static final String MSG_COMMAND_LINE = "Enter a command: ";
-	public static final String MSG_RESULT = "Result: ";
 	public static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 	public static final String MSG_MISSING_FILE = "File not found.";
 	public static final String MSG_INVALID_COMMAND = "Invalid command";

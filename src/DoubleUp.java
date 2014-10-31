@@ -71,16 +71,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final String MSG_WELCOME = "Welcome to DoubleUp! ";
-	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today,\n %d overdue tasks, %d tasks due\n eventually and %d floating tasks.";
-	private static final String MSG_QOTD = "QOTD: \n";
-	private static final String MSG_GOAL = "Your goal is: ";
-	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!";
-	private static final String MSG_ENTER_COMMAND = "Enter a command:";
-	private static final String MSG_RESULT = "Result: ";
-	private static final String FILE_TASK = "DoubleUp.txt";
-	private static final String FILE_ARCHIVE = "Archive.txt";
-	private static final String FILE_LOCK = "Lock.txt";
+	
 
 	private static JTextField textFieldCmdIn;
 	private static JTextArea displayPanelTodayTasks, textFieldResultsOut;
@@ -110,8 +101,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
 		logger.setLevel(Level.OFF);
 		if (lockInstance()){
-			file = Storage.openFile(FILE_TASK);
-			archive = Storage.openFile(FILE_ARCHIVE);
+			file = Storage.openFile(Constants.FILE_TASK);
+			archive = Storage.openFile(Constants.FILE_ARCHIVE);
 			ArrayList<Integer> overview = Logic.init(file, archive);
 			new DoubleUp();
 			initSystemTray(overview);
@@ -126,13 +117,13 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		//Color blue = Color.decode("#2B98A2");
 		Color champagneGold = Color.decode(COLOR_CHAMPAGNE_GOLD);
 		//UIManager.put("nimbusBlueGrey", blue);
+		UIManager.put("control", champagneGold);
+		UIManager.put("ScrollPane[Enabled].borderPainter", white);
+		UIManager.put("TextArea[Enabled+NotInScrollPane].borderPainter", white);
 		UIManager.put("nimbusFocus", blue);
 
 		//UIManager.put("nimbusBase", blue);
 		//UIManager.put("control", white);
-		UIManager.put("control", champagneGold);
-		UIManager.put("ScrollPane[Enabled].borderPainter", white);
-		UIManager.put("TextArea[Enabled+NotInScrollPane].borderPainter", white);
 
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -179,7 +170,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-			icon.displayMessage(MSG_WELCOME, String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
+			icon.displayMessage(Constants.MSG_WELCOME, String.format(Constants.MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
 					TrayIcon.MessageType.INFO);
 		}
 	}
@@ -304,7 +295,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		cp.setLayout(new BorderLayout());
 		//Top panel for Command
 		JPanel topRow = new JPanel();
-		topRow.add(new JLabel(MSG_ENTER_COMMAND));
+		topRow.add(new JLabel(Constants.MSG_ENTER_COMMAND));
 		textFieldCmdIn = new JTextField(40);
 		topRow.add(textFieldCmdIn);
 		cp.add(topRow, BorderLayout.NORTH);
@@ -334,7 +325,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				"DoubleUp icon");
 		JLabel doubleupIcon = new JLabel(icon, JLabel.CENTER);
 		lastRow.add(doubleupIcon);
-		JLabel resultsCmd = new JLabel(MSG_RESULT);
+		JLabel resultsCmd = new JLabel(Constants.MSG_RESULT);
 		lastRow.add(resultsCmd);
 		/*try {
 			BufferedImage icon = ImageIO.read(DoubleUp.class.getResource("res/up-arrow.png"));
@@ -349,7 +340,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		textFieldResultsOut.setWrapStyleWord(true);
 		textFieldResultsOut.setMargin(new Insets(5,5,5,5));
 		textFieldResultsOut.setEditable(false);  // read-only
-		textFieldResultsOut.setText(MSG_WELCOME + MSG_HELP);
+		textFieldResultsOut.setText(Constants.MSG_WELCOME + Constants.MSG_HELP);
 		textFieldResultsOut.setFocusable(false);
 		lastRow.add(textFieldResultsOut);
 /*ImageIcon icon1 = createImageIcon("res/up-arrow-small2.png",
@@ -499,8 +490,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	// Concats the different messages to form the welcome message for the welcome screen
 	private static String createWelcomeMessage(ArrayList<Integer> numOfTask) {
 		assert numOfTask != null;
-		String welcomeMessage = MSG_WELCOME;
-		welcomeMessage += "\n" + "\t" + String.format(MSG_PROGRESS_BAR, numOfTask.get(0), 
+		String welcomeMessage = Constants.MSG_WELCOME;
+		welcomeMessage += "\n" + "\t" + String.format(Constants.MSG_PROGRESS_BAR, numOfTask.get(0), 
 				numOfTask.get(1), numOfTask.get(2));
 		welcomeMessage += createQOTD();
 		welcomeMessage += createGoalMsg();
@@ -510,13 +501,13 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	//Returns Quote of the day.
 	private static String createQOTD(){
-		String quote = "\n" + "\t" + MSG_QOTD;
+		String quote = "\n" + "\t" + Constants.MSG_QOTD;
 		return quote;
 	}
 
 	//Returns goal message.
 	private static String createGoalMsg(){
-		String goal = "\n" + "\t" + MSG_GOAL;
+		String goal = "\n" + "\t" + Constants.MSG_GOAL;
 		File settings = new File("settings.txt");
 		try {
 			Scanner sc = new Scanner(settings);
@@ -531,7 +522,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	//Returns help message.
 	private static String createHelpMsg(){
-		String help = "\n" + MSG_HELP;
+		String help = "\n" + Constants.MSG_HELP;
 		return help;
 	}
 
@@ -589,7 +580,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	private static boolean lockInstance() {
 		try {
-			final File lockfile = new File(FILE_LOCK);
+			final File lockfile = new File(Constants.FILE_LOCK);
 			final RandomAccessFile randomAccessFile = new RandomAccessFile(lockfile, "rw");
 			final FileLock fileLock = randomAccessFile.getChannel().tryLock();
 			if (fileLock != null) {
@@ -600,14 +591,14 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 							randomAccessFile.close();
 							lockfile.delete();
 						} catch (Exception e) {
-							logger.log(Level.WARNING, "Unable to remove lock file: " + FILE_LOCK, e);
+							logger.log(Level.WARNING, "Unable to remove lock file: " + Constants.FILE_LOCK, e);
 						}
 					}
 				});
 				return true;
 			}
 		} catch (Exception e) {
-			logger.log(Level.WARNING, "Unable to create and/or lock file: " + FILE_LOCK, e);
+			logger.log(Level.WARNING, "Unable to create and/or lock file: " + Constants.FILE_LOCK, e);
 		}
 		return false;
 	}
