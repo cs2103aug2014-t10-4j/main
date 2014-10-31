@@ -83,7 +83,7 @@ public class Constants {
 	public static final String MSG_FAIL_DELETE = "Unable to delete line";
 	public static final String MSG_FAIL_EDIT = "Unable to edit line.";
 	public static final String MSG_DELETE_FAIL = "Unable to delete line";
-	public static final String MSG_DELETE_SUCCESS = "deleted from your list: \"%s\"";
+	public static final String MSG_DELETE_SUCCESS = "deleted:  %d. %s \n";
 	public static final String MSG_EDIT_SUCCESS = "Successfully edited.";
 	public static final String MSG_NO_PREVIOUS_ACTION = "No previous action to be undone";
 	public static final String MSG_NO_FUTURE_ACTION = "No previous action to be redone";

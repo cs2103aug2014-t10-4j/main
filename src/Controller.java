@@ -277,7 +277,7 @@ public class Controller {
 			Task oneOutOfMany = new Task();
 			String userDeleteIndex = String.valueOf(splitIndex[j]); 
 			oneOutOfMany.setParams(userDeleteIndex);
-			feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) +", " + feedback ;
+			feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) +",\n" + feedback ;
 		}
 		feedback = capitalizeFirstLetter(feedback);
 		feedback = endWithFulstop(feedback);
@@ -313,7 +313,7 @@ public class Controller {
 
 	private static String endWithFulstop(String feedback) {
 		if (feedback.endsWith(", ")){
-			feedback = feedback.substring(0, feedback.lastIndexOf(",")) + ".";
+			feedback = feedback.substring(0, feedback.lastIndexOf(",\n")) + " from your list.";
 		}
 		return feedback;
 	}

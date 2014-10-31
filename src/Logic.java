@@ -467,7 +467,7 @@ public class Logic {
 			return Constants.MSG_NTH_DELETE;
 		}
 		try {
-			String returnMessage = String.format(Constants.MSG_DELETE_SUCCESS, tempStorage.get(index).getName());
+			String returnMessage = String.format(Constants.MSG_DELETE_SUCCESS,index+1, tempStorage.get(index).getName());
 			
 			Task taskToDelete = tempStorage.remove(index);
 			archiveStorage.add(taskToDelete);
@@ -501,7 +501,7 @@ public class Logic {
 				break;
 			}
 		}
-		return String.format(Constants.MSG_DELETE_SUCCESS, searchResults.get(index).getName());
+		return String.format(Constants.MSG_DELETE_SUCCESS, index+1, searchResults.get(index).getName());
 
 	}
 	
