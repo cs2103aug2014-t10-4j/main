@@ -600,6 +600,38 @@ public class Logic {
 		return searchResults;
 	}
 	
+	public static ArrayList<Task> searchRangeOfDate(Task taskStartOfRange, Task taskEndOfRange) {
+		searchResults.clear();
+		Date dateStart = new Date();
+		Date dateEnd = new Date();
+		try {
+			dateStart = Constants.dateFormat.parse(taskStartOfRange.getDate());
+			dateEnd = Constants.dateFormat.parse(taskEndOfRange.getDate());
+		
+			assert tempStorage.size() >= 0 : "tempStorage.size() is negative";
+		
+			for (int i = 0; i < tempStorage.size(); i++) {
+				if(tempStorage.get(i).getDate().equals(Constants.DATE_FT)){
+					continue;
+				}
+				else{
+					Date dateCheck = new Date();
+					Task taskInList = tempStorage.get(i);
+					dateCheck = Constants.dateFormat.parse(taskInList.getDate());
+			
+					if (dateCheck.compareTo(dateStart)>=0 
+							&& dateCheck.compareTo(dateEnd)<=0) {
+						searchResults.add(taskInList);
+					}		
+				}
+			}
+			} catch (ParseException e) {
+				e.printStackTrace();
+			}
+		undo.push(Constants.COMMAND_SEARCH);
+		return searchResults;
+	}
+	
 	
 	public static String undo(File file, File archive) {
 		if (undo.empty()) {
