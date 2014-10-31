@@ -33,6 +33,7 @@ import java.util.Stack;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
@@ -60,6 +61,9 @@ import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
 public class DoubleUp extends JFrame implements NativeKeyListener , WindowListener{
+	private static final String COLOR_CHAMPAGNE_GOLD = "#F7E7CE";
+	private static final String COLOR_LIGHT_BLUE = "#ADC5DD";
+	private static final String COLOR_SNOW_WHITE = "#FDFAF3";
 	private static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running. Press Ctrl + Space to open it.";
 	private static final String ACTION_SHOW_ALL = "show all";
 	private static final String TITLE_MAIN_WINDOW = "DoubleUp To-do-List";
@@ -68,7 +72,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	 */
 	private static final long serialVersionUID = 1L;
 	private static final String MSG_WELCOME = "Welcome to DoubleUp! ";
-	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d overdue tasks, %d tasks due eventually and %d floating tasks.\n";
+	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today,\n %d overdue tasks, %d tasks due\n eventually and %d floating tasks.";
 	private static final String MSG_QOTD = "QOTD: \n";
 	private static final String MSG_GOAL = "Your goal is: ";
 	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!";
@@ -98,6 +102,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		setVisible(true);
 		setResizable(false);
 		addWindowListener(this);
+		setLocationRelativeTo(null);
 		logger.log(Level.INFO, "Successfully create GUI");
 	}
 
@@ -116,16 +121,18 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	private void setLookAndFeel() {
-		Color white = Color.decode("#FDFAF3");
-		Color blue = Color.decode("#ADC5DD");
+		Color white = Color.decode(COLOR_SNOW_WHITE);
+		Color blue = Color.decode(COLOR_LIGHT_BLUE);
 		//Color blue = Color.decode("#2B98A2");
-		Color champagneGold = Color.decode("#F7E7CE");
+		Color champagneGold = Color.decode(COLOR_CHAMPAGNE_GOLD);
 		//UIManager.put("nimbusBlueGrey", blue);
-        UIManager.put("nimbusFocus", blue);
+		UIManager.put("nimbusFocus", blue);
 
 		//UIManager.put("nimbusBase", blue);
 		//UIManager.put("control", white);
 		UIManager.put("control", champagneGold);
+		UIManager.put("ScrollPane[Enabled].borderPainter", white);
+		UIManager.put("TextArea[Enabled+NotInScrollPane].borderPainter", white);
 
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -138,23 +145,30 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			// If Nimbus is not available, you can set the GUI to another look and feel.
 			//UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}
-
-
 	}
 
 	private static void initSystemTray(ArrayList<Integer> overview) {
 		if (SystemTray.isSupported()) {
-			TrayIcon icon = new TrayIcon(getImage(), "DoubleUp", null);
+            Image image;
+			try {
+				image = ImageIO.read(DoubleUp.class.getResource("/res/up-arrow-icon.png"));
+			} catch (IOException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+				image = getImage();
+			}
+			TrayIcon icon = new TrayIcon(image, "DoubleUp", null);
+            icon.setImageAutoSize(true);
 			final JPopupMenu jpopup = createJPopupMenu();
 			icon.addMouseListener(new MouseAdapter() {
-		        public void mouseReleased(MouseEvent e) {
-		            if (e.isPopupTrigger()) {
-		                jpopup.setLocation(e.getX(), e.getY());
-		                jpopup.setInvoker(jpopup);
-		                jpopup.setVisible(true);
-		            }
-		        }
-		    });
+				public void mouseReleased(MouseEvent e) {
+					if (e.isPopupTrigger()) {
+						jpopup.setLocation(e.getX(), e.getY());
+						jpopup.setInvoker(jpopup);
+						jpopup.setVisible(true);
+					}
+				}
+			});
 			try {
 				SystemTray.getSystemTray().add(icon);
 			} catch (AWTException e1) {
@@ -179,20 +193,20 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		        java.awt.event.KeyEvent.VK_A, 
 		        java.awt.Event.CTRL_MASK));*/
 		jpopup.add(aboutUsMI);
-		
+
 		JMenuItem helpMI = new JMenuItem("Help", new ImageIcon("javacup.gif"));
 		helpMI.setMnemonic('H');
 		helpMI.setAccelerator(KeyStroke.getKeyStroke(
-		        java.awt.event.KeyEvent.VK_F2, 
-		        java.awt.Event.CTRL_MASK));
+				java.awt.event.KeyEvent.VK_F2, 
+				java.awt.Event.CTRL_MASK));
 		jpopup.add(helpMI);
-		
+
 		jpopup.addSeparator();
 		JMenuItem exitMI = new JMenuItem("Exit");
 		exitMI.setMnemonic('E');
 		exitMI.setAccelerator(KeyStroke.getKeyStroke(
-		        java.awt.event.KeyEvent.VK_E, 
-		        java.awt.Event.CTRL_MASK));
+				java.awt.event.KeyEvent.VK_E, 
+				java.awt.Event.CTRL_MASK));
 		exitMI.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
@@ -242,12 +256,20 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		}
 	}
 
-	private static Image getImage() throws HeadlessException {
+	private static Image getImage() throws HeadlessException{
 		Icon defaultIcon = MetalIconFactory.getTreeHardDriveIcon();
-		Image img = new BufferedImage(defaultIcon.getIconWidth(), 
+		Image image;
+		try {
+			image = ImageIO.read(DoubleUp.class.getResource("res/up-arrow-small3.png"));
+		defaultIcon.paintIcon(new Panel(), image.getGraphics(), 0, 0);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			image = new BufferedImage(defaultIcon.getIconWidth(), 
 				defaultIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
-		defaultIcon.paintIcon(new Panel(), img.getGraphics(), 0, 0);
-		return img;
+		}
+
+		return image;
 	}
 
 	public static void createAndShowGUI() {
@@ -264,7 +286,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		InputStream is = DoubleUp.class.getResourceAsStream("/res/monaco.ttf");	
 		//InputStream is = DoubleUp.class.getResourceAsStream("/res/Lintel-Regular.otf");	
 		try {
-			
+
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
 			Font sizedFont = font.deriveFont(13f); 
 			UIManager.getLookAndFeelDefaults().put("defaultFont", sizedFont);
@@ -278,11 +300,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		//UIManager.getLookAndFeelDefaults().put("defaultFont", 
-			//		new Font("Courier", Font.PLAIN, 14));
-		
-		
-		
+
 		cp.setLayout(new BorderLayout());
 		//Top panel for Command
 		JPanel topRow = new JPanel();
@@ -302,15 +320,30 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		ResultOfCommand results = Controller.executeCommand(ACTION_SHOW_ALL, file, archive);
 		displayPanelTodayTasks.setText(results.printArrayList());
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		Color white = Color.decode(COLOR_SNOW_WHITE);
+		Color blue = Color.decode("#ADC5DD");
+		//scroll.setBorder(BorderFactory.createLineBorder(blue));
 		middleRow.add(scroll, BorderLayout.CENTER);
 		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 		cp.add(middleRow, BorderLayout.CENTER);
-		
+
 		//Feedback field below
 		JPanel lastRow = new JPanel();
+		ImageIcon icon = createImageIcon("res/up-arrow-small3.png",
+		//ImageIcon icon = createImageIcon("res/up-arrow-small2.png",
+				"DoubleUp icon");
+		JLabel doubleupIcon = new JLabel(icon, JLabel.CENTER);
+		lastRow.add(doubleupIcon);
 		JLabel resultsCmd = new JLabel(MSG_RESULT);
-		Color white = Color.decode("#FDFAF3");
 		lastRow.add(resultsCmd);
+		/*try {
+			BufferedImage icon = ImageIO.read(DoubleUp.class.getResource("res/up-arrow.png"));
+			frame.setIconImage(icon);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} */
+
 		textFieldResultsOut = new JTextArea(0, 60);
 		textFieldResultsOut.setLineWrap(true);
 		textFieldResultsOut.setWrapStyleWord(true);
@@ -318,20 +351,20 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		textFieldResultsOut.setEditable(false);  // read-only
 		textFieldResultsOut.setText(MSG_WELCOME + MSG_HELP);
 		textFieldResultsOut.setFocusable(false);
-		//textFieldResultsOut.setBackground(Color.YELLOW);
-
 		lastRow.add(textFieldResultsOut);
+/*ImageIcon icon1 = createImageIcon("res/up-arrow-small2.png",
+				"DoubleUp icon");
+		JLabel doubleupIcon1 = new JLabel(icon1, JLabel.CENTER);
+		lastRow.add(doubleupIcon1, -1);*/
 		cp.add(lastRow, BorderLayout.SOUTH);
-		
-	/*	Color blue = Color.decode("#ADC5DD");
+
+		/*	Color blue = Color.decode("#ADC5DD");
 		displayPanelTodayTasks.setBackground(blue);
 		textFieldCmdIn.setBackground(blue);
 		Color white = Color.decode("#FDFAF3");
 		textFieldResultsOut.setBackground(white);
-*/
-		//Color white = Color.decode("#FDFAF3");
+		 */
 		middleRow.setBackground(white);
-
 		UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
 
 		Action showHelp = new AbstractAction() {
@@ -450,6 +483,17 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				return s.hasNext() ? s.next() : "";
 			}
 		});
+	}
+
+	protected static ImageIcon createImageIcon(String path,
+			String description) {
+		java.net.URL imgURL = DoubleUp.class.getResource(path);
+		if (imgURL != null) {
+			return new ImageIcon(imgURL, description);
+		} else {
+			System.err.println("Couldn't find file: " + path);
+			return null;
+		}
 	}
 
 	// Concats the different messages to form the welcome message for the welcome screen

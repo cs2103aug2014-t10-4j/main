@@ -54,7 +54,7 @@ public class Controller {
 	private static final String MSG_SHOW_DETAILS_SUCCESS = "Details are expanded.";
 	private static final String MSG_SHOW_ALL_SUCCESS = "These are all your tasks.";
 
-	private static final String TITLE_ALL_TASKS = "All Tasks";
+	private static final String TITLE_ALL_TASKS = "All Tasks:";
 	private static final String TITLE_ALPHABETICAL_ORDER = "All tasks by alphabetical order";
 	private static final String TITLE_FLOATING_TASKS = "Floating Tasks:";
 	private static final String TITLE_IMPORTANCE_ORDER = "All tasks by importance order";
