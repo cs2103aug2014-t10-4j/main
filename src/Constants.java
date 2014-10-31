@@ -12,6 +12,12 @@ public class Constants {
 	public static final String FILE_TASK = "DoubleUp.txt";
 	public static final String FILE_ARCHIVE = "Archive.txt";
 	public static final String FILE_LOCK = "Lock.txt";
+	public static final String COLOR_CHAMPAGNE_GOLD = "#F7E7CE";
+	public static final String COLOR_LIGHT_BLUE = "#ADC5DD";
+	public static final String COLOR_SNOW_WHITE = "#FDFAF3";
+	public static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running.\nPress Ctrl + Space to open it.";
+	public static final String ACTION_SHOW_ALL = "show all";
+	public static final String TITLE_MAIN_WINDOW = "DoubleUp To-do-List";
 	
 	public static final int RESET = 0;
 	public static final String INVALID_PARAMETER = "Invalid parameter";
@@ -94,7 +100,7 @@ public class Constants {
 	public static final String MSG_FAIL_DELETE = "Unable to delete line";
 	public static final String MSG_FAIL_EDIT = "Unable to edit line.";
 	public static final String MSG_DELETE_FAIL = "Unable to delete line";
-	public static final String MSG_DELETE_SUCCESS = "deleted:  %d. %s";
+	public static final String MSG_DELETE_SUCCESS = "deleted \'%d. %s\'";
 	public static final String MSG_EDIT_SUCCESS = "Successfully edited.";
 	public static final String MSG_NO_PREVIOUS_ACTION = "No previous action to be undone";
 	public static final String MSG_NO_FUTURE_ACTION = "No previous action to be redone";

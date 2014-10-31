@@ -279,10 +279,11 @@ public class Controller {
 			Task oneOutOfMany = new Task();
 			String userDeleteIndex = String.valueOf(splitIndex[j]); 
 			oneOutOfMany.setParams(userDeleteIndex);
-			feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) + ", " + feedback ;
+			feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) + "," + feedback ;
 		}
 		feedback = capitalizeFirstLetter(feedback);
 		feedback = endWithFulstop(feedback);
+		feedback = feedback.replace("deleted", "");
 		results.setFeedback(feedback);
 	}
 
@@ -314,8 +315,8 @@ public class Controller {
 	}
 
 	private static String endWithFulstop(String feedback) {
-		if (feedback.endsWith(", ")){
-			feedback = feedback.substring(0, feedback.lastIndexOf(", ")) + " from your list.";
+		if (feedback.endsWith(",")){
+			feedback = feedback.substring(0, feedback.lastIndexOf(",")) + " from your list.";
 		}
 		return feedback;
 	}
