@@ -32,7 +32,7 @@ public class Controller {
 	private static final String ACTION_EXIT = "exit";
 	private static final String ACTION_EDIT = "edit";
 	private static final String ACTION_DELETE_DATE = "delete date";
-	private static final String ACTION_DELETE_PAST= "delete past";
+	private static final String ACTION_DELETE_PAST = "delete past";
 	private static final String ACTION_DELETE_TODAY = "delete today";
 	private static final String ACTION_DELETE_ALL = "delete all";
 	private static final String ACTION_DELETE = "delete";
@@ -61,7 +61,7 @@ public class Controller {
 	private static final String TITLE_JDIALOG_CLASH_FOUND = "Clash found";
 	private static final String TITLE_SEARCH_RESULTS = "Search Results for \"%s\"";
 	private static final String TITLE_TODAY_TASKS = "Today Tasks:";
-	private static final int MAX_LEN_FEEDBACK = 240;
+	private static final int MAX_LEN_FEEDBACK = 180;
 
 	enum CommandType {
 		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, DELETE_TEXT, 
@@ -268,9 +268,11 @@ public class Controller {
 
 	private static void deleteMultiple(File file, File archive,
 			ResultOfCommand results, String feedback, int[] splitIndex) {
+		boolean isMoreThanSizeList = false;
 		for (int j = splitIndex.length - 1; j >= 0; j--){
 			if (splitIndex[j] > Logic.getTempStorage().size()){
-				feedback = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndex[j]) + feedback;
+				isMoreThanSizeList = true;
+				//feedback = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndex[j]) + feedback;
 				continue; //Because cannot delete numbers larger than list size
 			}
 			/*if (splitIndex[j] <= 0){
@@ -309,6 +311,10 @@ public class Controller {
 		feedback = capitalizeFirstLetter(feedback);
 		feedback = endWithFulstop(feedback);
 		feedback = feedback.replace("deleted", "");
+		if (isMoreThanSizeList){
+			feedback = feedback + " You tried to delete non-existent tasks." ;
+			feedback = feedback.trim();
+		}
 		results.setFeedback(feedback);
 	}
 
@@ -340,7 +346,7 @@ public class Controller {
 	}
 
 	private static String endWithFulstop(String feedback) {
-		if (feedback.endsWith(",")){
+		if (feedback.endsWith(",") || (feedback.endsWith(", "))){
 			feedback = feedback.substring(0, feedback.lastIndexOf(",")) + " from your list.";
 		}
 		if (feedback.endsWith("..."))
