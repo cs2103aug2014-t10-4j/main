@@ -40,6 +40,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -49,12 +50,14 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.plaf.metal.MetalIconFactory;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
@@ -75,7 +78,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 
 	private static JTextField textFieldCmdIn;
-	private static JTextPane displayPanelTodayTasks;
+	private static JEditorPane displayPanelTodayTasks;
 	private static JTextArea textFieldResultsOut;
 	private static JPanel middleRow;
 	private static JFrame frame;
@@ -117,17 +120,22 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		Color white = Color.decode(Constants.COLOR_SNOW_WHITE);
 		Color blue = Color.decode(Constants.COLOR_LIGHT_BLUE);
 		Color champagneGold = Color.decode(Constants.COLOR_CHAMPAGNE_GOLD);
-		UIManager.put("nimbusBlueGrey", blue);
 
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 				if ("Nimbus".equals(info.getName())) {
 					UIManager.put("control", champagneGold);
-					UIManager.put("nimbusFocus", blue);
-					UIManager.put("ScrollPane[Enabled].borderPainter", white);
-					UIManager.put("TextArea[Enabled+NotInScrollPane].borderPainter", white);
-					UIManager.put("TextArea[Enabled].backgroundPainter", white);
-					UIManager.put("TextArea[Selected].backgroundPainter	", white);
+					//UIManager.put("nimbusFocus", white);
+					//UIManager.put("ScrollPane[Enabled].borderPainter", white);
+					//UIManager.put("TextArea[Enabled+NotInScrollPane].borderPainter", white);
+					//UIManager.put("TextArea[Enabled].backgroundPainter", white);
+					//UIManager.put("EditorPane.opaque", true);
+					//UIManager.put("TextPane[Enabled].backgroundPainter", white);
+					UIManager.put("nimbusBlueGrey", champagneGold);
+					//UIManager.put("ScrollPane.background", champagneGold);
+					//UIManager.put("ScrollPane.foreground", champagneGold);
+					//UIManager.put("EditorPane.foreground", champagneGold);
+					//UIManager.put("Spinner.background", champagneGold);
 					UIManager.setLookAndFeel(info.getClassName());
 					break;
 				}
@@ -299,10 +307,30 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		topRow.add(textFieldCmdIn);
 		cp.add(topRow, BorderLayout.NORTH);
 
+		String myStyle = 
+				  String.format(".time{color: %s;}", Constants.COLOR_MID_GREEN)
+				+ String.format(".details{color: %s;}", Constants.COLOR_BRIGHT_BLUE )
+				+ String.format(".name{color: %s;}", Constants.COLOR_MIDNIGHT_BLUE )
+				+ String.format(".importance{color: %s;}", Constants.COLOR_BLOOD_RED)
+				+ String.format(".date{color: %s;}", Constants.COLOR_ORANGE);
+
 		// Today panel
 		middleRow = new JPanel();
 		middleRow.setLayout(new BorderLayout());
-		displayPanelTodayTasks = new JTextPane();
+		displayPanelTodayTasks = new JEditorPane();
+		displayPanelTodayTasks.setContentType("text/html");
+		HTMLEditorKit kit = new HTMLEditorKit();
+		displayPanelTodayTasks.setEditorKit(kit);
+		// add some styles to the html
+		StyleSheet styleSheet = kit.getStyleSheet();
+		styleSheet.addRule(myStyle);
+		Document setdoc = kit.createDefaultDocument();
+		displayPanelTodayTasks.setDocument(setdoc);
+		try {
+			Document doc = displayPanelTodayTasks.getDocument();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 		displayPanelTodayTasks.setEditable(false);
 		//displayPanelTodayTasks.setLineWrap(true);
 		//displayPanelTodayTasks.setWrapStyleWord(true);
@@ -315,6 +343,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		middleRow.add(scroll, BorderLayout.CENTER);
 		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 		cp.add(middleRow, BorderLayout.CENTER);
+
+
 
 		//Feedback field below
 		JPanel lastRow = new JPanel();
@@ -333,7 +363,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		textFieldResultsOut.setText(Constants.MSG_WELCOME + Constants.MSG_HELP);
 		textFieldResultsOut.setLineWrap(true);
 		textFieldResultsOut.setWrapStyleWord(true);
-		//textFieldResultsOut.setFocusable(false);
+		textFieldResultsOut.setFocusable(false);
 		/*JScrollPane scrollResults  = new JScrollPane(textFieldResultsOut, 
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		lastRow.add(scrollResults);*/

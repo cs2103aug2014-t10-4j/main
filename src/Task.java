@@ -100,78 +100,72 @@ class Task {
 	//This method can be used to print tasks for display.
 	@Override
 	public String toString() {
-		String sentence = "";
+		String taskSentence = "";
 		if (isSortedByTime){
-			sentence = String.format("%s %s %s %s ",
+			taskSentence = String.format("%s %s %s %s ",
 					printTime(), printName(), printImportanceLevel()
 					, printDetails());
 		} else {
-			sentence = String.format("%s %s %s %s %s ",
+			taskSentence = String.format("%s %s %s %s %s ",
 					printDate(), printTime(), printName(), 
 					printImportanceLevel(), printDetails());
-
 		}
-		return sentence;
+		return taskSentence;
 	}
 
 	private String printTime() {
-		String sentence = "";
+		String time = "";
 		if (this.getDate().equalsIgnoreCase("ft")){
-			sentence += " ";
+			time += "&nbsp &nbsp &nbsp&nbsp";
 		} else if (this.getTime() == null || this.getTime().equals("null")) {
-			sentence +=  "[****]"; 
+			time +=  "[****]"; 
 		} else {
-			sentence +=  "[" + this.getTime() +"]"; 
+			time +=  "[" + this.getTime() +"]"; 
 		}
-		sentence = padRight(sentence,7);
-		return sentence;
+		time = padRight(time,7);
+		return "<span class=\"time\">" + time + "</span>";
 	}
 
 	private String printDate() {
-		String sentence = "";
+		String dateOfTask = "";
 		if (!isSortedByTime) {
 			if (this.getDate() != null && !date.equals("null")) {
 				if (!this.getDate().equals("ft")){
-					sentence += "(" + date + ")";
-					sentence = padRight(sentence, 13);
+					dateOfTask += "(" + date + ")";
+					dateOfTask = padRight(dateOfTask, 13);
 				} else {
-					sentence += "(Floating)";
-					sentence = padRight(sentence, 13);
+					dateOfTask += "(Floating) ";
+					//dateOfTask = padRight(dateOfTask, 13);
 				}
 			}
 		}
-		return sentence;
+		return "<span class=\"date\">" + dateOfTask + "</span>";
 	}
 
 	private String printName() {
-		if (! isSortedByTime){
-			return this.getName();
-		} else {
-			return this.getName();
-		}
+		return "<span class=\"name\">" + this.getName() + "</span>";
 	}
 
 	private String printImportanceLevel() {
-		String sentence = "";
+		String importanceOfTask = "";
 		if (importance >0) {
-			sentence += " [" + printImportance(importance) + "]";
+			importanceOfTask += " [" + printImportance(importance) + "]";
 		}
-		return sentence;
+		return "<span class=\"importance\">" + importanceOfTask + "</span>";
 	}
 
 	private String printDetails() {
-		String sentence = "";
+		String detailsOfTask = "";
 		if (details != null && details.equals("")){
-			return sentence;
+			return detailsOfTask;
 		}
 		if (details != null && !details.equals("null") && !isDetailsShown){
-			sentence += " [+] ";
+			detailsOfTask += " [+] ";
 		}
 		if (details != null && !details.equals("null") && isDetailsShown){
-			sentence += "\n" + "\t" + " [-] " + details;
+			detailsOfTask += "<br>" + "&#09" + " [-] " + details;
 		}
-		
-		return sentence;
+		return "<span class=\"details\">" + detailsOfTask + "</span>";
 	}
 
 	//This override method can perhaps be used for search and other methods.

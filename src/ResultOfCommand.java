@@ -2,6 +2,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -14,8 +15,9 @@ public class ResultOfCommand {
 	private String feedback;
 	private String titleOfPanel;
 	private static final String MSG_EMPTY_TYPES = "No tasks for these types!";
-	private static final String DATE_WITH_LINE = " ============================ %s%s ============================ \n";
-
+	private static final String DATE_WITH_LINE = 
+			"<font style='color:%s;'>" +
+					"<b> ========================= %s%s =========================</b></font><br>";
 
 	public ResultOfCommand () {
 		listOfTasks = new ArrayList<Task>();
@@ -49,61 +51,46 @@ public class ResultOfCommand {
 
 	//Other methods
 	public String printArrayList(){
-		String toPrint ="";
 		if (listOfTasks.size() !=0){
-			String date = listOfTasks.get(0).getDate();
-			toPrint = printDateHeaders(toPrint, date);
-			return printTasks(toPrint, date);
+			return printTasks();
 		} else {
 			return MSG_EMPTY_TYPES;
 		}
 	}
 
-	private String printTasks(String toPrint, String date) {
+	private String printTasks() {
+		String toPrint = "";
+		assert listOfTasks.size() >0;
+		String previousDate = listOfTasks.get(0).getDate();
+		toPrint = printDateHeader(toPrint, previousDate);
 		for (int j = 0; j < listOfTasks.size() ; j ++){
 			String dateOfCurrentTask = listOfTasks.get(j).getDate();
-			if ( dateOfCurrentTask != null && !dateOfCurrentTask.equals(date)){
+			if ( dateOfCurrentTask != null && !dateOfCurrentTask.equals(previousDate)){
 				if (Task.getIsSortedByTime()){
-					toPrint += "\n";
-					String dayOfWeek = "";
-					if (dateOfCurrentTask.equals("ft")){
-						dayOfWeek = padRight("", 3);
-						toPrint += String.format(DATE_WITH_LINE, "Floating Tasks", dayOfWeek);
-					} else if  (dateOfCurrentTask.equals(getTodayDate())){
-						dayOfWeek = padRight(", Today", 7);
-						toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, dayOfWeek);
-					} else {
-						dayOfWeek = padRight(getDayOfWeek(dateOfCurrentTask), 5);
-						toPrint += String.format(DATE_WITH_LINE, dateOfCurrentTask, ", " + dayOfWeek); 
-					}
+					toPrint += "<br>";
 				}
+				toPrint = printDateHeader(toPrint, dateOfCurrentTask);
 			}
-			toPrint += String.format("%2d. ", j+1) + listOfTasks.get(j).toString() + "\n";
-			date = dateOfCurrentTask;
+			toPrint += String.format("%2d. ", j+1) + listOfTasks.get(j).toString() + "<br>";
+			previousDate = dateOfCurrentTask;
 		}
 		return toPrint;
 	}
 
-	public static String padRight(String s, int n) {
-	     return String.format("%1$-" + n + "s", s);  
-	}
-
-	public static String padLeft(String s, int n) {
-	    return String.format("%1$" + n + "s", s);  
-	}
-	
-	private String printDateHeaders(String toPrint, String date) {
+	//Prints the date header if list is sorted by time.
+	private String printDateHeader(String toPrint, String dateOfCurrentTask) {
 		if (Task.getIsSortedByTime()){
 			String dayOfWeek = "";
-			if (date.equals(getTodayDate())){
-				dayOfWeek = padRight(", Today", 7);
-				toPrint += String.format(DATE_WITH_LINE, date, dayOfWeek);
-			} else if (date.equalsIgnoreCase("ft")){
-				dayOfWeek = padRight("", 9);
-				toPrint += String.format(DATE_WITH_LINE, "Floating Tasks", "");
-			} else {	
-				dayOfWeek = padRight(getDayOfWeek(date), 5);
-				toPrint += String.format(DATE_WITH_LINE, date, ", " + dayOfWeek); 
+			if (isOverdue(dateOfCurrentTask)){
+				dayOfWeek = getDayOfWeek(dateOfCurrentTask);
+				toPrint += String.format(DATE_WITH_LINE, Constants.COLOR_PINKISH_RED, dateOfCurrentTask, ", " + dayOfWeek);
+			} else if  (dateOfCurrentTask.equals(getTodayDate())){
+				toPrint += String.format(DATE_WITH_LINE, Constants.COLOR_DARK_BLUE, dateOfCurrentTask, ", Today");
+			} else if (dateOfCurrentTask.equals("ft")){
+				toPrint += String.format(DATE_WITH_LINE, Constants.COLOR_BLOOD_RED, "Floating Tasks", dayOfWeek);
+			} else {
+				dayOfWeek = getDayOfWeek(dateOfCurrentTask);
+				toPrint += String.format(DATE_WITH_LINE, Constants.COLOR_DARK_GREEN, dateOfCurrentTask, ", " + dayOfWeek); 
 			}
 		}
 		return toPrint;
@@ -116,7 +103,7 @@ public class ResultOfCommand {
 		String reportDate = dateFormat.format(date);
 		return reportDate;
 	}
-	
+
 	//Return the day of the week
 	private static String getDayOfWeek(String date){
 		try {
@@ -126,5 +113,31 @@ public class ResultOfCommand {
 			e.printStackTrace();
 		}
 		return "";
+	}
+
+	//Returns whether a date is overdue.
+	private static boolean isOverdue (String date) {
+		Date currentDate = new Date();
+		currentDate = removeTime(currentDate);
+		try {
+			Date dateOfCurrentTask = Constants.dateFormat.parse(date);
+			dateOfCurrentTask = removeTime(dateOfCurrentTask);
+			if (dateOfCurrentTask.compareTo(currentDate) < 0) {
+				return true;
+			}
+		} catch (ParseException e) {
+		}
+		return false;
+	}
+
+	//For use internally to check whether date is overdue.
+	private static Date removeTime(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return cal.getTime();
 	}
 }
