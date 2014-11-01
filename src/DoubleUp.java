@@ -120,6 +120,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		Color white = Color.decode(Constants.COLOR_SNOW_WHITE);
 		Color blue = Color.decode(Constants.COLOR_LIGHT_BLUE);
 		Color champagneGold = Color.decode(Constants.COLOR_CHAMPAGNE_GOLD);
+		Color yellowBG = Color.decode("#FFF9D6");
 
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -128,13 +129,13 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 					//UIManager.put("nimbusFocus", white);
 					//UIManager.put("ScrollPane[Enabled].borderPainter", white);
 					//UIManager.put("TextArea[Enabled+NotInScrollPane].borderPainter", white);
-					//UIManager.put("TextArea[Enabled].backgroundPainter", white);
+					//UIManager.put("TextArea[Enabled].backgroundPainter", yellowBG);
 					//UIManager.put("EditorPane.opaque", true);
 					//UIManager.put("TextPane[Enabled].backgroundPainter", white);
-					UIManager.put("nimbusBlueGrey", champagneGold);
+					UIManager.put("nimbusBlueGrey", yellowBG);
 					//UIManager.put("ScrollPane.background", champagneGold);
 					//UIManager.put("ScrollPane.foreground", champagneGold);
-					//UIManager.put("EditorPane.foreground", champagneGold);
+					UIManager.put("EditorPane.background", yellowBG);
 					//UIManager.put("Spinner.background", champagneGold);
 					UIManager.setLookAndFeel(info.getClassName());
 					break;
@@ -308,11 +309,11 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		cp.add(topRow, BorderLayout.NORTH);
 
 		String myStyle = 
-				  String.format(".time{color: %s;}", Constants.COLOR_MID_GREEN)
-				+ String.format(".details{color: %s;}", Constants.COLOR_BRIGHT_BLUE )
+				  String.format(".time{color: %s;}",Constants.COLOR_BLUE)
+				+ String.format(".details{color: %s;}", Constants.COLOR_ORANGER )
 				+ String.format(".name{color: %s;}", Constants.COLOR_MIDNIGHT_BLUE )
-				+ String.format(".importance{color: %s;}", Constants.COLOR_BLOOD_RED)
-				+ String.format(".date{color: %s;}", Constants.COLOR_ORANGE);
+				+ String.format(".importance{color: %s;}", Constants.COLOR_RED)
+				+ String.format(".date{color: %s;}",Constants.COLOR_HOT_PINK);
 
 		// Today panel
 		middleRow = new JPanel();

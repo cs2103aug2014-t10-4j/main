@@ -24,7 +24,10 @@ public class Constants {
 	public static final String COLOR_MID_GREEN = "#2ABF6B";
 	public static final String COLOR_DARK_GREEN = "#32A664";
 	public static final String COLOR_SNOW_WHITE = "#FDFAF3";
-	public static final String COLOR_ORANGE = "#FF7530";
+	public static final String COLOR_BLUE = "#030ABC"; //for time
+	public static final String COLOR_HOT_PINK="#FC26AB"; // for date
+	public static final String COLOR_ORANGER = "#FF5500";//for details
+	public static final String COLOR_RED = "#CF1700"; //for important level
 	public static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running.\nPress Ctrl + Space to open it.";
 	public static final String ACTION_SHOW_ALL = "show all";
 	public static final String TITLE_MAIN_WINDOW = "DoubleUp To-do-List";
