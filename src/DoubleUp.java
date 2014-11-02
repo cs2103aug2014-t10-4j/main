@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Frame;
+import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Insets;
@@ -67,7 +68,7 @@ import org.jnativehook.keyboard.NativeKeyListener;
 
 public class DoubleUp extends JFrame implements NativeKeyListener , WindowListener{
 
-	private static final int SIZE_WIDTH_TEXT_AREA_RESULTS = 63;
+	private static final int SIZE_WIDTH_TEXT_AREA_RESULTS = 57;
 	private static final int SIZE_TEXT_FIELD_CMD_IN = 40;
 	private static final int LEN_OF_DISPLAY_PANEL = 70;
 
@@ -286,17 +287,15 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	public static void addComponentsToPane(Container cp){
 		InputStream is = DoubleUp.class.getResourceAsStream("/res/monaco.ttf");	
 		try {
-
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
 			Font sizedFont = font.deriveFont(13f); 
 			UIManager.getLookAndFeelDefaults().put("defaultFont", sizedFont);
 			sizedFont = font.deriveFont(Font.BOLD, 13f); 
 			UIManager.getLookAndFeelDefaults().put("Label.font", sizedFont);
-
-		} catch (FontFormatException e1) {
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			GraphicsEnvironment genv = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			genv.registerFont(font);
+		} catch (Exception e) {
+			
 		}
 
 		cp.setLayout(new BorderLayout());
@@ -320,6 +319,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		middleRow.setLayout(new BorderLayout());
 		displayPanelTodayTasks = new JEditorPane();
 		displayPanelTodayTasks.setContentType("text/html");
+
 		HTMLEditorKit kit = new HTMLEditorKit();
 		displayPanelTodayTasks.setEditorKit(kit);
 		// add some styles to the html
@@ -345,8 +345,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 		cp.add(middleRow, BorderLayout.CENTER);
 
-
-
 		//Feedback field below
 		JPanel lastRow = new JPanel();
 		ImageIcon icon = createImageIcon("res/up-arrow-small3.png",
@@ -365,9 +363,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		textFieldResultsOut.setLineWrap(true);
 		textFieldResultsOut.setWrapStyleWord(true);
 		textFieldResultsOut.setFocusable(false);
-		/*JScrollPane scrollResults  = new JScrollPane(textFieldResultsOut, 
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		lastRow.add(scrollResults);*/
 		lastRow.add(textFieldResultsOut);
 		cp.add(lastRow, BorderLayout.SOUTH);
 
@@ -380,7 +375,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				showHelp();
 			}
 			private void showHelp() {
-				String helpfile = "/res/helpV2.txt";
+				String helpfile = "/res/help.html";
 				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
 				assert inputStream != null;
 
@@ -472,7 +467,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			}
 
 			private void showHelp(ResultOfCommand results) {
-				String helpfile = "/res/helpV2.txt";
+				String helpfile = "/res/help.html";
 				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
 				assert inputStream != null;
 
