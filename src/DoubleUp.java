@@ -69,7 +69,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	private static final int SIZE_WIDTH_TEXT_AREA_RESULTS = 63;
 	private static final int SIZE_TEXT_FIELD_CMD_IN = 40;
-	private static final int LEN_OF_DISPLAY_PANEL = 60;
+	private static final int LEN_OF_DISPLAY_PANEL = 70;
 
 	/**
 	 * 
