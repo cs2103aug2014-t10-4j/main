@@ -12,6 +12,7 @@ public class Constants {
 	public static final String FILE_TASK = "DoubleUp.txt";
 	public static final String FILE_ARCHIVE = "Archive.txt";
 	public static final String FILE_LOCK = "Lock.txt";
+	public static final String SPAN_TAG = "<span class=\"%s\">%s</span>";
 	public static final String COLOR_CHAMPAGNE_GOLD = "#F7E7CE";
 	public static final String COLOR_BLOOD_RED = "#A61B34";
 	public static final String COLOR_PINKISH_RED = "#D93B65";

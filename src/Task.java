@@ -118,40 +118,40 @@ class Task {
 		if (this.getDate().equalsIgnoreCase("ft")){
 			time += "&nbsp &nbsp &nbsp&nbsp";
 		} else if (this.getTime() == null || this.getTime().equals("null")) {
-			time +=  "[****]"; 
+			time +=  "[****]&nbsp"; 
 		} else {
 			time +=  "[" + this.getTime() +"]"; 
 		}
-		time = padRight(time,7);
-		return "<span class=\"time\">" + time + "</span>";
+		//time = padRight(time,7);
+		return String.format(Constants.SPAN_TAG, "time", time);
 	}
 
 	private String printDate() {
 		String dateOfTask = "";
-		if (!isSortedByTime) {
+		//if (!isSortedByTime) {
 			if (this.getDate() != null && !date.equals("null")) {
 				if (!this.getDate().equals("ft")){
 					dateOfTask += "(" + date + ")";
-					dateOfTask = padRight(dateOfTask, 13);
+					//dateOfTask = padRight(dateOfTask, 13);
 				} else {
-					dateOfTask += "(Floating) ";
+					dateOfTask += "(Floating) &nbsp";
 					//dateOfTask = padRight(dateOfTask, 13);
 				}
 			}
-		}
-		return "<span class=\"date\">" + dateOfTask + "</span>";
+		//}
+		return String.format(Constants.SPAN_TAG, "date", dateOfTask);
 	}
 
 	private String printName() {
-		return "<span class=\"name\">" + this.getName() + "</span>";
+		return String.format(Constants.SPAN_TAG, "name", this.getName());
 	}
 
 	private String printImportanceLevel() {
 		String importanceOfTask = "";
 		if (importance >0) {
-			importanceOfTask += " [" + printImportance(importance) + "]";
+			importanceOfTask += " <b>(" + printImportance(importance) + ")</b>";
 		}
-		return "<span class=\"importance\">" + importanceOfTask + "</span>";
+		return String.format(Constants.SPAN_TAG, "importance", importanceOfTask);
 	}
 
 	private String printDetails() {
@@ -165,7 +165,7 @@ class Task {
 		if (details != null && !details.equals("null") && isDetailsShown){
 			detailsOfTask += "<br>" + "&#09" + " [-] " + details;
 		}
-		return "<span class=\"details\">" + detailsOfTask + "</span>";
+		return String.format(Constants.SPAN_TAG, "details", detailsOfTask);
 	}
 
 	//This override method can perhaps be used for search and other methods.
