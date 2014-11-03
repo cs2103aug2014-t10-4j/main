@@ -10,23 +10,69 @@ public class TestParser {
 				"error maybe delete hello null null null null No Date is found. null ",
 				"1st mar 2015 hello world");
 		*/
+		//to delete away
+		testParseInput(
+				"test for time range",
+				"add hello 12/03/2015 13:00 14:00 null null null null ",
+				"hello 12th mar 1 pm-2pm");	
+		testParseInput(
+				"test for time range",
+				"add hello 12/03/2015 13:00 14:00 null null null null ",
+				"hello 12th mar  1pm-2pm");	
+	
+		testParseInput(
+				"test for time range",
+				"add hello 12/03/2015 13:00 14:00 null null null null ",
+				"hello 12th mar to 1pm-2 pm");	
+		testParseInput(
+				"test for time range",
+				"add hello 12/03/2015 13:00 14:00 null null null null ",
+				"hello 12th mar   1 pm-2 pm");
+		testParseInput(
+				"test for time range",
+				"add hello 12/03/2015 13:00 14:00 null null null null ",
+				"hello 12th mar 1 pm-2 pm");
 		
 		  
+	//testing time range 
+		testParseInput(
+				"test for time range",
+				"add hello 12/03/2015 13:00 14:00 null null null null ",
+				"hello 12th mar by at to  1 pm-2pm");	
+		testParseInput(
+				"test for time range",
+				"add hello 12/03/2015 13:00 14:00 null null null null ",
+				"hello 12th mar by at to  1pm-2pm");	
 	
+		testParseInput(
+				"test for time range",
+				"add hello 12/03/2015 13:00 14:00 null null null null ",
+				"hello 12th mar by at to 1pm-2 pm");	
+		testParseInput(
+				"test for time range",
+				"add hello 12/03/2015 13:00 14:00 null null null null ",
+				"hello 12th mar  by at to 1 pm-2 pm");
+		testParseInput(
+				"test for time range",
+				"add hello 12/03/2015 13:00 14:00 null null null null ",
+				"hello 12th mar by at to 1 pm-2 pm");
+		
+		
+		
 		
 		//testing for details
 		
 		testParseInput(
 				"test for details empty",
-				"add hello 03/11/2014 13:00 null  null null null ",
+				"add hello 04/11/2014 13:00 null  null null null ",
 				"hello 1pm .dtl ");
 		testParseInput(
 				"test for details empty",
-				"add hello 03/11/2014 null null  null null null ",
+				"add hello 04/11/2014 null null  null null null ",
 				"hello .dtl ");
 		testParseInput(
 				"test for no details(null)",
-				"add hello 03/11/2014 null null null null null null ",
+				"add hello 04/11/2014 null null null null null null ",
 				"hello ");
 	
 		//test for delete date
@@ -44,7 +90,7 @@ public class TestParser {
 				"delete date 25th jan 14 .");
 		//test for show today
 		testParseInput("test for special commands",
-				"search null 03/11/2014 null null null null null null ",
+				"search null 04/11/2014 null null null null null null ",
 				"show today");
 		
 		
@@ -56,7 +102,7 @@ public class TestParser {
 				"show week null null null null null null null null ",
 				".sw");
 		testParseInput("test for special commands",
-				"add clear archive hello 03/11/2014 null null null null null null ",
+				"add clear archive hello 04/11/2014 null null null null null null ",
 				"add clear archive hello");
 		testParseInput("test for special commands",
 				"error null null null null null null This is a special command. You cannot input extra attributes null ",
@@ -127,23 +173,23 @@ public class TestParser {
 		
 		
 		testParseInput("test for slash for details and task processor",
-				"add hello hello hello. 03/11/2014 null null /world is beautiful null null null ",
+				"add hello hello hello. 04/11/2014 null null /world is beautiful null null null ",
 				"hello /hello hello. .dtl /world is beautiful");
  
 		testParseInput("test for full stop",
-				"error null 03/11/2014 null null null null No Task name is found. null ",
+				"error null 04/11/2014 null null null null No Task name is found. null ",
 				"");
 		
 		testParseInput("test for full stop",
-				"add .... 03/11/2014 null null null null null null ",
+				"add .... 04/11/2014 null null null null null null ",
 				" ....");
 		//tests for full-stop
 		testParseInput("test for full stop",
-				"add hello. 04/11/2014 15:00 null null 2 null null ",
+				"add hello. 11/11/2014 15:00 null null 2 null null ",
 				" impt 2. hello is on tues. on 15:00.");
 
 		testParseInput("test for full stop",
-				"add hello. ... 03/11/2014 23:59 null null null null null ",
+				"add hello. ... 04/11/2014 23:59 null null null null null ",
 				" hello. .... at 11.59 pm.");
 		testParseInput(
 				"test for parsing importance",
@@ -210,17 +256,17 @@ public class TestParser {
 		// "showall .dtl hello");
 
 		testParseInput("test for tmr",
-				"add hello 03/11/2014 null null null null null null ", "hello tdy");
+				"add hello 04/11/2014 null null null null null null ", "hello tdy");
 		testParseInput("test for today",
-				"add hello 03/11/2014 null null go home null null null ",
+				"add hello 04/11/2014 null null go home null null null ",
 				"hello today .dtl go home");
 		testParseInput("test for tmr",
-				"add hello 04/11/2014 null null null null null null ",
+				"add hello 05/11/2014 null null null null null null ",
 				"hello tomorrow");
 		testParseInput("test for tmr",
-				"add hello 04/11/2014 null null null null null null ", "hello tmr");
+				"add hello 05/11/2014 null null null null null null ", "hello tmr");
 		testParseInput("test for add",
-				"add 3 03/11/2014 null null null null null null ", "3");
+				"add 3 04/11/2014 null null null null null null ", "3");
 
 		// testing for edit
 		testParseInput(
@@ -304,7 +350,7 @@ public class TestParser {
 				"make breakfast on 14th apr 15 to be added .dtl Just get rid.");
 		testParseInput(
 				"test for command",
-				"add make breakfast 03/11/2014 null null Just get rid. null null null ",
+				"add make breakfast 04/11/2014 null null Just get rid. null null null ",
 				"make breakfast at to be added .dtl Just get rid.");
 
 		testParseInput(
@@ -315,7 +361,7 @@ public class TestParser {
 		// ignore extra stuff inputs
 		testParseInput(
 				"test for clear all archive",
-				"add I just want to clear all archive 03/11/2014 null null Just get rid. null null null ",
+				"add I just want to clear all archive 04/11/2014 null null Just get rid. null null null ",
 				"I just want to clear all archive .dtl Just get rid.");
 		// edit
 		// testParseInput("test for delete",
@@ -362,10 +408,10 @@ public class TestParser {
 				"add hello 12/03/2015 19:00 null null null null null ",
 				".a 12th mar 19:00 hello");
 		testParseInput("test for today timing",
-				"add hello 03/11/2014 23:59 null null null null null ",
+				"add hello 04/11/2014 23:59 null null null null null ",
 				".a 23:59 hello");
 		testParseInput("test for today timing",
-				"add hello 03/11/2014 23:59 null null null null null ",
+				"add hello 04/11/2014 23:59 null null null null null ",
 				".a 23:59 hello");
 		testParseInput("test for time",
 				"add hello 12/03/2015 null null null null null null ",
@@ -390,7 +436,7 @@ public class TestParser {
 				"error 24:59 hello 12/03/2015 null null null null invalid time null ",
 				".a 12th mar 24:59 hello");
 		testParseInput("test for today",
-				"add hello 03/11/2014 null null null null null null ", ".a hello");
+				"add hello 04/11/2014 null null null null null null ", ".a hello");
 
 		// to test today
 
@@ -402,10 +448,10 @@ public class TestParser {
 				"add hello 10/11/2014 null null null null null null ",
 				".a monday hello");
 		testParseInput("test for spelled day",
-				"add hello 04/11/2014 null null null null null null ",
+				"add hello 11/11/2014 null null null null null null ",
 				".a tues hello");
 		testParseInput("test for spelled day",
-				"add hello 04/11/2014 null null null null null null ",
+				"add hello 11/11/2014 null null null null null null ",
 				".a tuesday hello");
 		testParseInput("test for spelled day",
 				"add hello 05/11/2014 null null null null null null ",
@@ -674,13 +720,13 @@ public class TestParser {
 				"add hello 12/04/2014 null null null null null null ",
 				".a 12/04/14 hello");
 		testParseInput("test for date format one",
-				"add 12/05/ hello 03/11/2014 null null null null null null ",
+				"add 12/05/ hello 04/11/2014 null null null null null null ",
 				".a 12/05/ hello");
 		testParseInput("test for date format one",
-				"add 12/05/2 hello 03/11/2014 null null null null null null ",
+				"add 12/05/2 hello 04/11/2014 null null null null null null ",
 				".a 12/05/2 hello");
 		testParseInput("test for date format one",
-				"add 12/05/123 hello 03/11/2014 null null null null null null ",
+				"add 12/05/123 hello 04/11/2014 null null null null null null ",
 				".a 12/05/123 hello");
 		// testing search
 		/*

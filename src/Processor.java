@@ -43,7 +43,7 @@ public abstract class Processor {
 	protected final int IMPT_POSITION = 6;
 	protected final int ERROR_MSG_POSITION = 7;
 	protected final int PARAMETER_POSITION = 8;
-	
+
 	protected final String DATE_NAME = "Date";
 	protected final String TIME_NAME = "Time";
 	protected final String TASK_NAME = "Task name";
@@ -110,6 +110,7 @@ public abstract class Processor {
 		return false;
 
 	}
+
 	protected boolean isMatchString(String[] input, Index index, String command) {
 		String[] possibleCommand = command.split(" ");
 		int startIndex = index.getValue();
@@ -407,11 +408,11 @@ class MultiParaProcessor extends SingleParaProcessor {
 					assignErrorMsg(parsedInput, INVALID_PARAMETER);
 					index.setValue(startIndex);
 				}
-			} else if (isIndexValid(index.getValue()+1, input)
-					&& input[index.getValue()+1] != null
-					&& input[index.getValue()+1].charAt(0) == '-') {
-				input[index.getValue()+1] = input[index.getValue()+1].substring(1,
-						input[index.getValue()+1].length());
+			} else if (isIndexValid(index.getValue() + 1, input)
+					&& input[index.getValue() + 1] != null
+					&& input[index.getValue() + 1].charAt(0) == '-') {
+				input[index.getValue() + 1] = input[index.getValue() + 1]
+						.substring(1, input[index.getValue() + 1].length());
 				if (isIndexValid(index.getValue() + 1, input)
 						&& isInteger(input[index.getValue()])
 						&& isInteger(input[index.getValue() + 1])) {
@@ -721,47 +722,134 @@ class ImportanceProcessor extends Processor {
 }
 
 class TimeProcessor extends Processor {
+	private static final int MAX_LENGTH_TIME = 2;
+	private static final int MAX_TIME_TYPES = 2;
 	private static Logger logger = Logger.getLogger("Time processor");
+
 	public int getItemPosition() {
 		return START_TIME_POSITION;
 	}
-	public int getSecItemPosition(){
+
+	public int getSecItemPosition() {
 		return END_TIME_POSITION;
 	}
+
 	// Method adds zeroes in the date where needed
-		private String addZeroes(String possibleTime) {
-			Date date = new Date();
-			try {
-				date = timeFormatOne.parse(possibleTime);
-			} catch (ParseException e) {
-				logger.log(Level.WARNING, "Error when adding zeroes");
-			}
-			return timeFormatOne.format(date);
+	private String addZeroes(String possibleTime) {
+		Date date = new Date();
+		try {
+			date = timeFormatOne.parse(possibleTime);
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, "Error when adding zeroes");
 		}
+		return timeFormatOne.format(date);
+	}
 
 	@Override
 	public void process(String[] parsedInput, String[] input, Index index) {
 		// process time
 
 		if (isIndexValid(index.getValue(), input)) {
-			String possibleTime = getPossibleTime(index, input);
-			if (possibleTime == null) {
+			if (!isFloating(parsedInput)) {
+				processTimeRange(index, input, parsedInput);
+				String possibleTime = getPossibleTime(index, input);
+				if (possibleTime != null) {
 
-			} else if (!isNull(parsedInput[DATE_POSITION])
-					&& parsedInput[DATE_POSITION]
-							.equalsIgnoreCase(FLOATING_TASK)) {
+					/*
+					 * else if (validateTime(possibleTime,
+					 * parsedInput[DATE_POSITION]))
+					 */
 
-			}/* else if (validateTime(possibleTime, parsedInput[DATE_POSITION])) */
-			else if (validateTime(possibleTime)) {
-				// parsedInput[TIME_POSITION] = removeColon(possibleTime);
-				possibleTime = addZeroes(possibleTime);
-				parsedInput[START_TIME_POSITION] = possibleTime;
-				index.increment();
-			} else {
+					if (isValidTime(possibleTime)) {
+						// parsedInput[TIME_POSITION] =
+						// removeColon(possibleTime);
+						assignTime(parsedInput, possibleTime, getItemPosition());
+						index.increment();
+					} else {
 
-				assignErrorMsg(parsedInput, INVALID_TIME);
+						assignErrorMsg(parsedInput, INVALID_TIME);
+					}
+				}
 			}
 		}
+	}
+
+	private void assignTime(String[] parsedInput, String possibleTime,
+			int position) {
+		possibleTime = addZeroes(possibleTime);
+		parsedInput[position] = possibleTime;
+	}
+
+	private boolean isFloating(String[] parsedInput) {
+		return !isNull(parsedInput[DATE_POSITION])
+				&& parsedInput[DATE_POSITION].equalsIgnoreCase(FLOATING_TASK);
+	}
+
+	private void processTimeRange(Index index, String[] input,
+			String[] parsedInput) {
+		int current = index.getValue();
+		int prev1 = current - 1;
+		int forward1 = current + 1;
+		if (isIndexValid(current, input) && input[current] != null
+				&& input[index.getValue()].contains("-")) {
+			String[] possibleTimes = input[index.getValue()].split("-");
+			if (possibleTimes.length == MAX_TIME_TYPES) {
+				String[] startInput = new String[MAX_LENGTH_TIME];
+				String[] endInput = new String[MAX_LENGTH_TIME];
+				startInput[1] = possibleTimes[0];
+				endInput[0] = possibleTimes[1];
+				if (isIndexValid(prev1, input)) {
+					startInput[0] = input[prev1];
+				}
+				if (isIndexValid(forward1, input)) {
+					endInput[1] = input[forward1];
+				}
+				Index index1 = new Index();
+				Index index2 = new Index();
+				String possibleStart = processStartTime(startInput, index1);
+				String possibleEnd = processEndTime(endInput, index2);
+				if (isValidTime(possibleStart) && isValidTime(possibleEnd)) {
+					input[current] = null;
+					if (index1.getValue() == 0) {
+						input[prev1] = null;
+						index.setValue(prev1);
+					}
+					if (index2.getValue() != 0) {
+						input[forward1] = null;
+					}
+					assignTime(parsedInput, possibleStart, getItemPosition());
+					assignTime(parsedInput, possibleEnd, getSecItemPosition());
+				}
+
+			}
+
+		}
+
+	}
+
+	private String processStartTime(String[] input, Index index) {
+
+		while (isIndexValid(index.getValue(), input)) {
+			int startIndex = index.getValue();
+			String result = getPossibleTime(index, input);
+			if (result != null) {
+				index.setValue(startIndex);
+				return result;
+			}
+			index.increment();
+		}
+		return null;
+	}
+	private String processEndTime(String[] input, Index index) {
+
+		while (isIndexValid(index.getValue(), input)) {
+			String result = getPossibleTime(index, input);
+			if (result != null) {
+				return result;
+			}
+			index.increment();
+		}
+		return null;
 	}
 
 	/*
@@ -774,12 +862,12 @@ class TimeProcessor extends Processor {
 	 * timeFormatOne.parse(possibleTime); } catch (ParseException e) { return
 	 * false; } return true; }
 	 */
-	protected boolean validateTime(String possibleTime) {
+	protected boolean isValidTime(String possibleTime) {
 		timeFormatOne.setLenient(false);
 		try {
 			Date date = new Date();
 			date = timeFormatOne.parse(possibleTime);
-		} catch (ParseException e) {
+		} catch (ParseException | NullPointerException e) {
 			return false;
 		}
 		return true;
@@ -1202,11 +1290,15 @@ class NaturalProcessor {
 			if (parsedInput[ERROR_MSG_POSITION] != null) {
 				break;
 			} else if (parsedInput[processor.getItemPosition()] != null) {
-				for (int i = startPosition; i < index.getValue(); i++) {
-					input[i] = null;
+				if (index.getValue() < startPosition) {
+					cleanWordBackward(input,index.getValue(),processor);
+				} else {
+					for (int i = startPosition; i < index.getValue(); i++) {
+						input[i] = null;
+					}
+					cleanWordBackward(input, startPosition - 1, processor);
+					break;
 				}
-				cleanWordBackward(input, startPosition - 1, processor);
-				break;
 			}
 			index.decrement();
 		}

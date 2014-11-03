@@ -61,6 +61,9 @@ class Index {
 	public Index() {
 		value = 0;
 	}
+	public Index(int number){
+		this.value = number;
+	}
 
 	public void decrement() {
 		this.value = value - 1;
