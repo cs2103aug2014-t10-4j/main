@@ -93,7 +93,7 @@ class ParserSearch extends ParserCommand {
 		/*processNatDetails(parsedInput, input, index, new DetailsProcessor());*/
 		processType(parsedInput, input, index, new DateProcessor(),
 				new NaturalProcessor());
-		processType(parsedInput, input, index, new TimeProcessor(),
+		/*processType(parsedInput, input, index, new TimeProcessor(),
 				new NaturalProcessor());
 		/*processType(parsedInput, input, index, new ImportanceProcessor(),
 				new NaturalProcessor());*/
