@@ -236,8 +236,14 @@ public class Logic {
 				tempStorage.get(taskNumber).setDate(detailsOfTask.getDate());
 			}
 
-			if (detailsOfTask.getTime()!=null) {
-				tempStorage.get(taskNumber).setTime(detailsOfTask.getTime());
+			if (detailsOfTask.getStartTime()!=null && detailsOfTask.getEndTime()!=null) {
+				tempStorage.get(taskNumber).setStartTime(detailsOfTask.getStartTime());
+				tempStorage.get(taskNumber).setEndTime(detailsOfTask.getEndTime());
+			}
+			
+			else if (detailsOfTask.getStartTime()!=null && detailsOfTask.getEndTime()==null) {
+				tempStorage.get(taskNumber).setStartTime(detailsOfTask.getStartTime());
+				tempStorage.get(taskNumber).setEndTime(null);
 			}
 			
 			if (detailsOfTask.getDetails() != null) {
@@ -257,7 +263,8 @@ public class Logic {
 	}
 	
 	private static String editUndoRedo(Task detailsOfTask, File file, int taskNumber) {
-		tempStorage.get(taskNumber).setTime(detailsOfTask.getTime());
+		tempStorage.get(taskNumber).setStartTime(detailsOfTask.getStartTime());
+		tempStorage.get(taskNumber).setEndTime(detailsOfTask.getEndTime());
 		tempStorage.get(taskNumber).setName(detailsOfTask.getName());
 		tempStorage.get(taskNumber).setDate(detailsOfTask.getDate());
 		tempStorage.get(taskNumber).setDetails(detailsOfTask.getDetails());
@@ -586,17 +593,100 @@ public class Logic {
 			if (taskToFind.getDate() != null && taskInList.getDate() == null) {
 				continue;
 			}
-			if (taskToFind.getTime() != null && taskInList.getTime() != null
-					&& !taskInList.getTime().equals(taskToFind.getTime())) {
-				continue;
-			}
-			// Because the one above will short circuit
-			if (taskToFind.getTime() != null && taskInList.getTime() == null) {
-				continue;
-			}
 			searchResults.add(taskInList);
 		}
 		undo.push(Constants.COMMAND_SEARCH);
+		return searchResults;
+	}
+	
+	public static ArrayList<Task> searchForCheckClash(Task taskToFind) {
+		searchResults.clear();
+		
+		assert tempStorage.size() >= 0 : "tempStorage.size() is negative";
+		
+		if (taskToFind.getDate() == null){
+			int taskLocation = getIndex(taskToFind);
+			taskToFind.setDate(tempStorage.get(taskLocation).getDate());
+		}
+		try {
+		for (int i = 0; i < tempStorage.size(); i++) {
+			Task taskInList = tempStorage.get(i);
+			// Filtering name
+			if (taskToFind.getDate() != null && taskInList.getDate() != null
+					&& !taskInList.getDate().equals(taskToFind.getDate())) {
+				continue;
+			}
+			if (taskToFind.getDate() != null && taskInList.getDate() == null) {
+				continue;
+			}
+			
+			if(taskToFind.getStartTime()!= null && taskToFind.getEndTime() !=null){
+				Date timeFindStart = Constants.timeFormatOne.parse(taskToFind.getStartTime());
+				Date timeFindEnd = Constants.timeFormatOne.parse(taskToFind.getEndTime());
+				
+				if(taskInList.getStartTime()!=null && taskInList.getEndTime()!=null){
+					Date timeInListStart = Constants.timeFormatOne.parse(taskInList.getStartTime());
+					Date timeInListEnd = Constants.timeFormatOne.parse(taskInList.getEndTime());
+					
+					if(timeFindStart.compareTo(timeInListEnd)>0 || timeFindEnd.compareTo(timeInListStart)<0){
+						continue;
+					}			
+					else{
+						searchResults.add(taskInList);
+						continue;
+					}
+				}
+				
+				else if(taskInList.getStartTime()!=null && taskInList.getEndTime()==null){
+					Date timeInListStart = Constants.timeFormatOne.parse(taskInList.getStartTime());
+					if (timeFindStart.compareTo(timeInListStart) > 0 || timeFindEnd.compareTo(timeInListStart) < 0){
+						continue;
+					}
+					else{
+						searchResults.add(taskInList);
+					}
+				}
+			}
+			
+			else if(taskToFind.getStartTime()!= null && taskToFind.getEndTime() ==null){
+				Date timeFindStart = Constants.timeFormatOne.parse(taskToFind.getStartTime());
+				
+				if(taskInList.getStartTime()!=null && taskInList.getEndTime()!=null){
+					Date timeInListStart = Constants.timeFormatOne.parse(taskInList.getStartTime());
+					Date timeInListEnd = Constants.timeFormatOne.parse(taskInList.getEndTime());
+					
+					if(timeFindStart.compareTo(timeInListEnd)>0 || timeFindStart.compareTo(timeInListStart)<0){
+						continue;
+					}			
+					else{
+						searchResults.add(taskInList);
+						continue;
+					}
+				}
+				
+				else if(taskInList.getStartTime()!=null && taskInList.getEndTime()==null){
+					Date timeInListStart = Constants.timeFormatOne.parse(taskInList.getStartTime());
+					if (timeFindStart.compareTo(timeInListStart) != 0){
+						continue;
+					}
+					else{
+						searchResults.add(taskInList);
+						continue;
+					}
+				}
+			}
+
+			// Because the one above will short circuit (not sure if still will need testing)
+			if (taskToFind.getStartTime() != null && taskInList.getStartTime() == null) {
+				continue;
+			}
+			
+			searchResults.add(taskInList);
+		}
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return searchResults;
 	}
 	
@@ -780,11 +870,11 @@ public class Logic {
 							} else if (dateFirst
 									.compareTo(dateSecond) == 0) {
 
-								if (tempStorage.get(j).getTime() == null) {
+								if (tempStorage.get(j).getStartTime() == null) {
 									continue;
 
-								} else if (tempStorage.get(j).getTime() != null
-										&& tempStorage.get(j + 1).getTime() == null) {
+								} else if (tempStorage.get(j).getStartTime() != null
+										&& tempStorage.get(j + 1).getStartTime() == null) {
 
 									tempStorage.add(j + 2, tempStorage.get(j));
 									tempStorage.remove(j);
@@ -795,11 +885,11 @@ public class Logic {
 
 
 									timeFirst = Constants.timeFormatOne
-											.parse(tempStorage.get(j).getTime());
+											.parse(tempStorage.get(j).getStartTime());
 
 									timeSecond = Constants.timeFormatOne
 											.parse(tempStorage.get(j + 1)
-													.getTime());
+													.getStartTime());
 
 									if (timeFirst
 											.compareTo(timeSecond) > 0) {
@@ -898,10 +988,7 @@ public class Logic {
 		return Constants. MSG_SORT_FAIL;
 	}
 	
-	//To remove the search in the undo list after searching for clash
-	public static void undoPopForSearchClash(){
-		undo.pop();
-	}
+
 
 	// Following methods are used for junit testing.
 	public static String printTempStorage(){
@@ -911,7 +998,8 @@ public class Logic {
 			string = string 
 					+ tempStorage.get(i).getName() 
 					+" "+ tempStorage.get(i).getDate()
-					+" "+ tempStorage.get(i).getTime()
+					+" "+ tempStorage.get(i).getStartTime()
+					+" "+ tempStorage.get(i).getEndTime()
 					+" "+ tempStorage.get(i).getDetails()
 					+" "+ importance.toString()
 					+" "+ tempStorage.get(i).getParams()
@@ -928,7 +1016,8 @@ public class Logic {
 			string = string 
 					+ archiveStorage.get(i).getName() 
 					+" "+ archiveStorage.get(i).getDate()
-					+" "+ archiveStorage.get(i).getTime()
+					+" "+ archiveStorage.get(i).getStartTime()
+					+" "+ archiveStorage.get(i).getEndTime()
 					+" "+ archiveStorage.get(i).getDetails()
 					+" "+ importance.toString()
 					+" "+ archiveStorage.get(i).getParams()

@@ -403,14 +403,14 @@ public class Controller {
 			return new ArrayList<Task>();
 		}
 		//If time is null, means there is no time allocated for that task today
-		if (taskToExecute.getTime() == null){
+		if (taskToExecute.getStartTime() == null){
 			return new ArrayList<Task>();
 		}
 		Task tempTask = new Task();
 		tempTask.setDate(taskToExecute.getDate());
-		tempTask.setTime(taskToExecute.getTime());
-		ArrayList<Task> searchResult = Logic.search(tempTask);
-		Logic.undoPopForSearchClash();
+		tempTask.setStartTime(taskToExecute.getStartTime());
+		tempTask.setEndTime(taskToExecute.getEndTime());
+		ArrayList<Task> searchResult = Logic.searchForCheckClash(tempTask);
 		return searchResult;
 	}
 

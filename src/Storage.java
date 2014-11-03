@@ -9,7 +9,8 @@ import java.util.logging.*;
 
 public class Storage {
 	private static final String DIVIDER_DATE = "//!@#DOUBLEUP_DIVIDER_DATE#@!//";
-	private static final String DIVIDER_TIME = "//!@#DOUBLEUP_DIVIDER_TIME#@!//";
+	private static final String DIVIDER_START_TIME = "//!@#DOUBLEUP_DIVIDER_START_TIME#@!//";
+	private static final String DIVIDER_END_TIME = "//!@#DOUBLEUP_DIVIDER_END_TIME#@!//";
 	private static final String DIVIDER_DETAILS = "//!@#DOUBLEUP_DIVIDER_DETAILS#@!//";
 	private static final String DIVIDER_IMPORTANCE = "//!@#DOUBLEUP_DIVIDER_IMPORTANCE#@!//";
 	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
@@ -33,17 +34,28 @@ public class Storage {
 					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_DATE));
 					currentTask = currentTask.replaceFirst(DIVIDER_DATE,"");
 
-					task.setDate(currentTask.substring(0,currentTask.indexOf(DIVIDER_TIME)));
-					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_TIME));
-					currentTask = currentTask.replaceFirst((DIVIDER_TIME),"");
+					task.setDate(currentTask.substring(0,currentTask.indexOf(DIVIDER_START_TIME)));
+					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_START_TIME));
+					currentTask = currentTask.replaceFirst((DIVIDER_START_TIME),"");
 					
-					String taskTime = currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS));
-					if (taskTime.equals("null")){
-						task.setTime(null);
+					String taskStartTime = currentTask.substring(0,currentTask.indexOf(DIVIDER_END_TIME));
+					if (taskStartTime.equals("null")){
+						task.setStartTime(null);
 					}
 					else{
-						task.setTime(taskTime);
+						task.setStartTime(taskStartTime);
 					}
+					
+					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_END_TIME));
+					currentTask = currentTask.replaceFirst((DIVIDER_END_TIME),"");
+					String taskEndTime = currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS));
+					if (taskEndTime.equals("null")){
+						task.setEndTime(null);
+					}
+					else{
+						task.setEndTime(taskEndTime);
+					}
+					
 					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_DETAILS));
 					currentTask = currentTask.replaceFirst((DIVIDER_DETAILS),"");
 
@@ -87,10 +99,12 @@ public class Storage {
 
 			for(int i=0; i<tempStorage.size();i++){
 
-				toWriteInFile = tempStorage.get(i).getName() + DIVIDER_DATE + tempStorage.get(i).getDate()
-						+ DIVIDER_TIME + tempStorage.get(i).getTime() + DIVIDER_DETAILS
-						+ tempStorage.get(i).getDetails() + DIVIDER_IMPORTANCE
-						+ tempStorage.get(i).getImportance()+"\n";
+				toWriteInFile = tempStorage.get(i).getName() 
+						+ DIVIDER_DATE + tempStorage.get(i).getDate()
+						+ DIVIDER_START_TIME + tempStorage.get(i).getStartTime() 
+						+ DIVIDER_END_TIME + tempStorage.get(i).getStartTime()
+						+ DIVIDER_DETAILS + tempStorage.get(i).getDetails() 
+						+ DIVIDER_IMPORTANCE + tempStorage.get(i).getImportance()+"\n";
 
 				fileWritten.write(toWriteInFile);
 			}

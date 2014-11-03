@@ -48,7 +48,7 @@ class Task {
 	public String getDate(){
 		return date;
 	}
-	public String getStartTime(){
+	public String getStartTime() {
 		return startTime;
 	}
 	public String getEndTime(){
@@ -230,4 +230,6 @@ class Task {
 	public static String padLeft(String s, int n) {
 		return String.format("%1$" + n + "s", s);  
 	}
+
+	
 }
