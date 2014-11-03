@@ -724,8 +724,14 @@ public class Logic {
 					taskToAdd.copyOfTask(taskToBeAdded.get(i));
 					
 					add(Constants. COMMAND_UNDO,taskToAdd,file);
+					
+					archiveStorage.remove(archiveStorage.indexOf(taskToAdd));
+						
 				}
-
+				
+				sortByDateAndTime(archiveStorage);
+				Storage.writeToFile(archiveStorage, file);
+				
 				redo.push(lastCommand);
 				redoTask.push(taskToBeAdded);
 			}
