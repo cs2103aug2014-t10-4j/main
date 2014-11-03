@@ -11,7 +11,7 @@ public class Parser {
 
 
 	// Position of various inputs
-	private static final int MAX_TYPES = 8;
+	private static final int MAX_TYPES = 9;
 	private static final int COMMAND_POSITION = 0;
 
 	public static String[] parseInput(String inputFromUser) {
@@ -60,6 +60,9 @@ class Index {
 
 	public Index() {
 		value = 0;
+	}
+	public Index(int number){
+		this.value = number;
 	}
 
 	public void decrement() {

@@ -1,5 +1,5 @@
 public abstract class ParserCommand {
-	private final int ERROR_MSG_POSITION = 6;
+	private final int ERROR_MSG_POSITION = 7;
 	private final int COMMAND_POSITION = 0;
 	private final String ERROR = "error";
 
@@ -93,7 +93,7 @@ class ParserSearch extends ParserCommand {
 		/*processNatDetails(parsedInput, input, index, new DetailsProcessor());*/
 		processType(parsedInput, input, index, new DateProcessor(),
 				new NaturalProcessor());
-		processType(parsedInput, input, index, new TimeProcessor(),
+		/*processType(parsedInput, input, index, new TimeProcessor(),
 				new NaturalProcessor());
 		/*processType(parsedInput, input, index, new ImportanceProcessor(),
 				new NaturalProcessor());*/

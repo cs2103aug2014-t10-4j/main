@@ -30,7 +30,7 @@ public class Constants {
 	protected static final String INVALID_TIME = "invalid time";
 	public static final String ERROR = "error";
 	public static final String INVALID_DATE = "invalid Date";
-	public static final int MAX_TYPES = 8;
+	public static final int MAX_TYPES = 9;
 	// List of commands
 	public static final String[] LIST_ADD = { "/a", "/add" };
 	public static final String[] LIST_DELETE = { "/delete", "/d" };
@@ -53,11 +53,12 @@ public class Constants {
 	public static final int COMMAND_POSITION = 0;
 	public static final int TASK_NAME_POSITION = 1;
 	public static final int DATE_POSITION = 2;
-	public static final int TIME_POSITION = 3;
-	public static final int DETAILS_POSITION = 4;
-	public static final int IMPT_POSITION = 5;
-	public static final int ERROR_MSG_POSITION = 6;
-	public static final int PARAMETER_POSITION = 7;
+	public static final int START_TIME_POSITION = 3;
+	public static final int END_TIME_POSITION = 4;
+	public static final int DETAILS_POSITION = 5;
+	public static final int IMPT_POSITION = 6;
+	public static final int ERROR_MSG_POSITION = 7;
+	public static final int PARAMETER_POSITION = 8;
 
 	// date formats
 	public static final SimpleDateFormat dateFormat = new SimpleDateFormat(
