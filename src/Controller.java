@@ -372,12 +372,19 @@ public class Controller {
 			}
 			searchTerm += task.getDate();
 		}
-		if (task.getTime() != null){
+		if (task.getStartTime() != null){
 			if (searchTerm.length()>0){
 				searchTerm += " ";
 			}
-			searchTerm += task.getTime();
+			searchTerm += task.getStartTime();
 		}
+		if (task.getEndTime() != null){
+			if (searchTerm.length()>0){
+				searchTerm += " - ";
+			}
+			searchTerm += task.getEndTime();
+		}
+		
 		return searchTerm;
 	}
 
