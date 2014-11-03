@@ -34,14 +34,15 @@ public abstract class Processor {
 	protected final String INVALID_DATE = "invalid Date";
 	// Position of various inputs
 	protected final int COMMAND_POSITION = 0;
-	protected final int MAX_TYPES = 8;
+	protected final int MAX_TYPES = 9;
 	protected final int TASK_NAME_POSITION = 1;
 	protected final int DATE_POSITION = 2;
-	protected final int TIME_POSITION = 3;
+	protected final int START_TIME_POSITION = 3;
 	protected final int DETAILS_POSITION = 4;
 	protected final int IMPT_POSITION = 5;
 	protected final int ERROR_MSG_POSITION = 6;
 	protected final int PARAMETER_POSITION = 7;
+	protected final int END_TIME_POSITION = 8;
 	protected final String DATE_NAME = "Date";
 	protected final String TIME_NAME = "Time";
 	protected final String TASK_NAME = "Task name";
@@ -108,7 +109,6 @@ public abstract class Processor {
 		return false;
 
 	}
-
 	protected boolean isMatchString(String[] input, Index index, String command) {
 		String[] possibleCommand = command.split(" ");
 		int startIndex = index.getValue();
@@ -390,53 +390,85 @@ class MultiParaProcessor extends SingleParaProcessor {
 			int startIndex = index.getValue();
 			if (isIndexValid(index.getValue(), input)
 					&& input[index.getValue()] != null
+					&& input[index.getValue()].charAt(input[index.getValue()]
+							.length() - 1) == '-') {
+				input[index.getValue()] = input[index.getValue()].substring(0,
+						input[index.getValue()].length() - 1);
+				if (isIndexValid(index.getValue() + 1, input)
+						&& isInteger(input[index.getValue()])
+						&& isInteger(input[index.getValue() + 1])) {
+					String[] temp = new String[LIMIT_RANGE_PARA];
+					temp[0] = input[index.getValue()];
+					temp[1] = input[index.getValue() + 1];
+					index.increment();
+					processRange(index, parsedInput, startIndex, temp, input);
+				} else {
+					assignErrorMsg(parsedInput, INVALID_PARAMETER);
+					index.setValue(startIndex);
+				}
+			} else if (isIndexValid(index.getValue()+1, input)
+					&& input[index.getValue()+1] != null
+					&& input[index.getValue()+1].charAt(0) == '-') {
+				input[index.getValue()+1] = input[index.getValue()+1].substring(1,
+						input[index.getValue()+1].length());
+				if (isIndexValid(index.getValue() + 1, input)
+						&& isInteger(input[index.getValue()])
+						&& isInteger(input[index.getValue() + 1])) {
+					String[] temp = new String[LIMIT_RANGE_PARA];
+					temp[0] = input[index.getValue()];
+					temp[1] = input[index.getValue() + 1];
+					index.increment();
+					processRange(index, parsedInput, startIndex, temp, input);
+				} else {
+					assignErrorMsg(parsedInput, INVALID_PARAMETER);
+					index.setValue(startIndex);
+				}
+			} else if (isIndexValid(index.getValue(), input)
+					&& input[index.getValue()] != null
 					&& input[index.getValue()].contains("-")) {
 				String[] temp = input[index.getValue()].split("-");
 				if (temp.length == LIMIT_RANGE_PARA
 						&& (isInteger(temp[0]) && isInteger(temp[1]))) {
-			
-					processRange(index, parsedInput, startIndex, temp,input);
+
+					processRange(index, parsedInput, startIndex, temp, input);
 				} else {
 					assignErrorMsg(parsedInput, INVALID_PARA_RANGE);
 					index.setValue(startIndex);
 				}
 
 			} else if (isIndexValid(index.getValue() + 1, input)
-					&& input[index.getValue()+1] != null
-					&& input[index.getValue()+1].equals("-")) {
+					&& input[index.getValue() + 1] != null
+					&& input[index.getValue() + 1].equals("-")) {
 				if (isIndexValid(index.getValue() + 2, input)
 						&& isInteger(input[index.getValue()])
 						&& isInteger(input[index.getValue() + 2])) {
 					String[] temp = new String[LIMIT_RANGE_PARA];
 					temp[0] = input[index.getValue()];
-					temp[1] = input[index.getValue()+2];
+					temp[1] = input[index.getValue() + 2];
 					index.incrementByTwo();
-					processRange(index, parsedInput, startIndex, temp,input);
+					processRange(index, parsedInput, startIndex, temp, input);
 				} else {
 					assignErrorMsg(parsedInput, INVALID_PARAMETER);
 					index.setValue(startIndex);
 				}
 			}
-			
-				
-			
+
 		}
-		
 
 	}
 
 	private void assignNullInput(String[] input, Index index, int startIndex) {
-		for(int i = startIndex;i<=index.getValue();i++){
-			input[i]=null;
+		for (int i = startIndex; i <= index.getValue(); i++) {
+			input[i] = null;
 		}
 	}
 
 	private void processRange(Index index, String[] parsedInput,
-			int startIndex, String[] temp,String[] input) {
+			int startIndex, String[] temp, String[] input) {
 		if (isRangeValid(temp)) {
 			splitAndAssign(parsedInput, temp);
 			assignNullInput(input, index, startIndex);
-		}else{
+		} else {
 			assignErrorMsg(parsedInput, INVALID_PARA_RANGE);
 			index.setValue(startIndex);
 		}
@@ -460,7 +492,7 @@ class MultiParaProcessor extends SingleParaProcessor {
 	private String getRange(int lower, int upper) {
 		String range = new String("");
 		for (int i = lower; i <= upper; i++) {
-			range = range+" " + i;
+			range = range + " " + i;
 		}
 		return range;
 	}
@@ -472,7 +504,7 @@ class MultiParaProcessor extends SingleParaProcessor {
 				input[index] = input[index].replaceAll("to", "-");
 			}
 			if (input[index].length() != 0
-					&& input[index].charAt(input[index].length()-1) == ',') {
+					&& input[index].charAt(input[index].length() - 1) == ',') {
 				input[index] = input[index].substring(0,
 						input[index].length() - 1);
 			} else if (input[index].equals(",")) {
@@ -688,9 +720,23 @@ class ImportanceProcessor extends Processor {
 }
 
 class TimeProcessor extends Processor {
+	private static Logger logger = Logger.getLogger("Time processor");
 	public int getItemPosition() {
-		return TIME_POSITION;
+		return START_TIME_POSITION;
 	}
+	public int getSecItemPosition(){
+		return END_TIME_POSITION;
+	}
+	// Method adds zeroes in the date where needed
+		private String addZeroes(String possibleTime) {
+			Date date = new Date();
+			try {
+				date = timeFormatOne.parse(possibleTime);
+			} catch (ParseException e) {
+				logger.log(Level.WARNING, "Error when adding zeroes");
+			}
+			return timeFormatOne.format(date);
+		}
 
 	@Override
 	public void process(String[] parsedInput, String[] input, Index index) {
@@ -707,7 +753,8 @@ class TimeProcessor extends Processor {
 			}/* else if (validateTime(possibleTime, parsedInput[DATE_POSITION])) */
 			else if (validateTime(possibleTime)) {
 				// parsedInput[TIME_POSITION] = removeColon(possibleTime);
-				parsedInput[TIME_POSITION] = possibleTime;
+				possibleTime = addZeroes(possibleTime);
+				parsedInput[START_TIME_POSITION] = possibleTime;
 				index.increment();
 			} else {
 
