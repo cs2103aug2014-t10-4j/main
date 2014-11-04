@@ -1,4 +1,3 @@
-import java.awt.Font;
 import java.text.SimpleDateFormat;
 
 public class Constants {
@@ -29,14 +28,27 @@ public class Constants {
 	public static final String COLOR_HOT_PINK="#FC26AB"; // for date
 	public static final String COLOR_ORANGER = "#FF5500";//for details
 	public static final String COLOR_RED = "#CF1700"; //for important level
+	public static final String COLOR_YELLOW = "#FFF9D6";
 	public static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running.\nPress Ctrl + Space to open it.";
 	public static final String TITLE_MAIN_WINDOW = "DoubleUp To-Do-List";
+
+	public static final String ERROR_ICON_NOT_FOUND = "Couldn't find file: %s";
+	public static final String MSG_HELP_SUCCESS = "Press ESC to return to All Tasks";
+	public static final String TITLE_HELP_SCREEN = "Help Screen:";
+	public static final int SIZE_WIDTH_TEXT_AREA_RESULTS = 57;
+	public static final int SIZE_TEXT_FIELD_CMD_IN = 40;
+	public static final int SIZE_OF_DISPLAY_PANEL = 70;
+	public static final int SIZE_FEEDBACK_MAX = 180;
+	public static final String RES_HELP_HTML = "/res/help.html";
+	public static final String RES_UP_ARROW_ICON = "/res/up-arrow-icon.png";
+	public static final String RES_SYSTEM_TRAY_ICON = "res/up-arrow-small3.png";
 	
 	//Controller Constants
 	public static final String MSG_DELETE_PAST_FAIL = "There are no past tasks to be deleted.";
 	public static final String MSG_DELETE_PAST_SUCCESS = "All past tasks have been deleted.";
+	public static final String MSG_DELETE_NON_EXISTENT = " You tried to delete non-existent tasks.";
 	public static final String MSG_NO_TASK_FOR_DATE = "There is no task found for %s.";
-	public static final String ERROR_NULL_COMMAND = "command type string cannot be null!";
+	public static final String ERROR_NULL_COMMAND = "Command type string cannot be null!";
 	public static final String ACTION_VIEW_ARCHIVE = "view archive";
 	public static final String ACTION_UNDO = "undo";
 	public static final String ACTION_REDO = "redo";
@@ -52,6 +64,7 @@ public class Constants {
 	public static final String ACTION_SORT_TIME = "sort time";
 	public static final String ACTION_SEARCH = "search";
 	public static final String ACTION_HIDE_DETAILS = "hide details";
+	public static final String ACTION_HELP_SHORT = ".h";
 	public static final String ACTION_HELP = "help";
 	public static final String ACTION_EXIT = "exit";
 	public static final String ACTION_EDIT = "edit";
@@ -90,7 +103,6 @@ public class Constants {
 	public static final String TITLE_SHOW_WEEK = "Tasks for this calendar week (%s):";
 	public static final String TITLE_SHOW_SEVEN_DAYS = "Tasks for next seven days (%s):";
 	public static final String TITLE_TODAY_TASKS = "Today Tasks:";
-	public static final int MAX_LEN_FEEDBACK = 180;
 	
 	//ResultOfCommand
 	public static final String MSG_EMPTY_TYPES = "No tasks for these types!";

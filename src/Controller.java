@@ -16,6 +16,7 @@ import javax.swing.UIManager;
 public class Controller {
 
 
+
 	enum CommandType {
 		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, 
 		DELETE_TEXT, DELETE_TODAY, EDIT, EXIT, HELP, HIDE_DETAILS, INVALID, 
@@ -364,14 +365,14 @@ public class Controller {
 		}
 		String firstPart = "";
 		String secondPart = "";
-		if (feedback.length() > Constants.MAX_LEN_FEEDBACK){
-			firstPart = feedback.substring(0, Constants.MAX_LEN_FEEDBACK);
+		if (feedback.length() > Constants.SIZE_FEEDBACK_MAX){
+			firstPart = feedback.substring(0, Constants.SIZE_FEEDBACK_MAX);
 			//feedback = feedback.substring(0, MAX_LEN_FEEDBACK);
 			int lastCommaIndex = firstPart.lastIndexOf(",");
 			if (lastCommaIndex != -1){
 				firstPart = firstPart.substring(0, lastCommaIndex) + ", ...";
 			}
-			secondPart = feedback.substring(Constants.MAX_LEN_FEEDBACK);
+			secondPart = feedback.substring(Constants.SIZE_FEEDBACK_MAX);
 			int lastCommaSecondPart = secondPart.lastIndexOf(",", secondPart.length()- 2);
 			if (lastCommaSecondPart != -1){
 				secondPart = secondPart.substring(lastCommaSecondPart);
@@ -382,7 +383,7 @@ public class Controller {
 		feedback = endWithFulstop(feedback);
 		feedback = feedback.replace("deleted", "");
 		if (isMoreThanSizeOfList){
-			feedback = feedback + " You tried to delete non-existent tasks." ;
+			feedback = feedback + Constants.MSG_DELETE_NON_EXISTENT ;
 			feedback = feedback.trim();
 		}
 		results.setFeedback(feedback);
