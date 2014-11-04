@@ -763,10 +763,12 @@ public class Logic {
 					
 					add(Constants. COMMAND_UNDO,taskToAdd,file);
 					
-					archiveStorage.remove(archiveStorage.indexOf(taskToAdd));
-						
+					if(archiveStorage.size()>0){
+						if(archiveStorage.contains(taskToAdd)){
+							archiveStorage.remove(archiveStorage.indexOf(taskToAdd));
+						}
+					}
 				}
-				
 				sortByDateAndTime(archiveStorage);
 				Storage.writeToFile(archiveStorage, file);
 				
