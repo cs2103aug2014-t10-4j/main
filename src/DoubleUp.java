@@ -285,7 +285,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	public static void addComponentsToPane(Container cp){
-		InputStream is = DoubleUp.class.getResourceAsStream("/res/monaco.TTF");	
+		InputStream is = DoubleUp.class.getResourceAsStream("/res/monaco.ttf");	
 		try {
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
 			Font sizedFont = font.deriveFont(13f); 

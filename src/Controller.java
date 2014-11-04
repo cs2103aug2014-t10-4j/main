@@ -2,9 +2,12 @@
 
 import java.io.File;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -15,7 +18,7 @@ public class Controller {
 	enum CommandType {
 		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, 
 		DELETE_TEXT, DELETE_TODAY, EDIT, EXIT, HELP, HIDE_DETAILS, INVALID, 
-		SEARCH, SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, SHOW_DETAILS, SHOW_WEEK, 
+		SEARCH, SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, SHOW_DETAILS, SHOW_THIS_WEEK, 
 		SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, REDO, UNDO, VIEW_ARCHIVE;
 	};
 
@@ -172,12 +175,27 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			results.setTitleOfPanel(Constants.TITLE_ALL_TASKS);
 			return results;
-		case SHOW_WEEK:
-			/*Task dateFloating = new Task ();
-			dateFloating.setDate(Constants.DATE_FT);
-			results.setListOfTasks( Logic.search(dateFloating));
-			results.setFeedback(Constants.MSG_SHOW_FLOATING_SUCCESS);
-			results.setTitleOfPanel(Constants.TITLE_FLOATING_TASKS);*/
+		case SHOW_THIS_WEEK:
+			// Set the date today
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(new Date());
+			// Calculates the start date of the week
+			Calendar first = (Calendar) cal.clone();
+			first.add(Calendar.DAY_OF_WEEK, 
+					first.getFirstDayOfWeek() - first.get(Calendar.DAY_OF_WEEK));
+			// and add six days to the end date
+			Calendar last = (Calendar) first.clone();
+			last.add(Calendar.DAY_OF_YEAR, 6);
+
+			DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
+			Task startOfWeekTask = new Task();
+			Task endOfWeekTask = new Task();
+			startOfWeekTask.setDate(dateFormat.format(first.getTime()));
+			endOfWeekTask.setDate(dateFormat.format(last.getTime()));
+			String rangeOfWeek = getRangeOfWeek(startOfWeekTask, endOfWeekTask);
+			results.setListOfTasks(Logic.searchRangeOfDate(startOfWeekTask, endOfWeekTask));
+			results.setFeedback(Constants.MSG_SHOW_THIS_WEEK_SUCCESS);
+			results.setTitleOfPanel(String.format(Constants.TITLE_SHOW_WEEK, rangeOfWeek));
 			return results;
 		case SORT_TIME:
 			Task.setSortedByTime(true);
@@ -223,6 +241,13 @@ public class Controller {
 		}
 	}
 
+	private static String getRangeOfWeek(Task startOfWeekTask,
+			Task endOfWeekTask) {
+		String range = getDayOfWeek(startOfWeekTask.getDate()) + " to " + 
+				getDayOfWeek(endOfWeekTask.getDate());
+		return range;
+	}
+
 	// This method is used to determine the command types given the first word of the command.
 	private static CommandType determineCommandType(String commandTypeString) {
 		if (commandTypeString == null) {
@@ -266,8 +291,8 @@ public class Controller {
 			return CommandType.SHOW_FLOATING;
 		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_TODAY)) {
 			return CommandType.SHOW_TODAY;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_WEEK)) {
-			return CommandType.SHOW_WEEK;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_THIS_WEEK)) {
+			return CommandType.SHOW_THIS_WEEK;
 		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_DETAILS)) {
 			return CommandType.SHOW_DETAILS;
 		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_RESTORE)) {
@@ -307,7 +332,7 @@ public class Controller {
 				feedback = capitalizeFirstLetter(feedback);
 				feedback = Logic.delete(Constants.ACTION_DELETE, splitIndex.length, oneOutOfMany, 
 						file, archive) + ". " + feedback ;
-				
+
 			}
 		}
 		String firstPart = "";
@@ -443,5 +468,16 @@ public class Controller {
 		Date date = new Date();
 		String reportDate = dateFormat.format(date);
 		return reportDate;
+	}
+
+	//Return the day of the week
+	private static String getDayOfWeek(String date){
+		try {
+			Date mydate = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.ENGLISH).parse(date);
+			return new SimpleDateFormat("EEE").format(mydate);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 }

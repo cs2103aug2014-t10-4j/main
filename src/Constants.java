@@ -42,6 +42,7 @@ public class Constants {
 	public static final String ACTION_REDO = "redo";
 	public static final String ACTION_RESTORE = "restore";
 	public static final String ACTION_SHOW_WEEK = "show week";
+	public static final String ACTION_SHOW_THIS_WEEK = "show this week";
 	public static final String ACTION_SHOW_DETAILS = "show details";
 	public static final String ACTION_SHOW_TODAY = "show today";
 	public static final String ACTION_SHOW_FLOATING = "show floating";
@@ -76,6 +77,7 @@ public class Constants {
 	public static final String MSG_SHOW_TODAY_SUCCESS = "These are your tasks for the day.";
 	public static final String MSG_SHOW_DETAILS_SUCCESS = "Details are expanded.";
 	public static final String MSG_SHOW_ALL_SUCCESS = "These are all your tasks.";
+	public static final String MSG_SHOW_THIS_WEEK_SUCCESS = "These are your tasks for this week.";
 
 	public static final String TITLE_ALL_TASKS = "All Tasks:";
 	public static final String TITLE_ALPHABETICAL_ORDER = "All tasks by alphabetical order";
@@ -83,8 +85,18 @@ public class Constants {
 	public static final String TITLE_IMPORTANCE_ORDER = "All tasks by importance order";
 	public static final String TITLE_JDIALOG_CLASH_FOUND = "Clash found";
 	public static final String TITLE_SEARCH_RESULTS = "Search Results for \"%s\"";
+	public static final String TITLE_SHOW_WEEK = "Tasks for this week(%s):";
 	public static final String TITLE_TODAY_TASKS = "Today Tasks:";
 	public static final int MAX_LEN_FEEDBACK = 180;
+	
+	//ResultOfCommand
+	public static final String MSG_EMPTY_TYPES = "No tasks for these types!";
+	public static final String DATE_WITH_LINE = 
+			"<font style='color:%s;'>" +
+					"<b> ========================== %s%s ==========================</b></font><br>";
+	public static final String DATE_WITH_LINE_TODAY = 
+			"<font style='color:%s;'>" +
+					"<b> ====================== %s%s ======================</b></font><br>";
 	
 	//Parser
 	public static final int RESET = 0;
