@@ -1,3 +1,4 @@
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -22,7 +23,7 @@ public class DateFormatter {
 
 	}
 
-	public String formatDate(Integer index, String[] input){
+	public String formatDate(Integer index, String[] input) {
 		Date today = new Date();
 		return dateFormat.format(today);
 	}
@@ -53,7 +54,8 @@ public class DateFormatter {
 	}
 
 }
-class TmrDateFormatter extends DateFormatter{
+
+class TmrDateFormatter extends DateFormatter {
 	@Override
 	public String formatDate(Integer index, String[] input) {
 		GregorianCalendar tmr = new GregorianCalendar();
@@ -69,12 +71,13 @@ class SpelledDayFormatter extends DateFormatter {
 		String possibleDay = input[index];
 		Date date = new Date();
 		spelledDayFormat.setLenient(false);
+
 		try {
 			date = spelledDayFormat.parse(possibleDay);
-
-		} catch (Exception e) {
+		} catch (ParseException e) {
 
 		}
+
 		GregorianCalendar possibleDate = new GregorianCalendar();
 		possibleDate.setTime(date);
 		GregorianCalendar today = new GregorianCalendar();
@@ -107,23 +110,20 @@ class SpelledDateTwoFormatter extends SpelledDateOneFormatter {
 
 	protected String formatYear(String possibleMonth, String possibleDay) {
 
-		try {
-			if (Integer.parseInt(possibleMonth) < Integer.parseInt(getMonth())) {
-				return Integer.toString(Integer.parseInt(getYear()) + 1);
-			} else if (Integer.parseInt(possibleMonth) == Integer
-					.parseInt(getMonth())
-					&& Integer.parseInt(possibleDay) < Integer
-							.parseInt(getDay())) {
-				return Integer.toString(Integer.parseInt(getYear()) + 1);
-			}
-		} catch (Exception e) {
-			return null;
+		if (Integer.parseInt(possibleMonth) < Integer.parseInt(getMonth())) {
+
+			return Integer.toString(Integer.parseInt(getYear()) + 1);
+		} else if (Integer.parseInt(possibleMonth) == Integer
+				.parseInt(getMonth())
+				&& Integer.parseInt(possibleDay) < Integer.parseInt(getDay())) {
+			return Integer.toString(Integer.parseInt(getYear()) + 1);
 		}
+
 		return getYear();
 	}
 }
 
-//Formats date with initial format of 1st mar 2015 or 1st mar 15 to 01/03/2015
+// Formats date with initial format of 1st mar 2015 or 1st mar 15 to 01/03/2015
 class SpelledDateOneFormatter extends DateFormatter {
 
 	private static final String EMPTY_STRING = "";
@@ -156,7 +156,7 @@ class SpelledDateOneFormatter extends DateFormatter {
 		Date date = new Date();
 		try {
 			date = spelledMonthFormat.parse(possibleMonth);
-		} catch (Exception e) {
+		} catch (ParseException e) {
 
 		}
 		return monthFormat.format(date);

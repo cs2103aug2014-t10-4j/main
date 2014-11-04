@@ -14,6 +14,7 @@ public abstract class Processor {
 	protected final String INVALID_IMPORTANCE = "invalid importance level";
 
 	protected final String FLOATING_TASK = "ft";
+	protected final String[] LIST_NO_TIME = { "no time", ".nt" };
 	protected final String[] LIST_TODAY = { "today", "tdy" };
 	protected final String[] LIST_TMR = { "tomorrow", "tmr" };
 	// patterns for matching
@@ -109,6 +110,11 @@ public abstract class Processor {
 		}
 		return false;
 
+	}
+
+	// returns first member of list
+	protected String getFirstMember(String[] list) {
+		return list[0];
 	}
 
 	protected boolean isMatchString(String[] input, Index index, String command) {
@@ -747,10 +753,14 @@ class TimeProcessor extends Processor {
 
 	@Override
 	public void process(String[] parsedInput, String[] input, Index index) {
-		// process time
 
 		if (isIndexValid(index.getValue(), input)) {
-			if (!isFloating(parsedInput)) {
+			if (isPartOfList(input, index, LIST_NO_TIME)) {
+				parsedInput[getItemPosition()] = getFirstMember(LIST_NO_TIME);
+				index.increment();
+			}
+			if (!isFloating(parsedInput)
+					&& parsedInput[getItemPosition()] == null) {
 				processTimeRange(index, input, parsedInput);
 				String possibleTime = getPossibleTime(index, input);
 				if (possibleTime != null) {
@@ -788,38 +798,73 @@ class TimeProcessor extends Processor {
 	private void processTimeRange(Index index, String[] input,
 			String[] parsedInput) {
 		int current = index.getValue();
-		int prev1 = current - 1;
-		int forward1 = current + 1;
+		int prev = current - 1;
+		int next = current + 1;
+		String[] startInput = new String[MAX_LENGTH_TIME];
+		String[] endInput = new String[MAX_LENGTH_TIME];
+		Index index1 = new Index(MAX_LENGTH_TIME - 1);
+		Index index2 = new Index();
 		if (isIndexValid(current, input) && input[current] != null
 				&& input[index.getValue()].contains("-")) {
 			String[] possibleTimes = input[index.getValue()].split("-");
 			if (possibleTimes.length == MAX_TIME_TYPES) {
-				String[] startInput = new String[MAX_LENGTH_TIME];
-				String[] endInput = new String[MAX_LENGTH_TIME];
+
 				startInput[1] = possibleTimes[0];
 				endInput[0] = possibleTimes[1];
-				if (isIndexValid(prev1, input)) {
-					startInput[0] = input[prev1];
+				if (isIndexValid(prev, input)) {
+					startInput[0] = input[prev];
 				}
-				if (isIndexValid(forward1, input)) {
-					endInput[1] = input[forward1];
+				if (isIndexValid(next, input)) {
+					endInput[1] = input[next];
 				}
-				Index index1 = new Index();
-				Index index2 = new Index();
+
 				String possibleStart = processStartTime(startInput, index1);
 				String possibleEnd = processEndTime(endInput, index2);
 				if (isValidTime(possibleStart) && isValidTime(possibleEnd)) {
 					input[current] = null;
 					if (index1.getValue() == 0) {
-						input[prev1] = null;
-						index.setValue(prev1);
+						input[prev] = null;
+						index.setValue(prev);
 					}
 					if (index2.getValue() != 0) {
-						input[forward1] = null;
+						input[next] = null;
 					}
 					assignTime(parsedInput, possibleStart, getItemPosition());
 					assignTime(parsedInput, possibleEnd, getSecItemPosition());
 				}
+			}
+		} else if (isIndexValid(prev, input) && input[prev] != null
+				&& input[prev].equals("-")) {
+			int prev2 = index.getValue() - 2;
+			int prev3 = index.getValue() - 3;
+
+			if (isIndexValid(prev3, input)) {
+				startInput[0] = input[prev3];
+			}
+			if (isIndexValid(prev2, input)) {
+				startInput[1] = input[prev2];
+			}
+			if (isIndexValid(next, input)) {
+				endInput[1] = input[next];
+			}
+			if (isIndexValid(current, input)) {
+				endInput[0] = input[current];
+			}
+			String possibleStart = processStartTime(startInput, index1);
+			String possibleEnd = processEndTime(endInput, index2);
+			if (isValidTime(possibleStart) && isValidTime(possibleEnd)) {
+				input[current] = null;
+				input[prev] = null;
+				input[prev2] = null;
+				if (index1.getValue() == 0) {
+					input[prev3] = null;
+					index.setValue(prev3);
+				}
+				if (index2.getValue() != 0) {
+					input[next] = null;
+				}
+				assignTime(parsedInput, possibleStart, getItemPosition());
+				assignTime(parsedInput, possibleEnd, getSecItemPosition());
 
 			}
 
@@ -828,28 +873,49 @@ class TimeProcessor extends Processor {
 	}
 
 	private String processStartTime(String[] input, Index index) {
-
-		while (isIndexValid(index.getValue(), input)) {
-			int startIndex = index.getValue();
-			String result = getPossibleTime(index, input);
-			if (result != null) {
-				index.setValue(startIndex);
-				return result;
-			}
-			index.increment();
+		String possibleTime = null;
+		int current = index.getValue();
+		int prev = current - 1;
+		if (isRegexMatch(input[current], PATTERN_TIME_ONE)) {
+			possibleTime = input[current];
+		} else if (isRegexMatch(input[current], PATTERN_TIME_TWO)) {
+			possibleTime = formatPatternTwo(input, current);
+		} else if (isRegexMatch(input[current], PATTERN_TIME_THREE)) {
+			possibleTime = formatPatternThree(input, current);
+		} else if (isSplitPatternTwo(input, prev, current)) {
+			possibleTime = formatSplitPatternTwo(input, prev, current);
+			index.decrement();
+		} else if (isSplitPatternThree(input, prev, current)) {
+			possibleTime = formatSplitPatternThree(input, prev, current);
+			index.decrement();
 		}
-		return null;
+		return possibleTime;
+		/*
+		 * while (isIndexValid(index.getValue(), input)) { int startIndex =
+		 * index.getValue(); String result = getPossibleTime(index, input); if
+		 * (result != null) { index.setValue(startIndex); return result; }
+		 * index.increment(); } return null;
+		 */
 	}
-	private String processEndTime(String[] input, Index index) {
 
-		while (isIndexValid(index.getValue(), input)) {
-			String result = getPossibleTime(index, input);
-			if (result != null) {
-				return result;
-			}
+	private String processEndTime(String[] input, Index index) {
+		String possibleTime = null;
+		int current = index.getValue();
+		int next = current + 1;
+		if (isRegexMatch(input[current], PATTERN_TIME_ONE)) {
+			possibleTime = input[current];
+		} else if (isRegexMatch(input[current], PATTERN_TIME_TWO)) {
+			possibleTime = formatPatternTwo(input, current);
+		} else if (isRegexMatch(input[current], PATTERN_TIME_THREE)) {
+			possibleTime = formatPatternThree(input, current);
+		} else if (isSplitPatternTwo(input, current, next)) {
+			possibleTime = formatSplitPatternTwo(input, current, next);
+			index.increment();
+		} else if (isSplitPatternThree(input, current, next)) {
+			possibleTime = formatSplitPatternThree(input, current, next);
 			index.increment();
 		}
-		return null;
+		return possibleTime;
 	}
 
 	/*
@@ -880,33 +946,62 @@ class TimeProcessor extends Processor {
 
 	protected String getPossibleTime(Index index, String[] input) {
 		String possibleTime = null;
-		if (isRegexMatch(input[index.getValue()], PATTERN_TIME_ONE)) {
-			possibleTime = input[index.getValue()];
-		} else if (isRegexMatch(input[index.getValue()], PATTERN_TIME_TWO)) {
-			possibleTime = input[index.getValue()];
-			possibleTime = replaceFullStop(possibleTime);
-			possibleTime = reformatTimeTwo(possibleTime);
-		} else if (isRegexMatch(input[index.getValue()], PATTERN_TIME_THREE)) {
-			possibleTime = input[index.getValue()];
-			possibleTime = reformatTimeThree(possibleTime);
-		} else if (isIndexValid(index.getValue() + 1, input)
-				&& isRegexMatch(
-						input[index.getValue()] + input[index.getValue() + 1],
-						PATTERN_TIME_TWO)) {
-			possibleTime = input[index.getValue()]
-					+ input[index.getValue() + 1];
-			possibleTime = replaceFullStop(possibleTime);
-			possibleTime = reformatTimeTwo(possibleTime);
+		int current = index.getValue();
+		int next = current + 1;
+		if (isRegexMatch(input[current], PATTERN_TIME_ONE)) {
+			possibleTime = input[current];
+		} else if (isRegexMatch(input[current], PATTERN_TIME_TWO)) {
+			possibleTime = formatPatternTwo(input, current);
+		} else if (isRegexMatch(input[current], PATTERN_TIME_THREE)) {
+			possibleTime = formatPatternThree(input, current);
+		} else if (isSplitPatternTwo(input, current, next)) {
+			possibleTime = formatSplitPatternTwo(input, current, next);
 			index.increment();
-		} else if (isIndexValid(index.getValue() + 1, input)
-				&& isRegexMatch(
-						input[index.getValue()] + input[index.getValue() + 1],
-						PATTERN_TIME_THREE)) {
-			possibleTime = input[index.getValue()]
-					+ input[index.getValue() + 1];
-			possibleTime = reformatTimeThree(possibleTime);
+		} else if (isSplitPatternThree(input, current, next)) {
+			possibleTime = formatSplitPatternThree(input, current, next);
 			index.increment();
 		}
+		return possibleTime;
+	}
+
+	private String formatPatternTwo(String[] input, int current) {
+		String possibleTime;
+		possibleTime = input[current];
+		possibleTime = replaceFullStop(possibleTime);
+		possibleTime = reformatTimeTwo(possibleTime);
+		return possibleTime;
+	}
+
+	private String formatPatternThree(String[] input, int current) {
+		String possibleTime;
+		possibleTime = input[current];
+		possibleTime = reformatTimeThree(possibleTime);
+		return possibleTime;
+	}
+
+	private boolean isSplitPatternTwo(String[] input, int current, int next) {
+		return isIndexValid(next, input)
+				&& isRegexMatch(input[current] + input[next], PATTERN_TIME_TWO);
+	}
+
+	private boolean isSplitPatternThree(String[] input, int current, int next) {
+		return isIndexValid(next, input)
+				&& isRegexMatch(input[current] + input[next],
+						PATTERN_TIME_THREE);
+	}
+
+	private String formatSplitPatternThree(String[] input, int current, int next) {
+		String possibleTime;
+		possibleTime = input[current] + input[next];
+		possibleTime = reformatTimeThree(possibleTime);
+		return possibleTime;
+	}
+
+	private String formatSplitPatternTwo(String[] input, int current, int next) {
+		String possibleTime;
+		possibleTime = input[current] + input[next];
+		possibleTime = replaceFullStop(possibleTime);
+		possibleTime = reformatTimeTwo(possibleTime);
 		return possibleTime;
 	}
 
@@ -1263,9 +1358,8 @@ class NaturalProcessor {
 
 	private void cleanWordForward(String[] input, int index, Processor processor) {
 		if (processor instanceof CommandProcessor) {
-			while (isIndexValid(index, input)
-					&& isPartOfList(input[index], LIST_REMOVABLES)
-					&& input[index] != null) {
+			while (isIndexValid(index, input) && input[index] != null
+					&& isPartOfList(input[index], LIST_REMOVABLES)) {
 				input[index] = null;
 				index++;
 			}
@@ -1290,8 +1384,8 @@ class NaturalProcessor {
 			if (parsedInput[ERROR_MSG_POSITION] != null) {
 				break;
 			} else if (parsedInput[processor.getItemPosition()] != null) {
-				if (index.getValue() < startPosition) {
-					cleanWordBackward(input,index.getValue(),processor);
+				if (index.getValue() <= startPosition) {
+					cleanWordBackward(input, index.getValue(), processor);
 				} else {
 					for (int i = startPosition; i < index.getValue(); i++) {
 						input[i] = null;
@@ -1627,10 +1721,6 @@ class CommandProcessor extends Processor {
 	 * index.setValue(startIndex); return false; } if (i == 0) { break; }
 	 * index.decrement(); } // index.setValue(startIndex); return true; }
 	 */
-
-	private String getFirstMember(String[] list) {
-		return list[0];
-	}
 
 	/*
 	 * private boolean isIndexValid(int index, String[] input) { if (index >=
