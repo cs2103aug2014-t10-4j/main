@@ -102,7 +102,7 @@ public class Storage {
 				toWriteInFile = tempStorage.get(i).getName() 
 						+ DIVIDER_DATE + tempStorage.get(i).getDate()
 						+ DIVIDER_START_TIME + tempStorage.get(i).getStartTime() 
-						+ DIVIDER_END_TIME + tempStorage.get(i).getStartTime()
+						+ DIVIDER_END_TIME + tempStorage.get(i).getEndTime()
 						+ DIVIDER_DETAILS + tempStorage.get(i).getDetails() 
 						+ DIVIDER_IMPORTANCE + tempStorage.get(i).getImportance()+"\n";
 
