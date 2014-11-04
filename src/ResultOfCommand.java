@@ -14,10 +14,7 @@ public class ResultOfCommand {
 	private ArrayList<Task> listOfTasks;
 	private String feedback;
 	private String titleOfPanel;
-	private static final String MSG_EMPTY_TYPES = "No tasks for these types!";
-	private static final String DATE_WITH_LINE = 
-			"<font style='color:%s;'>" +
-					"<b> ========================= %s%s =========================</b></font><br>";
+	
 
 	public ResultOfCommand () {
 		listOfTasks = new ArrayList<Task>();
@@ -54,7 +51,7 @@ public class ResultOfCommand {
 		if (listOfTasks.size() !=0){
 			return printTasks();
 		} else {
-			return MSG_EMPTY_TYPES;
+			return Constants.MSG_EMPTY_TYPES;
 		}
 	}
 
@@ -83,14 +80,19 @@ public class ResultOfCommand {
 			String dayOfWeek = "";
 			if (isOverdue(dateOfCurrentTask)){
 				dayOfWeek = getDayOfWeek(dateOfCurrentTask);
-				toPrint += String.format(DATE_WITH_LINE, Constants.COLOR_PINKISH_RED, dateOfCurrentTask, ", " + dayOfWeek);
+				toPrint += String.format(Constants.DATE_WITH_LINE, Constants.COLOR_PINKISH_RED, 
+						dateOfCurrentTask, ", " + dayOfWeek);
 			} else if  (dateOfCurrentTask.equals(getTodayDate())){
-				toPrint += String.format(DATE_WITH_LINE, Constants.COLOR_DARK_BLUE, dateOfCurrentTask, ", Today");
+				dayOfWeek = getDayOfWeek(dateOfCurrentTask);
+				toPrint += String.format(Constants.DATE_WITH_LINE_TODAY, Constants.COLOR_DARK_BLUE, 
+						dateOfCurrentTask, ", " + dayOfWeek + " (Today)");
 			} else if (dateOfCurrentTask.equals("ft")){
-				toPrint += String.format(DATE_WITH_LINE, Constants.COLOR_BLOOD_RED, "Floating Tasks", dayOfWeek);
+				toPrint += String.format(Constants.DATE_WITH_LINE, Constants.COLOR_BLOOD_RED, 
+						"Floating Tasks", dayOfWeek);
 			} else {
 				dayOfWeek = getDayOfWeek(dateOfCurrentTask);
-				toPrint += String.format(DATE_WITH_LINE, Constants.COLOR_DARK_GREEN, dateOfCurrentTask, ", " + dayOfWeek); 
+				toPrint += String.format(Constants.DATE_WITH_LINE, Constants.COLOR_DARK_GREEN, 
+						dateOfCurrentTask, ", " + dayOfWeek); 
 			}
 		}
 		return toPrint;

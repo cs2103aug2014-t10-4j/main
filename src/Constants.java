@@ -1,4 +1,3 @@
-import java.awt.Font;
 import java.text.SimpleDateFormat;
 
 public class Constants {
@@ -29,17 +28,99 @@ public class Constants {
 	public static final String COLOR_HOT_PINK="#FC26AB"; // for date
 	public static final String COLOR_ORANGER = "#FF5500";//for details
 	public static final String COLOR_RED = "#CF1700"; //for important level
+	public static final String COLOR_YELLOW = "#FFF9D6";
 	public static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running.\nPress Ctrl + Space to open it.";
-	public static final String ACTION_SHOW_ALL = "show all";
-	public static final String TITLE_MAIN_WINDOW = "DoubleUp To-do-List";
+	public static final String TITLE_MAIN_WINDOW = "DoubleUp To-Do-List";
+
+	public static final String ERROR_ICON_NOT_FOUND = "Couldn't find file: %s";
+	public static final String MSG_HELP_SUCCESS = "Press ESC to return to All Tasks";
+	public static final String TITLE_HELP_SCREEN = "Help Screen:";
+	public static final int SIZE_WIDTH_TEXT_AREA_RESULTS = 57;
+	public static final int SIZE_TEXT_FIELD_CMD_IN = 40;
+	public static final int SIZE_OF_DISPLAY_PANEL = 70;
+	public static final int SIZE_FEEDBACK_MAX = 180;
+	public static final String RES_HELP_HTML = "/res/help.html";
+	public static final String RES_UP_ARROW_ICON = "/res/up-arrow-icon.png";
+	public static final String RES_SYSTEM_TRAY_ICON = "res/up-arrow-small3.png";
 	
+	//Controller Constants
+	public static final String MSG_DELETE_PAST_FAIL = "There are no past tasks to be deleted.";
+	public static final String MSG_DELETE_PAST_SUCCESS = "All past tasks have been deleted.";
+	public static final String MSG_DELETE_NON_EXISTENT = " You tried to delete non-existent tasks.";
+	public static final String MSG_NO_TASK_FOR_DATE = "There is no task found for %s.";
+	public static final String ERROR_NULL_COMMAND = "Command type string cannot be null!";
+	public static final String ACTION_VIEW_ARCHIVE = "view archive";
+	public static final String ACTION_UNDO = "undo";
+	public static final String ACTION_REDO = "redo";
+	public static final String ACTION_RESTORE = "restore";
+	public static final String ACTION_SHOW_WEEK = "show week";
+	public static final String ACTION_SHOW_THIS_WEEK = "show this week";
+	public static final String ACTION_SHOW_DETAILS = "show details";
+	public static final String ACTION_SHOW_TODAY = "show today";
+	public static final String ACTION_SHOW_FLOATING = "show floating";
+	public static final String ACTION_SHOW_ALL = "show all";
+	public static final String ACTION_SORT_IMPORTANCE = "sort importance";
+	public static final String ACTION_SORT_ALPHA = "sort alpha";
+	public static final String ACTION_SORT_TIME = "sort time";
+	public static final String ACTION_SEARCH = "search";
+	public static final String ACTION_HIDE_DETAILS = "hide details";
+	public static final String ACTION_HELP_SHORT = ".h";
+	public static final String ACTION_HELP = "help";
+	public static final String ACTION_EXIT = "exit";
+	public static final String ACTION_EDIT = "edit";
+	public static final String ACTION_DELETE_DATE = "delete date";
+	public static final String ACTION_DELETE_PAST = "delete past";
+	public static final String ACTION_DELETE_TODAY = "delete today";
+	public static final String ACTION_DELETE_ALL = "delete all";
+	public static final String ACTION_DELETE = "delete";
+	public static final String ACTION_CLEAR_ARCHIVE = "clear archive";
+	public static final String ACTION_CLEAR = "clear";
+	public static final String ACTION_ADD = "add";
+
+	public static final String TITLE_ARCHIVED_TASKS = "Archived Tasks (view-only)";
+	public static final String MSG_ARCHIVED_TASKS = "These are all your completed and archived tasks.";
+	public static final String MSG_CLASH_FOUND = "Something is happening at the same time! Continue %sing?";
+	public static final String MSG_DELETE_NO_INDEX = "You must add a number after delete";
+	public static final String MSG_DELETED_TODAY = "All today tasks have been cleared.";
+	public static final String MSG_FOUND_N_ITEMS = "Found %d items.";
+	public static final String MSG_HIDE_DETAILS_SUCCESS = "Details are collapsed.";
+	public static final String MSG_ITEM_TO_DELETE_NOT_FOUND = "item #%d is not found, ";
+	public static final String MSG_USER_CONFIRMED_NO = "Task is not %sed.";
+	public static final String MSG_SHOW_FLOATING_SUCCESS = "These are your floating tasks.";
+	public static final String MSG_SHOW_TODAY_SUCCESS = "These are your tasks for the day.";
+	public static final String MSG_SHOW_DETAILS_SUCCESS = "Details are expanded.";
+	public static final String MSG_SHOW_ALL_SUCCESS = "These are all your tasks.";
+	public static final String MSG_SHOW_THIS_WEEK_SUCCESS = "These are your tasks for this week.";
+	public static final String MSG_SHOW_SEVEN_DAYS_SUCCESS = "These are your tasks for the next 7 days.";
+	public static final String MSG_RANGE_OF_WEEK = "%s %s to %s %s";
+	
+	public static final String TITLE_ALL_TASKS = "All Tasks:";
+	public static final String TITLE_ALPHABETICAL_ORDER = "All tasks by alphabetical order";
+	public static final String TITLE_FLOATING_TASKS = "Floating Tasks:";
+	public static final String TITLE_IMPORTANCE_ORDER = "All tasks by importance order";
+	public static final String TITLE_JDIALOG_CLASH_FOUND = "Clash found";
+	public static final String TITLE_SEARCH_RESULTS = "Search Results for \"%s\"";
+	public static final String TITLE_SHOW_WEEK = "Tasks for this calendar week (%s):";
+	public static final String TITLE_SHOW_SEVEN_DAYS = "Tasks for next seven days (%s):";
+	public static final String TITLE_TODAY_TASKS = "Today Tasks:";
+	
+	//ResultOfCommand
+	public static final String MSG_EMPTY_TYPES = "No tasks for these types!";
+	public static final String DATE_WITH_LINE = 
+			"<font style='color:%s;'>" +
+					"<b> ========================== %s%s ==========================</b></font><br>";
+	public static final String DATE_WITH_LINE_TODAY = 
+			"<font style='color:%s;'>" +
+					"<b> ====================== %s%s ======================</b></font><br>";
+	public static final int INVALID_IMPORTANCE_LEVEL = -1;
+	
+	//Parser
 	public static final int RESET = 0;
 	public static final String INVALID_PARAMETER = "Invalid parameter";
 	public static final String EMPTY_DETAILS_MSG = "No details were found. Please input your details";
 	public static final String INVALID_IMPORTANCE = "invalid importance level";
-
 	public static final String FLOATING_TASK = "ft";
-	// patterns for matching
+	//Patterns for matching
 	public static final String PATTERN_YEAR = "^\\d{4}$|^\\d{2}$";
 	public static final String PATTERN_DATE_TWO = "^([2-3]?[1][s][t])$|^([2]?[2][n][d])$|^([2]?[3][r][d])$|^([1][0-9][t][h])$|^([2]?[4-9][t][h])$|^([0-2]?[0-9])$|^([3][0-1])$|^(([2]|[3])[0][t][h])$";
 	public static final String PATTERN_DATE_POSSIBLE = "^\\d{1,2}(([t][h])|([s][t])|([n][d])|([r][d]))?$";
