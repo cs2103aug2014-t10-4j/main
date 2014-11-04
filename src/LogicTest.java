@@ -229,8 +229,8 @@ public class LogicTest {
 	@Test
 	public void testSort() {
 
-		Logic.clearContent(testFile);
-		Logic.clearContent(testArchive);
+		Logic.clearAll(testFile);
+		Logic.clearAll(testArchive);
 		Logic.clearUndoRedo();
 		
 		//testing of 10 tasks
@@ -387,7 +387,7 @@ public class LogicTest {
 		@Test
 		public void Test_clearCommand() {
 			String expected = String.format(MSG_CLEARED_FILE, "");
-			String result = Logic.clearContent(testFile);
+			String result = Logic.clearContent(testFile, testArchive);
 			assertEquals(expected, result);
 		}
 
@@ -421,7 +421,7 @@ public class LogicTest {
 			Task task = new Task(splitTask);
 			//String[] splitTask4 = {null,null, null, null, null, null, null , null};
 			//Task task4 = new Task(splitTask4);	
-			Logic.clearContent(testFile);
+			Logic.clearContent(testFile,testArchive);
 			Logic.add("add", task1, testFile);		
 			List.add(task1);
 			//List1.add(task4);

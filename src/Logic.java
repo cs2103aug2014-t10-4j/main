@@ -512,7 +512,7 @@ public class Logic {
 
 	}
 	
-	public static String clearContent(File file) {
+	public static String clearContent(File file, File archive) {
 		if(undo.size()!= 0 && undo.peek().equals(Constants.COMMAND_SEARCH)){
 			undo.pop();
 		} 
@@ -525,10 +525,16 @@ public class Logic {
 			Task taskToDelete = new Task();	
 			taskToDelete.copyOfTask( tempStorage.get(i));
 			deletedTask.add(taskToDelete);
+			
+			Task taskToArchive = new Task();	
+			taskToArchive.copyOfTask( tempStorage.get(i));
+			archiveStorage.add(taskToArchive);
 		}
 		
 		tempStorage.clear();
 		Storage.writeToFile(new ArrayList<Task>(), file); 
+		sortByDateAndTime(archiveStorage);
+		Storage.writeToFile(archiveStorage, archive);
 		
 		undo.push(Constants.COMMAND_DELETE_ALL);
 		undoTask.push(deletedTask);
@@ -838,7 +844,7 @@ public class Logic {
 			}
 			
 			if(lastCommand.equals(Constants.COMMAND_DELETE_ALL)){
-				clearContent(file);
+				clearContent(file,archive);
 			}
 			
 			sortByDateAndTime(tempStorage);
@@ -1069,6 +1075,10 @@ public class Logic {
 		undoTask.clear();
 		redo.clear();
 		redoTask.clear();
+	}
+	
+	public static void clearAll(File file){
+		Storage.writeToFile(new ArrayList<Task>(), file); 
 	}
 	
 	public static void sortAlpha(){

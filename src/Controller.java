@@ -106,7 +106,7 @@ public class Controller {
 			results.setTitleOfPanel(TITLE_ARCHIVED_TASKS);
 			return results;
 		case DELETE_ALL:
-			results.setFeedback(Logic.clearContent(file));
+			results.setFeedback(Logic.clearContent(file, archive));
 			results.setListOfTasks(Logic.getTempStorage());
 			results.setTitleOfPanel(TITLE_ALL_TASKS);
 			return results;
