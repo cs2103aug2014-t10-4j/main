@@ -417,6 +417,7 @@ public class Controller {
 		tempTask.setDate(taskToExecute.getDate());
 		tempTask.setStartTime(taskToExecute.getStartTime());
 		tempTask.setEndTime(taskToExecute.getEndTime());
+		tempTask.setParams(taskToExecute.getParams());
 		ArrayList<Task> searchResult = Logic.searchForCheckClash(tempTask);
 		return searchResult;
 	}
