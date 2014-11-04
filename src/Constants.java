@@ -41,6 +41,7 @@ public class Constants {
 	public static final String ACTION_UNDO = "undo";
 	public static final String ACTION_REDO = "redo";
 	public static final String ACTION_RESTORE = "restore";
+	public static final String ACTION_SHOW_WEEK = "show week";
 	public static final String ACTION_SHOW_DETAILS = "show details";
 	public static final String ACTION_SHOW_TODAY = "show today";
 	public static final String ACTION_SHOW_FLOATING = "show floating";

@@ -13,10 +13,10 @@ import javax.swing.UIManager;
 public class Controller {
 
 	enum CommandType {
-		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, DELETE_TEXT, 
-		DELETE_TODAY, EDIT, EXIT, HELP, HIDE_DETAILS, INVALID, SEARCH, SHOW_ALL, SHOW_FLOATING, 
-		SHOW_TODAY, SHOW_DETAILS, SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, 
-		REDO, UNDO, VIEW_ARCHIVE;
+		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, 
+		DELETE_TEXT, DELETE_TODAY, EDIT, EXIT, HELP, HIDE_DETAILS, INVALID, 
+		SEARCH, SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, SHOW_DETAILS, SHOW_WEEK, 
+		SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, REDO, UNDO, VIEW_ARCHIVE;
 	};
 
 	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
@@ -62,7 +62,7 @@ public class Controller {
 		case DELETE_DATE:
 			Task taskWithThisDate = new Task();
 			taskWithThisDate.setDate(taskToExecute.getDate());
-			return deleteDate(file, archive, results, taskWithThisDate);
+			return deleteTasksForDate(file, archive, results, taskWithThisDate);
 		case DELETE_PAST:
 			//Force sort by time first
 			Task.setSortedByTime(true);
@@ -91,7 +91,7 @@ public class Controller {
 		case DELETE_TODAY:
 			Task todayOnly = new Task();
 			todayOnly.setDate(getTodayDate());
-			deleteDate(file, archive, results, todayOnly);
+			deleteTasksForDate(file, archive, results, todayOnly);
 			results.setFeedback(Constants.MSG_DELETED_TODAY);
 			return results;
 		case DELETE_TEXT:
@@ -172,6 +172,13 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			results.setTitleOfPanel(Constants.TITLE_ALL_TASKS);
 			return results;
+		case SHOW_WEEK:
+			/*Task dateFloating = new Task ();
+			dateFloating.setDate(Constants.DATE_FT);
+			results.setListOfTasks( Logic.search(dateFloating));
+			results.setFeedback(Constants.MSG_SHOW_FLOATING_SUCCESS);
+			results.setTitleOfPanel(Constants.TITLE_FLOATING_TASKS);*/
+			return results;
 		case SORT_TIME:
 			Task.setSortedByTime(true);
 			results.setFeedback(Logic.sortByDateAndTime(Logic.getTempStorage()));
@@ -216,19 +223,80 @@ public class Controller {
 		}
 	}
 
+	// This method is used to determine the command types given the first word of the command.
+	private static CommandType determineCommandType(String commandTypeString) {
+		if (commandTypeString == null) {
+			throw new Error(Constants.ERROR_NULL_COMMAND);
+		}
+		if (commandTypeString.equalsIgnoreCase(Constants.ACTION_ADD)) {
+			return CommandType.ADD_TEXT;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_CLEAR)) {
+			return CommandType.CLEAR_SCREEN;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_CLEAR_ARCHIVE)) {
+			return CommandType.CLEAR_ARCHIVE;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE)) {
+			return CommandType.DELETE_TEXT;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE_ALL)) {
+			return CommandType.DELETE_ALL;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE_DATE)) {
+			return CommandType.DELETE_DATE;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE_PAST)) {
+			return CommandType.DELETE_PAST;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE_TODAY)) {
+			return CommandType.DELETE_TODAY;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_EDIT)) {
+			return CommandType.EDIT;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_EXIT)) {
+			return CommandType.EXIT;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_HELP)) {
+			return CommandType.HELP;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_HIDE_DETAILS)) {
+			return CommandType.HIDE_DETAILS;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SEARCH)) {
+			return CommandType.SEARCH;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SORT_TIME)) {
+			return CommandType.SORT_TIME;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SORT_ALPHA)) {
+			return CommandType.SORT_ALPHA;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SORT_IMPORTANCE)) {
+			return CommandType.SORT_IMPORTANCE;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_ALL)) {
+			return CommandType.SHOW_ALL;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_FLOATING)) {
+			return CommandType.SHOW_FLOATING;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_TODAY)) {
+			return CommandType.SHOW_TODAY;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_WEEK)) {
+			return CommandType.SHOW_WEEK;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_DETAILS)) {
+			return CommandType.SHOW_DETAILS;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_RESTORE)) {
+			return CommandType.RESTORE;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_REDO)) {
+			return CommandType.REDO;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_UNDO)) {
+			return CommandType.UNDO;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_VIEW_ARCHIVE)) {
+			return CommandType.VIEW_ARCHIVE;
+		} else {
+			return CommandType.INVALID;
+		}
+	}
+
+	private static String getCommandWord(String[] userCommand) {
+		assert userCommand.length >0;
+		String firstWord = userCommand[0];
+		return firstWord;
+	}
+
 	private static void deleteMultiple(File file, File archive,
 			ResultOfCommand results, String feedback, int[] splitIndex) {
-		boolean isMoreThanSizeList = false;
+		boolean isMoreThanSizeOfList = false;
 		for (int j = splitIndex.length - 1; j >= 0; j--){
 			if (splitIndex[j] > Logic.getTempStorage().size()){
-				isMoreThanSizeList = true;
-				//feedback = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndex[j]) + feedback;
+				isMoreThanSizeOfList = true;
 				continue; //Because cannot delete numbers larger than list size
 			}
-			/*if (splitIndex[j] <= 0){
-				feedback += MSG_CNT_DELETE_ZERO;
-				return; //Because cannot delete zero or negative number
-			}*/
 			Task oneOutOfMany = new Task();
 			String userDeleteIndex = String.valueOf(splitIndex[j]); 
 			oneOutOfMany.setParams(userDeleteIndex);
@@ -261,7 +329,7 @@ public class Controller {
 		feedback = capitalizeFirstLetter(feedback);
 		feedback = endWithFulstop(feedback);
 		feedback = feedback.replace("deleted", "");
-		if (isMoreThanSizeList){
+		if (isMoreThanSizeOfList){
 			feedback = feedback + " You tried to delete non-existent tasks." ;
 			feedback = feedback.trim();
 		}
@@ -270,14 +338,13 @@ public class Controller {
 
 	private static int confirmClashIsOk(JFrame frame, String action) {
 		int n = JOptionPane.showConfirmDialog(
-				frame,
-				String.format(Constants.MSG_CLASH_FOUND, action),
+				frame, String.format(Constants.MSG_CLASH_FOUND, action),
 				Constants.TITLE_JDIALOG_CLASH_FOUND,
 				JOptionPane.YES_NO_OPTION);
 		return n;
 	}
 
-	private static ResultOfCommand deleteDate(File file, File archive,
+	private static ResultOfCommand deleteTasksForDate(File file, File archive,
 			ResultOfCommand results, Task withParticularDate) {
 		ArrayList<Task> allThoseTasks= Logic.search(withParticularDate);
 		if (allThoseTasks.isEmpty()){
@@ -334,7 +401,6 @@ public class Controller {
 			}
 			searchTerm += task.getEndTime();
 		}
-		
 		return searchTerm;
 	}
 
@@ -370,70 +436,6 @@ public class Controller {
 		tempTask.setParams(taskToExecute.getParams());
 		ArrayList<Task> searchResult = Logic.searchForCheckClash(tempTask);
 		return searchResult;
-	}
-
-	// This method is used to determine the command types given the first word of the command.
-	private static CommandType determineCommandType(String commandTypeString) {
-		if (commandTypeString == null) {
-			throw new Error(Constants.ERROR_NULL_COMMAND);
-		}
-		if (commandTypeString.equalsIgnoreCase(Constants.ACTION_ADD)) {
-			return CommandType.ADD_TEXT;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_CLEAR)) {
-			return CommandType.CLEAR_SCREEN;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_CLEAR_ARCHIVE)) {
-			return CommandType.CLEAR_ARCHIVE;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE)) {
-			return CommandType.DELETE_TEXT;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE_ALL)) {
-			return CommandType.DELETE_ALL;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE_DATE)) {
-			return CommandType.DELETE_DATE;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE_PAST)) {
-			return CommandType.DELETE_PAST;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE_TODAY)) {
-			return CommandType.DELETE_TODAY;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_EDIT)) {
-			return CommandType.EDIT;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_EXIT)) {
-			return CommandType.EXIT;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_HELP)) {
-			return CommandType.HELP;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_HIDE_DETAILS)) {
-			return CommandType.HIDE_DETAILS;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SEARCH)) {
-			return CommandType.SEARCH;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SORT_TIME)) {
-			return CommandType.SORT_TIME;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SORT_ALPHA)) {
-			return CommandType.SORT_ALPHA;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SORT_IMPORTANCE)) {
-			return CommandType.SORT_IMPORTANCE;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_ALL)) {
-			return CommandType.SHOW_ALL;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_FLOATING)) {
-			return CommandType.SHOW_FLOATING;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_TODAY)) {
-			return CommandType.SHOW_TODAY;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_DETAILS)) {
-			return CommandType.SHOW_DETAILS;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_RESTORE)) {
-			return CommandType.RESTORE;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_REDO)) {
-			return CommandType.REDO;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_UNDO)) {
-			return CommandType.UNDO;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_VIEW_ARCHIVE)) {
-			return CommandType.VIEW_ARCHIVE;
-		} else {
-			return CommandType.INVALID;
-		}
-	}
-
-	private static String getCommandWord(String[] userCommand) {
-		assert userCommand.length >0;
-		String firstWord = userCommand[0];
-		return firstWord;
 	}
 
 	private static String getTodayDate() {
