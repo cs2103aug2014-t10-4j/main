@@ -85,7 +85,7 @@ class Task {
 		this.startTime= newStartTime;
 	}
 	public void setEndTime(String newEndTime){
-		this.startTime= newEndTime;
+		this.endTime= newEndTime;
 	}
 	public void setDetails(String newDetails){
 		this.details = newDetails;
