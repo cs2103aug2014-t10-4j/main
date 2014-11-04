@@ -16,18 +16,18 @@ class Task {
 	private static boolean isDetailsShown = false;
 
 	public Task(String[] splitTask){
-		this.name = splitTask[1];
-		this.date = splitTask[2];
-		this.startTime = splitTask[3];
-		this.endTime = splitTask[4];
-		this.details = splitTask[5];
+		this.name = splitTask[Constants.TASK_NAME_POSITION];
+		this.date = splitTask[Constants.DATE_POSITION];
+		this.startTime = splitTask[Constants.START_TIME_POSITION];
+		this.endTime = splitTask[Constants.END_TIME_POSITION];
+		this.details = splitTask[Constants.DETAILS_POSITION];
 		if (splitTask[6] != null){
-			this.importance = Integer.parseInt(splitTask[6]);
+			this.importance = Integer.parseInt(splitTask[Constants.IMPT_POSITION]);
 		} else {
-			this.importance = -1;
+			this.importance = Constants.INVALID_IMPORTANCE_LEVEL;
 		}
-		this.error = splitTask[7];
-		this.params = splitTask[8];
+		this.error = splitTask[Constants.ERROR_MSG_POSITION];
+		this.params = splitTask[Constants.PARAMETER_POSITION];
 	}
 
 	public Task(){

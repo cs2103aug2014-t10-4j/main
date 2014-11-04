@@ -15,11 +15,13 @@ import javax.swing.UIManager;
 
 public class Controller {
 
+
 	enum CommandType {
 		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, 
 		DELETE_TEXT, DELETE_TODAY, EDIT, EXIT, HELP, HIDE_DETAILS, INVALID, 
 		SEARCH, SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, SHOW_DETAILS, SHOW_THIS_WEEK, 
-		SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, REDO, UNDO, VIEW_ARCHIVE;
+		SHOW_WEEK, SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, REDO, UNDO, 
+		VIEW_ARCHIVE;
 	};
 
 	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
@@ -175,6 +177,26 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			results.setTitleOfPanel(Constants.TITLE_ALL_TASKS);
 			return results;
+		case SHOW_WEEK:
+			// Set the date today
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(new Date());
+			// Calculates the start date of the week
+			Calendar firstDay = (Calendar) calendar.clone();
+			// and add six days to the end date
+			Calendar lastDay = (Calendar) firstDay.clone();
+			lastDay.add(Calendar.DAY_OF_YEAR, 6);
+
+			DateFormat dateFormat1 = new SimpleDateFormat(Constants.DATE_FORMAT);
+			Task startOfSevenDays = new Task();
+			Task endOfSevenDays = new Task();
+			startOfSevenDays.setDate(dateFormat1.format(firstDay.getTime()));
+			endOfSevenDays.setDate(dateFormat1.format(lastDay.getTime()));
+			String rangeOfSevenDays = getRangeOfWeek(startOfSevenDays, endOfSevenDays);
+			results.setListOfTasks(Logic.searchRangeOfDate(startOfSevenDays, endOfSevenDays));
+			results.setFeedback(Constants.MSG_SHOW_SEVEN_DAYS_SUCCESS);
+			results.setTitleOfPanel(String.format(Constants.TITLE_SHOW_SEVEN_DAYS, rangeOfSevenDays));
+			return results;
 		case SHOW_THIS_WEEK:
 			// Set the date today
 			Calendar cal = Calendar.getInstance();
@@ -243,9 +265,11 @@ public class Controller {
 
 	private static String getRangeOfWeek(Task startOfWeekTask,
 			Task endOfWeekTask) {
-		String range = getDayOfWeek(startOfWeekTask.getDate()) + " to " + 
-				getDayOfWeek(endOfWeekTask.getDate());
-		return range;
+		return String.format(Constants.MSG_RANGE_OF_WEEK,
+				getDayOfWeek(startOfWeekTask.getDate()),  
+				startOfWeekTask.getDate(), 
+				getDayOfWeek(endOfWeekTask.getDate()),
+				endOfWeekTask.getDate());
 	}
 
 	// This method is used to determine the command types given the first word of the command.
@@ -291,6 +315,8 @@ public class Controller {
 			return CommandType.SHOW_FLOATING;
 		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_TODAY)) {
 			return CommandType.SHOW_TODAY;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_WEEK)) {
+			return CommandType.SHOW_WEEK;
 		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_THIS_WEEK)) {
 			return CommandType.SHOW_THIS_WEEK;
 		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_DETAILS)) {
@@ -308,9 +334,10 @@ public class Controller {
 		}
 	}
 
+	//Get first word in the command position
 	private static String getCommandWord(String[] userCommand) {
 		assert userCommand.length >0;
-		String firstWord = userCommand[0];
+		String firstWord = userCommand[Constants.COMMAND_POSITION];
 		return firstWord;
 	}
 

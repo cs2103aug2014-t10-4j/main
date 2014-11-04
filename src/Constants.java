@@ -30,7 +30,7 @@ public class Constants {
 	public static final String COLOR_ORANGER = "#FF5500";//for details
 	public static final String COLOR_RED = "#CF1700"; //for important level
 	public static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running.\nPress Ctrl + Space to open it.";
-	public static final String TITLE_MAIN_WINDOW = "DoubleUp To-do-List";
+	public static final String TITLE_MAIN_WINDOW = "DoubleUp To-Do-List";
 	
 	//Controller Constants
 	public static final String MSG_DELETE_PAST_FAIL = "There are no past tasks to be deleted.";
@@ -78,14 +78,17 @@ public class Constants {
 	public static final String MSG_SHOW_DETAILS_SUCCESS = "Details are expanded.";
 	public static final String MSG_SHOW_ALL_SUCCESS = "These are all your tasks.";
 	public static final String MSG_SHOW_THIS_WEEK_SUCCESS = "These are your tasks for this week.";
-
+	public static final String MSG_SHOW_SEVEN_DAYS_SUCCESS = "These are your tasks for the next 7 days.";
+	public static final String MSG_RANGE_OF_WEEK = "%s %s to %s %s";
+	
 	public static final String TITLE_ALL_TASKS = "All Tasks:";
 	public static final String TITLE_ALPHABETICAL_ORDER = "All tasks by alphabetical order";
 	public static final String TITLE_FLOATING_TASKS = "Floating Tasks:";
 	public static final String TITLE_IMPORTANCE_ORDER = "All tasks by importance order";
 	public static final String TITLE_JDIALOG_CLASH_FOUND = "Clash found";
 	public static final String TITLE_SEARCH_RESULTS = "Search Results for \"%s\"";
-	public static final String TITLE_SHOW_WEEK = "Tasks for this week(%s):";
+	public static final String TITLE_SHOW_WEEK = "Tasks for this calendar week (%s):";
+	public static final String TITLE_SHOW_SEVEN_DAYS = "Tasks for next seven days (%s):";
 	public static final String TITLE_TODAY_TASKS = "Today Tasks:";
 	public static final int MAX_LEN_FEEDBACK = 180;
 	
@@ -97,6 +100,7 @@ public class Constants {
 	public static final String DATE_WITH_LINE_TODAY = 
 			"<font style='color:%s;'>" +
 					"<b> ====================== %s%s ======================</b></font><br>";
+	public static final int INVALID_IMPORTANCE_LEVEL = -1;
 	
 	//Parser
 	public static final int RESET = 0;
