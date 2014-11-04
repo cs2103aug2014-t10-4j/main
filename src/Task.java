@@ -6,7 +6,8 @@
 class Task {
 	private String name;
 	private String date;
-	private String time;
+	private String startTime;
+	private String endTime;
 	private String details;
 	private int importance;
 	private String error;
@@ -17,21 +18,23 @@ class Task {
 	public Task(String[] splitTask){
 		this.name = splitTask[1];
 		this.date = splitTask[2];
-		this.time = splitTask[3];
-		this.details = splitTask[4];
-		if (splitTask[5] != null){
-			this.importance = Integer.parseInt(splitTask[5]);
+		this.startTime = splitTask[3];
+		this.endTime = splitTask[4];
+		this.details = splitTask[5];
+		if (splitTask[6] != null){
+			this.importance = Integer.parseInt(splitTask[6]);
 		} else {
 			this.importance = -1;
 		}
-		this.error = splitTask[6];
-		this.params = splitTask[7];
+		this.error = splitTask[7];
+		this.params = splitTask[8];
 	}
 
 	public Task(){
 		this.name = null;
 		this.date = null;
-		this.time = null;
+		this.startTime = null;
+		this.endTime = null;
 		this.details = null;
 		this.importance = -1;
 		this.error = null;
@@ -45,8 +48,11 @@ class Task {
 	public String getDate(){
 		return date;
 	}
-	public String getTime(){
-		return time;
+	public String getStartTime() {
+		return startTime;
+	}
+	public String getEndTime(){
+		return endTime;
 	}
 	public String getDetails(){
 		return details;
@@ -75,8 +81,11 @@ class Task {
 	public void setDate(String newDate){
 		this.date = newDate;
 	}
-	public void setTime(String newTime){
-		this.time= newTime;
+	public void setStartTime(String newStartTime){
+		this.startTime= newStartTime;
+	}
+	public void setEndTime(String newEndTime){
+		this.startTime= newEndTime;
 	}
 	public void setDetails(String newDetails){
 		this.details = newDetails;
@@ -100,78 +109,74 @@ class Task {
 	//This method can be used to print tasks for display.
 	@Override
 	public String toString() {
-		String sentence = "";
+		String taskSentence = "";
 		if (isSortedByTime){
-			sentence = String.format("%s %s %s %s ",
+			taskSentence = String.format("%s %s %s %s ",
 					printTime(), printName(), printImportanceLevel()
 					, printDetails());
 		} else {
-			sentence = String.format("%s %s %s %s %s ",
+			taskSentence = String.format("%s %s %s %s %s ",
 					printDate(), printTime(), printName(), 
 					printImportanceLevel(), printDetails());
-
 		}
-		return sentence;
+		return taskSentence;
 	}
 
 	private String printTime() {
-		String sentence = "";
+		String time = "";
 		if (this.getDate().equalsIgnoreCase("ft")){
-			sentence += " ";
-		} else if (this.getTime() == null || this.getTime().equals("null")) {
-			sentence +=  "[****]"; 
-		} else {
-			sentence +=  "[" + this.getTime() +"]"; 
+			time += "&nbsp &nbsp &nbsp&nbsp";
+		} else if (this.getStartTime() == null || this.getStartTime().equals("null")) {
+			time +=  "[****]&nbsp"; 
+		} else if (this.getStartTime() != null && this.getEndTime() == null){
+			time +=  "[" + this.getStartTime() +"]"; 
+		} else{
+			time += "[" + this.getStartTime() +"] - [" + this.getEndTime() +"]";
 		}
-		sentence = padRight(sentence,7);
-		return sentence;
+		//time = padRight(time,7);
+		return String.format(Constants.SPAN_TAG, "time", time);
 	}
 
 	private String printDate() {
-		String sentence = "";
-		if (!isSortedByTime) {
+		String dateOfTask = "";
+		//if (!isSortedByTime) {
 			if (this.getDate() != null && !date.equals("null")) {
 				if (!this.getDate().equals("ft")){
-					sentence += "(" + date + ")";
-					sentence = padRight(sentence, 13);
+					dateOfTask += "(" + date + ")";
+					//dateOfTask = padRight(dateOfTask, 13);
 				} else {
-					sentence += "(Floating)";
-					sentence = padRight(sentence, 13);
+					dateOfTask += "(Floating) &nbsp";
+					//dateOfTask = padRight(dateOfTask, 13);
 				}
 			}
-		}
-		return sentence;
+		//}
+		return String.format(Constants.SPAN_TAG, "date", dateOfTask);
 	}
 
 	private String printName() {
-		if (! isSortedByTime){
-			return this.getName();
-		} else {
-			return this.getName();
-		}
+		return String.format(Constants.SPAN_TAG, "name", this.getName());
 	}
 
 	private String printImportanceLevel() {
-		String sentence = "";
+		String importanceOfTask = "";
 		if (importance >0) {
-			sentence += " [" + printImportance(importance) + "]";
+			importanceOfTask += " <b>(" + printImportance(importance) + ")</b>";
 		}
-		return sentence;
+		return String.format(Constants.SPAN_TAG, "importance", importanceOfTask);
 	}
 
 	private String printDetails() {
-		String sentence = "";
+		String detailsOfTask = "";
 		if (details != null && details.equals("")){
-			return sentence;
+			return detailsOfTask;
 		}
 		if (details != null && !details.equals("null") && !isDetailsShown){
-			sentence += " [+] ";
+			detailsOfTask += " [+] ";
 		}
 		if (details != null && !details.equals("null") && isDetailsShown){
-			sentence += "\n" + "\t" + " [-] " + details;
+			detailsOfTask += "<br>" + "&#09" + " [-] " + details;
 		}
-		
-		return sentence;
+		return String.format(Constants.SPAN_TAG, "details", detailsOfTask);
 	}
 
 	//This override method can perhaps be used for search and other methods.
@@ -180,9 +185,9 @@ class Task {
 		if (obj instanceof Task){
 			Task task = (Task) obj; 
 			return compareStrings(this.getName(),task.getName()) && compareStrings(this.getDate(),task.getDate()) && 
-					compareStrings(this.getTime(),task.getTime()) && compareStrings(this.getDetails(),task.getDetails()) && 
-					this.getImportance() == task.getImportance() && compareStrings(this.getParams(),task.getParams()) && 
-					compareStrings(this.getError(),task.getError());
+					compareStrings(this.getStartTime(),task.getStartTime()) && compareStrings(this.getEndTime(),task.getEndTime()) 
+					&& compareStrings(this.getDetails(),task.getDetails()) && this.getImportance() == task.getImportance() 
+					&& compareStrings(this.getParams(),task.getParams()) && compareStrings(this.getError(),task.getError());
 		} else {
 			return false;
 		}
@@ -211,7 +216,8 @@ class Task {
 	public void copyOfTask( Task task){
 		this.setName(task.getName());
 		this.setDate(task.getDate());
-		this.setTime(task.getTime());
+		this.setStartTime(task.getStartTime());
+		this.setEndTime(task.getEndTime());
 		this.setDetails(task.getDetails());
 		this.setImportance(task.getImportance());
 		this.setParams(task.getParams());
@@ -224,4 +230,6 @@ class Task {
 	public static String padLeft(String s, int n) {
 		return String.format("%1$" + n + "s", s);  
 	}
+
+	
 }

@@ -32,7 +32,7 @@ public class Controller {
 	private static final String ACTION_EXIT = "exit";
 	private static final String ACTION_EDIT = "edit";
 	private static final String ACTION_DELETE_DATE = "delete date";
-	private static final String ACTION_DELETE_PAST= "delete past";
+	private static final String ACTION_DELETE_PAST = "delete past";
 	private static final String ACTION_DELETE_TODAY = "delete today";
 	private static final String ACTION_DELETE_ALL = "delete all";
 	private static final String ACTION_DELETE = "delete";
@@ -42,9 +42,9 @@ public class Controller {
 
 	private static final String TITLE_ARCHIVED_TASKS = "Archived Tasks (view-only)";
 	private static final String MSG_ARCHIVED_TASKS = "These are all your completed and archived tasks.";
-	private static final String MSG_CNT_DELETE_ZERO = "cannot delete index equal or below 0.";
 	private static final String MSG_CLASH_FOUND = "Something is happening at the same time! Continue %sing?";
 	private static final String MSG_DELETE_NO_INDEX = "You must add a number after delete";
+	private static final String MSG_DELETED_TODAY = "All today tasks have been cleared.";
 	private static final String MSG_FOUND_N_ITEMS = "Found %d items.";
 	private static final String MSG_HIDE_DETAILS_SUCCESS = "Details are collapsed.";
 	private static final String MSG_ITEM_TO_DELETE_NOT_FOUND = "item #%d is not found, ";
@@ -61,6 +61,7 @@ public class Controller {
 	private static final String TITLE_JDIALOG_CLASH_FOUND = "Clash found";
 	private static final String TITLE_SEARCH_RESULTS = "Search Results for \"%s\"";
 	private static final String TITLE_TODAY_TASKS = "Today Tasks:";
+	private static final int MAX_LEN_FEEDBACK = 180;
 
 	enum CommandType {
 		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, DELETE_TEXT, 
@@ -141,7 +142,9 @@ public class Controller {
 		case DELETE_TODAY:
 			Task todayOnly = new Task();
 			todayOnly.setDate(getTodayDate());
-			return deleteDate(file, archive, results, todayOnly);
+			deleteDate(file, archive, results, todayOnly);
+			results.setFeedback(MSG_DELETED_TODAY);
+			return results;
 		case DELETE_TEXT:
 			String params = taskToExecute.getParams();
 			//Because multiple deletions is handled by Controller.
@@ -265,9 +268,11 @@ public class Controller {
 
 	private static void deleteMultiple(File file, File archive,
 			ResultOfCommand results, String feedback, int[] splitIndex) {
+		boolean isMoreThanSizeList = false;
 		for (int j = splitIndex.length - 1; j >= 0; j--){
 			if (splitIndex[j] > Logic.getTempStorage().size()){
-				feedback = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndex[j]) + feedback;
+				isMoreThanSizeList = true;
+				//feedback = String.format(MSG_ITEM_TO_DELETE_NOT_FOUND, splitIndex[j]) + feedback;
 				continue; //Because cannot delete numbers larger than list size
 			}
 			/*if (splitIndex[j] <= 0){
@@ -277,10 +282,39 @@ public class Controller {
 			Task oneOutOfMany = new Task();
 			String userDeleteIndex = String.valueOf(splitIndex[j]); 
 			oneOutOfMany.setParams(userDeleteIndex);
-			feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, file, archive) +",\n" + feedback ;
+			if (splitIndex[j] > 0){
+				feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, 
+						file, archive) + "," + feedback ;
+			} else  {
+				feedback = capitalizeFirstLetter(feedback);
+				feedback = Logic.delete(ACTION_DELETE, splitIndex.length, oneOutOfMany, 
+						file, archive) + ". " + feedback ;
+				
+			}
+		}
+		String firstPart = "";
+		String secondPart = "";
+		if (feedback.length() > MAX_LEN_FEEDBACK){
+			firstPart = feedback.substring(0, MAX_LEN_FEEDBACK);
+			//feedback = feedback.substring(0, MAX_LEN_FEEDBACK);
+			int lastCommaIndex = firstPart.lastIndexOf(",");
+			if (lastCommaIndex != -1){
+				firstPart = firstPart.substring(0, lastCommaIndex) + ", ...";
+			}
+			secondPart = feedback.substring(MAX_LEN_FEEDBACK);
+			int lastCommaSecondPart = secondPart.lastIndexOf(",", secondPart.length()- 2);
+			if (lastCommaSecondPart != -1){
+				secondPart = secondPart.substring(lastCommaSecondPart);
+			}
+			feedback = firstPart + secondPart;
 		}
 		feedback = capitalizeFirstLetter(feedback);
 		feedback = endWithFulstop(feedback);
+		feedback = feedback.replace("deleted", "");
+		if (isMoreThanSizeList){
+			feedback = feedback + " You tried to delete non-existent tasks." ;
+			feedback = feedback.trim();
+		}
 		results.setFeedback(feedback);
 	}
 
@@ -305,16 +339,18 @@ public class Controller {
 		for (int j = 0 ; j < allThoseTasks.size(); j++){
 			splitIndexA[j] = j+1;
 		}
-		String feedback1 ="";
+		String feedback1 = "";
 		deleteMultiple(file, archive, results, feedback1, splitIndexA);
 		results.setListOfTasks(Logic.getTempStorage());
 		return results;
 	}
 
 	private static String endWithFulstop(String feedback) {
-		if (feedback.endsWith(", ")){
-			feedback = feedback.substring(0, feedback.lastIndexOf(",\n")) + " from your list.";
+		if (feedback.endsWith(",") || (feedback.endsWith(", "))){
+			feedback = feedback.substring(0, feedback.lastIndexOf(",")) + " from your list.";
 		}
+		if (feedback.endsWith("..."))
+			feedback = feedback + " from your list.";
 		return feedback;
 	}
 
@@ -336,12 +372,19 @@ public class Controller {
 			}
 			searchTerm += task.getDate();
 		}
-		if (task.getTime() != null){
+		if (task.getStartTime() != null){
 			if (searchTerm.length()>0){
 				searchTerm += " ";
 			}
-			searchTerm += task.getTime();
+			searchTerm += task.getStartTime();
 		}
+		if (task.getEndTime() != null){
+			if (searchTerm.length()>0){
+				searchTerm += " - ";
+			}
+			searchTerm += task.getEndTime();
+		}
+		
 		return searchTerm;
 	}
 
@@ -367,14 +410,14 @@ public class Controller {
 			return new ArrayList<Task>();
 		}
 		//If time is null, means there is no time allocated for that task today
-		if (taskToExecute.getTime() == null){
+		if (taskToExecute.getStartTime() == null){
 			return new ArrayList<Task>();
 		}
 		Task tempTask = new Task();
 		tempTask.setDate(taskToExecute.getDate());
-		tempTask.setTime(taskToExecute.getTime());
-		ArrayList<Task> searchResult = Logic.search(tempTask);
-		Logic.undoPopForSearchClash();
+		tempTask.setStartTime(taskToExecute.getStartTime());
+		tempTask.setEndTime(taskToExecute.getEndTime());
+		ArrayList<Task> searchResult = Logic.searchForCheckClash(tempTask);
 		return searchResult;
 	}
 

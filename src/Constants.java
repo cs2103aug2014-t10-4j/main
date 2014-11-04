@@ -2,6 +2,37 @@ import java.awt.Font;
 import java.text.SimpleDateFormat;
 
 public class Constants {
+	public static final String MSG_WELCOME = "Welcome to DoubleUp! ";
+	public static final String MSG_PROGRESS_BAR = "You have %d tasks due today,\n %d overdue tasks, %d tasks due\n eventually and %d floating tasks.";
+	public static final String MSG_QOTD = "QOTD: \n";
+	public static final String MSG_GOAL = "Your goal is: ";
+	public static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!";
+	public static final String MSG_ENTER_COMMAND = "Enter a command:";
+	public static final String MSG_RESULT = "Result: ";
+	public static final String FILE_TASK = "DoubleUp.txt";
+	public static final String FILE_ARCHIVE = "Archive.txt";
+	public static final String FILE_LOCK = "Lock.txt";
+	public static final String SPAN_TAG = "<span class=\"%s\">%s</span>";
+	public static final String COLOR_CHAMPAGNE_GOLD = "#F7E7CE";
+	public static final String COLOR_BLOOD_RED = "#A61B34";
+	public static final String COLOR_PINKISH_RED = "#D93B65";
+	public static final String COLOR_BRIGHT_RED = "#F23631";
+	public static final String COLOR_LIGHT_BLUE = "#ADC5DD";
+	public static final String COLOR_BRIGHT_BLUE = "#147DD9";
+	public static final String COLOR_MIDNIGHT_BLUE = "#132B40";
+	public static final String COLOR_DARK_BLUE = "#326173";
+	public static final String COLOR_LIME_GREEN = "#BEF99F";
+	public static final String COLOR_MID_GREEN = "#2ABF6B";
+	public static final String COLOR_DARK_GREEN = "#32A664";
+	public static final String COLOR_SNOW_WHITE = "#FDFAF3";
+	public static final String COLOR_BLUE = "#030ABC"; //for time
+	public static final String COLOR_HOT_PINK="#FC26AB"; // for date
+	public static final String COLOR_ORANGER = "#FF5500";//for details
+	public static final String COLOR_RED = "#CF1700"; //for important level
+	public static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running.\nPress Ctrl + Space to open it.";
+	public static final String ACTION_SHOW_ALL = "show all";
+	public static final String TITLE_MAIN_WINDOW = "DoubleUp To-do-List";
+	
 	public static final int RESET = 0;
 	public static final String INVALID_PARAMETER = "Invalid parameter";
 	public static final String EMPTY_DETAILS_MSG = "No details were found. Please input your details";
@@ -84,7 +115,7 @@ public class Constants {
 	public static final String MSG_FAIL_DELETE = "Unable to delete line";
 	public static final String MSG_FAIL_EDIT = "Unable to edit line.";
 	public static final String MSG_DELETE_FAIL = "Unable to delete line";
-	public static final String MSG_DELETE_SUCCESS = "deleted:  %d. %s \n";
+	public static final String MSG_DELETE_SUCCESS = "deleted \'%d. %s\'";
 	public static final String MSG_EDIT_SUCCESS = "Successfully edited.";
 	public static final String MSG_NO_PREVIOUS_ACTION = "No previous action to be undone";
 	public static final String MSG_NO_FUTURE_ACTION = "No previous action to be redone";
@@ -98,17 +129,11 @@ public class Constants {
 	public static final String WRONG_FORMAT = "\"%s\" is wrong format";
 
 	public static final String MSG_SCREEN_CLEARED = "Screen is cleared. Type show all, show today or show floating again.";
-	public static final String MSG_WELCOME = "Welcome to DoubleUp!\n";
-	public static final String MSG_PROGRESS_BAR = "You have %d tasks due today, %d tasks due tomorrow and %d free tasks.\n";
-	public static final String MSG_QOTD = "QOTD: \n";
-	public static final String MSG_GOAL = "Your goal is: ";
-	public static final String MSG_HELP = "Type /help to view all the commands for various actions. Happy doubling up!\n";
 	public static final String MSG_EMPTY_FILE = "%s is empty.";
 	public static final String MSG_EMPTY_TODAY = "No tasks for today!";
 	public static final String MSG_EMPTY_ALL_DAYS = "No tasks for anyday!";
 	public static final String MSG_EMPTY_FLOATING = "No floating tasks!";
 	public static final String MSG_COMMAND_LINE = "Enter a command: ";
-	public static final String MSG_RESULT = "Result: ";
 	public static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 	public static final String MSG_MISSING_FILE = "File not found.";
 	public static final String MSG_INVALID_COMMAND = "Invalid command";

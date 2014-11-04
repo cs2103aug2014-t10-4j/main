@@ -6,6 +6,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontFormatException;
 import java.awt.Frame;
+import java.awt.GraphicsEnvironment;
 import java.awt.HeadlessException;
 import java.awt.Image;
 import java.awt.Insets;
@@ -31,6 +32,7 @@ import java.util.EmptyStackException;
 import java.util.Scanner;
 import java.util.Stack;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
@@ -39,6 +41,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
@@ -53,6 +56,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.plaf.metal.MetalIconFactory;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
@@ -61,29 +67,20 @@ import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
 public class DoubleUp extends JFrame implements NativeKeyListener , WindowListener{
-	private static final String COLOR_CHAMPAGNE_GOLD = "#F7E7CE";
-	private static final String COLOR_LIGHT_BLUE = "#ADC5DD";
-	private static final String COLOR_SNOW_WHITE = "#FDFAF3";
-	private static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running. Press Ctrl + Space to open it.";
-	private static final String ACTION_SHOW_ALL = "show all";
-	private static final String TITLE_MAIN_WINDOW = "DoubleUp To-do-List";
+
+	private static final int SIZE_WIDTH_TEXT_AREA_RESULTS = 57;
+	private static final int SIZE_TEXT_FIELD_CMD_IN = 40;
+	private static final int LEN_OF_DISPLAY_PANEL = 70;
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static final String MSG_WELCOME = "Welcome to DoubleUp! ";
-	private static final String MSG_PROGRESS_BAR = "You have %d tasks due today,\n %d overdue tasks, %d tasks due\n eventually and %d floating tasks.";
-	private static final String MSG_QOTD = "QOTD: \n";
-	private static final String MSG_GOAL = "Your goal is: ";
-	private static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!";
-	private static final String MSG_ENTER_COMMAND = "Enter a command:";
-	private static final String MSG_RESULT = "Result: ";
-	private static final String FILE_TASK = "DoubleUp.txt";
-	private static final String FILE_ARCHIVE = "Archive.txt";
-	private static final String FILE_LOCK = "Lock.txt";
+
 
 	private static JTextField textFieldCmdIn;
-	private static JTextArea displayPanelTodayTasks, textFieldResultsOut;
+	private static JEditorPane displayPanelTodayTasks;
+	private static JTextArea textFieldResultsOut;
 	private static JPanel middleRow;
 	private static JFrame frame;
 
@@ -95,7 +92,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	public DoubleUp() {
 		setLookAndFeel();
-		setTitle(TITLE_MAIN_WINDOW);
+		setTitle(Constants.TITLE_MAIN_WINDOW);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addComponentsToPane(getContentPane());
 		setMinimumSize(new Dimension(730,700));
@@ -107,36 +104,40 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	public static void main(String[] args) {
-		Logger logger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
-		logger.setLevel(Level.OFF);
+		Logger nativeHookLogger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+		nativeHookLogger.setLevel(Level.OFF);
 		if (lockInstance()){
-			file = Storage.openFile(FILE_TASK);
-			archive = Storage.openFile(FILE_ARCHIVE);
+			file = Storage.openFile(Constants.FILE_TASK);
+			archive = Storage.openFile(Constants.FILE_ARCHIVE);
 			ArrayList<Integer> overview = Logic.init(file, archive);
 			new DoubleUp();
 			initSystemTray(overview);
 		} else {
-			JOptionPane.showMessageDialog(frame, MSG_PREVIOUS_INSTANCE);
+			JOptionPane.showMessageDialog(frame, Constants.MSG_PREVIOUS_INSTANCE);
 		}
 	}
 
 	private void setLookAndFeel() {
-		Color white = Color.decode(COLOR_SNOW_WHITE);
-		Color blue = Color.decode(COLOR_LIGHT_BLUE);
-		//Color blue = Color.decode("#2B98A2");
-		Color champagneGold = Color.decode(COLOR_CHAMPAGNE_GOLD);
-		//UIManager.put("nimbusBlueGrey", blue);
-		UIManager.put("nimbusFocus", blue);
-
-		//UIManager.put("nimbusBase", blue);
-		//UIManager.put("control", white);
-		UIManager.put("control", champagneGold);
-		UIManager.put("ScrollPane[Enabled].borderPainter", white);
-		UIManager.put("TextArea[Enabled+NotInScrollPane].borderPainter", white);
+		Color white = Color.decode(Constants.COLOR_SNOW_WHITE);
+		Color blue = Color.decode(Constants.COLOR_LIGHT_BLUE);
+		Color champagneGold = Color.decode(Constants.COLOR_CHAMPAGNE_GOLD);
+		Color yellowBG = Color.decode("#FFF9D6");
 
 		try {
 			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 				if ("Nimbus".equals(info.getName())) {
+					UIManager.put("control", champagneGold);
+					//UIManager.put("nimbusFocus", white);
+					//UIManager.put("ScrollPane[Enabled].borderPainter", white);
+					//UIManager.put("TextArea[Enabled+NotInScrollPane].borderPainter", white);
+					//UIManager.put("TextArea[Enabled].backgroundPainter", yellowBG);
+					//UIManager.put("EditorPane.opaque", true);
+					//UIManager.put("TextPane[Enabled].backgroundPainter", white);
+					UIManager.put("nimbusBlueGrey", yellowBG);
+					//UIManager.put("ScrollPane.background", champagneGold);
+					//UIManager.put("ScrollPane.foreground", champagneGold);
+					UIManager.put("EditorPane.background", yellowBG);
+					//UIManager.put("Spinner.background", champagneGold);
 					UIManager.setLookAndFeel(info.getClassName());
 					break;
 				}
@@ -149,16 +150,15 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	private static void initSystemTray(ArrayList<Integer> overview) {
 		if (SystemTray.isSupported()) {
-            Image image;
+			Image image;
 			try {
 				image = ImageIO.read(DoubleUp.class.getResource("/res/up-arrow-icon.png"));
 			} catch (IOException e2) {
-				// TODO Auto-generated catch block
 				e2.printStackTrace();
 				image = getImage();
 			}
 			TrayIcon icon = new TrayIcon(image, "DoubleUp", null);
-            icon.setImageAutoSize(true);
+			icon.setImageAutoSize(true);
 			final JPopupMenu jpopup = createJPopupMenu();
 			icon.addMouseListener(new MouseAdapter() {
 				public void mouseReleased(MouseEvent e) {
@@ -179,7 +179,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			} catch (InterruptedException e1) {
 				e1.printStackTrace();
 			}
-			icon.displayMessage(MSG_WELCOME, String.format(MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
+			icon.displayMessage(Constants.MSG_WELCOME, String.format(Constants.MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
 					TrayIcon.MessageType.INFO);
 		}
 	}
@@ -220,7 +220,10 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	public void windowOpened(WindowEvent e) {
 		//Initialze native hook.
 		try {
+			LogManager.getLogManager().reset();
 			GlobalScreen.registerNativeHook();
+			Logger nativeHookLogger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+			nativeHookLogger.setLevel(Level.WARNING);
 		}
 		catch (NativeHookException ex) {
 			System.err.println("There was a problem registering the native hook.");
@@ -261,68 +264,83 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		Image image;
 		try {
 			image = ImageIO.read(DoubleUp.class.getResource("res/up-arrow-small3.png"));
-		defaultIcon.paintIcon(new Panel(), image.getGraphics(), 0, 0);
+			defaultIcon.paintIcon(new Panel(), image.getGraphics(), 0, 0);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			image = new BufferedImage(defaultIcon.getIconWidth(), 
-				defaultIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+					defaultIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
 		}
 
 		return image;
 	}
 
 	public static void createAndShowGUI() {
-		frame = new JFrame(TITLE_MAIN_WINDOW);
+		frame = new JFrame(Constants.TITLE_MAIN_WINDOW);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		addComponentsToPane(frame.getContentPane());
 		frame.setMinimumSize(new Dimension(650,600));
 		frame.setVisible(true);
-		Logger logger = Logger.getLogger("myLogger");
+		logger = Logger.getLogger("myLogger");
 		logger.log(Level.INFO, "Successfully create GUI");
 	}
 
 	public static void addComponentsToPane(Container cp){
-		InputStream is = DoubleUp.class.getResourceAsStream("/res/monaco.ttf");	
-		//InputStream is = DoubleUp.class.getResourceAsStream("/res/Lintel-Regular.otf");	
+		InputStream is = DoubleUp.class.getResourceAsStream("/res/monaco.TTF");	
 		try {
-
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
 			Font sizedFont = font.deriveFont(13f); 
 			UIManager.getLookAndFeelDefaults().put("defaultFont", sizedFont);
 			sizedFont = font.deriveFont(Font.BOLD, 13f); 
 			UIManager.getLookAndFeelDefaults().put("Label.font", sizedFont);
-
-		} catch (FontFormatException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			GraphicsEnvironment genv = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			genv.registerFont(font);
+		} catch (Exception e) {
+			
 		}
 
 		cp.setLayout(new BorderLayout());
 		//Top panel for Command
 		JPanel topRow = new JPanel();
-		topRow.add(new JLabel(MSG_ENTER_COMMAND));
-		textFieldCmdIn = new JTextField(40);
+		topRow.add(new JLabel(Constants.MSG_ENTER_COMMAND));
+		textFieldCmdIn = new JTextField(SIZE_TEXT_FIELD_CMD_IN);
+		textFieldCmdIn.setDocument (new JTextFieldLimit(LEN_OF_DISPLAY_PANEL));
 		topRow.add(textFieldCmdIn);
 		cp.add(topRow, BorderLayout.NORTH);
+
+		String myStyle = 
+				  String.format(".time{color: %s;}",Constants.COLOR_BLUE)
+				+ String.format(".details{color: %s;}", Constants.COLOR_ORANGER )
+				+ String.format(".name{color: %s;}", Constants.COLOR_MIDNIGHT_BLUE )
+				+ String.format(".importance{color: %s;}", Constants.COLOR_RED)
+				+ String.format(".date{color: %s;}",Constants.COLOR_HOT_PINK);
 
 		// Today panel
 		middleRow = new JPanel();
 		middleRow.setLayout(new BorderLayout());
-		displayPanelTodayTasks = new JTextArea();
+		displayPanelTodayTasks = new JEditorPane();
+		displayPanelTodayTasks.setContentType("text/html");
+
+		HTMLEditorKit kit = new HTMLEditorKit();
+		displayPanelTodayTasks.setEditorKit(kit);
+		// add some styles to the html
+		StyleSheet styleSheet = kit.getStyleSheet();
+		styleSheet.addRule(myStyle);
+		Document setdoc = kit.createDefaultDocument();
+		displayPanelTodayTasks.setDocument(setdoc);
+		try {
+			Document doc = displayPanelTodayTasks.getDocument();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 		displayPanelTodayTasks.setEditable(false);
-		displayPanelTodayTasks.setLineWrap(true);
-		displayPanelTodayTasks.setWrapStyleWord(true);
+		//displayPanelTodayTasks.setLineWrap(true);
+		//displayPanelTodayTasks.setWrapStyleWord(true);
 		displayPanelTodayTasks.setMargin(new Insets(5,5,5,5));
-		ResultOfCommand results = Controller.executeCommand(ACTION_SHOW_ALL, file, archive);
+		ResultOfCommand results = Controller.executeCommand(Constants.ACTION_SHOW_ALL, file, archive);
 		displayPanelTodayTasks.setText(results.printArrayList());
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-		Color white = Color.decode(COLOR_SNOW_WHITE);
-		Color blue = Color.decode("#ADC5DD");
-		//scroll.setBorder(BorderFactory.createLineBorder(blue));
+		Color white = Color.decode(Constants.COLOR_SNOW_WHITE);
+		//scroll.setBorder(BorderFactory.createLineBorder(white));
 		middleRow.add(scroll, BorderLayout.CENTER);
 		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 		cp.add(middleRow, BorderLayout.CENTER);
@@ -330,42 +348,26 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		//Feedback field below
 		JPanel lastRow = new JPanel();
 		ImageIcon icon = createImageIcon("res/up-arrow-small3.png",
-		//ImageIcon icon = createImageIcon("res/up-arrow-small2.png",
 				"DoubleUp icon");
 		JLabel doubleupIcon = new JLabel(icon, JLabel.CENTER);
 		lastRow.add(doubleupIcon);
-		JLabel resultsCmd = new JLabel(MSG_RESULT);
+		JLabel resultsCmd = new JLabel(Constants.MSG_RESULT);
 		lastRow.add(resultsCmd);
-		/*try {
-			BufferedImage icon = ImageIO.read(DoubleUp.class.getResource("res/up-arrow.png"));
-			frame.setIconImage(icon);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} */
 
-		textFieldResultsOut = new JTextArea(0, 60);
+		textFieldResultsOut = new JTextArea(0, SIZE_WIDTH_TEXT_AREA_RESULTS);
 		textFieldResultsOut.setLineWrap(true);
 		textFieldResultsOut.setWrapStyleWord(true);
 		textFieldResultsOut.setMargin(new Insets(5,5,5,5));
 		textFieldResultsOut.setEditable(false);  // read-only
-		textFieldResultsOut.setText(MSG_WELCOME + MSG_HELP);
+		textFieldResultsOut.setText(Constants.MSG_WELCOME + Constants.MSG_HELP);
+		textFieldResultsOut.setLineWrap(true);
+		textFieldResultsOut.setWrapStyleWord(true);
 		textFieldResultsOut.setFocusable(false);
 		lastRow.add(textFieldResultsOut);
-/*ImageIcon icon1 = createImageIcon("res/up-arrow-small2.png",
-				"DoubleUp icon");
-		JLabel doubleupIcon1 = new JLabel(icon1, JLabel.CENTER);
-		lastRow.add(doubleupIcon1, -1);*/
 		cp.add(lastRow, BorderLayout.SOUTH);
 
-		/*	Color blue = Color.decode("#ADC5DD");
-		displayPanelTodayTasks.setBackground(blue);
-		textFieldCmdIn.setBackground(blue);
-		Color white = Color.decode("#FDFAF3");
-		textFieldResultsOut.setBackground(white);
-		 */
-		middleRow.setBackground(white);
 		UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
+		middleRow.setBackground(white);
 
 		Action showHelp = new AbstractAction() {
 			private static final long serialVersionUID = 1L;
@@ -373,7 +375,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				showHelp();
 			}
 			private void showHelp() {
-				String helpfile = "/res/helpV2.txt";
+				String helpfile = "/res/help.html";
 				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
 				assert inputStream != null;
 
@@ -465,7 +467,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			}
 
 			private void showHelp(ResultOfCommand results) {
-				String helpfile = "/res/helpV2.txt";
+				String helpfile = "/res/help.html";
 				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
 				assert inputStream != null;
 
@@ -499,8 +501,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	// Concats the different messages to form the welcome message for the welcome screen
 	private static String createWelcomeMessage(ArrayList<Integer> numOfTask) {
 		assert numOfTask != null;
-		String welcomeMessage = MSG_WELCOME;
-		welcomeMessage += "\n" + "\t" + String.format(MSG_PROGRESS_BAR, numOfTask.get(0), 
+		String welcomeMessage = Constants.MSG_WELCOME;
+		welcomeMessage += "\n" + "\t" + String.format(Constants.MSG_PROGRESS_BAR, numOfTask.get(0), 
 				numOfTask.get(1), numOfTask.get(2));
 		welcomeMessage += createQOTD();
 		welcomeMessage += createGoalMsg();
@@ -510,13 +512,13 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	//Returns Quote of the day.
 	private static String createQOTD(){
-		String quote = "\n" + "\t" + MSG_QOTD;
+		String quote = "\n" + "\t" + Constants.MSG_QOTD;
 		return quote;
 	}
 
 	//Returns goal message.
 	private static String createGoalMsg(){
-		String goal = "\n" + "\t" + MSG_GOAL;
+		String goal = "\n" + "\t" + Constants.MSG_GOAL;
 		File settings = new File("settings.txt");
 		try {
 			Scanner sc = new Scanner(settings);
@@ -531,7 +533,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	//Returns help message.
 	private static String createHelpMsg(){
-		String help = "\n" + MSG_HELP;
+		String help = "\n" + Constants.MSG_HELP;
 		return help;
 	}
 
@@ -589,7 +591,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	private static boolean lockInstance() {
 		try {
-			final File lockfile = new File(FILE_LOCK);
+			final File lockfile = new File(Constants.FILE_LOCK);
 			final RandomAccessFile randomAccessFile = new RandomAccessFile(lockfile, "rw");
 			final FileLock fileLock = randomAccessFile.getChannel().tryLock();
 			if (fileLock != null) {
@@ -600,14 +602,14 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 							randomAccessFile.close();
 							lockfile.delete();
 						} catch (Exception e) {
-							logger.log(Level.WARNING, "Unable to remove lock file: " + FILE_LOCK, e);
+							logger.log(Level.WARNING, "Unable to remove lock file: " + Constants.FILE_LOCK, e);
 						}
 					}
 				});
 				return true;
 			}
 		} catch (Exception e) {
-			logger.log(Level.WARNING, "Unable to create and/or lock file: " + FILE_LOCK, e);
+			logger.log(Level.WARNING, "Unable to create and/or lock file: " + Constants.FILE_LOCK, e);
 		}
 		return false;
 	}
