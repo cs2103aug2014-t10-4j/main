@@ -235,13 +235,21 @@ public class Logic {
 			if (detailsOfTask.getDate() != null) {
 				tempStorage.get(taskNumber).setDate(detailsOfTask.getDate());
 			}
-
+			
 			if (detailsOfTask.getStartTime()!=null && detailsOfTask.getEndTime()!=null) {
+				if(detailsOfTask.getStartTime().equals(Constants.NO_TIME)){
+					detailsOfTask.setStartTime(null);
+				}
+				
 				tempStorage.get(taskNumber).setStartTime(detailsOfTask.getStartTime());
 				tempStorage.get(taskNumber).setEndTime(detailsOfTask.getEndTime());
 			}
 			
 			else if (detailsOfTask.getStartTime()!=null && detailsOfTask.getEndTime()==null) {
+				if(detailsOfTask.getStartTime().equals(Constants.NO_TIME)){
+					detailsOfTask.setStartTime(null);
+				}
+				
 				tempStorage.get(taskNumber).setStartTime(detailsOfTask.getStartTime());
 				tempStorage.get(taskNumber).setEndTime(null);
 			}
@@ -609,7 +617,9 @@ public class Logic {
 		searchResults.clear();
 		
 		assert tempStorage.size() >= 0 : "tempStorage.size() is negative";
-		
+		if (taskToFind.getStartTime() != null && taskToFind.getStartTime().equals(Constants.NO_TIME)){
+			return searchResults;
+		}
 		if (taskToFind.getDate() == null){
 			int taskLocation = getIndex(taskToFind);
 			taskToFind.setDate(tempStorage.get(taskLocation).getDate());

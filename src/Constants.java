@@ -108,6 +108,7 @@ public class Constants {
 			"dd/MM/yyyyHH:mm");
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
 	public static final String DATE_FT = "ft";
+	public static final String NO_TIME = "no time";
 	
 	//Feedback 
 	public static final String ADD_MESSAGE = "Added to %s: \"%s\". Type .u to undo.";
