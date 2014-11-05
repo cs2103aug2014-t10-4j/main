@@ -23,10 +23,8 @@ public class Logic {
 
 	// Methods required during start-up
 	public static ArrayList<Integer> init(File file, File archive) {
-		while (!Storage.copyToArrayList(file, tempStorage))
-			;
-		while (!Storage.copyToArrayList(archive, archiveStorage))
-			;
+		while (!Storage.copyToArrayList(file, tempStorage));
+		while (!Storage.copyToArrayList(archive, archiveStorage));
 		sortByDateAndTime(tempStorage);
 		Storage.writeToFile(tempStorage, file);
 		sortByDateAndTime(archiveStorage);
@@ -254,7 +252,6 @@ public class Logic {
 				undo.push(Constants.COMMAND_DELETE);
 			}
 			return Constants.MSG_NTH_DELETE;
-
 		}
 		if (Integer.parseInt(task.getParams()) <= 0
 				&& command.equals(Constants.COMMAND_DELETE)) {
@@ -279,7 +276,6 @@ public class Logic {
 				taskToDelete.copyOfTask(searchResults.get(index));
 				returnMessage = deleteLineFromSearchList(task, searchResults,
 						file, archive);
-
 				if (commandCheck == null) {
 					ArrayList<Task> deletedTask = new ArrayList<Task>();
 					deletedTask.add(taskToDelete);
@@ -446,7 +442,6 @@ public class Logic {
 		}
 		return String.format(Constants.MSG_DELETE_SUCCESS, index + 1,
 				searchResults.get(index).getName());
-
 	}
 
 	public static String clearContent(File file, File archive) {
