@@ -820,17 +820,25 @@ class TimeProcessor extends Processor {
 
 				String possibleStart = processStartTime(startInput, index1);
 				String possibleEnd = processEndTime(endInput, index2);
-				if (isValidTime(possibleStart) && isValidTime(possibleEnd)) {
-					input[current] = null;
-					if (index1.getValue() == 0) {
-						input[prev] = null;
-						index.setValue(prev);
+				if (isBothTimeValid(possibleStart, possibleEnd)) {
+					if (!isValidRange(possibleStart, possibleEnd)) {
+						assignErrorMsg(parsedInput, "Time range is invalid.");
+					} else {
+						input[current] = null;
+						if (index1.getValue() == 0) {
+							input[prev] = null;
+							index.setValue(prev);
+						}
+						if (index2.getValue() != 0) {
+							input[next] = null;
+						}
+						assignTime(parsedInput, possibleStart,
+								getItemPosition());
+						assignTime(parsedInput, possibleEnd,
+								getSecItemPosition());
 					}
-					if (index2.getValue() != 0) {
-						input[next] = null;
-					}
-					assignTime(parsedInput, possibleStart, getItemPosition());
-					assignTime(parsedInput, possibleEnd, getSecItemPosition());
+				}else if(possibleStart!=null&&possibleEnd!=null){
+					assignErrorMsg(parsedInput,"Invalid time found.");
 				}
 			}
 		} else if (isIndexValid(prev, input) && input[prev] != null
@@ -852,24 +860,49 @@ class TimeProcessor extends Processor {
 			}
 			String possibleStart = processStartTime(startInput, index1);
 			String possibleEnd = processEndTime(endInput, index2);
-			if (isValidTime(possibleStart) && isValidTime(possibleEnd)) {
-				input[current] = null;
-				input[prev] = null;
-				input[prev2] = null;
-				if (index1.getValue() == 0) {
-					input[prev3] = null;
-					index.setValue(prev3);
+			if (isBothTimeValid(possibleStart, possibleEnd)) {
+				if (!isValidRange(possibleStart, possibleEnd)) {
+					assignErrorMsg(parsedInput, "Time range is invalid.");
+				} else {
+					input[current] = null;
+					input[prev] = null;
+					input[prev2] = null;
+					if (index1.getValue() == 0) {
+						input[prev3] = null;
+						index.setValue(prev3);
+					}
+					if (index2.getValue() != 0) {
+						input[next] = null;
+					}
+					assignTime(parsedInput, possibleStart, getItemPosition());
+					assignTime(parsedInput, possibleEnd, getSecItemPosition());
 				}
-				if (index2.getValue() != 0) {
-					input[next] = null;
-				}
-				assignTime(parsedInput, possibleStart, getItemPosition());
-				assignTime(parsedInput, possibleEnd, getSecItemPosition());
 
+			}else if(possibleStart!=null&&possibleEnd!=null){
+				assignErrorMsg(parsedInput,"Invalid time found.");
 			}
 
 		}
 
+	}
+
+	private boolean isBothTimeValid(String possibleStart, String possibleEnd) {
+		return isValidTime(possibleStart) && isValidTime(possibleEnd);
+	}
+
+	private boolean isValidRange(String possibleStart, String possibleEnd) {
+		Date startTime = new Date();
+		Date endTime = new Date();
+		try {
+			startTime = timeFormatOne.parse(possibleStart);
+			endTime = timeFormatOne.parse(possibleEnd);
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, "Error while parsing possibleTimes");
+		}
+		if (startTime.compareTo(endTime) < 0) {
+			return true;
+		}
+		return false;
 	}
 
 	private String processStartTime(String[] input, Index index) {
