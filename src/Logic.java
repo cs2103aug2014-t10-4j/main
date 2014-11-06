@@ -3,13 +3,13 @@
  * 
  */
 import java.io.File;
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Logic {
 
@@ -20,6 +20,7 @@ public class Logic {
 	private static Stack<String> redo = new Stack<String>();
 	private static Stack<ArrayList<Task>> undoTask = new Stack<ArrayList<Task>>();
 	private static Stack<ArrayList<Task>> redoTask = new Stack<ArrayList<Task>>();
+	private static Logger logger = Logger.getLogger("Logic");
 
 	// Methods required during start-up
 	public static ArrayList<Integer> init(File file, File archive) {
@@ -49,7 +50,7 @@ public class Logic {
 			currentDate = Constants.dateFormat.parse(Constants.dateFormat
 					.format(currentDate));
 		} catch (ParseException e1) {
-			e1.printStackTrace();
+			logger.log(Level.WARNING, String.format(Constants.INVALID_DATE_FORMAT, "getNumTasks"));
 		}
 		assert currentDate != null;
 		try {
@@ -76,7 +77,8 @@ public class Logic {
 			numTask.add(overdueTask);
 			numTask.add(tomorrowTask);
 			numTask.add(floatingTask);
-		} catch (Exception e) {
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, String.format(Constants.INVALID_DATE_FORMAT, "getNumTasks"));
 		}
 	}
 
@@ -603,8 +605,7 @@ public class Logic {
 				searchResults.add(taskInList);
 			}
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.log(Level.WARNING, String.format(Constants.INVALID_TIME_FORMAT, "searchForCheckClash"));
 		}
 		return searchResults;
 	}
@@ -636,7 +637,7 @@ public class Logic {
 				}
 			}
 		} catch (ParseException e) {
-			e.printStackTrace();
+			logger.log(Level.WARNING, String.format(Constants.INVALID_DATE_FORMAT, "searchRangeOfDate"));
 		}
 		undo.push(Constants.COMMAND_SEARCH);
 		return searchResults;
@@ -664,7 +665,7 @@ public class Logic {
 						archive);
 				updateRedo(lastCommand, taskToBeDeleted);
 			}
-			if (lastCommand.equals(Constants.COMMAND_DELETE)
+			else if (lastCommand.equals(Constants.COMMAND_DELETE)
 					|| lastCommand.equals(Constants.COMMAND_DELETE_ALL)) {
 				ArrayList<Task> taskToBeAdded = undoTask.pop();
 				for (int i = 0; i < taskToBeAdded.size(); i++) {
@@ -682,7 +683,7 @@ public class Logic {
 				Storage.writeToFile(archiveStorage, file);
 				updateRedo(lastCommand, taskToBeAdded);
 			}
-			if (lastCommand.equals(Constants.COMMAND_EDIT)) {
+			else if (lastCommand.equals(Constants.COMMAND_EDIT)) {
 				Task undoEditedTask = new Task();
 				ArrayList<Task> taskToBeEdited = undoTask.pop();
 				Integer taskNumber = tempStorage.indexOf(taskToBeEdited
@@ -692,6 +693,9 @@ public class Logic {
 				undoEditedTask.setParams(taskNumber.toString());
 				edit(Constants.COMMAND_UNDO, undoEditedTask, file);
 				updateRedo(lastCommand, taskToBeEdited);
+			}
+			else{
+				assert false; // Execution should never reach this point
 			}
 			sortByDateAndTime(tempStorage);
 			Storage.writeToFile(tempStorage, file);
@@ -716,7 +720,7 @@ public class Logic {
 
 			}
 
-			if (lastCommand.equals(Constants.COMMAND_DELETE)) {
+			else if (lastCommand.equals(Constants.COMMAND_DELETE)) {
 				ArrayList<Task> taskToBeDeleted = redoTask.pop();
 				for (int i = 0; i < taskToBeDeleted.size(); i++) {
 					delete(Constants.COMMAND_REDO, taskToBeDeleted.size(),
@@ -724,7 +728,7 @@ public class Logic {
 				}
 				updateUndo(lastCommand, taskToBeDeleted);
 			}
-			if (lastCommand.equals(Constants.COMMAND_EDIT)) {
+			else if (lastCommand.equals(Constants.COMMAND_EDIT)) {
 				Task redoEditedTask = new Task();
 				ArrayList<Task> taskToBeEdited = redoTask.pop();
 				Integer taskNumber = tempStorage.indexOf(taskToBeEdited
@@ -736,8 +740,11 @@ public class Logic {
 			
 				updateUndo(lastCommand, taskToBeEdited);
 			}
-			if (lastCommand.equals(Constants.COMMAND_DELETE_ALL)) {
+			else if (lastCommand.equals(Constants.COMMAND_DELETE_ALL)) {
 				clearContent(file, archive);
+			}
+			else{
+				assert false; // Execution should never reach this point
 			}
 			sortByDateAndTime(tempStorage);
 			Storage.writeToFile(tempStorage, file);
@@ -762,6 +769,8 @@ public class Logic {
 					boolean isSorted = true;
 
 					for (int j = 0; j < tempStorage.size() - 1; j++) {
+						assert(tempStorage.get(j).getDate()!=null);
+						assert(tempStorage.get(j + 1).getDate()!=null);
 						int firstTaskOrder = Integer.parseInt(tempStorage
 								.get(j).getParams());
 						int secondTaskOrder = Integer.parseInt(tempStorage.get(
@@ -848,6 +857,7 @@ public class Logic {
 				}
 
 			} catch (ParseException e) {
+				logger.log(Level.WARNING, String.format(Constants.INVALID_CHRONO_FORMAT, "sortByDateAndTime"));
 			}
 			Task.setSortedByTime(true);
 			return String.format(Constants.MSG_SORT_SUCCESS, "date and time");
@@ -861,6 +871,7 @@ public class Logic {
 			for (int i = 0; i < tempStorage.size(); i++) {
 				boolean isSorted = true;
 				for (int j = 0; j < tempStorage.size() - 1; j++) {
+					assert (tempStorage.get(j).getName()!= null);
 					if (tempStorage
 							.get(j)
 							.getName()
@@ -988,6 +999,8 @@ public class Logic {
 						return i + 1;
 					}
 				} catch (ParseException e) {
+					logger.log(Level.WARNING, String.format(Constants.INVALID_DATE_FORMAT, "getFirstNotOverdueInList"));
+
 				}
 			}
 		}

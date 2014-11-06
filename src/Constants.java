@@ -226,10 +226,18 @@ public class Constants {
 	public static final int INITIAL_VALUE = 0;
 	public static final String NO_MESSAGE_DELETE = "nothing to delete!";
 	public static final int INVAILD_NUMBER = -1;
-	public static final String DIVIDER_DATE = "//!@#DOUBLEUP_DIVIDER_DATE#@!//";
-	public static final String DIVIDER_TIME = "//!@#DOUBLEUP_DIVIDER_TIME#@!//";
+
+	//Storage
+	public static final String DIVIDER_DATE = "//!@#DOUBLEUP_DIVIDER_DATE#@!//";	
+	public static final String DIVIDER_START_TIME = "//!@#DOUBLEUP_DIVIDER_START_TIME#@!//";
+	public static final String DIVIDER_END_TIME = "//!@#DOUBLEUP_DIVIDER_END_TIME#@!//";
 	public static final String DIVIDER_DETAILS = "//!@#DOUBLEUP_DIVIDER_DETAILS#@!//";
 	public static final String DIVIDER_IMPORTANCE = "//!@#DOUBLEUP_DIVIDER_IMPORTANCE#@!//";
+	
+	//Exception
+	public static final String INVALID_DATE_FORMAT = "Invalid date format in: %s";
+	public static final String INVALID_TIME_FORMAT = "Invalid time format in: %s";
+	public static final String INVALID_CHRONO_FORMAT = "Invalid date/ time format in: %s";
 
 
 }

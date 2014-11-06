@@ -8,14 +8,7 @@ import java.util.Scanner;
 import java.util.logging.*;
 
 public class Storage {
-	private static final String DIVIDER_DATE = "//!@#DOUBLEUP_DIVIDER_DATE#@!//";
-	private static final String DIVIDER_START_TIME = "//!@#DOUBLEUP_DIVIDER_START_TIME#@!//";
-	private static final String DIVIDER_END_TIME = "//!@#DOUBLEUP_DIVIDER_END_TIME#@!//";
-	private static final String DIVIDER_DETAILS = "//!@#DOUBLEUP_DIVIDER_DETAILS#@!//";
-	private static final String DIVIDER_IMPORTANCE = "//!@#DOUBLEUP_DIVIDER_IMPORTANCE#@!//";
-	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 	private static Logger logger = Logger.getLogger("Storage");
-
 
 	// This function serves to write all the task in the text file into temp storage.
 	public static boolean copyToArrayList(File file, ArrayList<Task> tempStorage) {
@@ -29,16 +22,16 @@ public class Storage {
 				for(Integer i =0; input.hasNext(); i++) {
 					Task task = new Task();
 					String currentTask = input.nextLine();
-					task.setName(currentTask.substring(0, currentTask.indexOf(DIVIDER_DATE)));
+					task.setName(currentTask.substring(0, currentTask.indexOf(Constants.DIVIDER_DATE)));
 
-					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_DATE));
-					currentTask = currentTask.replaceFirst(DIVIDER_DATE,"");
+					currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_DATE));
+					currentTask = currentTask.replaceFirst(Constants.DIVIDER_DATE,"");
 
-					task.setDate(currentTask.substring(0,currentTask.indexOf(DIVIDER_START_TIME)));
-					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_START_TIME));
-					currentTask = currentTask.replaceFirst((DIVIDER_START_TIME),"");
+					task.setDate(currentTask.substring(0,currentTask.indexOf(Constants.DIVIDER_START_TIME)));
+					currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_START_TIME));
+					currentTask = currentTask.replaceFirst((Constants.DIVIDER_START_TIME),"");
 					
-					String taskStartTime = currentTask.substring(0,currentTask.indexOf(DIVIDER_END_TIME));
+					String taskStartTime = currentTask.substring(0,currentTask.indexOf(Constants.DIVIDER_END_TIME));
 					if (taskStartTime.equals("null")){
 						task.setStartTime(null);
 					}
@@ -46,9 +39,9 @@ public class Storage {
 						task.setStartTime(taskStartTime);
 					}
 					
-					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_END_TIME));
-					currentTask = currentTask.replaceFirst((DIVIDER_END_TIME),"");
-					String taskEndTime = currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS));
+					currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_END_TIME));
+					currentTask = currentTask.replaceFirst((Constants.DIVIDER_END_TIME),"");
+					String taskEndTime = currentTask.substring(0,currentTask.indexOf(Constants.DIVIDER_DETAILS));
 					if (taskEndTime.equals("null")){
 						task.setEndTime(null);
 					}
@@ -56,19 +49,19 @@ public class Storage {
 						task.setEndTime(taskEndTime);
 					}
 					
-					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_DETAILS));
-					currentTask = currentTask.replaceFirst((DIVIDER_DETAILS),"");
+					currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_DETAILS));
+					currentTask = currentTask.replaceFirst((Constants.DIVIDER_DETAILS),"");
 
 
-					String taskDetails = currentTask.substring(0,currentTask.indexOf(DIVIDER_IMPORTANCE));
+					String taskDetails = currentTask.substring(0,currentTask.indexOf(Constants.DIVIDER_IMPORTANCE));
 					if (taskDetails.equals("null")){
 						task.setDetails(null);
 					}
 					else{
 						task.setDetails(taskDetails);
 					}
-					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_IMPORTANCE));
-					currentTask = currentTask.replaceFirst((DIVIDER_IMPORTANCE),"");
+					currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_IMPORTANCE));
+					currentTask = currentTask.replaceFirst((Constants.DIVIDER_IMPORTANCE),"");
 
 
 					task.setImportance(Integer.parseInt(currentTask));
@@ -100,11 +93,11 @@ public class Storage {
 			for(int i=0; i<tempStorage.size();i++){
 
 				toWriteInFile = tempStorage.get(i).getName() 
-						+ DIVIDER_DATE + tempStorage.get(i).getDate()
-						+ DIVIDER_START_TIME + tempStorage.get(i).getStartTime() 
-						+ DIVIDER_END_TIME + tempStorage.get(i).getEndTime()
-						+ DIVIDER_DETAILS + tempStorage.get(i).getDetails() 
-						+ DIVIDER_IMPORTANCE + tempStorage.get(i).getImportance()+"\n";
+						+ Constants.DIVIDER_DATE + tempStorage.get(i).getDate()
+						+ Constants.DIVIDER_START_TIME + tempStorage.get(i).getStartTime() 
+						+ Constants.DIVIDER_END_TIME + tempStorage.get(i).getEndTime()
+						+ Constants.DIVIDER_DETAILS + tempStorage.get(i).getDetails() 
+						+ Constants.DIVIDER_IMPORTANCE + tempStorage.get(i).getImportance()+"\n";
 
 				fileWritten.write(toWriteInFile);
 			}
@@ -139,7 +132,7 @@ public class Storage {
 				file.createNewFile();
 			}
 		} catch (IOException e) {
-			System.out.println(MSG_FAIL_READ_FILE);
+			System.out.println(Constants.MSG_FAIL_READ_FILE);
 		}
 		return file;
 	}
