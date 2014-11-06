@@ -396,7 +396,22 @@ class MultiParaProcessor extends SingleParaProcessor {
 
 		if (isIndexValid(index.getValue(), input)) {
 			int startIndex = index.getValue();
-			if (isIndexValid(index.getValue(), input)
+			if (isIndexValid(index.getValue() + 1, input)
+					&& input[index.getValue() + 1] != null
+					&& input[index.getValue() + 1].equals("-")) {
+				if (isIndexValid(index.getValue() + 2, input)
+						&& isInteger(input[index.getValue()])
+						&& isInteger(input[index.getValue() + 2])) {
+					String[] temp = new String[LIMIT_RANGE_PARA];
+					temp[0] = input[index.getValue()];
+					temp[1] = input[index.getValue() + 2];
+					index.incrementByTwo();
+					processRange(index, parsedInput, startIndex, temp, input);
+				} else {
+					assignErrorMsg(parsedInput, INVALID_PARAMETER);
+					index.setValue(startIndex);
+				}
+			}else if (isIndexValid(index.getValue(), input)
 					&& input[index.getValue()] != null
 					&& input[index.getValue()].charAt(input[index.getValue()]
 							.length() - 1) == '-') {
@@ -444,22 +459,7 @@ class MultiParaProcessor extends SingleParaProcessor {
 					index.setValue(startIndex);
 				}
 
-			} else if (isIndexValid(index.getValue() + 1, input)
-					&& input[index.getValue() + 1] != null
-					&& input[index.getValue() + 1].equals("-")) {
-				if (isIndexValid(index.getValue() + 2, input)
-						&& isInteger(input[index.getValue()])
-						&& isInteger(input[index.getValue() + 2])) {
-					String[] temp = new String[LIMIT_RANGE_PARA];
-					temp[0] = input[index.getValue()];
-					temp[1] = input[index.getValue() + 2];
-					index.incrementByTwo();
-					processRange(index, parsedInput, startIndex, temp, input);
-				} else {
-					assignErrorMsg(parsedInput, INVALID_PARAMETER);
-					index.setValue(startIndex);
-				}
-			}
+			} 
 
 		}
 
