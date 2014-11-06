@@ -57,8 +57,8 @@ public abstract class Processor {
 			"oct", "october", "nov", "december", "dec" };
 
 	protected final String[] LIST_DAYS = { "sunday", "sun", "saturday", "sat",
-			"mon", "monday", "tuesday", "tues", "wed", "wednesday", "thurs",
-			"thursday", "fri", "friday", "saturday", "sat" };
+			"monday","mon",  "tuesday","tue", "tues", "wednesday","wed","thursday","thurs","thu","thur",
+			"friday", "fri",  "saturday", "sat" };
 
 	// date formats
 	protected final SimpleDateFormat dateFormat = new SimpleDateFormat(
