@@ -564,8 +564,8 @@ public class Logic {
 						Date timeInListEnd = Constants.timeFormatOne
 								.parse(taskInList.getEndTime());
 
-						if (timeFindStart.compareTo(timeInListEnd) > 0
-								|| timeFindEnd.compareTo(timeInListStart) < 0) {
+						if (timeFindStart.compareTo(timeInListEnd) >= 0
+								|| timeFindEnd.compareTo(timeInListStart) <= 0) {
 							continue;
 						} else {
 							searchResults.add(taskInList);
@@ -576,7 +576,7 @@ public class Logic {
 						Date timeInListStart = Constants.timeFormatOne
 								.parse(taskInList.getStartTime());
 						if (timeFindStart.compareTo(timeInListStart) > 0
-								|| timeFindEnd.compareTo(timeInListStart) < 0) {
+								|| timeFindEnd.compareTo(timeInListStart) <= 0) {
 							continue;
 						} else {
 							searchResults.add(taskInList);
@@ -593,7 +593,7 @@ public class Logic {
 								.parse(taskInList.getStartTime());
 						Date timeInListEnd = Constants.timeFormatOne
 								.parse(taskInList.getEndTime());
-						if (timeFindStart.compareTo(timeInListEnd) > 0
+						if (timeFindStart.compareTo(timeInListEnd) >= 0
 								|| timeFindStart.compareTo(timeInListStart) < 0) {
 							continue;
 						} else {
