@@ -96,10 +96,8 @@ public class Logic {
 			returnMessage = addLineToFile(task, file, tempStorage.size());
 			sortByDateAndTime(tempStorage);
 			Storage.writeToFile(tempStorage, file);
-			undo.push(Constants.COMMAND_ADD);
-			undoTask.push(addedTask);
-			redo.clear();
-			redoTask.clear();
+			updateUndo(Constants.COMMAND_ADD, addedTask);
+			clearRedo();
 			return returnMessage;
 		}
 
@@ -154,10 +152,8 @@ public class Logic {
 					tasksEdited.add(editedTask);
 					sortByDateAndTime(tempStorage);
 					Storage.writeToFile(tempStorage, file);
-					undo.push(command);
-					undoTask.push(tasksEdited);
-					redo.clear();
-					redoTask.clear();
+					updateUndo(command, tasksEdited);
+					clearRedo();
 					return returnMessage;
 				}
 			}
@@ -175,10 +171,8 @@ public class Logic {
 			tasksEdited.add(editedTask);
 			sortByDateAndTime(tempStorage);
 			Storage.writeToFile(tempStorage, file);
-			undo.push(command);
-			undoTask.push(tasksEdited);
-			redo.clear();
-			redoTask.clear();
+			updateUndo(command, tasksEdited);
+			clearRedo();
 
 			return returnMessage;
 		} else if (command.equals(Constants.COMMAND_UNDO)
@@ -286,18 +280,15 @@ public class Logic {
 						sortByDateAndTime(archiveStorage);
 						Storage.writeToFile(tempStorage, file);
 						Storage.writeToFile(archiveStorage, archive);
-						undo.push(command);
-						undoTask.push(deletedTask);
-						redo.clear();
-						redoTask.clear();
+						updateUndo(command, deletedTask);
+						clearRedo();
 						return returnMessage;
 					} else {
 						sortByDateAndTime(tempStorage);
 						sortByDateAndTime(archiveStorage);
 						Storage.writeToFile(tempStorage, file);
 						Storage.writeToFile(archiveStorage, archive);
-						undo.push(Constants.COMMAND_MIDWAY_DELETE);
-						undoTask.push(deletedTask);
+						updateUndo(Constants.COMMAND_MIDWAY_DELETE, deletedTask);
 						return returnMessage;
 					}
 				}
@@ -311,18 +302,15 @@ public class Logic {
 						sortByDateAndTime(archiveStorage);
 						Storage.writeToFile(tempStorage, file);
 						Storage.writeToFile(archiveStorage, archive);
-						undo.push(command);
-						undoTask.push(deletedTask);
-						redo.clear();
-						redoTask.clear();
+						updateUndo(command, deletedTask);
+						clearRedo();
 						return returnMessage;
 					} else {
 						sortByDateAndTime(tempStorage);
 						sortByDateAndTime(archiveStorage);
 						Storage.writeToFile(tempStorage, file);
 						Storage.writeToFile(archiveStorage, archive);
-						undo.push(Constants.COMMAND_MIDWAY_DELETE);
-						undoTask.push(deletedTask);
+						updateUndo(Constants.COMMAND_MIDWAY_DELETE, deletedTask);
 						return returnMessage;
 					}
 				}
@@ -345,18 +333,15 @@ public class Logic {
 						sortByDateAndTime(archiveStorage);
 						Storage.writeToFile(tempStorage, file);
 						Storage.writeToFile(archiveStorage, archive);
-						undo.push(command);
-						undoTask.push(deletedTask);
-						redo.clear();
-						redoTask.clear();
+						updateUndo(command, deletedTask);
+						clearRedo();
 						return returnMessage;
 					} else {
 						sortByDateAndTime(tempStorage);
 						sortByDateAndTime(archiveStorage);
 						Storage.writeToFile(tempStorage, file);
 						Storage.writeToFile(archiveStorage, archive);
-						undo.push(Constants.COMMAND_MIDWAY_DELETE);
-						undoTask.push(deletedTask);
+						updateUndo(Constants.COMMAND_MIDWAY_DELETE, deletedTask);
 						return returnMessage;
 					}
 				}
@@ -369,18 +354,15 @@ public class Logic {
 						sortByDateAndTime(archiveStorage);
 						Storage.writeToFile(tempStorage, file);
 						Storage.writeToFile(archiveStorage, archive);
-						undo.push(command);
-						undoTask.push(deletedTask);
-						redo.clear();
-						redoTask.clear();
+						updateUndo(command, deletedTask);
+						clearRedo();
 						return returnMessage;
 					} else {
 						sortByDateAndTime(tempStorage);
 						sortByDateAndTime(archiveStorage);
 						Storage.writeToFile(tempStorage, file);
 						Storage.writeToFile(archiveStorage, archive);
-						undo.push(Constants.COMMAND_MIDWAY_DELETE);
-						undoTask.push(deletedTask);
+						updateUndo(Constants.COMMAND_MIDWAY_DELETE, deletedTask);
 						return returnMessage;
 					}
 				}
@@ -462,8 +444,7 @@ public class Logic {
 			Storage.writeToFile(new ArrayList<Task>(), file);
 			sortByDateAndTime(archiveStorage);
 			Storage.writeToFile(archiveStorage, archive);
-			undo.push(Constants.COMMAND_DELETE_ALL);
-			undoTask.push(deletedTask);
+			updateUndo(Constants.COMMAND_DELETE_ALL, deletedTask);
 			return Constants.MSG_CLEARED_FILE;
 		} else {
 			return Constants.NO_MESSAGE_CLEAR;
@@ -681,8 +662,7 @@ public class Logic {
 				delete(Constants.COMMAND_UNDO, taskToBeDeleted.size(),
 						taskToBeDeleted.get(Constants.INITIAL_VALUE), file,
 						archive);
-				redo.push(lastCommand);
-				redoTask.push(taskToBeDeleted);
+				updateRedo(lastCommand, taskToBeDeleted);
 			}
 			if (lastCommand.equals(Constants.COMMAND_DELETE)
 					|| lastCommand.equals(Constants.COMMAND_DELETE_ALL)) {
@@ -700,8 +680,7 @@ public class Logic {
 				}
 				sortByDateAndTime(archiveStorage);
 				Storage.writeToFile(archiveStorage, file);
-				redo.push(lastCommand);
-				redoTask.push(taskToBeAdded);
+				updateRedo(lastCommand, taskToBeAdded);
 			}
 			if (lastCommand.equals(Constants.COMMAND_EDIT)) {
 				Task undoEditedTask = new Task();
@@ -712,8 +691,7 @@ public class Logic {
 						.get(Constants.INITIAL_VALUE));
 				undoEditedTask.setParams(taskNumber.toString());
 				edit(Constants.COMMAND_UNDO, undoEditedTask, file);
-				redo.push(lastCommand);
-				redoTask.push(taskToBeEdited);
+				updateRedo(lastCommand, taskToBeEdited);
 			}
 			sortByDateAndTime(tempStorage);
 			Storage.writeToFile(tempStorage, file);
@@ -734,8 +712,8 @@ public class Logic {
 				ArrayList<Task> taskToBeAdded = redoTask.pop();
 				add(Constants.COMMAND_REDO,
 						taskToBeAdded.get(Constants.INITIAL_VALUE), file);
-				undo.push("add");
-				undoTask.push(taskToBeAdded);
+				updateUndo(lastCommand, taskToBeAdded);
+
 			}
 
 			if (lastCommand.equals(Constants.COMMAND_DELETE)) {
@@ -744,8 +722,7 @@ public class Logic {
 					delete(Constants.COMMAND_REDO, taskToBeDeleted.size(),
 							taskToBeDeleted.get(i), file, archive);
 				}
-				undo.push(Constants.COMMAND_DELETE);
-				undoTask.push(taskToBeDeleted);
+				updateUndo(lastCommand, taskToBeDeleted);
 			}
 			if (lastCommand.equals(Constants.COMMAND_EDIT)) {
 				Task redoEditedTask = new Task();
@@ -756,8 +733,8 @@ public class Logic {
 						.get(Constants.INITIAL_VALUE + 1));
 				redoEditedTask.setParams(taskNumber.toString());
 				edit(Constants.COMMAND_REDO, redoEditedTask, file);
-				undo.push(lastCommand);
-				undoTask.push(taskToBeEdited);
+			
+				updateUndo(lastCommand, taskToBeEdited);
 			}
 			if (lastCommand.equals(Constants.COMMAND_DELETE_ALL)) {
 				clearContent(file, archive);
@@ -926,6 +903,21 @@ public class Logic {
 		return Constants.MSG_SORT_FAIL;
 	}
 
+	private static void updateUndo(String command, ArrayList<Task> listOfTask) {
+		undo.push(command);
+		undoTask.push(listOfTask);
+	}
+
+	private static void updateRedo(String command, ArrayList<Task> listOfTask) {
+		redo.push(command);
+		redoTask.push(listOfTask);
+	}
+
+	private static void clearRedo() {
+		redo.clear();
+		redoTask.clear();
+	}
+
 	// Following methods are used for junit testing.
 	public static String printTempStorage() {
 		String string = "";
@@ -960,8 +952,7 @@ public class Logic {
 	public static void clearUndoRedo() {
 		undo.clear();
 		undoTask.clear();
-		redo.clear();
-		redoTask.clear();
+		clearRedo();
 	}
 
 	public static void clearAll(File file) {
