@@ -209,6 +209,7 @@ class Task {
 		return toPrint;
 	}
 
+	//@author A0108380L
 	public void copyOfTask( Task task){
 		this.setName(task.getName());
 		this.setDate(task.getDate());

@@ -1,3 +1,6 @@
+/**
+ * This Storage class is to be used to create the text file and extract or store information into it.
+ */
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,6 +13,7 @@ import java.util.logging.*;
 public class Storage {
 	private static Logger logger = Logger.getLogger("Storage");
 
+	//@author A0108380L
 	// This function serves to write all the task in the text file into temp storage.
 	public static boolean copyToArrayList(File file, ArrayList<Task> tempStorage) {
 		Scanner input;
@@ -38,7 +42,8 @@ public class Storage {
 		logger.log(Level.INFO, "end of writing to temporary storage");
 		return true;
 	}
-
+	
+	// This function serves to extract the information from the string and assign to corresponding portion in task.
 	private static void assignValuesToTask(Integer taskNumber, Task task,
 			String currentTask) {
 		task.setName(currentTask.substring(0, currentTask.indexOf(Constants.DIVIDER_DATE)));
@@ -113,7 +118,8 @@ public class Storage {
 		return true;
 
 	}
-
+	
+	// This function serves to convert the task into a string with dividers in between each detail of the task.
 	private static String taskToString(Task currentTask) {
 		return currentTask.getName() 
 				+ Constants.DIVIDER_DATE + currentTask.getDate()

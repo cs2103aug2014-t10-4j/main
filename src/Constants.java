@@ -233,7 +233,7 @@ public class Constants {
 	public static final String MSG_CLEARED_FILE = "List is cleared";
 	public static final String NO_MESSAGE_CLEAR = "Nothing to clear!";
 	public static final String BAD_INDEX_MESSAGE = "%d is not a valid number.Valid range is %d to %d.";
-	public static final int INITIAL_VALUE = 0;
+	public static final int ZERO = 0;
 	public static final String NO_MESSAGE_DELETE = "nothing to delete!";
 	public static final int INVAILD_NUMBER = -1;
 
