@@ -90,7 +90,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			JOptionPane.showMessageDialog(frame, Constants.MSG_PREVIOUS_INSTANCE);
 		}
 	}
-	
+
 	//First level of abstraction
 	public static void createApplicationWindows() {
 		new DoubleUp();
@@ -220,15 +220,10 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			GraphicsEnvironment genv = GraphicsEnvironment.getLocalGraphicsEnvironment();
 			genv.registerFont(font);
 		} catch (Exception e) {
-	
+
 		}
-		String myStyle = 
-				String.format(".time{color: %s;}",Constants.COLOR_BLUE)
-				+ String.format(".details{color: %s;}", Constants.COLOR_ORANGER )
-				+ String.format(".name{color: %s;}", Constants.COLOR_MIDNIGHT_BLUE )
-				+ String.format(".importance{color: %s;}", Constants.COLOR_RED)
-				+ String.format(".date{color: %s;}",Constants.COLOR_HOT_PINK);
-	
+
+
 		cp.setLayout(new BorderLayout());
 		//Top panel for Command
 		JPanel topRow = new JPanel();
@@ -237,32 +232,23 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		textFieldCmdIn.setDocument (new JTextFieldLimit(Constants.SIZE_OF_DISPLAY_PANEL));
 		topRow.add(textFieldCmdIn);
 		cp.add(topRow, BorderLayout.NORTH);
-	
+
 		// Today panel
 		middleRow = new JPanel();
 		middleRow.setLayout(new BorderLayout());
 		displayPanelTodayTasks = new JEditorPane();
 		displayPanelTodayTasks.setContentType("text/html");
-		HTMLEditorKit kit = new HTMLEditorKit();
-		displayPanelTodayTasks.setEditorKit(kit);
-		// Add some styles to the html
-		StyleSheet styleSheet = kit.getStyleSheet();
-		styleSheet.addRule(myStyle);
-		Document setdoc = kit.createDefaultDocument();
-		displayPanelTodayTasks.setDocument(setdoc);
-		try {
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
+		setHTMLstyle();
 		displayPanelTodayTasks.setEditable(false);
 		displayPanelTodayTasks.setMargin(new Insets(5,5,5,5));
+
 		ResultOfCommand results = Controller.executeCommand(Constants.ACTION_SHOW_ALL, file, archive);
 		displayPanelTodayTasks.setText(results.printArrayList());
 		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		middleRow.add(scroll, BorderLayout.CENTER);
 		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 		cp.add(middleRow, BorderLayout.CENTER);
-	
+
 		//Feedback field below
 		JPanel lastRow = new JPanel();
 		ImageIcon icon = createImageIcon(Constants.RES_SYSTEM_TRAY_ICON, 
@@ -271,7 +257,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		lastRow.add(doubleupIcon);
 		JLabel resultsCmd = new JLabel(Constants.TITLE_RESULT);
 		lastRow.add(resultsCmd);
-	
+
 		textFieldResultsOut = new JTextArea(0, Constants.SIZE_WIDTH_TEXT_AREA_RESULTS);
 		textFieldResultsOut.setLineWrap(true);
 		textFieldResultsOut.setWrapStyleWord(true);
@@ -283,13 +269,12 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		textFieldResultsOut.setFocusable(false);
 		lastRow.add(textFieldResultsOut);
 		cp.add(lastRow, BorderLayout.SOUTH);
-	
+
 		UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
 		Color white = Color.decode(Constants.COLOR_SNOW_WHITE);
 		middleRow.setBackground(white);
-	
+
 		Action showHelp = new AbstractAction() {
-			private static final long serialVersionUID = 1L;
 			public void actionPerformed(ActionEvent e) {
 				showHelp();
 			}
@@ -303,14 +288,14 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				textFieldResultsOut.setText(Constants.MSG_HELP_SUCCESS);
 				middleRow.setBorder(BorderFactory.createTitledBorder(Constants.TITLE_HELP_SCREEN));
 			}
-	
+
 			String convertStreamToString(java.io.InputStream is) {
 				@SuppressWarnings("resource")
 				Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
 				return s.hasNext() ? s.next() : "";
 			}
 		};
-	
+
 		Action showAll = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				showAll();
@@ -323,7 +308,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				textFieldResultsOut.setText(Constants.MSG_SHOW_ALL_SUCCESS);
 			}
 		};
-	
+
 		Action goBack = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
 				goBack();
@@ -354,17 +339,15 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				}
 			}
 		};
-	
 		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("F2"), "showHelp");
 		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "showall");
 		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "goBack");
 		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "goForward");
-	
 		textFieldCmdIn.getActionMap().put("showHelp", showHelp);
 		textFieldCmdIn.getActionMap().put("showall", showAll);
 		textFieldCmdIn.getActionMap().put("goBack", goBack);
 		textFieldCmdIn.getActionMap().put("goForward", goForward);
-	
+
 		//This is to add listener for textfield at top
 		textFieldCmdIn.addActionListener(new ActionListener() {
 			@Override
@@ -385,7 +368,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				backwardsUserInput.push(userSentence);
 				textFieldCmdIn.setText("");  // clear input TextField
 			}
-	
+
 			private void showHelp(ResultOfCommand results) {
 				String helpfile = Constants.RES_HELP_HTML;
 				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
@@ -398,7 +381,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				results.setFeedback(Constants.MSG_HELP_SUCCESS);
 				displayPanelTodayTasks.setCaretPosition(0);
 			}
-	
+
 			String convertStreamToString(java.io.InputStream is) {
 				@SuppressWarnings("resource")
 				Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
@@ -407,8 +390,24 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		});
 	}
 
+	// Add some styles to the html of the JEditorPane
+	public static void setHTMLstyle() {
+		String myStyle = 
+				String.format(".time{color: %s;}",Constants.COLOR_BLUE)
+				+ String.format(".details{color: %s;}", Constants.COLOR_ORANGER )
+				+ String.format(".name{color: %s;}", Constants.COLOR_MIDNIGHT_BLUE )
+				+ String.format(".importance{color: %s;}", Constants.COLOR_RED)
+				+ String.format(".date{color: %s;}",Constants.COLOR_HOT_PINK);
+		HTMLEditorKit kit = new HTMLEditorKit();
+		displayPanelTodayTasks.setEditorKit(kit);
+		StyleSheet styleSheet = kit.getStyleSheet();
+		styleSheet.addRule(myStyle);
+		Document setdoc = kit.createDefaultDocument();
+		displayPanelTodayTasks.setDocument(setdoc);
+	}
+
 	//Third level of abstraction
-	
+
 	//Creates PopUp Menu in taskbar
 	private static JPopupMenu createJPopupMenu() {
 		final JPopupMenu jpopup = new JPopupMenu();
@@ -497,6 +496,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		return image;
 	}
 
+	//Fetch the icon image from path and creates it.
 	protected static ImageIcon createImageIcon(String path,
 			String description) {
 		java.net.URL imgURL = DoubleUp.class.getResource(path);
@@ -543,7 +543,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	@Override
 	public void nativeKeyTyped(NativeKeyEvent arg0) {
 	}
-
 
 	@Override
 	public void windowActivated(WindowEvent e) {

@@ -23,18 +23,22 @@ public class Controller {
 		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, 
 		DELETE_TEXT, DELETE_TODAY, EDIT, EXIT, HELP, HIDE_DETAILS, INVALID, 
 		SEARCH, SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, SHOW_DETAILS, SHOW_THIS_WEEK, 
-		SHOW_WEEK, SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, RESTORE, REDO, UNDO, 
-		VIEW_ARCHIVE;
-	};
+		SHOW_WEEK, SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, REDO, UNDO, VIEW_ARCHIVE;
+	}
 
+	private static final String MSG_DEL_FEEDBACK = "%s from your list";
+
+	/* This method calls the corresponding method from Logic after Parser
+	 * parses the user input.
+	 */
 	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
 		CommandType commandType;
-		ResultOfCommand results = new ResultOfCommand();
 		String[] splitCommand = Parser.parseInput(userSentence);
 		String action = getCommandWord(splitCommand);
 		commandType = determineCommandType(action);
 		Task taskToExecute = new Task(splitCommand);
 		String feedback = "";
+		ResultOfCommand results = new ResultOfCommand();
 		switch (commandType) {
 		case ADD_TEXT:
 			ArrayList<Task> tasksFound = findClash(taskToExecute);
@@ -42,14 +46,7 @@ public class Controller {
 				results.setFeedback(Logic.add(Constants.ACTION_ADD, taskToExecute, file));
 			} else {
 				results.setListOfTasks(tasksFound);
-				JFrame frame = new JFrame();
-				int n = confirmClashIsOk(frame, Constants.ACTION_ADD);
-				UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
-				if (n == JOptionPane.YES_OPTION){
-					results.setFeedback(Logic.add(Constants.ACTION_ADD,taskToExecute, file));			
-				} else {
-					results.setFeedback(String.format(Constants.MSG_USER_CONFIRMED_NO, Constants.ACTION_ADD));
-				}
+				continueToAdd(file, taskToExecute, results);
 			}
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
@@ -106,14 +103,7 @@ public class Controller {
 			String params = taskToExecute.getParams();
 			//Because multiple deletions is handled by Controller.
 			if (params != null){
-				String [] splitParams = params.split("\\s+");
-				int [] splitIndex = new int [splitParams.length];
-				for (int j = 0; j < splitParams.length; j ++){
-					int indexToDelete = Integer.parseInt(splitParams[j]);
-					if (indexToDelete > 0){
-						splitIndex[j] = indexToDelete;
-					} 
-				}
+				int[] splitIndex = createIndexToDelete(params);
 				sortIndex(splitIndex);
 				deleteMultiple(file, archive, results, feedback, splitIndex);
 			} else { 
@@ -126,18 +116,13 @@ public class Controller {
 			if (taskToExecute.getDetails() !=null && taskToExecute.getDetails().equals("")){
 				Task.setIsDetailsShown(false);
 			}
-			if (clashFoundForEdit.size() == 0){
+			if (clashFoundForEdit.size() == 0) {
 				results.setFeedback(Logic.edit(Constants.ACTION_EDIT, taskToExecute, file));
 			} else {
 				results.setListOfTasks(clashFoundForEdit);
 				JFrame frame = new JFrame();
 				int n = confirmClashIsOk(frame, Constants.ACTION_EDIT);
-				if (n == JOptionPane.YES_OPTION){
-					results.setFeedback(Logic.edit(Constants.ACTION_EDIT, taskToExecute, file));			 
-				} else {
-					results.setFeedback(String.format(Constants.MSG_USER_CONFIRMED_NO, 
-							Constants.ACTION_EDIT));
-				}
+				editOrNot(file, taskToExecute, results, n);
 			}
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
@@ -147,7 +132,8 @@ public class Controller {
 			results.setListOfTasks(Logic.search(taskToExecute));
 			int numMatches = results.getListOfTasks().size();
 			results.setFeedback(String.format(Constants.MSG_FOUND_N_ITEMS, numMatches));
-			results.setTitleOfPanel(String.format(Constants.TITLE_SEARCH_RESULTS, getSearchTermOnly(taskToExecute)));
+			results.setTitleOfPanel(String.format(Constants.TITLE_SEARCH_RESULTS, 
+					getSearchTermOnly(taskToExecute)));
 			return results;
 		case SHOW_ALL:
 			results.setFeedback(Constants.MSG_SHOW_ALL_SUCCESS);
@@ -181,20 +167,20 @@ public class Controller {
 			results.setTitleOfPanel(Constants.TITLE_ALL_TASKS);
 			return results;
 		case SHOW_WEEK:
+			DateFormat dateFormat1 = new SimpleDateFormat(Constants.DATE_FORMAT);
 			// Set the date today
 			Calendar calendar = Calendar.getInstance();
 			calendar.setTime(new Date());
-			// Calculates the start date of the week
 			Calendar firstDay = (Calendar) calendar.clone();
-			// and add six days to the end date
+			Task startOfSevenDays = new Task();
+			startOfSevenDays.setDate(dateFormat1.format(firstDay.getTime()));
+			
+			// Add six days to get the end date
 			Calendar lastDay = (Calendar) firstDay.clone();
 			lastDay.add(Calendar.DAY_OF_YEAR, 6);
-
-			DateFormat dateFormat1 = new SimpleDateFormat(Constants.DATE_FORMAT);
-			Task startOfSevenDays = new Task();
 			Task endOfSevenDays = new Task();
-			startOfSevenDays.setDate(dateFormat1.format(firstDay.getTime()));
 			endOfSevenDays.setDate(dateFormat1.format(lastDay.getTime()));
+			
 			String rangeOfSevenDays = getRangeOfWeek(startOfSevenDays, endOfSevenDays);
 			results.setListOfTasks(Logic.searchRangeOfDate(startOfSevenDays, endOfSevenDays));
 			results.setFeedback(Constants.MSG_SHOW_SEVEN_DAYS_SUCCESS);
@@ -213,8 +199,8 @@ public class Controller {
 			last.add(Calendar.DAY_OF_YEAR, 6);
 			DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
 			Task startOfWeekTask = new Task();
-			Task endOfWeekTask = new Task();
 			startOfWeekTask.setDate(dateFormat.format(first.getTime()));
+			Task endOfWeekTask = new Task();
 			endOfWeekTask.setDate(dateFormat.format(last.getTime()));
 			String rangeOfWeek = getRangeOfWeek(startOfWeekTask, endOfWeekTask);
 			results.setListOfTasks(Logic.searchRangeOfDate(startOfWeekTask, endOfWeekTask));
@@ -261,6 +247,43 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		}
+	}
+
+	//Prompts user if they want to continue to add
+	public static void continueToAdd(File file, Task taskToExecute,
+			ResultOfCommand results) {
+		JFrame frame = new JFrame();
+		int userChoice = confirmClashIsOk(frame, Constants.ACTION_ADD);
+		UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
+		if (userChoice == JOptionPane.YES_OPTION){
+			results.setFeedback(Logic.add(Constants.ACTION_ADD,taskToExecute, file));			
+		} else {
+			results.setFeedback(String.format(Constants.MSG_USER_CONFIRMED_NO, Constants.ACTION_ADD));
+		}
+	}
+
+	// Edit the file based on the user choice
+	public static void editOrNot(File file, Task taskToExecute,
+			ResultOfCommand results, int userChoice) {
+		if (userChoice == JOptionPane.YES_OPTION){
+			results.setFeedback(Logic.edit(Constants.ACTION_EDIT, taskToExecute, file));			 
+		} else {
+			results.setFeedback(String.format(Constants.MSG_USER_CONFIRMED_NO, 
+					Constants.ACTION_EDIT));
+		}
+	}
+
+	//Creates an integer array from the String for parameters returned by Parser
+	private static int[] createIndexToDelete(String params) {
+		String [] splitParams = params.split("\\s+");
+		int [] splitIndex = new int [splitParams.length];
+		for (int j = 0; j < splitParams.length; j ++){
+			int indexToDelete = Integer.parseInt(splitParams[j]);
+			if (indexToDelete > 0){
+				splitIndex[j] = indexToDelete;
+			} 
+		}
+		return splitIndex;
 	}
 
 	// This method is used to determine the command types given the first word of the command.
@@ -312,8 +335,6 @@ public class Controller {
 			return CommandType.SHOW_THIS_WEEK;
 		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_DETAILS)) {
 			return CommandType.SHOW_DETAILS;
-		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_RESTORE)) {
-			return CommandType.RESTORE;
 		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_REDO)) {
 			return CommandType.REDO;
 		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_UNDO)) {
@@ -341,19 +362,26 @@ public class Controller {
 				isMoreThanSizeOfList = true;
 				continue; //Because cannot delete numbers larger than list size
 			}
-			Task oneOutOfMany = new Task();
+			Task oneTaskToDelete = new Task();
 			String userDeleteIndex = String.valueOf(splitIndex[j]); 
-			oneOutOfMany.setParams(userDeleteIndex);
-			if (splitIndex[j] > 0){
-				feedback = Logic.delete(Constants.ACTION_DELETE, splitIndex.length, oneOutOfMany, 
-						file, archive) + "," + feedback ;
-			} else  {
-				feedback = capitalizeFirstLetter(feedback);
-				feedback = Logic.delete(Constants.ACTION_DELETE, splitIndex.length, oneOutOfMany, 
-						file, archive) + ". " + feedback ;
-
-			}
+			oneTaskToDelete.setParams(userDeleteIndex);
+			feedback = deleteIndex(file, archive, feedback, splitIndex, j,
+					oneTaskToDelete);
 		}
+		feedback = shortenFeedback(feedback);
+		feedback = capitalizeFirstLetter(feedback);
+		feedback = endWithFullstop(feedback);
+		feedback = feedback.replace("deleted", "");
+		if (isMoreThanSizeOfList){
+			feedback = feedback + Constants.MSG_DELETE_NON_EXISTENT ;
+			feedback = feedback.trim();
+		}
+		results.setFeedback(feedback);
+	}
+
+	// Used to shorten feedback for delete because delete multiple 
+	// can have very long feedback strings.
+	private static String shortenFeedback(String feedback) {
 		String firstPart = "";
 		String secondPart = "";
 		if (feedback.length() > Constants.SIZE_FEEDBACK_MAX){
@@ -369,14 +397,21 @@ public class Controller {
 			}
 			feedback = firstPart + secondPart;
 		}
-		feedback = capitalizeFirstLetter(feedback);
-		feedback = endWithFulstop(feedback);
-		feedback = feedback.replace("deleted", "");
-		if (isMoreThanSizeOfList){
-			feedback = feedback + Constants.MSG_DELETE_NON_EXISTENT ;
-			feedback = feedback.trim();
+		return feedback;
+	}
+
+	//Call Logic to delete index from list
+	private static String deleteIndex(File file, File archive, String feedback,
+			int[] splitIndex, int j, Task oneOutOfMany) {
+		if (splitIndex[j] > 0){
+			feedback = Logic.delete(Constants.ACTION_DELETE, splitIndex.length, oneOutOfMany, 
+					file, archive) + "," + feedback ;
+		} else  {
+			feedback = capitalizeFirstLetter(feedback);
+			feedback = Logic.delete(Constants.ACTION_DELETE, splitIndex.length, oneOutOfMany, 
+					file, archive) + ". " + feedback ;
 		}
-		results.setFeedback(feedback);
+		return feedback;
 	}
 
 	//Sort index from smallest to largest for multiple deletion.
@@ -432,7 +467,7 @@ public class Controller {
 		return searchResult;
 	}
 
-	//Creates a JDialog to prompt whether he or she still wants to add the task
+	//Creates a JDialog to prompt whether user still wants to add the task
 	private static int confirmClashIsOk(JFrame frame, String action) {
 		int n = JOptionPane.showConfirmDialog(
 				frame, String.format(Constants.MSG_CLASH_FOUND, action),
@@ -442,12 +477,12 @@ public class Controller {
 	}
 
 	//Make sure feedback string is changed to a fullstop.
-	private static String endWithFulstop(String feedback) {
+	private static String endWithFullstop(String feedback) {
 		if (feedback.endsWith(",") || (feedback.endsWith(", "))){
 			feedback = feedback.substring(0, feedback.lastIndexOf(",")) + " from your list.";
 		}
 		if (feedback.endsWith("..."))
-			feedback = feedback + " from your list.";
+			feedback = String.format(MSG_DEL_FEEDBACK, feedback);
 		return feedback;
 	}
 
@@ -466,19 +501,19 @@ public class Controller {
 			searchTerm += task.getName();
 		}
 		if (task.getDate() != null){
-			if (searchTerm.length()>0){
+			if (searchTerm.length() > 0){
 				searchTerm += " ";
 			}
 			searchTerm += task.getDate();
 		}
 		if (task.getStartTime() != null){
-			if (searchTerm.length()>0){
+			if (searchTerm.length() > 0){
 				searchTerm += " ";
 			}
 			searchTerm += task.getStartTime();
 		}
 		if (task.getEndTime() != null){
-			if (searchTerm.length()>0){
+			if (searchTerm.length() > 0){
 				searchTerm += " - ";
 			}
 			searchTerm += task.getEndTime();
