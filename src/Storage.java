@@ -93,7 +93,7 @@ public class Storage {
 	}
 
 	// This function serves to write all the task in the tempStorage into the text file.
-	public static boolean writeToFile(ArrayList<Task> tempStorage, File file) {
+	public static boolean writeToFile(File file, ArrayList<Task> tempStorage) {
 		logger.log(Level.INFO, "going to start writing to writing to " + file.getName());
 		BufferedWriter fileWritten;
 		String toWriteInFile;
