@@ -1,13 +1,8 @@
 import java.text.SimpleDateFormat;
 
 public class Constants {
-	public static final String MSG_WELCOME = "Welcome to DoubleUp! ";
-	public static final String MSG_PROGRESS_BAR = "You have %d tasks due today,\n %d overdue tasks, %d tasks due\n eventually and %d floating tasks.";
-	public static final String MSG_QOTD = "QOTD: \n";
-	public static final String MSG_GOAL = "Your goal is: ";
-	public static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!";
-	public static final String MSG_ENTER_COMMAND = "Enter a command:";
-	public static final String MSG_RESULT = "Result: ";
+	public static final String DOUBLE_UP = "DoubleUp";
+
 	public static final String FILE_TASK = "DoubleUp.txt";
 	public static final String FILE_ARCHIVE = "Archive.txt";
 	public static final String FILE_LOCK = "Lock.txt";
@@ -29,26 +24,23 @@ public class Constants {
 	public static final String COLOR_ORANGER = "#FF5500";//for details
 	public static final String COLOR_RED = "#CF1700"; //for important level
 	public static final String COLOR_YELLOW = "#FFF9D6";
-	public static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running.\nPress Ctrl + Space to open it.";
-	public static final String TITLE_MAIN_WINDOW = "DoubleUp To-Do-List";
 
-	public static final String ERROR_ICON_NOT_FOUND = "Couldn't find file: %s";
-	public static final String MSG_HELP_SUCCESS = "Press ESC to return to All Tasks";
-	public static final String TITLE_HELP_SCREEN = "Help Screen:";
 	public static final int SIZE_WIDTH_TEXT_AREA_RESULTS = 57;
 	public static final int SIZE_TEXT_FIELD_CMD_IN = 40;
 	public static final int SIZE_OF_DISPLAY_PANEL = 70;
 	public static final int SIZE_FEEDBACK_MAX = 180;
 	public static final String RES_HELP_HTML = "/res/help.html";
+	public static final String RES_MONACO_TTF = "/res/monaco.TTF";
 	public static final String RES_UP_ARROW_ICON = "/res/up-arrow-icon.png";
 	public static final String RES_SYSTEM_TRAY_ICON = "res/up-arrow-small3.png";
 	
 	//Controller Constants
-	public static final String MSG_DELETE_PAST_FAIL = "There are no past tasks to be deleted.";
-	public static final String MSG_DELETE_PAST_SUCCESS = "All past tasks have been deleted.";
-	public static final String MSG_DELETE_NON_EXISTENT = " You tried to delete non-existent tasks.";
-	public static final String MSG_NO_TASK_FOR_DATE = "There is no task found for %s.";
+	public static final String LOGGER = "myLogger";
 	public static final String ERROR_NULL_COMMAND = "Command type string cannot be null!";
+	public static final String ERROR_ICON_NOT_FOUND = "Couldn't find file: %s";
+	public static final String ERROR_CREATE_LOCK_FAIL = "Unable to create and/or lock file: ";
+	public static final String ERROR_REMOVE_LOCK_FAIL = "Unable to remove lock file: ";
+	public static final String ERROR_NATIVE_HOOK_FAIL = "There was a problem registering the native hook.";
 	public static final String ACTION_VIEW_ARCHIVE = "view archive";
 	public static final String ACTION_UNDO = "undo";
 	public static final String ACTION_REDO = "redo";
@@ -77,15 +69,24 @@ public class Constants {
 	public static final String ACTION_CLEAR = "clear";
 	public static final String ACTION_ADD = "add";
 
-	public static final String TITLE_ARCHIVED_TASKS = "Archived Tasks (view-only)";
+	public static final String MSG_WELCOME = "Welcome to DoubleUp! ";
+	public static final String MSG_PROGRESS_BAR = "You have %d tasks due today,\n %d overdue tasks, %d tasks due\n eventually and %d floating tasks.";
+	public static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!";
 	public static final String MSG_ARCHIVED_TASKS = "These are all your completed and archived tasks.";
 	public static final String MSG_CLASH_FOUND = "Something is happening at the same time! Continue %sing?";
+	public static final String MSG_CREATE_GUI_SUCCESS = "Successfully create GUI";
+	public static final String MSG_DELETE_PAST_FAIL = "There are no past tasks to be deleted.";
+	public static final String MSG_DELETE_PAST_SUCCESS = "All past tasks have been deleted.";
+	public static final String MSG_DELETE_NON_EXISTENT = " You tried to delete non-existent tasks.";
 	public static final String MSG_DELETE_NO_INDEX = "You must add a number after delete";
 	public static final String MSG_DELETED_TODAY = "All today tasks have been cleared.";
+	public static final String MSG_EMPTY_TYPES = "No tasks for these types!";
 	public static final String MSG_FOUND_N_ITEMS = "Found %d items.";
+	public static final String MSG_HELP_SUCCESS = "Press ESC to return to All Tasks";
 	public static final String MSG_HIDE_DETAILS_SUCCESS = "Details are collapsed.";
 	public static final String MSG_ITEM_TO_DELETE_NOT_FOUND = "item #%d is not found, ";
-	public static final String MSG_USER_CONFIRMED_NO = "Task is not %sed.";
+	public static final String MSG_NO_TASK_FOR_DATE = "There is no task found for %s.";
+	public static final String MSG_PREVIOUS_INSTANCE = "DoubleUp is already running.\nPress Ctrl + Space to open it.";
 	public static final String MSG_SHOW_FLOATING_SUCCESS = "These are your floating tasks.";
 	public static final String MSG_SHOW_TODAY_SUCCESS = "These are your tasks for the day.";
 	public static final String MSG_SHOW_DETAILS_SUCCESS = "Details are expanded.";
@@ -93,7 +94,17 @@ public class Constants {
 	public static final String MSG_SHOW_THIS_WEEK_SUCCESS = "These are your tasks for this week.";
 	public static final String MSG_SHOW_SEVEN_DAYS_SUCCESS = "These are your tasks for the next 7 days.";
 	public static final String MSG_RANGE_OF_WEEK = "%s %s to %s %s";
+	public static final String MSG_USER_CONFIRMED_NO = "Task is not %sed.";
 	
+	public static final String MENU_EXIT = "Exit";
+	public static final String MENU_HELP = "Help";
+	public static final String MENU_ABOUT_DOUBLE_UP = "About DoubleUp";
+	
+	public static final String TITLE_ENTER_COMMAND = "Enter a command:";
+	public static final String TITLE_RESULT = "Result: ";
+	public static final String TITLE_MAIN_WINDOW = "DoubleUp To-Do-List";
+	public static final String TITLE_HELP_SCREEN = "Help Screen:";
+	public static final String TITLE_ARCHIVED_TASKS = "Archived Tasks (view-only)";
 	public static final String TITLE_ALL_TASKS = "All Tasks:";
 	public static final String TITLE_ALPHABETICAL_ORDER = "All tasks by alphabetical order";
 	public static final String TITLE_FLOATING_TASKS = "Floating Tasks:";
@@ -105,7 +116,6 @@ public class Constants {
 	public static final String TITLE_TODAY_TASKS = "Today Tasks:";
 	
 	//ResultOfCommand
-	public static final String MSG_EMPTY_TYPES = "No tasks for these types!";
 	public static final String DATE_WITH_LINE = 
 			"<font style='color:%s;'>" +
 					"<b> ========================== %s%s ==========================</b></font><br>";
