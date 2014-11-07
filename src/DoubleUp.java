@@ -210,20 +210,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	@SuppressWarnings("serial")
 	public static void addComponentsToPane(Container cp){
-		InputStream is = DoubleUp.class.getResourceAsStream(Constants.RES_MONACO_TTF);	
-		try {
-			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
-			Font sizedFont = font.deriveFont(13f); 
-			UIManager.getLookAndFeelDefaults().put("defaultFont", sizedFont);
-			sizedFont = font.deriveFont(Font.BOLD, 13f); 
-			UIManager.getLookAndFeelDefaults().put("Label.font", sizedFont);
-			GraphicsEnvironment genv = GraphicsEnvironment.getLocalGraphicsEnvironment();
-			genv.registerFont(font);
-		} catch (Exception e) {
-
-		}
-
-
+		customizeFont();
 		cp.setLayout(new BorderLayout());
 		//Top panel for Command
 		JPanel topRow = new JPanel();
@@ -387,6 +374,20 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				return s.hasNext() ? s.next() : "";
 			}
 		});
+	}
+
+	public static void customizeFont() {
+		InputStream is = DoubleUp.class.getResourceAsStream(Constants.RES_MONACO_TTF);	
+		try {
+			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+			Font sizedFont = font.deriveFont(13f); 
+			UIManager.getLookAndFeelDefaults().put("defaultFont", sizedFont);
+			sizedFont = font.deriveFont(Font.BOLD, 13f); 
+			UIManager.getLookAndFeelDefaults().put("Label.font", sizedFont);
+			GraphicsEnvironment genv = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			genv.registerFont(font);
+		} catch (Exception e) {
+		}
 	}
 
 	// Add some styles to the html of the JEditorPane
