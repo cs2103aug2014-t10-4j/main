@@ -680,7 +680,7 @@ public class Logic {
 					}
 				}
 				sortByDateAndTime(archiveStorage);
-				Storage.writeToFile(archiveStorage, file);
+				Storage.writeToFile(archiveStorage, archive);
 				updateRedo(lastCommand, taskToBeAdded);
 			}
 			else if (lastCommand.equals(Constants.COMMAND_EDIT)) {
