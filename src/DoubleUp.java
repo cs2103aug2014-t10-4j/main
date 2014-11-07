@@ -320,7 +320,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 						textFieldCmdIn.setText(forwardUserInput.peek());
 					}
 				} catch (EmptyStackException e) {
-					e.printStackTrace();
 				}
 			}
 		};
@@ -366,7 +365,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 					displayPanelTodayTasks.setCaretPosition(0);
 				}
 				backwardsUserInput.push(userSentence);
-				textFieldCmdIn.setText("");  // clear input TextField
+				textFieldCmdIn.setText("");  
 			}
 
 			private void showHelp(ResultOfCommand results) {
