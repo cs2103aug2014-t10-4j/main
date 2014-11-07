@@ -1,3 +1,7 @@
+//@author A0110930X
+/*
+ * The main method of DoubleUp
+ */
 import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -66,37 +70,16 @@ import org.jnativehook.keyboard.NativeKeyListener;
 
 public class DoubleUp extends JFrame implements NativeKeyListener , WindowListener{
 
-
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-
 	private static JTextField textFieldCmdIn;
 	private static JEditorPane displayPanelTodayTasks;
 	private static JTextArea textFieldResultsOut;
 	private static JPanel middleRow;
 	private static JFrame frame;
-
 	private static Stack <String> backwardsUserInput = new Stack<String>();
 	private static Stack <String> forwardUserInput = new Stack<String>();
-
 	private static File file, archive;
 	private static Logger logger = Logger.getLogger("myLogger");
-
-	public DoubleUp() {
-		setLookAndFeel();
-		setTitle(Constants.TITLE_MAIN_WINDOW);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		addComponentsToPane(getContentPane());
-		setMinimumSize(new Dimension(730,700));
-		setVisible(true);
-		setResizable(false);
-		addWindowListener(this);
-		setLocationRelativeTo(null);
-		logger.log(Level.INFO, "Successfully create GUI");
-	}
 
 	public static void main(String[] args) {
 		Logger nativeHookLogger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
@@ -110,6 +93,19 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		} else {
 			JOptionPane.showMessageDialog(frame, Constants.MSG_PREVIOUS_INSTANCE);
 		}
+	}
+
+	public DoubleUp() {
+		setLookAndFeel();
+		setTitle(Constants.TITLE_MAIN_WINDOW);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		addComponentsToPane(getContentPane());
+		setMinimumSize(new Dimension(730,700));
+		setVisible(true);
+		setResizable(false);
+		addWindowListener(this);
+		setLocationRelativeTo(null);
+		logger.log(Level.INFO, "Successfully create GUI");
 	}
 
 	private void setLookAndFeel() {
@@ -198,7 +194,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	@Override
 	public void windowOpened(WindowEvent e) {
-		//Initialze native hook.
+		//Initialize native hook.
 		try {
 			LogManager.getLogManager().reset();
 			GlobalScreen.registerNativeHook();
@@ -523,6 +519,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		super.setAlwaysOnTop(false);
 	}
 
+	//Allows only one instance of the program to run
 	private static boolean lockInstance() {
 		try {
 			final File lockfile = new File(Constants.FILE_LOCK);

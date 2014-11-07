@@ -1,5 +1,9 @@
-//@author Low Zheng Yang A0110930X
-
+//@author A0110930X
+/*
+ * This class calls Parser to parse the user input, then creates a Task object,
+ * and call the corresponding methods from Logic. It returns a ResultOfCommand 
+ * object to its caller.
+ */
 import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -14,8 +18,6 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 public class Controller {
-
-
 
 	enum CommandType {
 		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, 
@@ -209,7 +211,6 @@ public class Controller {
 			// and add six days to the end date
 			Calendar last = (Calendar) first.clone();
 			last.add(Calendar.DAY_OF_YEAR, 6);
-
 			DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
 			Task startOfWeekTask = new Task();
 			Task endOfWeekTask = new Task();
@@ -238,8 +239,6 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			results.setTitleOfPanel(Constants.TITLE_IMPORTANCE_ORDER);
 			return results;
-		case RESTORE:
-			return results; //stub
 		case UNDO: 
 			results.setFeedback(Logic.undo(file, archive));
 			results.setListOfTasks(Logic.getTempStorage());
@@ -262,15 +261,6 @@ public class Controller {
 			results.setListOfTasks(Logic.getTempStorage());
 			return results;
 		}
-	}
-
-	private static String getRangeOfWeek(Task startOfWeekTask,
-			Task endOfWeekTask) {
-		return String.format(Constants.MSG_RANGE_OF_WEEK,
-				getDayOfWeek(startOfWeekTask.getDate()),  
-				startOfWeekTask.getDate(), 
-				getDayOfWeek(endOfWeekTask.getDate()),
-				endOfWeekTask.getDate());
 	}
 
 	// This method is used to determine the command types given the first word of the command.
@@ -342,6 +332,7 @@ public class Controller {
 		return firstWord;
 	}
 
+	//Method that deletes multiple tasks from the list.
 	private static void deleteMultiple(File file, File archive,
 			ResultOfCommand results, String feedback, int[] splitIndex) {
 		boolean isMoreThanSizeOfList = false;
@@ -367,7 +358,6 @@ public class Controller {
 		String secondPart = "";
 		if (feedback.length() > Constants.SIZE_FEEDBACK_MAX){
 			firstPart = feedback.substring(0, Constants.SIZE_FEEDBACK_MAX);
-			//feedback = feedback.substring(0, MAX_LEN_FEEDBACK);
 			int lastCommaIndex = firstPart.lastIndexOf(",");
 			if (lastCommaIndex != -1){
 				firstPart = firstPart.substring(0, lastCommaIndex) + ", ...";
@@ -389,14 +379,22 @@ public class Controller {
 		results.setFeedback(feedback);
 	}
 
-	private static int confirmClashIsOk(JFrame frame, String action) {
-		int n = JOptionPane.showConfirmDialog(
-				frame, String.format(Constants.MSG_CLASH_FOUND, action),
-				Constants.TITLE_JDIALOG_CLASH_FOUND,
-				JOptionPane.YES_NO_OPTION);
-		return n;
+	//Sort index from smallest to largest for multiple deletion.
+	private static void sortIndex(int[] splitIndex) {
+		int n = splitIndex.length;
+		int temp = 0;
+		for (int i = 0; i < n; i++) {
+			for (int j = 1; j < (n - i); j++) {
+				if (splitIndex[j - 1] > splitIndex[j]) {
+					temp = splitIndex[j - 1];
+					splitIndex[j - 1] = splitIndex[j];
+					splitIndex[j] = temp;
+				}
+			}
+		}
 	}
 
+	//Methods delete all tasks on a particular date.
 	private static ResultOfCommand deleteTasksForDate(File file, File archive,
 			ResultOfCommand results, Task withParticularDate) {
 		ArrayList<Task> allThoseTasks= Logic.search(withParticularDate);
@@ -415,6 +413,35 @@ public class Controller {
 		return results;
 	}
 
+	//Return any tasks with the same date and time as taskToExecute
+	private static ArrayList<Task> findClash(Task taskToExecute) {
+		//Do not check for clash if is floating, because it will always clash
+		if (taskToExecute.getDate() != null && taskToExecute.getDate().equals(Constants.DATE_FT)){
+			return new ArrayList<Task>();
+		}
+		//If time is null, means there is no time allocated for that task today
+		if (taskToExecute.getStartTime() == null){
+			return new ArrayList<Task>();
+		}
+		Task tempTask = new Task();
+		tempTask.setDate(taskToExecute.getDate());
+		tempTask.setStartTime(taskToExecute.getStartTime());
+		tempTask.setEndTime(taskToExecute.getEndTime());
+		tempTask.setParams(taskToExecute.getParams());
+		ArrayList<Task> searchResult = Logic.searchForCheckClash(tempTask);
+		return searchResult;
+	}
+
+	//Creates a JDialog to prompt whether he or she still wants to add the task
+	private static int confirmClashIsOk(JFrame frame, String action) {
+		int n = JOptionPane.showConfirmDialog(
+				frame, String.format(Constants.MSG_CLASH_FOUND, action),
+				Constants.TITLE_JDIALOG_CLASH_FOUND,
+				JOptionPane.YES_NO_OPTION);
+		return n;
+	}
+
+	//Make sure feedback string is changed to a fullstop.
 	private static String endWithFulstop(String feedback) {
 		if (feedback.endsWith(",") || (feedback.endsWith(", "))){
 			feedback = feedback.substring(0, feedback.lastIndexOf(",")) + " from your list.";
@@ -424,6 +451,7 @@ public class Controller {
 		return feedback;
 	}
 
+	//Capitalizes the first letter of the sentence
 	private static String capitalizeFirstLetter(String feedback) {
 		if (!feedback.isEmpty()){
 			feedback = feedback.substring(0,1).toUpperCase() + feedback.substring(1); // Capitalize first letter
@@ -431,6 +459,7 @@ public class Controller {
 		return feedback;
 	}
 
+	//Returns the String that is being searched after Parser processes it.
 	private static String getSearchTermOnly(Task task) {
 		String searchTerm = "";
 		if (task.getName() != null){
@@ -457,40 +486,7 @@ public class Controller {
 		return searchTerm;
 	}
 
-	//Sort index from smallest to largest for multiple deletion.
-	private static void sortIndex(int[] splitIndex) {
-		int n = splitIndex.length;
-		int temp = 0;
-		for (int i = 0; i < n; i++) {
-			for (int j = 1; j < (n - i); j++) {
-				if (splitIndex[j - 1] > splitIndex[j]) {
-					temp = splitIndex[j - 1];
-					splitIndex[j - 1] = splitIndex[j];
-					splitIndex[j] = temp;
-				}
-			}
-		}
-	}
-
-	//Return any tasks with the same date and time as taskToExecute
-	private static ArrayList<Task> findClash(Task taskToExecute) {
-		//Do not check for clash if is floating, because it will always clash
-		if (taskToExecute.getDate() != null && taskToExecute.getDate().equals(Constants.DATE_FT)){
-			return new ArrayList<Task>();
-		}
-		//If time is null, means there is no time allocated for that task today
-		if (taskToExecute.getStartTime() == null){
-			return new ArrayList<Task>();
-		}
-		Task tempTask = new Task();
-		tempTask.setDate(taskToExecute.getDate());
-		tempTask.setStartTime(taskToExecute.getStartTime());
-		tempTask.setEndTime(taskToExecute.getEndTime());
-		tempTask.setParams(taskToExecute.getParams());
-		ArrayList<Task> searchResult = Logic.searchForCheckClash(tempTask);
-		return searchResult;
-	}
-
+	//Returns today date as a String
 	private static String getTodayDate() {
 		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
 		Date date = new Date();
@@ -499,7 +495,7 @@ public class Controller {
 	}
 
 	//Return the day of the week
-	private static String getDayOfWeek(String date){
+	private static String getDayOfWeek(String date) {
 		try {
 			Date mydate = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.ENGLISH).parse(date);
 			return new SimpleDateFormat("EEE").format(mydate);
@@ -507,5 +503,15 @@ public class Controller {
 			e.printStackTrace();
 		}
 		return "";
+	}
+
+	//This method returns a String for a range of dates for show_week
+	private static String getRangeOfWeek(Task startOfWeekTask,
+			Task endOfWeekTask) {
+		return String.format(Constants.MSG_RANGE_OF_WEEK,
+				getDayOfWeek(startOfWeekTask.getDate()),  
+				startOfWeekTask.getDate(), 
+				getDayOfWeek(endOfWeekTask.getDate()),
+				endOfWeekTask.getDate());
 	}
 }

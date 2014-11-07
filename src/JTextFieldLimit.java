@@ -1,3 +1,4 @@
+//@author A0110930X-reused
 //Used to limit the number of characters that the user can input as a command
 
 import javax.swing.text.AttributeSet;
