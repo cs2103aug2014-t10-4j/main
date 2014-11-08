@@ -130,12 +130,6 @@ public class Constants {
 	public static final String PATTERN_TIME_THREE = "^\\d{1,2}([a][m]|[p][m])$";
 	public static final String PATTERN_TIME_TWO = "^\\d{1,2}([:.](\\d{2}))(([a][m])|([p][m]))$";
 	// Commands
-	public static final String COMMAND_ADD = "add";
-	public static final String COMMAND_DELETE = "delete";
-	public static final String COMMAND_EDIT = "edit";
-	public static final String COMMAND_UNDO = "undo";
-	public static final String COMMAND_REDO = "redo";
-	public static final String COMMAND_SEARCH = "search";
 	public static final String COMMAND_DELETE_ALL = "delete all";
 	public static final String COMMAND_MIDWAY_DELETE = "still deleting";
 	public static final String COM_DISPLAY = "display";

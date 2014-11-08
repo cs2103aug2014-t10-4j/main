@@ -64,16 +64,15 @@ public class LogicTest {
 	public void Test_search() {
 		String[] splitTask = {null,"testing",null,null, null, null, null, null , null};
 		Task task = new Task(splitTask);
-		String[] splitTask5 = {null,null,null, null, null, null, null, null , null};
-		Task task5 = new Task(splitTask5);	
+		//String[] splitTask5 = {null,null,null, null, null, null, null, null , null};
+		//Task task5 = new Task();	
 		Logic.clearContent(testFile,testArchive);
 		Logic.add("add", task1, testFile);		
 		List.add(task1);
 		assertEquals(List, Logic.search(task));
 		Logic.clearContent(testFile, testArchive);
-		List1.clear();
-		List1.add(task5);
-		assertEquals("", Logic.search(task5));
+		List.clear();
+		assertEquals(List, Logic.search(task1));
 		Logic.clearContent(testFile, testArchive);
 	}
 

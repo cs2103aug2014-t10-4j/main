@@ -83,10 +83,10 @@ public class Logic {
 	// Methods to manipulate task
 	public static String add(String command, Task task, File file) {
 		String returnMessage;
-		if (undo.size() != 0 && undo.peek().equals(Constants.COMMAND_SEARCH)) {
+		if (undo.size() != 0 && undo.peek().equals(Constants.ACTION_SEARCH)) {
 			undo.pop();
 		}
-		if (command.equals(Constants.COMMAND_ADD)) {
+		if (command.equals(Constants.ACTION_ADD)) {
 			Integer taskNumber = tempStorage.size() + 1;
 			task.setParams(taskNumber.toString());
 			Task taskToAdd = new Task();
@@ -96,15 +96,15 @@ public class Logic {
 			returnMessage = addLineToFile(task, file, tempStorage.size());
 			sortByDateAndTime(tempStorage);
 			Storage.writeToFile(tempStorage, file);
-			undo.push(Constants.COMMAND_ADD);
+			undo.push(Constants.ACTION_ADD);
 			undoTask.push(addedTask);
 			redo.clear();
 			redoTask.clear();
 			return returnMessage;
 		}
 
-		if (command.equals(Constants.COMMAND_UNDO)
-				|| command.equals(Constants.COMMAND_REDO)) {
+		if (command.equals(Constants.ACTION_UNDO)
+				|| command.equals(Constants.ACTION_REDO)) {
 			int taskToAddLocation = getIndex(task) + 1;
 			if (tempStorage.size() == Constants.INITIAL_VALUE) {
 				taskToAddLocation = Constants.INITIAL_VALUE;
@@ -137,10 +137,10 @@ public class Logic {
 	public static String edit(String command, Task detailsOfTask, File file) {
 		String returnMessage;
 		String lastCommand = null;
-		if (undo.size() != 0 && undo.peek().equals(Constants.COMMAND_SEARCH)) {
+		if (undo.size() != 0 && undo.peek().equals(Constants.ACTION_SEARCH)) {
 			lastCommand = undo.pop();
 		}
-		if (lastCommand != null && lastCommand.equals(Constants.COMMAND_SEARCH)) {
+		if (lastCommand != null && lastCommand.equals(Constants.ACTION_SEARCH)) {
 			int taskNumber = getIndex(detailsOfTask);
 			for (int i = 0; i < tempStorage.size(); i++) {
 				if (searchResults.get(taskNumber).equals(tempStorage.get(i))) {
@@ -163,7 +163,7 @@ public class Logic {
 			}
 
 		}
-		if (command.equals(Constants.COMMAND_EDIT)) {
+		if (command.equals(Constants.ACTION_EDIT)) {
 			int taskNumber = getIndex(detailsOfTask);
 			ArrayList<Task> tasksEdited = new ArrayList<Task>();
 			Task originalTask = new Task();
@@ -181,8 +181,8 @@ public class Logic {
 			redoTask.clear();
 
 			return returnMessage;
-		} else if (command.equals(Constants.COMMAND_UNDO)
-				|| command.equals(Constants.COMMAND_REDO)) {
+		} else if (command.equals(Constants.ACTION_UNDO)
+				|| command.equals(Constants.ACTION_REDO)) {
 			int taskNumber = getIndex(detailsOfTask);
 			returnMessage = editUndoRedo(detailsOfTask, file, taskNumber);
 			return returnMessage;
@@ -249,19 +249,19 @@ public class Logic {
 			if (undo.size() != 0
 					&& undo.peek().equals(Constants.COMMAND_MIDWAY_DELETE)) {
 				undo.pop();
-				undo.push(Constants.COMMAND_DELETE);
+				undo.push(Constants.ACTION_DELETE);
 			}
 			return Constants.MSG_NTH_DELETE;
 		}
 		if (Integer.parseInt(task.getParams()) <= 0
-				&& command.equals(Constants.COMMAND_DELETE)) {
+				&& command.equals(Constants.ACTION_DELETE)) {
 			if (undo.size() != 0
 					&& undo.peek().equals(Constants.COMMAND_MIDWAY_DELETE)) {
 				undo.pop();
-				undo.push(Constants.COMMAND_DELETE);
+				undo.push(Constants.ACTION_DELETE);
 			}
 			return Constants.MSG_FAIL_DELETE;
-		} else if (command.equals(Constants.COMMAND_DELETE)) {
+		} else if (command.equals(Constants.ACTION_DELETE)) {
 			String commandCheck = null;
 			if (undo.size() != 0
 					&& undo.peek().equals(Constants.COMMAND_MIDWAY_DELETE)) {
@@ -269,7 +269,7 @@ public class Logic {
 			}
 			// DELETE FROM SEARCH LIST
 			if (undo.size() != 0
-					&& undo.peek().equals(Constants.COMMAND_SEARCH)
+					&& undo.peek().equals(Constants.ACTION_SEARCH)
 					&& searchResults.size() != 0) {
 				int index = getIndex(task);
 				Task taskToDelete = new Task();
@@ -328,7 +328,7 @@ public class Logic {
 				}
 			} else { // DELETE FROM NORMAL STORAGE
 				if (undo.size() != 0
-						&& undo.peek().equals(Constants.COMMAND_SEARCH)
+						&& undo.peek().equals(Constants.ACTION_SEARCH)
 						&& searchResults.size() == 0) {
 					undo.pop();
 				}
@@ -386,13 +386,13 @@ public class Logic {
 				}
 			}
 
-		} else if (command.equals(Constants.COMMAND_REDO)) {
+		} else if (command.equals(Constants.ACTION_REDO)) {
 			int index = tempStorage.indexOf(task);
 			returnMessage = deleteLineFromFile(index, task, file, archive);
 			sortByDateAndTime(archiveStorage);
 			Storage.writeToFile(archiveStorage, archive);
 			return returnMessage;
-		} else if (command.equals(Constants.COMMAND_UNDO)) {
+		} else if (command.equals(Constants.ACTION_UNDO)) {
 			int index = tempStorage.indexOf(task);
 			returnMessage = deleteLineFromFile(index, task, file, archive);
 			archiveStorage.remove(archiveStorage.indexOf(task));
@@ -445,7 +445,7 @@ public class Logic {
 	}
 
 	public static String clearContent(File file, File archive) {
-		if (undo.size() != 0 && undo.peek().equals(Constants.COMMAND_SEARCH)) {
+		if (undo.size() != 0 && undo.peek().equals(Constants.ACTION_SEARCH)) {
 			undo.pop();
 		}
 		if (tempStorage.size() > 0) {
@@ -471,7 +471,7 @@ public class Logic {
 	}
 
 	public static String clearArchive(File file) {
-		if (undo.size() != 0 && undo.peek().equals(Constants.COMMAND_SEARCH)) {
+		if (undo.size() != 0 && undo.peek().equals(Constants.ACTION_SEARCH)) {
 			undo.pop();
 		}
 		if (archiveStorage.size() > 0) {
@@ -521,7 +521,7 @@ public class Logic {
 			}
 			searchResults.add(taskInList);
 		}
-		undo.push(Constants.COMMAND_SEARCH);
+		undo.push(Constants.ACTION_SEARCH);
 		return searchResults;
 	}
 
@@ -657,7 +657,7 @@ public class Logic {
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}
-		undo.push(Constants.COMMAND_SEARCH);
+		undo.push(Constants.ACTION_SEARCH);
 		return searchResults;
 	}
 
@@ -665,32 +665,32 @@ public class Logic {
 		if (undo.empty()) {
 			return Constants.MSG_NO_PREVIOUS_ACTION;
 		} else if (undo.size() != 0
-				&& undo.peek().equals(Constants.COMMAND_SEARCH)) {
+				&& undo.peek().equals(Constants.ACTION_SEARCH)) {
 			undo.pop();
 			return undo(file, archive);
 		} else {
 
 			String lastCommand = undo.pop();
 
-			if (lastCommand.equals(Constants.COMMAND_ADD)) {
+			if (lastCommand.equals(Constants.ACTION_ADD)) {
 				ArrayList<Task> taskToBeDeleted = undoTask.pop();
 				Task taskToDelete = new Task();
 				Integer taskLocation = tempStorage.indexOf(taskToBeDeleted
 						.get(Constants.INITIAL_VALUE)) + 1;
 				taskToDelete.setParams(taskLocation.toString());
-				delete(Constants.COMMAND_UNDO, taskToBeDeleted.size(),
+				delete(Constants.ACTION_UNDO, taskToBeDeleted.size(),
 						taskToBeDeleted.get(Constants.INITIAL_VALUE), file,
 						archive);
 				redo.push(lastCommand);
 				redoTask.push(taskToBeDeleted);
 			}
-			if (lastCommand.equals(Constants.COMMAND_DELETE)
+			if (lastCommand.equals(Constants.ACTION_DELETE)
 					|| lastCommand.equals(Constants.COMMAND_DELETE_ALL)) {
 				ArrayList<Task> taskToBeAdded = undoTask.pop();
 				for (int i = 0; i < taskToBeAdded.size(); i++) {
 					Task taskToAdd = new Task();
 					taskToAdd.copyOfTask(taskToBeAdded.get(i));
-					add(Constants.COMMAND_UNDO, taskToAdd, file);
+					add(Constants.ACTION_UNDO, taskToAdd, file);
 					if (archiveStorage.size() > 0) {
 						if (archiveStorage.contains(taskToAdd)) {
 							archiveStorage.remove(archiveStorage
@@ -703,7 +703,7 @@ public class Logic {
 				redo.push(lastCommand);
 				redoTask.push(taskToBeAdded);
 			}
-			if (lastCommand.equals(Constants.COMMAND_EDIT)) {
+			if (lastCommand.equals(Constants.ACTION_EDIT)) {
 				Task undoEditedTask = new Task();
 				ArrayList<Task> taskToBeEdited = undoTask.pop();
 				Integer taskNumber = tempStorage.indexOf(taskToBeEdited
@@ -711,7 +711,7 @@ public class Logic {
 				undoEditedTask.copyOfTask(taskToBeEdited
 						.get(Constants.INITIAL_VALUE));
 				undoEditedTask.setParams(taskNumber.toString());
-				edit(Constants.COMMAND_UNDO, undoEditedTask, file);
+				edit(Constants.ACTION_UNDO, undoEditedTask, file);
 				redo.push(lastCommand);
 				redoTask.push(taskToBeEdited);
 			}
@@ -725,29 +725,29 @@ public class Logic {
 		if (redo.empty()) {
 			return Constants.MSG_NO_FUTURE_ACTION;
 		} else if (undo.size() != 0
-				&& undo.peek().equals(Constants.COMMAND_SEARCH)) {
+				&& undo.peek().equals(Constants.ACTION_SEARCH)) {
 			undo.pop();
 			return redo(file, archive);
 		} else {
 			String lastCommand = redo.pop();
-			if (lastCommand.equals(Constants.COMMAND_ADD)) {
+			if (lastCommand.equals(Constants.ACTION_ADD)) {
 				ArrayList<Task> taskToBeAdded = redoTask.pop();
-				add(Constants.COMMAND_REDO,
+				add(Constants.ACTION_REDO,
 						taskToBeAdded.get(Constants.INITIAL_VALUE), file);
 				undo.push("add");
 				undoTask.push(taskToBeAdded);
 			}
 
-			if (lastCommand.equals(Constants.COMMAND_DELETE)) {
+			if (lastCommand.equals(Constants.ACTION_DELETE)) {
 				ArrayList<Task> taskToBeDeleted = redoTask.pop();
 				for (int i = 0; i < taskToBeDeleted.size(); i++) {
-					delete(Constants.COMMAND_REDO, taskToBeDeleted.size(),
+					delete(Constants.ACTION_REDO, taskToBeDeleted.size(),
 							taskToBeDeleted.get(i), file, archive);
 				}
-				undo.push(Constants.COMMAND_DELETE);
+				undo.push(Constants.ACTION_DELETE);
 				undoTask.push(taskToBeDeleted);
 			}
-			if (lastCommand.equals(Constants.COMMAND_EDIT)) {
+			if (lastCommand.equals(Constants.ACTION_EDIT)) {
 				Task redoEditedTask = new Task();
 				ArrayList<Task> taskToBeEdited = redoTask.pop();
 				Integer taskNumber = tempStorage.indexOf(taskToBeEdited
@@ -755,7 +755,7 @@ public class Logic {
 				redoEditedTask.copyOfTask(taskToBeEdited
 						.get(Constants.INITIAL_VALUE + 1));
 				redoEditedTask.setParams(taskNumber.toString());
-				edit(Constants.COMMAND_REDO, redoEditedTask, file);
+				edit(Constants.ACTION_REDO, redoEditedTask, file);
 				undo.push(lastCommand);
 				undoTask.push(taskToBeEdited);
 			}
