@@ -248,7 +248,7 @@ public class TestParser {
 				"add hello hello hello. " + todayDate
 						+ " null null /world is beautiful null null null ",
 				"hello /hello hello. .dtl /world is beautiful");
-
+		//test for full stop
 		testParseInput("test for full stop", "error null " + todayDate
 				+ " null null null null No Task name is found. null ", "");
 
@@ -313,6 +313,7 @@ public class TestParser {
 				+ " null null null null null null ", "3");
 
 		// testing for edit
+		// by individual attributes
 		testParseInput(
 				"test for edit",
 				"edit the world on 24rd mar 24/04/2015 17:00 null hello .dtl null null 1 ",
@@ -353,7 +354,17 @@ public class TestParser {
 				"test for edit",
 				"error null null null null null null No Parameters is found. null ",
 				"edit");
-
+		//test for search by individual attributes
+		testParseInput("test for search", "search hello null null null null null null null ",
+				" .s hello");
+		testParseInput("test for search", "search null 22/10/2015 null null null null null null ",
+				" .s 22nd oct 15");
+		//test search with both attributes
+		testParseInput("test for search", "search hello 22/10/2015 null null null null null null ",
+				" 22nd oct 15 hello to be .s");
+		//failure case for search
+		testParseInput("test for search", "error null null null null null null No attributes found. null ",
+				"search");
 		// test add floating task
 		testParseInput("test for today",
 				"add mon hello. ft null null null null null null ",
