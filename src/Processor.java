@@ -57,8 +57,8 @@ public abstract class Processor {
 			"oct", "october", "nov", "december", "dec" };
 
 	protected final String[] LIST_DAYS = { "sunday", "sun", "saturday", "sat",
-			"mon", "monday", "tuesday", "tues", "wed", "wednesday", "thurs",
-			"thursday", "fri", "friday", "saturday", "sat" };
+			"monday","mon",  "tuesday","tue", "tues", "wednesday","wed","thursday","thurs","thu","thur",
+			"friday", "fri",  "saturday", "sat" };
 
 	// date formats
 	protected final SimpleDateFormat dateFormat = new SimpleDateFormat(
@@ -396,7 +396,22 @@ class MultiParaProcessor extends SingleParaProcessor {
 
 		if (isIndexValid(index.getValue(), input)) {
 			int startIndex = index.getValue();
-			if (isIndexValid(index.getValue(), input)
+			if (isIndexValid(index.getValue() + 1, input)
+					&& input[index.getValue() + 1] != null
+					&& input[index.getValue() + 1].equals("-")) {
+				if (isIndexValid(index.getValue() + 2, input)
+						&& isInteger(input[index.getValue()])
+						&& isInteger(input[index.getValue() + 2])) {
+					String[] temp = new String[LIMIT_RANGE_PARA];
+					temp[0] = input[index.getValue()];
+					temp[1] = input[index.getValue() + 2];
+					index.incrementByTwo();
+					processRange(index, parsedInput, startIndex, temp, input);
+				} else {
+					assignErrorMsg(parsedInput, INVALID_PARAMETER);
+					index.setValue(startIndex);
+				}
+			}else if (isIndexValid(index.getValue(), input)
 					&& input[index.getValue()] != null
 					&& input[index.getValue()].charAt(input[index.getValue()]
 							.length() - 1) == '-') {
@@ -444,22 +459,7 @@ class MultiParaProcessor extends SingleParaProcessor {
 					index.setValue(startIndex);
 				}
 
-			} else if (isIndexValid(index.getValue() + 1, input)
-					&& input[index.getValue() + 1] != null
-					&& input[index.getValue() + 1].equals("-")) {
-				if (isIndexValid(index.getValue() + 2, input)
-						&& isInteger(input[index.getValue()])
-						&& isInteger(input[index.getValue() + 2])) {
-					String[] temp = new String[LIMIT_RANGE_PARA];
-					temp[0] = input[index.getValue()];
-					temp[1] = input[index.getValue() + 2];
-					index.incrementByTwo();
-					processRange(index, parsedInput, startIndex, temp, input);
-				} else {
-					assignErrorMsg(parsedInput, INVALID_PARAMETER);
-					index.setValue(startIndex);
-				}
-			}
+			} 
 
 		}
 
@@ -842,7 +842,7 @@ class TimeProcessor extends Processor {
 				}
 			}
 		} else if (isIndexValid(prev, input) && input[prev] != null
-				&& input[prev].equals("-")) {
+				&&(input[prev].equals("-")||input[prev].equals("to"))) {
 			int prev2 = index.getValue() - 2;
 			int prev3 = index.getValue() - 3;
 

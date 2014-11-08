@@ -1,3 +1,6 @@
+/**
+ * This Storage class is to be used to create the text file and extract or store information into it.
+ */
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,15 +11,9 @@ import java.util.Scanner;
 import java.util.logging.*;
 
 public class Storage {
-	private static final String DIVIDER_DATE = "//!@#DOUBLEUP_DIVIDER_DATE#@!//";
-	private static final String DIVIDER_START_TIME = "//!@#DOUBLEUP_DIVIDER_START_TIME#@!//";
-	private static final String DIVIDER_END_TIME = "//!@#DOUBLEUP_DIVIDER_END_TIME#@!//";
-	private static final String DIVIDER_DETAILS = "//!@#DOUBLEUP_DIVIDER_DETAILS#@!//";
-	private static final String DIVIDER_IMPORTANCE = "//!@#DOUBLEUP_DIVIDER_IMPORTANCE#@!//";
-	private static final String MSG_FAIL_READ_FILE = "Unable to read file.";
 	private static Logger logger = Logger.getLogger("Storage");
 
-
+	//@author A0108380L
 	// This function serves to write all the task in the text file into temp storage.
 	public static boolean copyToArrayList(File file, ArrayList<Task> tempStorage) {
 		Scanner input;
@@ -29,50 +26,8 @@ public class Storage {
 				for(Integer i =0; input.hasNext(); i++) {
 					Task task = new Task();
 					String currentTask = input.nextLine();
-					task.setName(currentTask.substring(0, currentTask.indexOf(DIVIDER_DATE)));
-
-					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_DATE));
-					currentTask = currentTask.replaceFirst(DIVIDER_DATE,"");
-
-					task.setDate(currentTask.substring(0,currentTask.indexOf(DIVIDER_START_TIME)));
-					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_START_TIME));
-					currentTask = currentTask.replaceFirst((DIVIDER_START_TIME),"");
+					assignValuesToTask(i, task, currentTask);
 					
-					String taskStartTime = currentTask.substring(0,currentTask.indexOf(DIVIDER_END_TIME));
-					if (taskStartTime.equals("null")){
-						task.setStartTime(null);
-					}
-					else{
-						task.setStartTime(taskStartTime);
-					}
-					
-					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_END_TIME));
-					currentTask = currentTask.replaceFirst((DIVIDER_END_TIME),"");
-					String taskEndTime = currentTask.substring(0,currentTask.indexOf(DIVIDER_DETAILS));
-					if (taskEndTime.equals("null")){
-						task.setEndTime(null);
-					}
-					else{
-						task.setEndTime(taskEndTime);
-					}
-					
-					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_DETAILS));
-					currentTask = currentTask.replaceFirst((DIVIDER_DETAILS),"");
-
-
-					String taskDetails = currentTask.substring(0,currentTask.indexOf(DIVIDER_IMPORTANCE));
-					if (taskDetails.equals("null")){
-						task.setDetails(null);
-					}
-					else{
-						task.setDetails(taskDetails);
-					}
-					currentTask = currentTask.substring(currentTask.indexOf(DIVIDER_IMPORTANCE));
-					currentTask = currentTask.replaceFirst((DIVIDER_IMPORTANCE),"");
-
-
-					task.setImportance(Integer.parseInt(currentTask));
-					task.setParams(i.toString());
 					tempStorage.add(task);
 
 				}
@@ -87,6 +42,55 @@ public class Storage {
 		logger.log(Level.INFO, "end of writing to temporary storage");
 		return true;
 	}
+	
+	// This function serves to extract the information from the string and assign to corresponding portion in task.
+	private static void assignValuesToTask(Integer taskNumber, Task task,
+			String currentTask) {
+		task.setName(currentTask.substring(0, currentTask.indexOf(Constants.DIVIDER_DATE)));
+
+		currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_DATE));
+		currentTask = currentTask.replaceFirst(Constants.DIVIDER_DATE,"");
+
+		task.setDate(currentTask.substring(0,currentTask.indexOf(Constants.DIVIDER_START_TIME)));
+		currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_START_TIME));
+		currentTask = currentTask.replaceFirst((Constants.DIVIDER_START_TIME),"");
+		
+		String taskStartTime = currentTask.substring(0,currentTask.indexOf(Constants.DIVIDER_END_TIME));
+		if (taskStartTime.equals("null")){
+			task.setStartTime(null);
+		}
+		else{
+			task.setStartTime(taskStartTime);
+		}
+		
+		currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_END_TIME));
+		currentTask = currentTask.replaceFirst((Constants.DIVIDER_END_TIME),"");
+		String taskEndTime = currentTask.substring(0,currentTask.indexOf(Constants.DIVIDER_DETAILS));
+		if (taskEndTime.equals("null")){
+			task.setEndTime(null);
+		}
+		else{
+			task.setEndTime(taskEndTime);
+		}
+		
+		currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_DETAILS));
+		currentTask = currentTask.replaceFirst((Constants.DIVIDER_DETAILS),"");
+
+
+		String taskDetails = currentTask.substring(0,currentTask.indexOf(Constants.DIVIDER_IMPORTANCE));
+		if (taskDetails.equals("null")){
+			task.setDetails(null);
+		}
+		else{
+			task.setDetails(taskDetails);
+		}
+		currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_IMPORTANCE));
+		currentTask = currentTask.replaceFirst((Constants.DIVIDER_IMPORTANCE),"");
+
+
+		task.setImportance(Integer.parseInt(currentTask));
+		task.setParams(taskNumber.toString());
+	}
 
 	// This function serves to write all the task in the tempStorage into the text file.
 	public static boolean writeToFile(ArrayList<Task> tempStorage, File file) {
@@ -99,12 +103,8 @@ public class Storage {
 
 			for(int i=0; i<tempStorage.size();i++){
 
-				toWriteInFile = tempStorage.get(i).getName() 
-						+ DIVIDER_DATE + tempStorage.get(i).getDate()
-						+ DIVIDER_START_TIME + tempStorage.get(i).getStartTime() 
-						+ DIVIDER_END_TIME + tempStorage.get(i).getEndTime()
-						+ DIVIDER_DETAILS + tempStorage.get(i).getDetails() 
-						+ DIVIDER_IMPORTANCE + tempStorage.get(i).getImportance()+"\n";
+				Task currentTask = tempStorage.get(i);
+				toWriteInFile = taskToString(currentTask);
 
 				fileWritten.write(toWriteInFile);
 			}
@@ -117,6 +117,16 @@ public class Storage {
 		logger.log(Level.INFO, "end of writing to " + file.getName());
 		return true;
 
+	}
+	
+	// This function serves to convert the task into a string with dividers in between each detail of the task.
+	private static String taskToString(Task currentTask) {
+		return currentTask.getName() 
+				+ Constants.DIVIDER_DATE + currentTask.getDate()
+				+ Constants.DIVIDER_START_TIME + currentTask.getStartTime() 
+				+ Constants.DIVIDER_END_TIME + currentTask.getEndTime()
+				+ Constants.DIVIDER_DETAILS + currentTask.getDetails() 
+				+ Constants.DIVIDER_IMPORTANCE + currentTask.getImportance()+"\n";
 	}
 
 
@@ -139,7 +149,7 @@ public class Storage {
 				file.createNewFile();
 			}
 		} catch (IOException e) {
-			System.out.println(MSG_FAIL_READ_FILE);
+			System.out.println(Constants.MSG_FAIL_READ_FILE);
 		}
 		return file;
 	}

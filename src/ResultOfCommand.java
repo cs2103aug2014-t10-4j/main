@@ -1,3 +1,9 @@
+//@author A0110930X
+/*
+ * This class is used to create an object to store the results after executing 
+ * a command. The ResultOfCommand object is to be returned to the UI and be 
+ *  used to set the display on the UI.
+ */
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -6,20 +12,15 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-/*
- * This class is used to store the results after executing a command.
- * It is to be used for display on the UI.
- */
 public class ResultOfCommand {
 	private ArrayList<Task> listOfTasks;
 	private String feedback;
 	private String titleOfPanel;
 	
-
 	public ResultOfCommand () {
 		listOfTasks = new ArrayList<Task>();
 		feedback = "";
-		titleOfPanel="All Tasks:";
+		titleOfPanel = Constants.TITLE_ALL_TASKS;
 	}
 
 	//Accessors
@@ -98,7 +99,7 @@ public class ResultOfCommand {
 		return toPrint;
 	}
 
-	//Same function as getCurrentDate except date is in another format
+	//Get today date and return it as a String
 	private static String getTodayDate() {
 		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
 		Date date = new Date();

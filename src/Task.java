@@ -1,7 +1,7 @@
-/**
- * This Task class is to be used to create Task objects that can be added or deleted from the to-do-list.
- * @author Low Zheng Yang
- *
+//@author A0110930X
+/*
+ * This Task class is used to create Task objects that can be added 
+ * or deleted from the to-do-list.
  */
 class Task {
 	private String name;
@@ -36,7 +36,7 @@ class Task {
 		this.startTime = null;
 		this.endTime = null;
 		this.details = null;
-		this.importance = -1;
+		this.importance = Constants.INVALID_IMPORTANCE_LEVEL;
 		this.error = null;
 		this.params = null;
 	}
@@ -133,23 +133,18 @@ class Task {
 		} else{
 			time += "[" + this.getStartTime() +"] - [" + this.getEndTime() +"]";
 		}
-		//time = padRight(time,7);
 		return String.format(Constants.SPAN_TAG, "time", time);
 	}
 
 	private String printDate() {
 		String dateOfTask = "";
-		//if (!isSortedByTime) {
 			if (this.getDate() != null && !date.equals("null")) {
 				if (!this.getDate().equals("ft")){
 					dateOfTask += "(" + date + ")";
-					//dateOfTask = padRight(dateOfTask, 13);
 				} else {
 					dateOfTask += "(Floating) &nbsp";
-					//dateOfTask = padRight(dateOfTask, 13);
 				}
 			}
-		//}
 		return String.format(Constants.SPAN_TAG, "date", dateOfTask);
 	}
 
@@ -193,7 +188,7 @@ class Task {
 		}
 	}
 
-	private boolean compareStrings (String firstLine, String secondLine){
+	private boolean compareStrings(String firstLine, String secondLine){
 		if(firstLine !=null && secondLine != null){
 			return firstLine.equals(secondLine);
 		}
@@ -204,6 +199,7 @@ class Task {
 			return false;
 		}
 	}
+	
 	//Return a number of ! based on importance number
 	private String printImportance (int num){
 		String toPrint = "";
@@ -213,6 +209,7 @@ class Task {
 		return toPrint;
 	}
 
+	//@author A0108380L
 	public void copyOfTask( Task task){
 		this.setName(task.getName());
 		this.setDate(task.getDate());
@@ -222,14 +219,4 @@ class Task {
 		this.setImportance(task.getImportance());
 		this.setParams(task.getParams());
 	}
-
-	public static String padRight(String s, int n) {
-		return String.format("%1$-" + n + "s", s);  
-	}
-
-	public static String padLeft(String s, int n) {
-		return String.format("%1$" + n + "s", s);  
-	}
-
-	
 }
