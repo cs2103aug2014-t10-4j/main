@@ -449,12 +449,14 @@ public class TestParser {
 		testParseInput("test for today timing",
 				"add hello 08/11/2014 23:59 null null null null null ",
 				".a 23:59 hello");
-		testParseInput("test for today timing",
-				"add hello 08/11/2014 23:59 null null null null null ",
-				".a 23:59 hello");
-		testParseInput("test for time",
+		testParseInput("test for no time",
 				"add hello 12/03/2015 null null null null null null ",
 				".a 12th mar hello");
+		testParseInput("test for time",
+				"add hello 12/03/2015 00:00 null null null null null ",
+				".a 12th mar 12am hello");
+		
+		//failure cases for time
 		testParseInput(
 				"test for time",
 				"error 24pm hello 12/03/2015 null null null null invalid time null ",
@@ -463,24 +465,18 @@ public class TestParser {
 				"test for time",
 				"error 13:00am hello 12/03/2015 null null null null invalid time null ",
 				".a 12th mar 13:00am hello");
-		testParseInput("test for time",
-				"add hello 12/03/2015 00:00 null null null null null ",
-				".a 12th mar 12am hello");
-		testParseInput(
-				"test for time",
-				"error 12:60 hello 12/03/2015 null null null null invalid time null ",
-				".a 12th mar 12:60 hello");
 		testParseInput(
 				"test for time",
 				"error 24:59 hello 12/03/2015 null null null null invalid time null ",
 				".a 12th mar 24:59 hello");
-		testParseInput("test for today",
-				"add hello 08/11/2014 null null null null null null ",
-				".a hello");
+		testParseInput(
+				"test for time",
+				"error 12:60 hello 12/03/2015 null null null null invalid time null ",
+				".a 12th mar 12:60 hello");
 
 		// to test today
 
-		// to test speed day so need to change the spelled day for testing
+		// to test spelled day so need to change the spelled day for testing
 		testParseInput("test for spelled day",
 				"add hello 10/11/2014 null null null null null null ",
 				".a mon hello");
@@ -774,54 +770,6 @@ public class TestParser {
 				"test for date format one",
 				"add 12/05/123 hello 08/11/2014 null null null null null null ",
 				".a 12/05/123 hello");
-
-		// testing search
-		/*
-		 * testParseInput( "test for search",
-		 * "search the world on 23rd mar hello 24/04/2015 17:00 null null null null "
-		 * ,
-		 * "the world on 23rd mar is at 5pm at 24th apr to be searched .dtl hello  "
-		 * ); testParseInput( "test for search",
-		 * "search the world on 23rd mar hello .dtl null 17:00 null null null null "
-		 * , "the world on /23rd mar at 5pm to be searched .dtl hello .dtl ");
-		 * testParseInput("test for search",
-		 * "error null null null null null No type found. null ", "search");
-		 * testParseInput("test for search",
-		 * "search null null null hello .dtl null null null ",
-		 * " search .dtl hello .dtl "); testParseInput("test for search",
-		 * "search null 24/04/2014 null null null null null ",
-		 * " search for 24th apr 14"); testParseInput("test for search",
-		 * "search null null 1400 null null null null ", " search for 14:00 ");
-		 * testParseInput("test for search",
-		 * "search null null 2300 null null null null ", " search for 11pm ");
-		 * testParseInput("test for search",
-		 * "search null null 1215 null null null null ",
-		 * " search for 12.15pm "); testParseInput("test for search",
-		 * "search hello cat. null null null null null null ",
-		 * " search hello cat."); testParseInput("test for search",
-		 * "search null null null null 3 null null ", " search important 3");
-		 * testParseInput("test for search",
-		 * "search null null null null 3 null null ", " search .i 3");
-		 * testParseInput("test for search",
-		 * "search null null null null 3 null null ",
-		 * " search which is of .i 3");
-		 * 
-		 * /* testParseInput("simple get before any add",
-		 * "add hello 29092014 null ", ".a mon hello");
-		 * testParseInput("simple get before any add",
-		 * "add hello 29092014 null ", ".a Mon hello");
-		 * testParseInput("simple get before any add",
-		 * "add hello 29092014 null ", ".a MON hello");
-		 * testParseInput("simple get before any add",
-		 * "add hello 29092014 null ", ".a 12:00 hello");
-		 * testParseInput("simple get before any add", "add hello ft null ",
-		 * ".a ft hello"); testParseInput("simple get before any add",
-		 * "add hello 24092014 null ", ".a hello");
-		 * 
-		 * 
-		 * testParseInput("simple get before any add",
-		 * "error invalid Date invalid Date null ", ".a 12/05/2014 hello");
-		 */
 	}
 
 	private void testParseInput(String description, String expected,
