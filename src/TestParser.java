@@ -1,13 +1,94 @@
 import static org.junit.Assert.*;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import org.junit.Test;
 
 public class TestParser {
 
 	@Test
 	public void testParser() {
-	
-		// time range that is wrong
+		String todayDate = getToday();
+		// test importance
+		// boundary and equivalence partitionining
+		// higher success
+		testParseInput("test for parsing importance",
+				"add hello 12/03/2015 01:00 null null 3 null null ",
+				".a 12th mar 1am .i 3 hello");
+		// lower success
+		testParseInput("test for parsing importance",
+				"add hello 12/03/2015 01:00 null null 0 null null ",
+				".a 12th mar 1am .i 0 hello");
+		// higher failure
+		testParseInput(
+				"test for parsing importance",
+				"error .i 4 hello 12/03/2015 01:00 null null null invalid importance level null ",
+				".a 12th mar 1am .i 4 hello");
+		// lower failure
+		testParseInput(
+				"test for parsing importance",
+				"error .i -1 hello 12/03/2015 01:00 null null null invalid importance level null ",
+				".a 12th mar 1am .i -1 hello");
+		
+		// Test for delete range
+		// Correct cases
+		testParseInput("test for delete range",
+				"delete null null null null null null null 1 2 3 4 5 7 9 ",
+				".d 1- 5 7 9");
+
+		testParseInput("test for delete range",
+				"delete null null null null null null null 1 2 3 4 5 7 9 ",
+				".d 1 -5 7 9");
+		testParseInput("test for delete range",
+				"delete null null null null null null null 1 2 3 4 5 7 9 ",
+				".d 1 - 5 7 9");
+		// failure cases
+		testParseInput(
+				"test for delete range",
+				"error hello null null null null null Invalid parameter 1 5 7 9 ",
+				".d 1 - hello 5 7 9");
+		testParseInput(
+				"test for delete range",
+				"error hello null null null null null Invalid parameter 1 5 7 9 ",
+				".d 1 hello- 5 7 9");
+
+		// time range
+		// time range with space(correct cases)
+				testParseInput("test for time range",
+						"add hello world 12/03/2015 13:00 14:00 null null null null ",
+						"hello by at to  1 pm to 2pm world 12th mar 15");
+				testParseInput("test for time range",
+						"add hello world 12/03/2015 13:00 14:00 null null null null ",
+						"hello by at to  1 pm - 2pm world 12th mar 15");
+				testParseInput("test for time range",
+						"add hello world 12/03/2015 13:00 14:00 null null null null ",
+						"hello  by at to  1pm - 2pm world 12th mar ");
+
+				testParseInput("test for time range",
+						"add hello world 12/03/2015 13:00 14:00 null null null null ",
+						"hello by at to 1pm - 2 pm world 12th mar ");
+				testParseInput("test for time range",
+						"add hello world 12/03/2015 13:00 14:00 null null null null ",
+						"hello  by at to 1 pm - 2 pm world 12th mar ");
+				testParseInput("test for time range",
+						"add hello world 12/03/2015 13:00 14:00 null null null null ",
+						"hello by at to 1 pm - 2 pm world 12th mar ");
+				// time range with space
+				testParseInput(
+						"test for time range",
+						"add hello - 2 world 12/03/2015 13:00 null null null null null ",
+						"hello by at to 1 pm - 2 world 12th mar ");
+				testParseInput(
+						"test for time range",
+						"add hello by at to 1 - world 12/03/2015 14:00 null null null null null ",
+						"hello by at to 1  - 2 pm world 12th mar ");
+				testParseInput(
+						"test for time range",
+						"add hello 1 world 12/03/2015 13:00 14:00 null null null null ",
+						"hello  by at to 1 1 pm - 2 pm world 12th mar ");
+
+		//failure cases
 		testParseInput(
 				"test for time range",
 				"error hello 3pm - 2pm world 12/03/2015 14:00 null null null Time range is invalid. null ",
@@ -29,40 +110,7 @@ public class TestParser {
 				"error hello 3pm-2.61pm world 12/03/2015 null null null null Invalid time found. null ",
 				"hello 3pm-2.61pm world 12th mar 15");
 
-		// time range with space(correct cases)
-		testParseInput("test for time range",
-				"add hello world 12/03/2015 13:00 14:00 null null null null ",
-				"hello by at to  1 pm to 2pm world 12th mar 15");
-		testParseInput("test for time range",
-				"add hello world 12/03/2015 13:00 14:00 null null null null ",
-				"hello by at to  1 pm - 2pm world 12th mar 15");
-		testParseInput("test for time range",
-				"add hello world 12/03/2015 13:00 14:00 null null null null ",
-				"hello  by at to  1pm - 2pm world 12th mar ");
-
-		testParseInput("test for time range",
-				"add hello world 12/03/2015 13:00 14:00 null null null null ",
-				"hello by at to 1pm - 2 pm world 12th mar ");
-		testParseInput("test for time range",
-				"add hello world 12/03/2015 13:00 14:00 null null null null ",
-				"hello  by at to 1 pm - 2 pm world 12th mar ");
-		testParseInput("test for time range",
-				"add hello world 12/03/2015 13:00 14:00 null null null null ",
-				"hello by at to 1 pm - 2 pm world 12th mar ");
-		// time range with space
-		testParseInput(
-				"test for time range",
-				"add hello - 2 world 12/03/2015 13:00 null null null null null ",
-				"hello by at to 1 pm - 2 world 12th mar ");
-		testParseInput(
-				"test for time range",
-				"add hello by at to 1 - world 12/03/2015 14:00 null null null null null ",
-				"hello by at to 1  - 2 pm world 12th mar ");
-		testParseInput(
-				"test for time range",
-				"add hello 1 world 12/03/2015 13:00 14:00 null null null null ",
-				"hello  by at to 1 1 pm - 2 pm world 12th mar ");
-
+		
 		// test for no time
 		testParseInput("test for no time",
 				"add hello 12/03/2015 no time null null null null null ",
@@ -113,14 +161,12 @@ public class TestParser {
 
 		// testing for details
 
-		testParseInput("test for details empty",
-				"add hello 08/11/2014 13:00 null  null null null ",
-				"hello 1pm .dtl ");
-		testParseInput("test for details empty",
-				"add hello 08/11/2014 null null  null null null ",
-				"hello .dtl ");
-		testParseInput("test for no details(null)",
-				"add hello 08/11/2014 null null null null null null ", "hello ");
+		testParseInput("test for details empty", "add hello " + todayDate
+				+ " 13:00 null  null null null ", "hello 1pm .dtl ");
+		testParseInput("test for details empty", "add hello " + todayDate
+				+ " null null  null null null ", "hello .dtl ");
+		testParseInput("test for no details(null)", "add hello " + todayDate
+				+ " null null null null null null ", "hello ");
 
 		// test for delete date
 		testParseInput(
@@ -138,9 +184,8 @@ public class TestParser {
 				"delete date null 25/01/2014 null null null null null null ",
 				"delete date 25th jan 14 .");
 		// test for show today
-		testParseInput("test for special commands",
-				"search null 08/11/2014 null null null null null null ",
-				"show today");
+		testParseInput("test for special commands", "search null " + todayDate
+				+ " null null null null null null ", "show today");
 
 		// test for special commands
 		testParseInput("test for special commands",
@@ -148,9 +193,8 @@ public class TestParser {
 				"show this week");
 		testParseInput("test for special commands",
 				"show week null null null null null null null null ", ".sw");
-		testParseInput(
-				"test for special commands",
-				"add clear archive hello 08/11/2014 null null null null null null ",
+		testParseInput("test for special commands", "add clear archive hello "
+				+ todayDate + " null null null null null null ",
 				"add clear archive hello");
 		testParseInput(
 				"test for special commands",
@@ -201,52 +245,30 @@ public class TestParser {
 		testParseInput("test for special commands",
 				"delete today null null null null null null null null ",
 				"delete today");
-		
-		//test for escape sequence
-		testParseInput(
-				"test for slash for details and task processor",
-				"add hello hello hello. 08/11/2014 null null /world is beautiful null null null ",
-				"hello /hello hello. .dtl /world is beautiful");
-		
-		testParseInput(
-				"test for full stop",
-				"error null 08/11/2014 null null null null No Task name is found. null ",
-				"");
 
-		testParseInput("test for full stop",
-				"add .... 08/11/2014 null null null null null null ", " ....");
+		// test for escape sequence
+		testParseInput("test for slash for details and task processor",
+				"add hello hello hello. " + todayDate
+						+ " null null /world is beautiful null null null ",
+				"hello /hello hello. .dtl /world is beautiful");
+
+		testParseInput("test for full stop", "error null " + todayDate
+				+ " null null null null No Task name is found. null ", "");
+
+		testParseInput("test for full stop", "add .... " + todayDate
+				+ " null null null null null null ", " ....");
 		// tests for full-stop
 		testParseInput("test for full stop",
 				"add hello. 11/11/2014 15:00 null null 2 null null ",
 				" impt 2. hello is on tues. on 15:00.");
 
-		testParseInput("test for full stop",
-				"add hello. ... 08/11/2014 23:59 null null null null null ",
+		testParseInput("test for full stop", "add hello. ... " + todayDate
+				+ " 23:59 null null null null null ",
 				" hello. .... at 11.59 pm.");
 		testParseInput(
 				"test for parsing importance",
 				"add howmework is important hello 12/03/2015 01:00 null null 2 null null ",
 				".a 12th mar 1am howmework is important important 2 hello");
-		// test importance
-		// boundary and equivalence partitionining
-		// higher success
-		testParseInput("test for parsing importance",
-				"add hello 12/03/2015 01:00 null null 3 null null ",
-				".a 12th mar 1am .i 3 hello");
-		// lower success
-		testParseInput("test for parsing importance",
-				"add hello 12/03/2015 01:00 null null 0 null null ",
-				".a 12th mar 1am .i 0 hello");
-		// higher failure
-		testParseInput(
-				"test for parsing importance",
-				"error .i 4 hello 12/03/2015 01:00 null null null invalid importance level null ",
-				".a 12th mar 1am .i 4 hello");
-		// lower failure
-		testParseInput(
-				"test for parsing importance",
-				"error .i -1 hello 12/03/2015 01:00 null null null invalid importance level null ",
-				".a 12th mar 1am .i -1 hello");
 
 		testParseInput("test for spelled time format one",
 				"add hello 12/03/2015 01:00 null null null null null ",
@@ -287,11 +309,10 @@ public class TestParser {
 		// "add hello 16102014 null null null null null ",
 		// "showall .dtl hello");
 
-		testParseInput("test for tmr",
-				"add hello 08/11/2014 null null null null null null ",
-				"hello tdy");
-		testParseInput("test for today",
-				"add hello 08/11/2014 null null go home null null null ",
+		testParseInput("test for tmr", "add hello " + todayDate
+				+ " null null null null null null ", "hello tdy");
+		testParseInput("test for today", "add hello " + todayDate
+				+ " null null go home null null null ",
 				"hello today .dtl go home");
 		testParseInput("test for tmr",
 				"add hello 09/11/2014 null null null null null null ",
@@ -299,8 +320,8 @@ public class TestParser {
 		testParseInput("test for tmr",
 				"add hello 09/11/2014 null null null null null null ",
 				"hello tmr");
-		testParseInput("test for add",
-				"add 3 08/11/2014 null null null null null null ", "3");
+		testParseInput("test for add", "add 3 " + todayDate
+				+ " null null null null null null ", "3");
 
 		// testing for edit
 		testParseInput(
@@ -347,34 +368,32 @@ public class TestParser {
 		testParseInput("test for today",
 				"add mon hello. ft null null null null null null ",
 				".a mon hello ft.");
-		//test for edit
+		// test for edit
 		testParseInput("test for edit",
 				"edit hello 12/03/2012 12:00 null hello world 2 null 1 ",
 				".e 1 12th mar 12 12:00 .i 2 hello .dtl hello world");
 		testParseInput("test for edit",
 				"edit null 12/03/2015 12:00 null null null null 1 ",
 				".e 1 12th mar 12:00");
-		//failure case for edit with no parameters
+		// failure case for edit with no parameters
 		testParseInput(
 				"test for command",
 				"error add make breakfast at null null null Just get rid. null No Parameters is found. null ",
 				"edit the add make breakfast at .dtl Just get rid.");
-		
-		//test for auto add with only date, time,details and importance
+
+		// test for auto add with only date, time,details and importance
 		testParseInput(
 				"test for command",
 				"add make breakfast 14/04/2015 13:00 null Just get rid. 3 null null ",
 				"make breakfast .i 3 at 13:00 on 14/4/15 .dtl Just get rid.");
 		/*
-		testParseInput(
-				"test for command",
-				"add make breakfast 14/04/2015 null null Just get rid. null null null ",
-				"make breakfast on 14/4/15 .dtl Just get rid.");
-		testParseInput(
-				"test for command",
-				"add make breakfast 14/04/2015 13:00 null Just get rid. null null null ",
-				"make breakfast at 13:00 on 14/4/15 .dtl Just get rid.");
-		*/
+		 * testParseInput( "test for command",
+		 * "add make breakfast 14/04/2015 null null Just get rid. null null null "
+		 * , "make breakfast on 14/4/15 .dtl Just get rid."); testParseInput(
+		 * "test for command",
+		 * "add make breakfast 14/04/2015 13:00 null Just get rid. null null null "
+		 * , "make breakfast at 13:00 on 14/4/15 .dtl Just get rid.");
+		 */
 		testParseInput(
 				"test for command",
 				"add make breakfast 14/04/2015 null null Just get rid. null null null ",
@@ -387,9 +406,8 @@ public class TestParser {
 				"test for command",
 				"add make breakfast 14/04/2015 null null Just get rid. null null null ",
 				"make breakfast on 14th apr 15 to be added .dtl Just get rid.");
-		testParseInput(
-				"test for command",
-				"add make breakfast 08/11/2014 null null Just get rid. null null null ",
+		testParseInput("test for command", "add make breakfast " + todayDate
+				+ " null null Just get rid. null null null ",
 				"make breakfast at to be added .dtl Just get rid.");
 
 		testParseInput(
@@ -398,9 +416,9 @@ public class TestParser {
 				"edit make breakfast at .dtl Just get rid.");
 
 		// test for special command where it is not the first part of string
-		testParseInput(
-				"test for clear all archive",
-				"add I just want to clear all archive 08/11/2014 null null Just get rid. null null null ",
+		testParseInput("test for clear all archive",
+				"add I just want to clear all archive " + todayDate
+						+ " null null Just get rid. null null null ",
 				"I just want to clear all archive .dtl Just get rid.");
 		// edit for edit
 		testParseInput("test for edit",
@@ -412,8 +430,8 @@ public class TestParser {
 		testParseInput("test for edit",
 				"edit hello 12/03/2015 null null hello world 2 null 1 ",
 				".e 1 12th mar .i 2 hello .dtl hello world");
-		//test edit with all other attributes other than date
-		//to make sure that date is not added automatically
+		// test edit with all other attributes other than date
+		// to make sure that date is not added automatically
 		testParseInput("test for edit",
 				"edit hello null 12:00 null hello world 2 null 1 ",
 				".e 1 12:00 .i 2 hello .dtl hello world");
@@ -446,17 +464,16 @@ public class TestParser {
 		testParseInput("test for time",
 				"add hello 12/03/2015 19:00 null null null null null ",
 				".a 12th mar 19:00 hello");
-		testParseInput("test for today timing",
-				"add hello 08/11/2014 23:59 null null null null null ",
-				".a 23:59 hello");
+		testParseInput("test for today timing", "add hello " + todayDate
+				+ " 23:59 null null null null null ", ".a 23:59 hello");
 		testParseInput("test for no time",
 				"add hello 12/03/2015 null null null null null null ",
 				".a 12th mar hello");
 		testParseInput("test for time",
 				"add hello 12/03/2015 00:00 null null null null null ",
 				".a 12th mar 12am hello");
-		
-		//failure cases for time
+
+		// failure cases for time
 		testParseInput(
 				"test for time",
 				"error 24pm hello 12/03/2015 null null null null invalid time null ",
@@ -734,8 +751,8 @@ public class TestParser {
 		testParseInput(
 				"test for spelled date format one",
 				"error 32 mar 2015 hello null null null null null invalid Date null ",
-				".a 32 mar 2015 hello"); 
-		
+				".a 32 mar 2015 hello");
+
 		// tests for format one
 		testParseInput("test for date format one",
 				"add hello 29/02/2012 null null null null null null ",
@@ -746,30 +763,35 @@ public class TestParser {
 		testParseInput("test for date format one",
 				"add hello 01/01/2015 null null null null null null ",
 				".a 1/1/15 hello");
-		//leap year test for date format one
+		// leap year test for date format one
 		testParseInput("test for date format one",
 				"add hello 29/02/2016 null null null null null null ",
 				".a 29/2/16 hello");
-		//error cases for date format one
+		// error cases for date format one
 		testParseInput(
 				"test for date format one",
 				"error 29/2/15 hello null null null null null invalid Date null ",
 				".a 29/2/15 hello");
-		
-		//failure cases for date format one
+
+		// failure cases for date format one
 		testParseInput("test for date format one",
 				"add hello 12/04/2014 null null null null null null ",
 				".a 12/04/14 hello");
-		testParseInput("test for date format one",
-				"add 12/05/ hello 08/11/2014 null null null null null null ",
+		testParseInput("test for date format one", "add 12/05/ hello "
+				+ todayDate + " null null null null null null ",
 				".a 12/05/ hello");
-				testParseInput("test for date format one",
-				"add 12/05/2 hello 08/11/2014 null null null null null null ",
+		testParseInput("test for date format one", "add 12/05/2 hello "
+				+ todayDate + " null null null null null null ",
 				".a 12/05/2 hello");
-		testParseInput(
-				"test for date format one",
-				"add 12/05/123 hello 08/11/2014 null null null null null null ",
+		testParseInput("test for date format one", "add 12/05/123 hello "
+				+ todayDate + " null null null null null null ",
 				".a 12/05/123 hello");
+	}
+
+	private String getToday() {
+		SimpleDateFormat formatToday = new SimpleDateFormat("dd/MM/yyyy");
+		Date today = new Date();
+		return formatToday.format(today);
 	}
 
 	private void testParseInput(String description, String expected,

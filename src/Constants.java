@@ -155,6 +155,7 @@ public class Constants {
 	public static final char CHAR_COMMA = ',';
 	public static final char CHAR_FULL_STOP = '.';
 	public static final char CHAR_SLASH = '/';
+	public static final char CHAR_DASH = '-';
 
 	public static final String SUFFIX_THREE = "rd";
 	public static final String SUFFIX_TWO = "nd";
