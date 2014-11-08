@@ -136,7 +136,7 @@ public class Constants {
 	public static final String PATTERN_DATE_POSSIBLE = "^\\d{1,2}(([t][h])|([s][t])|([n][d])|([r][d]))?$";
 	public static final String PATTERN_DATE_ONE = "^(\\d{1,2})([/.-])(\\d{1,2})([/.-])((\\d{4})|(\\d{2}))$";
 	public static final String PATTERN_TIME_ONE = "^\\d{1,2}[:]\\d{2}$";
-	public static final String EMPTY_TASKNAME_MSG = "No task name found. Please enter a task name.";
+	public static final String MSG_EMPTY_TASKNAME = "No task name found. Please enter a task name.";
 	public static final String PATTERN_TIME_THREE = "^\\d{1,2}([a][m]|[p][m])$";
 	public static final String PATTERN_TIME_TWO = "^\\d{1,2}([:.](\\d{2}))(([a][m])|([p][m]))$";
 	// Commands

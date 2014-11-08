@@ -1,14 +1,9 @@
 import static org.junit.Assert.*;
-
-import org.junit.Rule;
 import org.junit.Test;
+
 import java.io.File;
 import java.util.ArrayList;
 public class LogicTest {
-	
-	private static final String MSG_CLEARED_FILE = "List is cleared";
-	private static final String MSG_SORT_SUCCESS = "Successfully sorted by alphabetical order.";
-	private static final String MSG_SORT_SUCCESS_1 = "Successfully sorted by importance level.";
 	
 	String[] splitTask4 = {null,"testing", "ft", null, null,null, null, null , null};
 	Task task = new Task(splitTask4);
@@ -31,7 +26,7 @@ public class LogicTest {
 
 	@Test
 	public void Test_clearContent() {
-		String expected = String.format(MSG_CLEARED_FILE, "");
+		String expected = String.format(Constants.MSG_CLEARED_FILE, "");
 		String result = Logic.clearContent(testFile, testArchive);
 		assertEquals(expected, result);
 	}
@@ -40,6 +35,7 @@ public class LogicTest {
 	public void Test_add() {
 		assertEquals("Added to testingStorage.txt: \"testing task\". Type .u to undo.",
 				Logic.add("add", task1, testFile));
+		Logic.undo(testFile, testArchive);
 	}
 
 	@Test
@@ -50,11 +46,6 @@ public class LogicTest {
 		/*test delete first valid index number*/
 		assertEquals("deleted \'1. testing task\'",
 				Logic.delete("delete", 1, task1, testFile, testArchive));
-		/*test delete invalid cases*/
-		//assertEquals("Unable to delete line",
-			//	Logic.delete("delete", -1, task1, testFile, testArchive));
-		//assertEquals("Unable to delete line",
-				//Logic.delete("delete", 3, task1, testFile, testArchive));
 		/*test delete a upper boundary case*/
 		assertEquals("deleted \'1. apple\'",
 				Logic.delete("delete", 2, task1, testFile, testArchive));
@@ -64,16 +55,42 @@ public class LogicTest {
 	public void Test_search() {
 		String[] splitTask = {null,"testing",null,null, null, null, null, null , null};
 		Task task = new Task(splitTask);
-		//String[] splitTask5 = {null,null,null, null, null, null, null, null , null};
-		//Task task5 = new Task();	
 		Logic.clearContent(testFile,testArchive);
-		Logic.add("add", task1, testFile);		
+		Logic.add("add", task1, testFile);	
+		List.clear();
 		List.add(task1);
 		assertEquals(List, Logic.search(task));
 		Logic.clearContent(testFile, testArchive);
-		List.clear();
-		assertEquals(List, Logic.search(task1));
-		Logic.clearContent(testFile, testArchive);
+	}
+	@Test
+	public void test_edit() {
+		/*edit time */
+		Logic.add("add", task1, testFile);
+		String[] splitTask = {null,null,null,"1pm", "2pm", null, null, null , "1"};
+		Task task5 = new Task(splitTask);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, Logic.edit("edit",task5,testFile));
+		/*edit date*/
+		String[] splitTask1 = {null,null,null,"1pm", "2pm", null, null, null , "1"};
+		Task task6 = new Task(splitTask1);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, Logic.edit("edit",task6,testFile));
+		/*edit task name*/
+		String[] splitTask2 = {null,"CS2103 develop guide",null,null, null, null, null, null , "1"};
+		Task task7 = new Task(splitTask2);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, Logic.edit("edit",task7,testFile));
+		/*edit date*/
+		String[] splitTask3 = {null,null,"tomorrow",null, null, null, null, null , "1"};
+		Task task8 = new Task(splitTask3);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, Logic.edit("edit",task8,testFile));
+		/*edit importance level*/
+		String[] splitTask4 = {null,null,null,null, null, null, "3", null , "1"};
+		Task task9 = new Task(splitTask4);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, Logic.edit("edit",task9,testFile));
+		/*edit timed task to floating task*/
+		String[] splitTask5= {null,null,"ft",null, null, null, null, null , "1"};
+		Task task10 = new Task(splitTask5);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, Logic.edit("edit",task10,testFile));
+		Logic.clearAll(testFile);
+		Logic.clearAll(testArchive);	
 	}
 
 	@Test
@@ -85,7 +102,8 @@ public class LogicTest {
 		Logic.add("add", task1, testFile);	
 		Logic.add("add", task2, testFile);	
 		Logic.add("add", task3, testFile);	
-		String expected = String.format(MSG_SORT_SUCCESS);
+		String expected = String.format(Constants.MSG_SORT_SUCCESS,
+				"alphabetical order");
 		assertEquals(expected, Logic.sortByAlphabet(List1));
 		List1.clear();
 		Logic.clearContent(testFile, testArchive);
@@ -101,7 +119,8 @@ public class LogicTest {
 		Logic.add("add", task1, testFile);	
 		Logic.add("add", task2, testFile);	
 		Logic.add("add", task3, testFile);	
-		String expected = String.format(MSG_SORT_SUCCESS_1);
+		String expected = String.format(Constants.MSG_SORT_SUCCESS,
+				"importance level");
 		assertEquals(expected, Logic.sortByImportance(List1));
 		List1.clear();
 		/*nothing to sort*/
