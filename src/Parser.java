@@ -3,16 +3,26 @@ public class Parser {
 	
 	
 	public static String[] parseInput(String inputFromUser) {
-		String[] parsedInput = new String[Constants.MAX_TYPES];
+		String[] parsedInput = initString();
 		inputFromUser = inputFromUser.replaceAll(Constants.PATTERN_MULTI_SPACE, Constants.SPACE);
 		String[] input = splitString(inputFromUser);
 		Index index = new Index();
-		processType(parsedInput, input, index, new CommandProcessor(),
+		getCommand(parsedInput, input, index, new CommandProcessor(),
 				new NaturalProcessor());
 		/*
 		CommandProcessor cmdPro = new CommandProcessor();
 		cmdPro.process(parsedInput, input, index);
 		*/
+		return getParsedInput(parsedInput, input, index);
+	}
+
+	private static String[] initString() {
+		String[] parsedInput = new String[Constants.MAX_TYPES];
+		return parsedInput;
+	}
+	
+	private static String[] getParsedInput(String[] parsedInput, String[] input,
+			Index index) {
 		if (parsedInput[Constants.COMMAND_POSITION] == null) {
 			parseCommand(parsedInput, input, index, new ParserAdd());
 		} else if (parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_ADD)) {
@@ -40,7 +50,7 @@ public class Parser {
 			Index index, ParserCommand command) {
 		command.parse(parsedInput, input, index);
 	}
-	private static void processType(String[] parsedInput, String[] input,
+	private static void getCommand(String[] parsedInput, String[] input,
 			Index index, Processor processor, NaturalProcessor natProcessor) {
 		natProcessor.process(parsedInput, input, index, processor);
 	}
