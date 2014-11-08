@@ -1,7 +1,7 @@
+//@author A0110937
+//The following class acts as the controller of the entire Parser component
 public class Parser {
-	
-	
-	
+
 	public static String[] parseInput(String inputFromUser) {
 		String[] parsedInput = initString();
 		inputFromUser = inputFromUser.replaceAll(Constants.PATTERN_MULTI_SPACE, Constants.SPACE);
@@ -9,10 +9,6 @@ public class Parser {
 		Index index = new Index();
 		getCommand(parsedInput, input, index, new CommandProcessor(),
 				new NaturalProcessor());
-		/*
-		CommandProcessor cmdPro = new CommandProcessor();
-		cmdPro.process(parsedInput, input, index);
-		*/
 		return getParsedInput(parsedInput, input, index);
 	}
 
@@ -36,8 +32,13 @@ public class Parser {
 		}else if(parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_DELETE_DATE)){
 			parseCommand(parsedInput, input, index, new ParserDeleteDate());
 		}else if(parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_SHOW_TODAY)){
-			parsedInput=Parser.parseInput(Constants.SEARCH_TODAY);
+			parsedInput = parseSearchToday(parsedInput);
 		}
+		return parsedInput;
+	}
+
+	private static String[] parseSearchToday(String[] parsedInput) {
+		parsedInput=Parser.parseInput(Constants.SEARCH_TODAY);
 		return parsedInput;
 	}
 
@@ -57,44 +58,3 @@ public class Parser {
 
 }
 
-
-class Index {
-	private int value;
-
-	public Index() {
-		value = 0;
-	}
-	public Index(int number){
-		this.value = number;
-	}
-
-	public void decrement() {
-		this.value = value - 1;
-	}
-
-	public void incrementByTwo() {
-		this.value = value + 2;
-
-	}
-
-	public int getValue() {
-		return value;
-	}
-
-	public void setValue(int index) {
-		this.value = index;
-	}
-
-	public void increment() {
-		value++;
-	}
-
-	public void reset() {
-		this.value = 0;
-	}
-
-	public void resetToOne() {
-		this.value = 1;
-	}
-
-}
