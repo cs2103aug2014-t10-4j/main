@@ -151,10 +151,20 @@ public class Constants {
 	public static final String DASH = "-";
 	public static final String TO = "to";
 	public static final String COMMA = ",";
+	public static final String SLASH = "/";
 	public static final char CHAR_COMMA = ',';
 	public static final char CHAR_FULL_STOP = '.';
 	public static final char CHAR_SLASH = '/';
 
+	public static final String SUFFIX_THREE = "rd";
+	public static final String SUFFIX_TWO = "nd";
+	public static final String SUFFIX_ONE = "st";
+	public static final String SUFFIX_OTHERS = "th";
+	public static final int DAY_POSITION = 0;
+	public static final int MONTH_POSITION = 1;
+	public static final int YEAR_POSITION = 2;
+	public static final int MAX_LENGTH = 3;
+	
 	// Commands
 	public static final String ACTION_MIDWAY_DELETE = "still deleting";
 	public static final String COM_DISPLAY = "display";
@@ -163,10 +173,12 @@ public class Constants {
 	public static final String INVALID_DATE = "invalid Date";
 	public static final String ERROR_FOUND_TIME = "Invalid time found.";
 	public static final String ERROR_TIME_RANGE = "Time range is invalid.";
+	public static final String DATE_FORMATTER = "Date_Formatter";
+	public static final String ERROR_SPELLED_DAY_FORMAT = "Error while parsing spelledDayFormat";
+	public static final String ERROR_SPELLED_DATE_ONE_FORMAT = "Error while parsing SpelledDateOneFormatter";
 	//Processors
 	public static final String DATE_PROCESSOR = "Date processor";
 	public static final String TIME_PROCESSOR = "Time processor";
-
 	// List of commands
 	public static final String[] LIST_ADD = { "add", ".a", "added", "adding" };
 	public static final String[] LIST_DELETE = { "delete", ".d", "deleted",
@@ -230,6 +242,8 @@ public class Constants {
 	public final static String[] LIST_NO_TIME = { "no time", ".nt" };
 	public final static String[] LIST_TODAY = { "today", "tdy" };
 	public final static String[] LIST_TMR = { "tomorrow", "tmr" };
+	public final static String[] LIST_YESTERDAY = { "yesterday", "ytd" };
+	public final static String[] LIST_FLOATING_TASK = { "ft","floating task"};
 	// Position of various inputs
 	public static final int COMMAND_POSITION = 0;
 	public static final int TASK_NAME_POSITION = 1;
@@ -254,6 +268,14 @@ public class Constants {
 			"hha");
 	public static final SimpleDateFormat fullDateFormat = new SimpleDateFormat(
 			"dd/MM/yyyyHH:mm");
+	public static final SimpleDateFormat spelledDayFormat = new SimpleDateFormat(
+			"EEE");
+	public static final SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
+	public static final SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+	public static final SimpleDateFormat spelledMonthFormat = new SimpleDateFormat(
+			"MMM");
+	public static final SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
+
 
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
 	public static final String DATE_FT = "ft";
@@ -323,4 +345,5 @@ public class Constants {
 	public static final int HIGH_IMPT_LVL = 3;
 	public static final int LOW_IMPT_LVL = 0;
 	public static final int NUM_INVALID = -1;
+	public static final int SHORT_LENGTH_YEAR = 2;
 }

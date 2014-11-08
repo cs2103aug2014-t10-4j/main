@@ -11,8 +11,6 @@ import java.util.regex.Pattern;
 
 public abstract class Processor {
 
-	protected final String FLOATING_TASK = "ft";
-
 	public abstract void process(String[] parsedInput, String[] input,
 			Index index);
 
@@ -612,7 +610,7 @@ class TimeProcessor extends Processor {
 	private boolean isFloating(String[] parsedInput) {
 		return !isNull(parsedInput[Constants.DATE_POSITION])
 				&& parsedInput[Constants.DATE_POSITION]
-						.equalsIgnoreCase(FLOATING_TASK);
+						.equalsIgnoreCase(getFirstMember(Constants.LIST_FLOATING_TASK));
 	}
 
 	private void processTimeRange(Index index, String[] input,
@@ -887,7 +885,6 @@ class TimeProcessor extends Processor {
 
 class DateProcessor extends Processor {
 
-
 	public int getItemPosition() {
 		return Constants.DATE_POSITION;
 	}
@@ -895,14 +892,15 @@ class DateProcessor extends Processor {
 	private static Logger logger = Logger.getLogger(Constants.DATE_PROCESSOR);
 
 	public void process(String[] parsedInput, String[] input, Index index) {
-
 		int initialIndex = index.getValue();
 		if (isIndexValid(index.getValue(), input)) {
 			String possibleDate = getPossibleDate(index, input);
 			if (possibleDate == null) {
 				index.setValue(initialIndex);
-			} else if (possibleDate.equalsIgnoreCase(FLOATING_TASK)) {
-				parsedInput[Constants.DATE_POSITION] = FLOATING_TASK;
+				
+			} else if (possibleDate.equalsIgnoreCase(getFirstMember(Constants.LIST_FLOATING_TASK))) {
+			
+				parsedInput[Constants.DATE_POSITION] = getFirstMember(Constants.LIST_FLOATING_TASK);
 				index.increment();
 			} else if (validateDate(possibleDate)) {
 				possibleDate = addZeroes(possibleDate);
@@ -936,17 +934,14 @@ class DateProcessor extends Processor {
 	}
 
 	protected String getPossibleDate(Index index, String[] input) {
-
 		String possibleDate = null;
-
+		DateFormatter dateFormatter = new DateFormatter();
 		if (isDateFormatOne(index.getValue(), input)) {
-			possibleDate = formatDate(index.getValue(), input,
-					new FirstDateFormatter());
+			possibleDate = dateFormatter.formatStandardDate(index.getValue(), input);
 		} else if (isSpelledDateOne(index.getValue(), input)) {
 			if (isRegexMatch(input[index.getValue()],
 					Constants.PATTERN_DATE_TWO)) {
-				possibleDate = formatDate(index.getValue(), input,
-						new SpelledDateOneFormatter());
+				possibleDate = dateFormatter.formatSpelledDate(index.getValue(), input);
 				index.incrementByTwo();
 			} else {
 				possibleDate = Constants.INVALID_DATE;
@@ -954,24 +949,23 @@ class DateProcessor extends Processor {
 		} else if (isSpelledDateTwo(index.getValue(), input)) {
 			if (isRegexMatch(input[index.getValue()],
 					Constants.PATTERN_DATE_TWO)) {
-				possibleDate = formatDate(index.getValue(), input,
-						new SpelledDateTwoFormatter());
+				possibleDate = dateFormatter.formatSpelledDateTwo(index.getValue(), input);
 				index.increment();
 			} else {
 				possibleDate = Constants.INVALID_DATE;
 			}
 		} else if (isSpelledDay(index.getValue(), input)) {
-			possibleDate = formatDate(index.getValue(), input,
-					new SpelledDayFormatter());
-		} else if (isFloatingTask(index.getValue(), input)) {
-			possibleDate = FLOATING_TASK;
+			possibleDate = dateFormatter.formatSpelledDay(index.getValue(), input);
+		} else if(isPartOfList(input, index, Constants.LIST_FLOATING_TASK)) {
+			possibleDate = getFirstMember(Constants.LIST_FLOATING_TASK);
 		} else if (isPartOfList(input[index.getValue()], Constants.LIST_TODAY)) {
 			possibleDate = formatDate(index.getValue(), input,
 					new DateFormatter());
 		} else if (isPartOfList(input[index.getValue()], Constants.LIST_TMR)) {
-			possibleDate = formatDate(index.getValue(), input,
-					new TmrDateFormatter());
-		} else {
+			possibleDate = dateFormatter.formatTmrDate(index.getValue(),input);
+		} else if (isPartOfList(input[index.getValue()], Constants.LIST_YESTERDAY)) {
+			possibleDate = dateFormatter.formatYestDate(index.getValue(), input);
+		}else {
 			possibleDate = assignDate(input, index);
 		}
 		return possibleDate;
@@ -990,7 +984,7 @@ class DateProcessor extends Processor {
 		if (input[value] == null) {
 			return false;
 		}
-		if (input[value].equalsIgnoreCase(FLOATING_TASK)) {
+		if (input[value].equalsIgnoreCase(getFirstMember(Constants.LIST_FLOATING_TASK))) {
 			return true;
 		}
 		return false;

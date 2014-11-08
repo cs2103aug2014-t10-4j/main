@@ -80,24 +80,6 @@ public class TestParser {
 				"add hello 10pm 12-12 12/03/2015 13:00 14:00 null null null null ",
 				"hello 12th mar 10pm 1pm-2pm 12-12");
 
-		// to delete away
-		testParseInput("test for time range",
-				"add hello 12/03/2015 13:00 14:00 null null null null ",
-				"hello 12th mar 1 pm-2pm");
-		testParseInput("test for time range",
-				"add hello 12/03/2015 13:00 14:00 null null null null ",
-				"hello 12th mar  1pm-2pm");
-
-		testParseInput("test for time range",
-				"add hello 12/03/2015 13:00 14:00 null null null null ",
-				"hello 12th mar to 1pm-2 pm");
-		testParseInput("test for time range",
-				"add hello 12/03/2015 13:00 14:00 null null null null ",
-				"hello 12th mar   1 pm-2 pm");
-		testParseInput("test for time range",
-				"add hello 12/03/2015 13:00 14:00 null null null null ",
-				"hello 12th mar 1 pm-2 pm");
-
 		// testing time range basic
 		// correct cases
 		testParseInput("test for time range",
