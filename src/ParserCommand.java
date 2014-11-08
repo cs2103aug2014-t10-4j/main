@@ -2,14 +2,14 @@ public abstract class ParserCommand {
 	private final int ERROR_MSG_POSITION = 7;
 	private final int COMMAND_POSITION = 0;
 	private final String ERROR = "error";
-
+	
 	public abstract void parse(String[] parsedInput, String[] input, Index index);
 /*
 	protected static void processNatDetails(String[] parsedInput,
 			String[] input, Index index, DetailsProcessor processor) {
 		processor.processNatural(parsedInput, input, index);
 	}
-*/
+*/	
 	protected void processType(String[] parsedInput, String[] input,
 			Index index, Processor processor, NaturalProcessor natProcessor) {
 		natProcessor.process(parsedInput, input, index, processor);
@@ -20,6 +20,7 @@ public abstract class ParserCommand {
 		processor.process(parsedInput, input, index);
 	}
 */
+	//checks if parsedInput is empty
 	protected void processEmpty(String[] parsedInput) {
 		if (isAllNull(parsedInput)) {
 			assignErrorMsg(parsedInput, "No type found.");
@@ -31,7 +32,7 @@ public abstract class ParserCommand {
 		parsedInput[ERROR_MSG_POSITION] = message;
 		parsedInput[COMMAND_POSITION] = ERROR;
 	}
-
+	//checks if all items of an array is null
 	private boolean isAllNull(String[] parsedInput) {
 		for (int i = 1; i < parsedInput.length; i++) {
 			if (parsedInput[i] != null) {

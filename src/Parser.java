@@ -1,23 +1,10 @@
 public class Parser {
 	
-	private static final String SEARCH_TODAY = "search today";
-	private static final String COM_SHOW_TODAY = "show today";
-	// Commands
-	private static final String COM_ADD = "add";
-	private static final String COM_SEARCH = "search";
-	private static final String COM_EDIT = "edit";
-	private static final String COM_DELETE = "delete";
-	private static final String COM_DELETE_DATE = "delete date";
-
-
-	// Position of various inputs
-	private static final int MAX_TYPES = 9;
-	private static final int COMMAND_POSITION = 0;
-
+	private static final String PATTERN_MULTI_SPACE = "\\s+";
 	public static String[] parseInput(String inputFromUser) {
-		String[] parsedInput = new String[MAX_TYPES];
-		inputFromUser = inputFromUser.replaceAll("\\s+", " ");
-		String[] input = inputFromUser.trim().split(" ");
+		String[] parsedInput = new String[Constants.MAX_TYPES];
+		inputFromUser = inputFromUser.replaceAll(PATTERN_MULTI_SPACE, " ");
+		String[] input = splitString(inputFromUser);
 		Index index = new Index();
 		processType(parsedInput, input, index, new CommandProcessor(),
 				new NaturalProcessor());
@@ -25,22 +12,27 @@ public class Parser {
 		CommandProcessor cmdPro = new CommandProcessor();
 		cmdPro.process(parsedInput, input, index);
 		*/
-		if (parsedInput[COMMAND_POSITION] == null) {
+		if (parsedInput[Constants.COMMAND_POSITION] == null) {
 			parseCommand(parsedInput, input, index, new ParserAdd());
-		} else if (parsedInput[COMMAND_POSITION].equals(COM_ADD)) {
+		} else if (parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_ADD)) {
 			parseCommand(parsedInput, input, index, new ParserAdd());
-		} else if (parsedInput[COMMAND_POSITION].equals(COM_SEARCH)) {
+		} else if (parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_SEARCH)) {
 			parseCommand(parsedInput, input, index, new ParserSearch());
-		} else if (parsedInput[COMMAND_POSITION].equals(COM_DELETE)) {
+		} else if (parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_DELETE)) {
 			parseCommand(parsedInput, input, index, new ParserDelete());
-		} else if (parsedInput[COMMAND_POSITION].equals(COM_EDIT)) {
+		} else if (parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_EDIT)) {
 			parseCommand(parsedInput, input, index, new ParserEdit());
-		}else if(parsedInput[COMMAND_POSITION].equals(COM_DELETE_DATE)){
+		}else if(parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_DELETE_DATE)){
 			parseCommand(parsedInput, input, index, new ParserDeleteDate());
-		}else if(parsedInput[COMMAND_POSITION].equals(COM_SHOW_TODAY)){
-			parsedInput=Parser.parseInput(SEARCH_TODAY);
+		}else if(parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_SHOW_TODAY)){
+			parsedInput=Parser.parseInput(Constants.SEARCH_TODAY);
 		}
 		return parsedInput;
+	}
+
+	private static String[] splitString(String inputFromUser) {
+		String[] input = inputFromUser.trim().split(" ");
+		return input;
 	} 
 
 	private static void parseCommand(String[] parsedInput, String[] input,

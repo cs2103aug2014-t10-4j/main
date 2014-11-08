@@ -239,6 +239,6 @@ public class Constants {
 	public static final String INVALID_DATE_FORMAT = "Invalid date format in: %s";
 	public static final String INVALID_TIME_FORMAT = "Invalid time format in: %s";
 	public static final String INVALID_CHRONO_FORMAT = "Invalid date/ time format in: %s";
-
-
+	
+	public static final String SEARCH_TODAY = "search today";
 }
