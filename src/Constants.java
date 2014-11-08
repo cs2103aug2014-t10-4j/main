@@ -228,6 +228,7 @@ public class Constants {
 	public static final String MSG_CLEARED_FILE = "List is cleared";
 	public static final String MSG_CLEAR_FAIL = "Nothing to clear!";
 	public static final String MSG_BAD_INDEX = "%d is not a valid number.Valid range is %d to %d.";
+	public static final String MSG_NO_ATTRIBUTES = "No attributes found.";
 	public static final int ZERO = 0;
 	public static final int INVAILD_NUMBER = -1;
 

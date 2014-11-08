@@ -1,4 +1,4 @@
-//@author A0110937
+//@author A0110937J
 //The following class acts as the controller of the entire Parser component
 public class Parser {
 
