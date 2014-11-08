@@ -1,9 +1,10 @@
 public class Parser {
 	
-	private static final String PATTERN_MULTI_SPACE = "\\s+";
+	
+	
 	public static String[] parseInput(String inputFromUser) {
 		String[] parsedInput = new String[Constants.MAX_TYPES];
-		inputFromUser = inputFromUser.replaceAll(PATTERN_MULTI_SPACE, " ");
+		inputFromUser = inputFromUser.replaceAll(Constants.PATTERN_MULTI_SPACE, Constants.SPACE);
 		String[] input = splitString(inputFromUser);
 		Index index = new Index();
 		processType(parsedInput, input, index, new CommandProcessor(),
@@ -31,7 +32,7 @@ public class Parser {
 	}
 
 	private static String[] splitString(String inputFromUser) {
-		String[] input = inputFromUser.trim().split(" ");
+		String[] input = inputFromUser.trim().split(Constants.SPACE);
 		return input;
 	} 
 

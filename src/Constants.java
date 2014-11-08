@@ -139,8 +139,11 @@ public class Constants {
 	public static final String EMPTY_TASKNAME_MSG = "No task name found. Please enter a task name.";
 	public static final String PATTERN_TIME_THREE = "^\\d{1,2}([a][m]|[p][m])$";
 	public static final String PATTERN_TIME_TWO = "^\\d{1,2}([:.](\\d{2}))(([a][m])|([p][m]))$";
+	public static final String PATTERN_MULTI_SPACE = "\\s+";
+	
+	//Punctuations and spaces
+	public static final String SPACE = " ";
 	// Commands
-
 	public static final String ACTION_MIDWAY_DELETE = "still deleting";
 	public static final String COM_DISPLAY = "display";
 	protected static final String INVALID_TIME = "invalid time";
