@@ -27,7 +27,7 @@ class DateProcessor extends Processor {
 				possibleDate = addZeroes(possibleDate);
 				assignDate(parsedInput, index, possibleDate);
 			} else {
-				assignErrorMsg(parsedInput, Constants.INVALID_DATE);
+				assignErrorMsg(parsedInput, Constants.ERROR_INVALID_DATE);
 				index.setValue(initialIndex);
 			}
 		}
@@ -99,7 +99,7 @@ class DateProcessor extends Processor {
 					index.getValue(), input);
 			index.increment();
 		} else {
-			possibleDate = Constants.INVALID_DATE;
+			possibleDate = Constants.ERROR_INVALID_DATE;
 		}
 		return possibleDate;
 	}
@@ -113,7 +113,7 @@ class DateProcessor extends Processor {
 					index.getValue(), input);
 			index.incrementByTwo();
 		} else {
-			possibleDate = Constants.INVALID_DATE;
+			possibleDate = Constants.ERROR_INVALID_DATE;
 		}
 		return possibleDate;
 	}

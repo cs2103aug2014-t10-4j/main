@@ -168,18 +168,11 @@ public class Constants {
 	
 	// Commands
 	public static final String ACTION_MIDWAY_DELETE = "still deleting";
-	public static final String COM_DISPLAY = "display";
-	public static final String ERROR_INVALID_TIME = "invalid time";
-	public static final String ERROR = "error";
-	public static final String INVALID_DATE = "invalid Date";
-	public static final String ERROR_FOUND_TIME = "Invalid time found.";
-	public static final String ERROR_TIME_RANGE = "Time range is invalid.";
-	public static final String DATE_FORMATTER = "Date_Formatter";
-	public static final String ERROR_SPELLED_DAY_FORMAT = "Error while parsing spelledDayFormat";
-	public static final String ERROR_SPELLED_DATE_ONE_FORMAT = "Error while parsing SpelledDateOneFormatter";
-	//Processors
+
+	//Processors and formatters
 	public static final String DATE_PROCESSOR = "Date processor";
 	public static final String TIME_PROCESSOR = "Time processor";
+	public static final String DATE_FORMATTER = "Date_Formatter";
 	// List of commands
 	public static final String[] LIST_ADD = { "add", ".a", "added", "adding" };
 	public static final String[] LIST_DELETE = { "delete", ".d", "deleted",
@@ -255,7 +248,14 @@ public class Constants {
 	public static final int IMPT_POSITION = 6;
 	public static final int ERROR_MSG_POSITION = 7;
 	public static final int PARAMETER_POSITION = 8;
-
+	//parser error msg
+	public static final String ERROR_INVALID_TIME = "invalid time";
+	public static final String ERROR = "error";
+	public static final String ERROR_INVALID_DATE = "invalid Date";
+	public static final String ERROR_FOUND_TIME = "Invalid time found.";
+	public static final String ERROR_TIME_RANGE = "Time range is invalid.";
+	public static final String ERROR_SPELLED_DAY_FORMAT = "Error while parsing spelledDayFormat";
+	public static final String ERROR_SPELLED_DATE_ONE_FORMAT = "Error while parsing SpelledDateOneFormatter";
 	// date formats
 	public static final SimpleDateFormat dateFormat = new SimpleDateFormat(
 			"dd/MM/yyyy");
@@ -315,6 +315,7 @@ public class Constants {
 	public static final String MSG_NO_ATTRIBUTES = "No attributes found.";
 	public static final int ZERO = 0;
 	public static final int INVAILD_NUMBER = -1;
+	
 
 	// Storage
 	public static final String DIVIDER_DATE = "//!@#DOUBLEUP_DIVIDER_DATE#@!//";
