@@ -19,10 +19,10 @@ public class Constants {
 	public static final String COLOR_MID_GREEN = "#2ABF6B";
 	public static final String COLOR_DARK_GREEN = "#32A664";
 	public static final String COLOR_SNOW_WHITE = "#FDFAF3";
-	public static final String COLOR_BLUE = "#030ABC"; //for time
-	public static final String COLOR_HOT_PINK="#FC26AB"; // for date
-	public static final String COLOR_ORANGER = "#FF5500";//for details
-	public static final String COLOR_RED = "#CF1700"; //for important level
+	public static final String COLOR_BLUE = "#030ABC"; // for time
+	public static final String COLOR_HOT_PINK = "#FC26AB"; // for date
+	public static final String COLOR_ORANGER = "#FF5500";// for details
+	public static final String COLOR_RED = "#CF1700"; // for important level
 	public static final String COLOR_YELLOW = "#FFF9D6";
 
 	public static final int SIZE_WIDTH_TEXT_AREA_RESULTS = 57;
@@ -33,8 +33,8 @@ public class Constants {
 	public static final String RES_MONACO_TTF = "/res/monaco.TTF";
 	public static final String RES_UP_ARROW_ICON = "/res/up-arrow-icon.png";
 	public static final String RES_SYSTEM_TRAY_ICON = "res/up-arrow-small3.png";
-	
-	//Controller Constants
+
+	// Controller Constants
 	public static final String LOGGER = "myLogger";
 	public static final String ERROR_NULL_COMMAND = "Command type string cannot be null!";
 	public static final String ERROR_ICON_NOT_FOUND = "Couldn't find file: %s";
@@ -95,11 +95,11 @@ public class Constants {
 	public static final String MSG_SHOW_SEVEN_DAYS_SUCCESS = "These are your tasks for the next 7 days.";
 	public static final String MSG_RANGE_OF_WEEK = "%s %s to %s %s";
 	public static final String MSG_USER_CONFIRMED_NO = "Task is not %sed.";
-	
+
 	public static final String MENU_EXIT = "Exit";
 	public static final String MENU_HELP = "Help";
 	public static final String MENU_ABOUT_DOUBLE_UP = "About DoubleUp";
-	
+
 	public static final String TITLE_ENTER_COMMAND = "Enter a command:";
 	public static final String TITLE_RESULT = "Result: ";
 	public static final String TITLE_MAIN_WINDOW = "DoubleUp To-Do-List";
@@ -114,23 +114,25 @@ public class Constants {
 	public static final String TITLE_SHOW_WEEK = "Tasks for this calendar week (%s):";
 	public static final String TITLE_SHOW_SEVEN_DAYS = "Tasks for next seven days (%s):";
 	public static final String TITLE_TODAY_TASKS = "Today Tasks:";
-	
-	//ResultOfCommand
-	public static final String DATE_WITH_LINE = 
-			"<font style='color:%s;'>" +
-					"<b> ========================== %s%s ==========================</b></font><br>";
-	public static final String DATE_WITH_LINE_TODAY = 
-			"<font style='color:%s;'>" +
-					"<b> ====================== %s%s ======================</b></font><br>";
+
+	// ResultOfCommand
+	public static final String DATE_WITH_LINE = "<font style='color:%s;'>"
+			+ "<b> ========================== %s%s ==========================</b></font><br>";
+	public static final String DATE_WITH_LINE_TODAY = "<font style='color:%s;'>"
+			+ "<b> ====================== %s%s ======================</b></font><br>";
 	public static final int INVALID_IMPORTANCE_LEVEL = -1;
-	
-	//Parser
+
+	// Parser
 	public static final int RESET = 0;
-	public static final String INVALID_PARAMETER = "Invalid parameter";
-	public static final String EMPTY_DETAILS_MSG = "No details were found. Please input your details";
-	public static final String INVALID_IMPORTANCE = "invalid importance level";
-	public static final String FLOATING_TASK = "ft";
-	//Patterns for matching
+	public static final String ERROR_INVALID_PARAMETER = "Invalid parameter";
+	public static final String ERROR_EMPTY_DETAILS = "No details were found. Please input your details";
+	public static final String ERROR_INVALID_IMPORTANCE = "invalid importance level";
+	public static final String ERROR_MSG_SPECIAL_COM = "This is a special command. You cannot input extra attributes";
+	public static final String ERROR_EXTRA_ITEM = "There are extra attributes. Pls remove them.";
+	public static final String ERROR_EMPTY_ITEM = "No %s is found.";
+	public static final String ERROR_ADDING_ZEROES = "Error when adding zeroes";
+	public static final String ERROR_PARSING_POSSIBLETIMES = "Error while parsing possibleTimes";
+	// Patterns for matching
 	public static final String PATTERN_YEAR = "^\\d{4}$|^\\d{2}$";
 	public static final String PATTERN_DATE_TWO = "^([2-3]?[1][s][t])$|^([2]?[2][n][d])$|^([2]?[3][r][d])$|^([1][0-9][t][h])$|^([2]?[4-9][t][h])$|^([0-2]?[0-9])$|^([3][0-1])$|^(([2]|[3])[0][t][h])$";
 	public static final String PATTERN_DATE_POSSIBLE = "^\\d{1,2}(([t][h])|([s][t])|([n][d])|([r][d]))?$";
@@ -139,32 +141,103 @@ public class Constants {
 	public static final String MSG_EMPTY_TASKNAME = "No task name found. Please enter a task name.";
 	public static final String PATTERN_TIME_THREE = "^\\d{1,2}([a][m]|[p][m])$";
 	public static final String PATTERN_TIME_TWO = "^\\d{1,2}([:.](\\d{2}))(([a][m])|([p][m]))$";
-	// Commands
+	public static final String PATTERN_MULTI_SPACE = "\\s+";
 
+	// Punctuations and spaces
+	public static final String SPACE = " ";
+	public static final String COLON = ":";
+	public static final String EMPTY_STRING = "";
+	public static final String FULL_STOP = ".";
+	public static final String DASH = "-";
+	public static final String TO = "to";
+	public static final String COMMA = ",";
+	public static final String SLASH = "/";
+	public static final char CHAR_COMMA = ',';
+	public static final char CHAR_FULL_STOP = '.';
+	public static final char CHAR_SLASH = '/';
+	public static final char CHAR_DASH = '-';
+
+	public static final String SUFFIX_THREE = "rd";
+	public static final String SUFFIX_TWO = "nd";
+	public static final String SUFFIX_ONE = "st";
+	public static final String SUFFIX_OTHERS = "th";
+	public static final int DAY_POSITION = 0;
+	public static final int MONTH_POSITION = 1;
+	public static final int YEAR_POSITION = 2;
+	public static final int MAX_LENGTH = 3;
+	
+	// Commands
 	public static final String ACTION_MIDWAY_DELETE = "still deleting";
-	public static final String COM_DISPLAY = "display";
-	protected static final String INVALID_TIME = "invalid time";
-	public static final String ERROR = "error";
-	public static final String INVALID_DATE = "invalid Date";
-	public static final int MAX_TYPES = 9;
+
+	//Processors and formatters
+	public static final String DATE_PROCESSOR = "Date processor";
+	public static final String TIME_PROCESSOR = "Time processor";
+	public static final String DATE_FORMATTER = "Date_Formatter";
 	// List of commands
-	public static final String[] LIST_ADD = { "/a", "/add" };
-	public static final String[] LIST_DELETE = { "/delete", "/d" };
-	public static final String[] LIST_EDIT = { "/edit", "/e" };
-	public static final String[] LIST_SEARCH = { "/search", "/s" };
-	public static final String[] LIST_IMPORTANCE = { "/i", "/importance" };
-	public static final String[] LIST_DETAILS = { "/details", "/dtl" };
-	public static final String[] LIST_UNDO = { "/undo", "/u" };
-	public static final String[] LIST_REDO = { "/redo", "/r" };
-	public static final String[] LIST_DISPLAY = { "/dly", "/display" };
+	public static final String[] LIST_ADD = { "add", ".a", "added", "adding" };
+	public static final String[] LIST_DELETE = { "delete", ".d", "deleted",
+			"deleting" };
+	public static final String[] LIST_EDIT = { "edit", ".e", "edited",
+			"editing" };
+	public static final String[] LIST_SEARCH = { "search", ".s", "searched",
+			"searching" };
+	public static final String[] LIST_UNDO = { "undo", ".u", ".ud" };
+	public static final String[] LIST_REDO = { "redo", ".r", ".rd" };
+	public static final String[] LIST_SHOW_FLOATING = { "show floating",
+			"show ft", ".sft" };
+	public static final String[] LIST_EXIT = { "exit", ".e" };
+	public static final String[] LIST_CLEAR = { "clear", ".c" };
+	public static final String[] LIST_SHOW_ALL = { "show all", ".sha" };
+	public static final String[] LIST_SHOW_TODAY = { "show today", ".sht" };
+	public static final String[] LIST_SORT_IMPT = { "sort importance",
+			"sort impt", "sort import", "sort important", ".si", ".sip" };
+	public static final String[] LIST_SORT_ALPHA = { "sort alpha", ".sap",
+			".sa" };
+	public static final String[] LIST_DELETE_ALL = { "delete all", ".da" };
+	public static final String[] LIST_DELETE_PAST = { "delete past", ".dp" };
+	public static final String[] LIST_DELETE_TODAY = { "delete today", ".dtd" };
+	public static final String[] LIST_SORT_TIME = { "sort time", "sort", ".st" };
+	public static final String[] LIST_SHOW_DETAILS = { "show details", ".sd" };
+	public static final String[] LIST_HIDE_DETAILS = { "hide details", ".hd" };
+	public static final String[] LIST_VIEW_ARCHIVE = { "view archive", ".va",
+			"show archive" };
+	public static final String[] LIST_CLEAR_ARCHIVE = { "clear archive",
+			"delete archive", ".ca" };
+	public static final String[] LIST_DELETE_DATE = { "delete date", ".dd", };
+	public static final String[] LIST_SHOW_THIS_WEEK = { "show this week",
+			".stw" };
+	public static final String[] LIST_SHOW_WEEK = { "show week", ".sw", };
+	public static final String[] LIST_SHOW_NEXT_WEEK = { "show next week",
+			".snw" };
+
+	public static final String[] LIST_IMPORTANCE = { ".i", "/importance",
+			"impt", "importance", "important" };
+	public static final String[] LIST_DETAILS = { ".details", ".dtl" };
+	// Lists
 	public static final String[] LIST_MONTHS = { "january", "jan", "february",
 			"feb", "march", "mar", "april", "apr", "may", "june", "jun",
 			"july", "jul", "august", "aug", "september", "sept", "november",
 			"oct", "october", "nov", "december", "dec" };
-
 	public static final String[] LIST_DAYS = { "sunday", "sun", "saturday",
 			"sat", "mon", "monday", "tuesday", "tues", "wed", "wednesday",
 			"thurs", "thursday", "fri", "friday", "saturday", "sat" };
+	// list of prepositions and determiners
+	public static final String[] LIST_REMOVABLES = { "and", "about", "after",
+			"around", "as", "at", "before", "be", "behind", "below", "beneath",
+			"beside", "besides", "between", "beyond", "due", "but", "by",
+			"concerning", "considering", "despite", "down", "during", "except",
+			"excepting", "excluding", "following", "for", "from", "in",
+			"inside", "into", "like", "minus", "near", "of", "off", "on",
+			"onto", "opposite", "outside", "over", "past", "per", "plus",
+			"regarding", "round", "save", "since", "that", "than", "through",
+			"to", "toward", "towards", "under", "	underneath", "unlike",
+			"until", "up", "upon", "versus", "via", "which", "with", "within",
+			"without", "is", "are", "the" };
+	public final static String[] LIST_NO_TIME = { "no time", ".nt" };
+	public final static String[] LIST_TODAY = { "today", "tdy" };
+	public final static String[] LIST_TMR = { "tomorrow", "tmr" };
+	public final static String[] LIST_YESTERDAY = { "yesterday", "ytd" };
+	public final static String[] LIST_FLOATING_TASK = { "ft","floating task"};
 	// Position of various inputs
 	public static final int COMMAND_POSITION = 0;
 	public static final int TASK_NAME_POSITION = 1;
@@ -175,7 +248,14 @@ public class Constants {
 	public static final int IMPT_POSITION = 6;
 	public static final int ERROR_MSG_POSITION = 7;
 	public static final int PARAMETER_POSITION = 8;
-
+	//parser error msg
+	public static final String ERROR_INVALID_TIME = "invalid time";
+	public static final String ERROR = "error";
+	public static final String ERROR_INVALID_DATE = "invalid Date";
+	public static final String ERROR_FOUND_TIME = "Invalid time found.";
+	public static final String ERROR_TIME_RANGE = "Time range is invalid.";
+	public static final String ERROR_SPELLED_DAY_FORMAT = "Error while parsing spelledDayFormat";
+	public static final String ERROR_SPELLED_DATE_ONE_FORMAT = "Error while parsing SpelledDateOneFormatter";
 	// date formats
 	public static final SimpleDateFormat dateFormat = new SimpleDateFormat(
 			"dd/MM/yyyy");
@@ -188,14 +268,21 @@ public class Constants {
 	public static final SimpleDateFormat timeFormatThree = new SimpleDateFormat(
 			"hha");
 	public static final SimpleDateFormat fullDateFormat = new SimpleDateFormat(
-			"ddMMyyyyHH:mm");
-	public static final SimpleDateFormat fullDateFormatTwo = new SimpleDateFormat(
 			"dd/MM/yyyyHH:mm");
+	public static final SimpleDateFormat spelledDayFormat = new SimpleDateFormat(
+			"EEE");
+	public static final SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
+	public static final SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+	public static final SimpleDateFormat spelledMonthFormat = new SimpleDateFormat(
+			"MMM");
+	public static final SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
+
+
 	public static final String DATE_FORMAT = "dd/MM/yyyy";
 	public static final String DATE_FT = "ft";
 	public static final String NO_TIME = "no time";
-	
-	//Feedback 
+
+	// Feedback
 	public static final String MSG_ADD_SUCCESS = "Added to %s: \"%s\". Type .u to undo.";
 	public static final String MSG_ADD_FAIL = "Unable to add line";
 	public static final String MSG_DELETE_FAIL = "Unable to delete line";
@@ -204,12 +291,12 @@ public class Constants {
 	public static final String MSG_EDIT_SUCCESS = "Successfully edited.";
 	public static final String MSG_NO_PREVIOUS_ACTION = "No previous action to be undone";
 	public static final String MSG_NO_FUTURE_ACTION = "No previous action to be redone";
-	public static final String MSG_DELETE_EMPTY = "Nothing to delete";	
+	public static final String MSG_DELETE_EMPTY = "Nothing to delete";
 	public static final String MSG_UNDO_SUCCESS = "Previous action is undone";
 	public static final String MSG_REDO_SUCCESS = "Previous action is done again";
 	public static final String MSG_SORT_FAIL = "Sorting failed";
 	public static final String MSG_SORT_SUCCESS = "Successfully sorted by %s.";
-	public static final String MSG_NO_TASKS_TO_SORT = "Not enough tasks to sort";	
+	public static final String MSG_NO_TASKS_TO_SORT = "Not enough tasks to sort";
 	public static final String MSG_TIME_PASSED = "The time have passed";
 	public static final String MSG_WRONG_FORMAT = "\"%s\" is wrong format";
 
@@ -225,20 +312,40 @@ public class Constants {
 	public static final String MSG_CLEARED_FILE = "List is cleared";
 	public static final String MSG_CLEAR_FAIL = "Nothing to clear!";
 	public static final String MSG_BAD_INDEX = "%d is not a valid number.Valid range is %d to %d.";
+	public static final String MSG_NO_ATTRIBUTES = "No attributes found.";
 	public static final int ZERO = 0;
 	public static final int INVAILD_NUMBER = -1;
+	
 
-	//Storage
-	public static final String DIVIDER_DATE = "//!@#DOUBLEUP_DIVIDER_DATE#@!//";	
+	// Storage
+	public static final String DIVIDER_DATE = "//!@#DOUBLEUP_DIVIDER_DATE#@!//";
 	public static final String DIVIDER_START_TIME = "//!@#DOUBLEUP_DIVIDER_START_TIME#@!//";
 	public static final String DIVIDER_END_TIME = "//!@#DOUBLEUP_DIVIDER_END_TIME#@!//";
 	public static final String DIVIDER_DETAILS = "//!@#DOUBLEUP_DIVIDER_DETAILS#@!//";
 	public static final String DIVIDER_IMPORTANCE = "//!@#DOUBLEUP_DIVIDER_IMPORTANCE#@!//";
-	
-	//Exception
+
+	// Exception
 	public static final String INVALID_DATE_FORMAT = "Invalid date format in: %s";
 	public static final String INVALID_TIME_FORMAT = "Invalid time format in: %s";
 	public static final String INVALID_CHRONO_FORMAT = "Invalid date/ time format in: %s";
 
+	public static final String SEARCH_TODAY = "search today";
+	public static final String ERROR_PARA_RANGE = "Parameters range is invalid";
+	public static final int LIMIT_RANGE_PARA = 2;
 
+	// Attributes names
+	public final static String DATE_NAME = "Date";
+	public final static String TIME_NAME = "Time";
+	public final static String TASK_NAME = "Task name";
+	public final static String PARAMETERS_NAME = "Parameters";
+	public final static String IMPT_NAME = "Importance level";
+	public static final String COMMAND_NAME = "Command";
+	// Numerics
+	public static final int MAX_LENGTH_TIME = 2;
+	public static final int MAX_TIME_TYPES = 2;
+	public static final int MAX_TYPES = 9;
+	public static final int HIGH_IMPT_LVL = 3;
+	public static final int LOW_IMPT_LVL = 0;
+	public static final int NUM_INVALID = -1;
+	public static final int SHORT_LENGTH_YEAR = 2;
 }

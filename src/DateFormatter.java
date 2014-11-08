@@ -1,205 +1,216 @@
+//@author A0110937J
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+//The following class formats various date inputs to dd/MM/yyyy
 
 public class DateFormatter {
+	private static Logger logger = Logger.getLogger(Constants.DATE_FORMATTER);
 
-	protected static SimpleDateFormat spelledDayFormat = new SimpleDateFormat(
-			"EEE");
-	protected static SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
-	protected static SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
-	protected static SimpleDateFormat spelledMonthFormat = new SimpleDateFormat(
-			"MMM");
-	protected static SimpleDateFormat dateFormat = new SimpleDateFormat(
-			"dd/MM/yyyy");
-	protected static SimpleDateFormat monthFormat = new SimpleDateFormat("MM");
-	protected static int SHORT_LENGTH_YEAR = 2;
-
-	protected String getCentury() {
+	private String getCentury() {
 		Date today = new Date();
-		return yearFormat.format(today).substring(0, 2);
-
+		return Constants.yearFormat.format(today).substring(0, 2);
 	}
 
 	public String formatDate(Integer index, String[] input) {
 		Date today = new Date();
-		return dateFormat.format(today);
+		return Constants.dateFormat.format(today);
 	}
 
-	protected String addSlashes(String[] temp) {
-		String result = new String("");
-		int lastPosition = temp.length - 1;
+	private String addSlashes(String[] temp) {
+		String result = new String(Constants.EMPTY_STRING);
+		int lastPosition = getLastPosition(temp);
 		for (int i = 0; i < lastPosition; i++) {
-			result = result + temp[i] + "/";
+			result = concatString(temp, result, i);
 		}
+		result = concatStringWithPos(temp, result, lastPosition);
+		return result;
+	}
+
+	private String concatString(String[] temp, String result, int i) {
+		result = result + temp[i] + Constants.SLASH;
+		return result;
+	}
+
+	private int getLastPosition(String[] temp) {
+		int lastPosition = temp.length - 1;
+		return lastPosition;
+	}
+
+	private String concatStringWithPos(String[] temp, String result,
+			int lastPosition) {
 		result = result + temp[lastPosition];
 		return result;
 	}
 
-	protected String getYear() {
+	private String getYear() {
 		Date today = new Date();
-		return yearFormat.format(today);
+		return Constants.yearFormat.format(today);
 	}
 
-	protected String getMonth() {
+	private String getMonth() {
 		Date today = new Date();
-		return monthFormat.format(today);
+		return Constants.monthFormat.format(today);
 	}
 
-	protected String getDay() {
+	private String getDay() {
 		Date today = new Date();
-		return dayFormat.format(today);
+		return Constants.dayFormat.format(today);
 	}
 
-}
-
-class TmrDateFormatter extends DateFormatter {
-	@Override
-	public String formatDate(Integer index, String[] input) {
+	// formats tomorrows date into dd/MM/yyyy
+	public String formatTmrDate(Integer index, String[] input) {
 		GregorianCalendar tmr = new GregorianCalendar();
 		tmr.add(Calendar.DATE, 1);
-		return dateFormat.format(tmr.getTime());
+		return Constants.dateFormat.format(tmr.getTime());
 	}
-}
 
-class SpelledDayFormatter extends DateFormatter {
+	// formats yesterday date into dd/MM/yyyy
+	public String formatYestDate(Integer index, String[] input) {
+		GregorianCalendar ytd = new GregorianCalendar();
+		ytd.add(Calendar.DATE, -1);
+		return Constants.dateFormat.format(ytd.getTime());
+	}
 
-	@Override
-	public String formatDate(Integer index, String[] input) {
+	// formats spelled day like monday into dd/MM/yyyy
+	public String formatSpelledDay(Integer index, String[] input) {
 		String possibleDay = input[index];
 		Date date = new Date();
-		spelledDayFormat.setLenient(false);
+		setLenientFalse();
 
-		try {
-			date = spelledDayFormat.parse(possibleDay);
-		} catch (ParseException e) {
-
-		}
-
+		date = parseDate(possibleDay, date);
 		GregorianCalendar possibleDate = new GregorianCalendar();
 		possibleDate.setTime(date);
 		GregorianCalendar today = new GregorianCalendar();
 
 		int dayOfWeekToday = today.get(Calendar.DAY_OF_WEEK);
 		int finalDay = possibleDate.get(Calendar.DAY_OF_WEEK);
-
-		if (dayOfWeekToday < finalDay) {
-			today.add(Calendar.DATE, (finalDay - dayOfWeekToday));
-			return dateFormat.format(today.getTime());
-		} else {
-			today.add(Calendar.DATE, (finalDay + 7 - dayOfWeekToday));
-			return dateFormat.format(today.getTime());
-
-		}
-
+		return getFinalDate(finalDay, dayOfWeekToday, today);
 	}
 
-}
+	private String getFinalDate(int finalDay, int dayOfWeekToday,
+			GregorianCalendar today) {
+		if (dayOfWeekToday < finalDay) {
+			addToToday(today, finalDay - dayOfWeekToday);
+			return Constants.dateFormat.format(today.getTime());
+		} else {
+			addToToday(today, finalDay + 7 - dayOfWeekToday);
+			return Constants.dateFormat.format(today.getTime());
+		}
+	}
 
-class SpelledDateTwoFormatter extends SpelledDateOneFormatter {
-	public String formatDate(Integer index, String[] input) {
-		String[] possibleDate = new String[MAX_LENGTH];
-		possibleDate[DAY_POSITION] = removeSuffix(input[index]);
-		possibleDate[MONTH_POSITION] = formatMonth(input[index + 1]);
-		possibleDate[YEAR_POSITION] = formatYear(possibleDate[MONTH_POSITION],
-				possibleDate[DAY_POSITION]);
+	private void addToToday(GregorianCalendar today, int addition) {
+		today.add(Calendar.DATE, addition);
+	}
+
+	private void setLenientFalse() {
+		Constants.spelledDayFormat.setLenient(false);
+	}
+
+	private Date parseDate(String possibleDay, Date date) {
+		try {
+			date = Constants.spelledDayFormat.parse(possibleDay);
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, Constants.ERROR_SPELLED_DAY_FORMAT);
+		}
+		return date;
+	}
+
+	// Formats date with initial format of 1st mar 2015 or 1st mar 15
+	// to01/03/2015
+	public String formatSpelledDate(Integer index, String[] input) {
+		String[] possibleDate = new String[Constants.MAX_LENGTH];
+		possibleDate[Constants.DAY_POSITION] = removeSuffix(input[index]);
+		possibleDate[Constants.MONTH_POSITION] = formatMonth(input[index + 1]);
+		possibleDate[Constants.YEAR_POSITION] = formatYear(input[index + 2]);
 		return addSlashes(possibleDate);
 	}
 
-	protected String formatYear(String possibleMonth, String possibleDay) {
+	private String formatYear(String possibleYear) {
+		if (possibleYear.length() == Constants.SHORT_LENGTH_YEAR) {
+			possibleYear = getCentury() + possibleYear;
+		}
+		return possibleYear;
+	}
+
+	private String formatMonth(String possibleMonth) {
+		Date date = new Date();
+		try {
+			date = Constants.spelledMonthFormat.parse(possibleMonth);
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, Constants.ERROR_SPELLED_DATE_ONE_FORMAT);
+		}
+		return Constants.monthFormat.format(date);
+	}
+
+	private String removeSuffix(String possibleDay) {
+
+		if (possibleDay.contains(Constants.SUFFIX_OTHERS)) {
+			possibleDay = possibleDay.replaceAll(Constants.SUFFIX_OTHERS,
+					Constants.EMPTY_STRING);
+		} else if (possibleDay.contains(Constants.SUFFIX_ONE)) {
+			possibleDay = possibleDay.replaceAll(Constants.SUFFIX_ONE,
+					Constants.EMPTY_STRING);
+		} else if (possibleDay.contains(Constants.SUFFIX_TWO)) {
+			possibleDay = possibleDay.replaceAll(Constants.SUFFIX_TWO,
+					Constants.EMPTY_STRING);
+		} else if (possibleDay.contains(Constants.SUFFIX_THREE)) {
+			possibleDay = possibleDay.replaceAll(Constants.SUFFIX_THREE,
+					Constants.EMPTY_STRING);
+		}
+		return possibleDay;
+	}
+
+	// Formats date with initial format of 1st mar to 01/03/2015 (dates without
+	// year)
+	public String formatSpelledDateTwo(Integer index, String[] input) {
+		String[] possibleDate = new String[Constants.MAX_LENGTH];
+		possibleDate[Constants.DAY_POSITION] = removeSuffix(input[index]);
+		possibleDate[Constants.MONTH_POSITION] = formatMonth(input[index + 1]);
+		possibleDate[Constants.YEAR_POSITION] = formatYear(
+				possibleDate[Constants.MONTH_POSITION],
+				possibleDate[Constants.DAY_POSITION]);
+		return addSlashes(possibleDate);
+	}
+
+	private String formatYear(String possibleMonth, String possibleDay) {
 
 		if (Integer.parseInt(possibleMonth) < Integer.parseInt(getMonth())) {
-
 			return Integer.toString(Integer.parseInt(getYear()) + 1);
 		} else if (Integer.parseInt(possibleMonth) == Integer
 				.parseInt(getMonth())
 				&& Integer.parseInt(possibleDay) < Integer.parseInt(getDay())) {
 			return Integer.toString(Integer.parseInt(getYear()) + 1);
 		}
-
 		return getYear();
 	}
-}
 
-// Formats date with initial format of 1st mar 2015 or 1st mar 15 to 01/03/2015
-class SpelledDateOneFormatter extends DateFormatter {
-
-	private static final String EMPTY_STRING = "";
-	private static final String SUFFIX_THREE = "rd";
-	private static final String SUFFIX_TWO = "nd";
-	private static final String SUFFIX_ONE = "st";
-	private static final String SUFFIX_OTHERS = "th";
-	protected static final int DAY_POSITION = 0;
-	protected static final int MONTH_POSITION = 1;
-	protected static final int YEAR_POSITION = 2;
-	protected static final int MAX_LENGTH = 3;
-
-	@Override
-	public String formatDate(Integer index, String[] input) {
-		String[] possibleDate = new String[MAX_LENGTH];
-		possibleDate[DAY_POSITION] = removeSuffix(input[index]);
-		possibleDate[MONTH_POSITION] = formatMonth(input[index + 1]);
-		possibleDate[YEAR_POSITION] = formatYear(input[index + 2]);
-		return addSlashes(possibleDate);
-	}
-
-	protected String formatYear(String possibleYear) {
-		if (possibleYear.length() == SHORT_LENGTH_YEAR) {
-			possibleYear = getCentury() + possibleYear;
-		}
-		return possibleYear;
-	}
-
-	protected String formatMonth(String possibleMonth) {
-		Date date = new Date();
-		try {
-			date = spelledMonthFormat.parse(possibleMonth);
-		} catch (ParseException e) {
-
-		}
-		return monthFormat.format(date);
-	}
-
-	protected String removeSuffix(String possibleDay) {
-
-		if (possibleDay.contains(SUFFIX_OTHERS)) {
-			possibleDay = possibleDay.replaceAll(SUFFIX_OTHERS, EMPTY_STRING);
-		} else if (possibleDay.contains(SUFFIX_ONE)) {
-			possibleDay = possibleDay.replaceAll(SUFFIX_ONE, EMPTY_STRING);
-		} else if (possibleDay.contains(SUFFIX_TWO)) {
-			possibleDay = possibleDay.replaceAll(SUFFIX_TWO, EMPTY_STRING);
-		} else if (possibleDay.contains(SUFFIX_THREE)) {
-			possibleDay = possibleDay.replaceAll(SUFFIX_THREE, EMPTY_STRING);
-		}
-		return possibleDay;
-	}
-
-}
-
-class FirstDateFormatter extends DateFormatter {
-	@Override
-	public String formatDate(Integer index, String[] input) {
-		String[] temp = removePunctuations(index, input).split("/");
+	// formats date like dd/MM/yy to dd/MM/yyyy
+	public String formatStandardDate(Integer index, String[] input) {
+		String[] temp = removePunctuations(index, input).split(Constants.SLASH);
 		int yearPosition = temp.length - 1;
 		addCentury(temp, yearPosition);
-
 		return addSlashes(temp);
 	}
 
 	private void addCentury(String[] temp, int yearPosition) {
-		if (temp[yearPosition].length() == SHORT_LENGTH_YEAR) {
+		if (temp[yearPosition].length() == Constants.SHORT_LENGTH_YEAR) {
 			temp[yearPosition] = getCentury() + temp[yearPosition];
 		}
 	}
 
 	private String removePunctuations(Integer index, String[] input) {
 		String possibleDate = input[index];
-		if (possibleDate.contains(".")) {
-			possibleDate = possibleDate.replace(".", "/");
-		} else if (possibleDate.contains("-")) {
-			possibleDate = possibleDate.replaceAll("-", "/");
+		if (possibleDate.contains(Constants.FULL_STOP)) {
+			possibleDate = possibleDate.replace(Constants.FULL_STOP,
+					Constants.SLASH);
+		} else if (possibleDate.contains(Constants.DASH)) {
+			possibleDate = possibleDate.replaceAll(Constants.DASH,
+					Constants.SLASH);
 		}
 		return possibleDate;
 	}
