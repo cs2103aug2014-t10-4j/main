@@ -93,12 +93,12 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	//First level of abstraction
-	public static void createApplicationWindows() {
+	private static void createApplicationWindows() {
 		frame = new DoubleUp();
 	}
 
 	//Get Storage to initialize the txt files. Returns the number of each type of tasks
-	public static ArrayList<Integer> initFilesAndTasks() {
+	private static ArrayList<Integer> initFilesAndTasks() {
 		file = Storage.openFile(Constants.FILE_TASK);
 		archive = Storage.openFile(Constants.FILE_ARCHIVE);
 		ArrayList<Integer> overview = Logic.init(file, archive);
@@ -208,7 +208,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 					TrayIcon.MessageType.INFO);
 		}
 	}
-
 
 	@SuppressWarnings("serial")
 	public static void addComponentsToPane(Container cp){
@@ -380,7 +379,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	//Set the font of DoubleUp to be Monaco
-	public static void customizeFont() {
+	private static void customizeFont() {
 		InputStream is = DoubleUp.class.getResourceAsStream(Constants.RES_MONACO_TTF);	
 		try {
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
@@ -395,7 +394,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	// Add some styles to the html of the JEditorPane
-	public static void setHTMLstyle() {
+	private static void setHTMLstyle() {
 		String myStyle = 
 				String.format(".time{color: %s;}",Constants.COLOR_BLUE)
 				+ String.format(".details{color: %s;}", Constants.COLOR_ORANGER )

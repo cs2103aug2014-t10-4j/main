@@ -250,7 +250,7 @@ public class Controller {
 	}
 
 	//Prompts user if they want to continue to add
-	public static void continueToAdd(File file, Task taskToExecute,
+	private static void continueToAdd(File file, Task taskToExecute,
 			ResultOfCommand results) {
 		JFrame frame = new JFrame();
 		int userChoice = confirmClashIsOk(frame, Constants.ACTION_ADD);
@@ -263,7 +263,7 @@ public class Controller {
 	}
 
 	// Edit the file based on the user choice
-	public static void editOrNot(File file, Task taskToExecute,
+	private static void editOrNot(File file, Task taskToExecute,
 			ResultOfCommand results, int userChoice) {
 		if (userChoice == JOptionPane.YES_OPTION){
 			results.setFeedback(Logic.edit(Constants.ACTION_EDIT, taskToExecute, file));			 
@@ -371,7 +371,7 @@ public class Controller {
 		feedback = shortenFeedback(feedback);
 		feedback = capitalizeFirstLetter(feedback);
 		feedback = endWithFullstop(feedback);
-		feedback = feedback.replace("deleted", "");
+		feedback = removeMultipleWord(feedback);
 		if (isMoreThanSizeOfList){
 			feedback = feedback + Constants.MSG_DELETE_NON_EXISTENT ;
 			feedback = feedback.trim();
@@ -405,7 +405,7 @@ public class Controller {
 			int[] splitIndex, int j, Task oneOutOfMany) {
 		if (splitIndex[j] > 0){
 			feedback = Logic.delete(Constants.ACTION_DELETE, splitIndex.length, oneOutOfMany, 
-					file, archive) + "," + feedback ;
+					file, archive) + ", " + feedback ;
 		} else  {
 			feedback = capitalizeFirstLetter(feedback);
 			feedback = Logic.delete(Constants.ACTION_DELETE, splitIndex.length, oneOutOfMany, 
@@ -491,6 +491,12 @@ public class Controller {
 		if (!feedback.isEmpty()){
 			feedback = feedback.substring(0,1).toUpperCase() + feedback.substring(1); // Capitalize first letter
 		}
+		return feedback;
+	}
+
+	// Used to remove multiple ", deleted" from the feedback sentence
+	private static String removeMultipleWord(String feedback) {
+		feedback = feedback.replace(", deleted ", ", ");
 		return feedback;
 	}
 
