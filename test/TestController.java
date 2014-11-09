@@ -1,9 +1,10 @@
+//@author A0110930X
+//The following class is used for integration testing from Controller
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 
 import org.junit.Test;
-
 
 public class TestController {
 	private static File testFile = new File("testFile.txt");
