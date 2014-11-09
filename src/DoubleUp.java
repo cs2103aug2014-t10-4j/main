@@ -96,6 +96,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		new DoubleUp();
 	}
 
+	//Get Storage to initialize the txt files. Returns the number of each type of tasks
 	public static ArrayList<Integer> initFilesAndTasks() {
 		file = Storage.openFile(Constants.FILE_TASK);
 		archive = Storage.openFile(Constants.FILE_ARCHIVE);
@@ -103,6 +104,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		return overview;
 	}
 
+	//Constructor of DoubleUp
 	public DoubleUp() {
 		setLookAndFeel();
 		setTitle(Constants.TITLE_MAIN_WINDOW);
@@ -231,15 +233,16 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 		ResultOfCommand results = Controller.executeCommand(Constants.ACTION_SHOW_ALL, file, archive);
 		displayPanelTodayTasks.setText(results.printArrayList());
-		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		middleRow.add(scroll, BorderLayout.CENTER);
 		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
 		cp.add(middleRow, BorderLayout.CENTER);
 
 		//Feedback field below
 		JPanel lastRow = new JPanel();
-		ImageIcon icon = createImageIcon(Constants.RES_SYSTEM_TRAY_ICON, 
-				Constants.DOUBLE_UP);
+		ImageIcon icon = createImageIcon(Constants.RES_SYSTEM_TRAY_ICON, Constants.DOUBLE_UP);
 		JLabel doubleupIcon = new JLabel(icon, JLabel.CENTER);
 		lastRow.add(doubleupIcon);
 		JLabel resultsCmd = new JLabel(Constants.TITLE_RESULT);
@@ -376,6 +379,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		});
 	}
 
+	//Set the font of DoubleUp to be Monaco
 	public static void customizeFont() {
 		InputStream is = DoubleUp.class.getResourceAsStream(Constants.RES_MONACO_TTF);	
 		try {
@@ -411,7 +415,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	//Creates PopUp Menu in taskbar
 	private static JPopupMenu createJPopupMenu() {
 		final JPopupMenu jpopup = new JPopupMenu();
-
 		JMenuItem aboutUsMI = new JMenuItem(Constants.MENU_ABOUT_DOUBLE_UP, 
 				new ImageIcon("javacup.gif"));
 		aboutUsMI.setMnemonic((int) 'a');
