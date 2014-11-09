@@ -1,9 +1,12 @@
+//@author A0110937J
 import static org.junit.Assert.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.junit.Test;
+
+//The following class is used to test the Parser Component
 
 public class TestParser {
 
