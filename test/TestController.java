@@ -17,14 +17,14 @@ public class TestController {
 		ResultOfCommand results = Controller.executeCommand("add abc", testFile, archiveFile);
 		assertEquals(String.format(Constants.MSG_ADD_SUCCESS, "testFile.txt", "abc"), results.getFeedback());
 		//Successful without add command
-		results = Controller.executeCommand("wahaha", testFile, archiveFile);
-		assertEquals(String.format(Constants.MSG_ADD_SUCCESS, "testFile.txt", "wahaha"), results.getFeedback());
+		results = Controller.executeCommand("this is something new", testFile, archiveFile);
+		assertEquals(String.format(Constants.MSG_ADD_SUCCESS, "testFile.txt", "this is something new"), results.getFeedback());
 		//Unsuccessful add
 		results = Controller.executeCommand("add ", testFile, archiveFile);
 		assertEquals(String.format(Constants.ERROR_EMPTY_ITEM, "Task name"), results.getFeedback());
 		
 		//Testing delete 
-		//0 is a boundary case
+		//Delete index 0 is a boundary case
 		results = Controller.executeCommand("delete 0", testFile, archiveFile);
 		assertEquals(Constants.MSG_DELETE_FAIL + ". ", results.getFeedback());
 		//Delete index -100 
@@ -60,6 +60,40 @@ public class TestController {
 		//Boundary case - search empty list
 		results = Controller.executeCommand("search abc", testFile, archiveFile);
 		assertEquals(String.format(Constants.MSG_FOUND_N_ITEMS,0), results.getFeedback());
+		
+		//Testing delete multiple
+		Controller.executeCommand("add abc", testFile, archiveFile);
+		Controller.executeCommand("add def", testFile, archiveFile);
+		results = Controller.executeCommand("delete 1 2", testFile, archiveFile);
+		assertEquals("Deleted '1. abc', '2. def' from your list.", results.getFeedback());
+		
+		//Testing edit
+		//Boundary case: wrong type of parameters
+		results = Controller.executeCommand("edit abc", testFile, archiveFile);
+		assertEquals(String.format(Constants.ERROR_EMPTY_ITEM,"Parameters"), results.getFeedback());
+		//Successful edit
+		Controller.executeCommand("add abc", testFile, archiveFile);
+		results = Controller.executeCommand("edit 1 def", testFile, archiveFile);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, results.getFeedback());
+		//Unsuccessful edit - editing item #2 when there is only one item
+		results = Controller.executeCommand("edit 2 def", testFile, archiveFile);
+		assertEquals(String.format(Constants.MSG_BAD_INDEX, 2 , 1 ,1), results.getFeedback());
+		
+		//Testing show and hide details
+		results = Controller.executeCommand("show details", testFile, archiveFile);
+		assertEquals(Constants.MSG_SHOW_DETAILS_SUCCESS, results.getFeedback());
+		results = Controller.executeCommand("hide details", testFile, archiveFile);
+		assertEquals(Constants.MSG_HIDE_DETAILS_SUCCESS, results.getFeedback());
+		
+		//Testing undo and redo
+		results = Controller.executeCommand("undo", testFile, archiveFile);
+		assertEquals(Constants.MSG_UNDO_SUCCESS, results.getFeedback());
+		results = Controller.executeCommand("redo", testFile, archiveFile);
+		assertEquals(Constants.MSG_REDO_SUCCESS, results.getFeedback());
+		
+		//Testing show all
+		results = Controller.executeCommand("show all", testFile, archiveFile);
+		assertEquals(Constants.MSG_SHOW_ALL_SUCCESS, results.getFeedback());
 	}
 
 }
