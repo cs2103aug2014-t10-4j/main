@@ -755,8 +755,6 @@ public class Logic {
 	 * @return
 	 */
 	public static String undo(File file, File archive) {
-		String current = undo.peek();
-		System.out.println(current);
 		if (undo.empty()) {
 			return Constants.MSG_NO_PREVIOUS_ACTION;
 		} else if (undo.size() != 0
@@ -932,8 +930,13 @@ public class Logic {
 								isSorted = false;
 								continue;
 							} else if (dateFirst.compareTo(dateSecond) == 0) {
-								if (listOfTask.get(j).getStartTime() == null) {
-									continue;
+								if (listOfTask.get(j).getStartTime() == null && listOfTask.get(j).getStartTime()==null) {
+									if (firstTaskOrder > secondTaskOrder) {
+										listOfTask.add(j + 2,
+												listOfTask.get(j));
+										listOfTask.remove(j);
+										isSorted = false;
+									}
 								} else if (listOfTask.get(j).getStartTime() != null
 										&& listOfTask.get(j + 1).getStartTime() == null) {
 									listOfTask.add(j + 2, listOfTask.get(j));
@@ -954,7 +957,6 @@ public class Logic {
 										isSorted = false;
 										continue;
 									} else if (timeFirst.compareTo(timeSecond) == 0) {
-
 										if (firstTaskOrder > secondTaskOrder) {
 											listOfTask.add(j + 2,
 													listOfTask.get(j));
@@ -1125,6 +1127,8 @@ public class Logic {
 
 	// This method is used to clear the file at the start of each junit test.
 	public static void clearAll(File file) {
+		tempStorage.clear();
+		archiveStorage.clear();
 		Storage.writeToFile(new ArrayList<Task>(), file);
 	}
 
