@@ -69,6 +69,8 @@ public class Constants {
 	public static final String ACTION_CLEAR = "clear";
 	public static final String ACTION_ADD = "add";
 
+	public static final String MSG_STILL_RUNNING_BG = "It is still running in the background.";
+	public static final String MSG_DOUBLEUP_MINIMIZED = "DoubleUp is minimized";
 	public static final String MSG_WELCOME = "Welcome to DoubleUp! ";
 	public static final String MSG_PROGRESS_BAR = "You have %d tasks due today,\n %d overdue tasks, %d tasks due\n eventually and %d floating tasks.";
 	public static final String MSG_HELP = "Press F2 to view all the commands. Happy doubling up!";

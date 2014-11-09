@@ -76,6 +76,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	private static JTextArea textFieldResultsOut;
 	private static JPanel middleRow;
 	private static JFrame frame;
+	private static TrayIcon icon;
 	private static Stack <String> backwardsUserInput = new Stack<String>();
 	private static Stack <String> forwardUserInput = new Stack<String>();
 	private static File file, archive;
@@ -87,13 +88,13 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 			createApplicationWindows();
 			initSystemTray(overview);
 		} else {
-			JOptionPane.showMessageDialog(frame, Constants.MSG_PREVIOUS_INSTANCE);
+			JOptionPane.showMessageDialog(new JFrame(), Constants.MSG_PREVIOUS_INSTANCE);
 		}
 	}
 
 	//First level of abstraction
 	public static void createApplicationWindows() {
-		new DoubleUp();
+		frame = new DoubleUp();
 	}
 
 	//Get Storage to initialize the txt files. Returns the number of each type of tasks
@@ -108,7 +109,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	public DoubleUp() {
 		setLookAndFeel();
 		setTitle(Constants.TITLE_MAIN_WINDOW);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		addComponentsToPane(getContentPane());
 		setMinimumSize(new Dimension(730,700));
 		setVisible(true);
@@ -173,7 +174,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				e2.printStackTrace();
 				image = getImage();
 			}
-			TrayIcon icon = new TrayIcon(image, Constants.DOUBLE_UP, null);
+			icon = new TrayIcon(image, Constants.DOUBLE_UP, null);
 			icon.setImageAutoSize(true);
 			final JPopupMenu jpopup = createJPopupMenu();
 			icon.addMouseListener(new MouseAdapter() {
@@ -185,6 +186,14 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 					}
 				}
 			});
+			icon.addMouseListener(new MouseAdapter() {
+			    public void mouseClicked(MouseEvent e) {
+			        if (e.getClickCount() == 2) {
+			        	frame.setState(Frame.NORMAL);
+			        	frame.setVisible(true);
+			        }
+			    }
+			}); 
 			try {
 				SystemTray.getSystemTray().add(icon);
 			} catch (AWTException e1) {
@@ -200,15 +209,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 		}
 	}
 
-	public static void createAndShowGUI() {
-		frame = new JFrame(Constants.TITLE_MAIN_WINDOW);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		addComponentsToPane(frame.getContentPane());
-		frame.setMinimumSize(new Dimension(650,600));
-		frame.setVisible(true);
-		logger = Logger.getLogger(Constants.LOGGER);
-		logger.log(Level.INFO, Constants.MSG_CREATE_GUI_SUCCESS);
-	}
 
 	@SuppressWarnings("serial")
 	public static void addComponentsToPane(Container cp){
@@ -272,8 +272,8 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 				String helpfile = Constants.RES_HELP_HTML;
 				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
 				assert inputStream != null;
-				String theString = convertStreamToString(inputStream);
-				displayPanelTodayTasks.setText(theString);
+				String helpString = convertStreamToString(inputStream);
+				displayPanelTodayTasks.setText(helpString);
 				displayPanelTodayTasks.setCaretPosition(0);
 				textFieldResultsOut.setText(Constants.MSG_HELP_SUCCESS);
 				middleRow.setBorder(BorderFactory.createTitledBorder(Constants.TITLE_HELP_SCREEN));
@@ -415,28 +415,32 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	//Creates PopUp Menu in taskbar
 	private static JPopupMenu createJPopupMenu() {
 		final JPopupMenu jpopup = new JPopupMenu();
-		JMenuItem aboutUsMI = new JMenuItem(Constants.MENU_ABOUT_DOUBLE_UP, 
-				new ImageIcon("javacup.gif"));
-		aboutUsMI.setMnemonic((int) 'a');
-		/*aboutUsMI.setAccelerator(KeyStroke.getKeyStroke(
-		        java.awt.event.KeyEvent.VK_A, 
-		        java.awt.Event.CTRL_MASK));*/
-		jpopup.add(aboutUsMI);
-
-		JMenuItem helpMI = new JMenuItem(Constants.MENU_HELP, 
-				new ImageIcon("javacup.gif"));
-		helpMI.setMnemonic('H');
-		helpMI.setAccelerator(KeyStroke.getKeyStroke(
-				java.awt.event.KeyEvent.VK_F2, 
-				java.awt.Event.CTRL_MASK));
+		JMenuItem helpMI = new JMenuItem(Constants.MENU_HELP);
+		helpMI.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				String helpfile = Constants.RES_HELP_HTML;
+				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
+				assert inputStream != null;
+				String helpString = convertStreamToString(inputStream);
+				displayPanelTodayTasks.setText(helpString);
+				displayPanelTodayTasks.setCaretPosition(0);
+				textFieldResultsOut.setText(Constants.MSG_HELP_SUCCESS);
+				middleRow.setBorder(BorderFactory.createTitledBorder(Constants.TITLE_HELP_SCREEN));
+    			textFieldCmdIn.requestFocus();
+    			frame.setState(Frame.NORMAL);
+	        	frame.setVisible(true);
+			}
+			String convertStreamToString(java.io.InputStream is) {
+				@SuppressWarnings("resource")
+				Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
+				return s.hasNext() ? s.next() : "";
+			}
+		});
+			
 		jpopup.add(helpMI);
 
 		jpopup.addSeparator();
 		JMenuItem exitMI = new JMenuItem(Constants.MENU_EXIT);
-		exitMI.setMnemonic('E');
-		exitMI.setAccelerator(KeyStroke.getKeyStroke(
-				java.awt.event.KeyEvent.VK_E, 
-				java.awt.Event.CTRL_MASK));
 		exitMI.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
@@ -553,7 +557,10 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 
 	@Override
 	public void windowClosing(WindowEvent e) {
+		icon.displayMessage(Constants.MSG_DOUBLEUP_MINIMIZED, Constants.MSG_STILL_RUNNING_BG,
+				TrayIcon.MessageType.INFO);
 	}
+	
 
 	@Override
 	public void windowDeactivated(WindowEvent e) {
