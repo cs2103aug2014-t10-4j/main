@@ -1,4 +1,3 @@
-import com.sun.org.apache.xerces.internal.impl.xpath.regex.ParseException;
 
 //@A0110937J
 
@@ -41,7 +40,7 @@ class ImportanceProcessor extends Processor {
 	private boolean isInteger(String string) {
 		try {
 			Integer.parseInt(string);
-		} catch (ParseException e) {
+		} catch (NumberFormatException e) {
 			return false;
 		}
 		return true;
@@ -54,8 +53,8 @@ class ImportanceProcessor extends Processor {
 	}
 
 	private void assignImpt(String[] parsedInput, int importance) {
-		assert importance >= Constants.LOW_IMPT_LVL; 
-		assert importance <= Constants.HIGH_IMPT_LVL; 
+		assert importance >= Constants.LOW_IMPT_LVL;
+		assert importance <= Constants.HIGH_IMPT_LVL;
 		parsedInput[Constants.IMPT_POSITION] = Integer.toString(importance);
 	}
 
