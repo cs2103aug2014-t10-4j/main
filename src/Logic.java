@@ -19,6 +19,7 @@ public class Logic {
 	private static ArrayList<Task> tempStorage = new ArrayList<Task>();
 	private static ArrayList<Task> archiveStorage = new ArrayList<Task>();
 	private static ArrayList<Task> searchResults = new ArrayList<Task>();
+	private static ArrayList<Task> emptyList = new ArrayList<Task>();
 	private static Stack<String> undo = new Stack<String>();
 	private static Stack<String> redo = new Stack<String>();
 	private static Stack<ArrayList<Task>> undoTask = new Stack<ArrayList<Task>>();
@@ -521,7 +522,7 @@ public class Logic {
 				archiveStorage.add(taskToArchive);
 			}
 			tempStorage.clear();
-			Storage.writeToFile(new ArrayList<Task>(), file);
+			Storage.writeToFile(emptyList, file);
 			sortByDateAndTime(archiveStorage);
 			Storage.writeToFile(archiveStorage, archive);
 			updateUndo(Constants.ACTION_DELETE_ALL, deletedTask);
@@ -543,7 +544,7 @@ public class Logic {
 		}
 		if (archiveStorage.size() > 0) {
 			archiveStorage.clear();
-			Storage.writeToFile(new ArrayList<Task>(), file);
+			Storage.writeToFile(emptyList, file);
 			return Constants.MSG_CLEARED_FILE;
 		} else {
 			return Constants.MSG_CLEAR_FAIL;
