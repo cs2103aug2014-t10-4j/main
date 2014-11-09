@@ -30,8 +30,8 @@ public class Constants {
 	public static final int SIZE_OF_DISPLAY_PANEL = 70;
 	public static final int SIZE_FEEDBACK_MAX = 180;
 	public static final String RES_HELP_HTML = "/res/help.html";
-	public static final String RES_MONACO_TTF = "/res/monaco.TTF";
 	public static final String RES_UP_ARROW_ICON = "/res/up-arrow-icon.png";
+	public static final String RES_MONACO_TTF = "/res/monaco.ttf";
 	public static final String RES_SYSTEM_TRAY_ICON = "res/up-arrow-small3.png";
 
 	// Controller Constants
