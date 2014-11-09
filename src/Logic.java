@@ -457,7 +457,7 @@ public class Logic {
 	 */
 	private static String deleteLineFromFile(int index, Task task, File file,
 			File archive) {
-		if (index == Constants.INVAILD_NUMBER) {
+		if (index == Constants.INVALID_NUMBER) {
 			return Constants.MSG_DELETE_EMPTY;
 		}
 		try {
@@ -553,7 +553,7 @@ public class Logic {
 			System.out.println(String.format(Constants.MSG_WRONG_FORMAT,
 					task.getParams()));
 		}
-		return Constants.INVAILD_NUMBER;
+		return Constants.INVALID_NUMBER;
 	}
 
 	// @author A0108380L

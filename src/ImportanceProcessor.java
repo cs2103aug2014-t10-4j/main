@@ -9,7 +9,7 @@ class ImportanceProcessor extends Processor {
 	}
 
 	public void process(String[] parsedInput, String[] input, Index index) {
-		int importance = Constants.NUM_INVALID;
+		int importance = Constants.INVALID_NUMBER;
 		if (isImpt(input, index)) {
 			checkNextForInteger(parsedInput, input, index, importance);
 		}

@@ -314,7 +314,7 @@ public class Constants {
 	public static final String MSG_BAD_INDEX = "%d is not a valid number.Valid range is %d to %d.";
 	public static final String MSG_NO_ATTRIBUTES = "No attributes found.";
 	public static final int ZERO = 0;
-	public static final int INVAILD_NUMBER = -1;
+	public static final int INVALID_NUMBER = -1;
 	
 
 	// Storage
@@ -346,6 +346,5 @@ public class Constants {
 	public static final int MAX_TYPES = 9;
 	public static final int HIGH_IMPT_LVL = 3;
 	public static final int LOW_IMPT_LVL = 0;
-	public static final int NUM_INVALID = -1;
 	public static final int SHORT_LENGTH_YEAR = 2;
 }
