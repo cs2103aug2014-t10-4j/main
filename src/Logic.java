@@ -176,11 +176,16 @@ public class Logic {
 	public static String edit(String command, Task detailsOfTask, File file) {
 		String returnMessage;
 		String lastCommand = null;
+		int taskNumber = getIndex(detailsOfTask);
+		if (taskNumber>= tempStorage.size()){
+			return  String.format(Constants.MSG_BAD_INDEX, taskNumber + 1, 1,
+					tempStorage.size());
+		}
 		if (undo.size() != 0 && undo.peek().equals(Constants.ACTION_SEARCH)) {
 			lastCommand = undo.pop();
 		}
 		if (lastCommand != null && lastCommand.equals(Constants.ACTION_SEARCH)) {
-			int taskNumber = getIndex(detailsOfTask);
+
 			for (int i = 0; i < tempStorage.size(); i++) {
 				if (searchResults.get(taskNumber).equals(tempStorage.get(i))) {
 					ArrayList<Task> tasksEdited = new ArrayList<Task>();
@@ -200,7 +205,7 @@ public class Logic {
 			}
 		}
 		if (command.equals(Constants.ACTION_EDIT)) {
-			int taskNumber = getIndex(detailsOfTask);
+
 			ArrayList<Task> tasksEdited = new ArrayList<Task>();
 			Task originalTask = new Task();
 			originalTask.copyOfTask(tempStorage.get(taskNumber));
@@ -216,7 +221,6 @@ public class Logic {
 			return returnMessage;
 		} else if (command.equals(Constants.ACTION_UNDO)
 				|| command.equals(Constants.ACTION_REDO)) {
-			int taskNumber = getIndex(detailsOfTask);
 			returnMessage = editUndoRedo(detailsOfTask, file, taskNumber);
 			return returnMessage;
 		} else {
