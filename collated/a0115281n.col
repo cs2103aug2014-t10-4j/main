@@ -1,0 +1,544 @@
+//@author: a0115281n
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\Logic.java
+	 */
+
+	/**
+	 * Create an instance Logic
+	 * 
+	 * @param file
+	 * @param archive
+	 * @return number of tasks
+	 */
+	public static ArrayList<Integer> init(File file, File archive) {
+		while (!Storage.copyToArrayList(file, tempStorage));
+		while (!Storage.copyToArrayList(archive, archiveStorage));
+		sortByDateAndTime(tempStorage);
+		Storage.writeToFile(tempStorage, file);
+		sortByDateAndTime(archiveStorage);
+		Storage.writeToFile(archiveStorage, archive);
+		ArrayList<Integer> numTask = new ArrayList<Integer>();
+		getNumTasks(numTask, tempStorage);
+		return numTask;
+	}
+
+	public static ArrayList<Task> getTempStorage() {
+		return tempStorage;
+	}
+
+	public static ArrayList<Task> getArchiveStorage() {
+		return archiveStorage;
+	}
+
+	/**
+	 * check the number of task in the tempStorage
+	 * 
+	 * @param numTask
+	 * @param tempStorage
+	 */
+	private static void getNumTasks(ArrayList<Integer> numTask,
+			ArrayList<Task> tempStorage) {
+		Date currentDate = new Date();
+		try {
+			currentDate = Constants.dateFormat.parse(Constants.dateFormat
+					.format(currentDate));
+		} catch (ParseException e1) {
+			logger.log(Level.WARNING,
+					String.format(Constants.INVALID_DATE_FORMAT, "getNumTasks"));
+		}
+		assert currentDate != null;
+		try {
+			int todayTask = 0;
+			int overdueTask = 0;
+			int tomorrowTask = 0;
+			int floatingTask = 0;
+			for (int i = 0; i < tempStorage.size(); i++) {
+				if (tempStorage.get(i).getDate().contains("ft")) {
+					floatingTask++;
+				} else {
+					Date dateOfCurrentTask = Constants.dateFormat
+							.parse(tempStorage.get(i).getDate());
+					if (dateOfCurrentTask.compareTo(currentDate) == 0) {
+						todayTask++;
+					} else if (dateOfCurrentTask.compareTo(currentDate) == 1) {
+						tomorrowTask++;
+					} else {
+						overdueTask++;
+					}
+				}
+			}
+			numTask.add(todayTask);
+			numTask.add(overdueTask);
+			numTask.add(tomorrowTask);
+			numTask.add(floatingTask);
+		} catch (ParseException e) {
+			logger.log(Level.WARNING,
+					String.format(Constants.INVALID_DATE_FORMAT, "getNumTasks"));
+		}
+	}
+
+	/**
+	 * perform action of add
+	 * 
+	 * @param command
+	 * @param task
+	 * @param file
+	 * @return feedback message
+	 */
+	public static String add(String command, Task task, File file) {
+		String returnMessage;
+		if (undo.size() != 0 && undo.peek().equals(Constants.ACTION_SEARCH)) {
+			undo.pop();
+		}
+		if (command.equals(Constants.ACTION_ADD)) {
+			Integer taskNumber = tempStorage.size() + 1;
+			task.setParams(taskNumber.toString());
+			Task taskToAdd = new Task();
+			taskToAdd.copyOfTask(task);
+			ArrayList<Task> addedTask = new ArrayList<Task>();
+			addedTask.add(taskToAdd);
+			returnMessage = addLineToFile(task, file, tempStorage.size());
+			sortByDateAndTime(tempStorage);
+			Storage.writeToFile(tempStorage, file);
+			updateUndo(Constants.ACTION_ADD, addedTask);
+			clearRedo();
+			return returnMessage;
+		}
+
+		if (command.equals(Constants.ACTION_UNDO)
+				|| command.equals(Constants.ACTION_REDO)) {
+			int taskToAddLocation = getIndex(task) + 1;
+			if (tempStorage.size() == Constants.ZERO) {
+				taskToAddLocation = Constants.ZERO;
+			} else {
+				for (int i = 0; i < tempStorage.size(); i++) {
+					int currentTaskParams = getIndex(tempStorage.get(i)) + 1;
+					if (taskToAddLocation < currentTaskParams) {
+						taskToAddLocation = i;
+						break;
+					} else if (taskToAddLocation > currentTaskParams
+							&& i == tempStorage.size() - 1) {
+						taskToAddLocation = tempStorage.size();
+					}
+				}
+			}
+			returnMessage = addLineToFile(task, file, taskToAddLocation);
+			return returnMessage;
+		}
+		return Constants.MSG_ADD_FAIL;
+	}
+
+	/**
+	 * add a content to tempStorage
+	 * 
+	 * @param task
+	 * @param file
+	 * @param taskLocation
+	 * @return feedback message
+	 */
+	private static String addLineToFile(Task task, File file, int taskLocation) {
+		tempStorage.add(taskLocation, task);
+		return String.format(Constants.MSG_ADD_SUCCESS, file.getName(),
+				task.getName());
+	}
+
+	/**
+	 * perform action of edit
+	 * 
+	 * @param command
+	 * @param detailsOfTask
+	 * @param file
+	 * @return feedback message
+	 */
+	public static String edit(String command, Task detailsOfTask, File file) {
+		String returnMessage;
+		String lastCommand = null;
+		if (undo.size() != 0 && undo.peek().equals(Constants.ACTION_SEARCH)) {
+			lastCommand = undo.pop();
+		}
+		if (lastCommand != null && lastCommand.equals(Constants.ACTION_SEARCH)) {
+			int taskNumber = getIndex(detailsOfTask);
+			for (int i = 0; i < tempStorage.size(); i++) {
+				if (searchResults.get(taskNumber).equals(tempStorage.get(i))) {
+					ArrayList<Task> tasksEdited = new ArrayList<Task>();
+					Task originalTask = new Task();
+					originalTask.copyOfTask(tempStorage.get(i));
+					tasksEdited.add(originalTask);
+					returnMessage = editTask(detailsOfTask, file, i);
+					Task editedTask = new Task();
+					editedTask.copyOfTask(tempStorage.get(i));
+					tasksEdited.add(editedTask);
+					sortByDateAndTime(tempStorage);
+					Storage.writeToFile(tempStorage, file);
+					updateUndo(command, tasksEdited);
+					clearRedo();
+					return returnMessage;
+				}
+			}
+		}
+		if (command.equals(Constants.ACTION_EDIT)) {
+			int taskNumber = getIndex(detailsOfTask);
+			ArrayList<Task> tasksEdited = new ArrayList<Task>();
+			Task originalTask = new Task();
+			originalTask.copyOfTask(tempStorage.get(taskNumber));
+			tasksEdited.add(originalTask);
+			returnMessage = editTask(detailsOfTask, file, taskNumber);
+			Task editedTask = new Task();
+			editedTask.copyOfTask(tempStorage.get(taskNumber));
+			tasksEdited.add(editedTask);
+			sortByDateAndTime(tempStorage);
+			Storage.writeToFile(tempStorage, file);
+			updateUndo(command, tasksEdited);
+			clearRedo();
+			return returnMessage;
+		} else if (command.equals(Constants.ACTION_UNDO)
+				|| command.equals(Constants.ACTION_REDO)) {
+			int taskNumber = getIndex(detailsOfTask);
+			returnMessage = editUndoRedo(detailsOfTask, file, taskNumber);
+			return returnMessage;
+		} else {
+			return Constants.MSG_EDIT_FAIL;
+		}
+	}
+
+	/**
+	 * edit the task which user choose
+	 * 
+	 * @param detailsOfTask
+	 * @param file
+	 * @param taskNumber
+	 * @return feedback message
+	 */
+	private static String editTask(Task detailsOfTask, File file, int taskNumber) {
+		if (detailsOfTask.getName() != null) {
+			tempStorage.get(taskNumber).setName(detailsOfTask.getName());
+		}
+		if (detailsOfTask.getDate() != null) {
+			tempStorage.get(taskNumber).setDate(detailsOfTask.getDate());
+		}
+		if (detailsOfTask.getStartTime() != null
+				&& detailsOfTask.getEndTime() != null) {
+			if (detailsOfTask.getStartTime().equals(Constants.NO_TIME)) {
+				detailsOfTask.setStartTime(null);
+			}
+			tempStorage.get(taskNumber).setStartTime(
+					detailsOfTask.getStartTime());
+			tempStorage.get(taskNumber).setEndTime(detailsOfTask.getEndTime());
+		} else if (detailsOfTask.getStartTime() != null
+				&& detailsOfTask.getEndTime() == null) {
+			if (detailsOfTask.getStartTime().equals(Constants.NO_TIME)) {
+				detailsOfTask.setStartTime(null);
+			}
+			tempStorage.get(taskNumber).setStartTime(
+					detailsOfTask.getStartTime());
+			tempStorage.get(taskNumber).setEndTime(null);
+		}
+		if (detailsOfTask.getDetails() != null) {
+			tempStorage.get(taskNumber).setDetails(detailsOfTask.getDetails());
+		} else if (detailsOfTask.getDetails() != null
+				&& detailsOfTask.getDetails().equals("")) {
+			tempStorage.get(taskNumber).setDetails(null);
+		}
+		if (detailsOfTask.getImportance() != Constants.ZERO - 1) {
+			tempStorage.get(taskNumber).setImportance(
+					detailsOfTask.getImportance());
+		}
+		return Constants.MSG_EDIT_SUCCESS;
+	}
+
+	private static String editUndoRedo(Task detailsOfTask, File file,
+			int taskNumber) {
+		tempStorage.get(taskNumber).setStartTime(detailsOfTask.getStartTime());
+		tempStorage.get(taskNumber).setEndTime(detailsOfTask.getEndTime());
+		tempStorage.get(taskNumber).setName(detailsOfTask.getName());
+		tempStorage.get(taskNumber).setDate(detailsOfTask.getDate());
+		tempStorage.get(taskNumber).setDetails(detailsOfTask.getDetails());
+		tempStorage.get(taskNumber)
+				.setImportance(detailsOfTask.getImportance());
+		return Constants.MSG_EDIT_SUCCESS;
+	}
+
+	/**
+	 * perform delete action
+	 * 
+	 * @param command
+	 * @param numOfTaskToDelete
+	 * @param task
+	 * @param file
+	 * @param archive
+	 * @return feedback message
+	 */
+	public static String delete(String command, int numOfTaskToDelete,
+			Task task, File file, File archive) {
+		String returnMessage;
+		if (tempStorage.size() == 0) {
+			if (undo.size() != 0
+					&& undo.peek().equals(Constants.ACTION_MIDWAY_DELETE)) {
+				undo.pop();
+				undo.push(Constants.ACTION_DELETE);
+			}
+			return Constants.MSG_DELETE_EMPTY;
+		}
+		if (Integer.parseInt(task.getParams()) <= 0
+				&& command.equals(Constants.ACTION_DELETE)) {
+			if (undo.size() != 0
+					&& undo.peek().equals(Constants.ACTION_MIDWAY_DELETE)) {
+				undo.pop();
+				undo.push(Constants.ACTION_DELETE);
+			}
+			return Constants.MSG_DELETE_FAIL;
+		} else if (command.equals(Constants.ACTION_DELETE)) {
+			String commandCheck = null;
+			if (undo.size() != 0
+					&& undo.peek().equals(Constants.ACTION_MIDWAY_DELETE)) {
+				commandCheck = undo.pop();
+			}
+			// DELETE FROM SEARCH LIST
+			if (undo.size() != 0 && undo.peek().equals(Constants.ACTION_SEARCH)
+					&& searchResults.size() != 0) {
+				int index = getIndex(task);
+				Task taskToDelete = new Task();
+				taskToDelete.copyOfTask(searchResults.get(index));
+				returnMessage = deleteLineFromSearchList(task, searchResults,
+						file, archive);
+				if (commandCheck == null) {
+					ArrayList<Task> deletedTask = new ArrayList<Task>();
+					deletedTask.add(taskToDelete);
+					assert (deletedTask.size() <= numOfTaskToDelete);
+					if (deletedTask.size() == numOfTaskToDelete
+							|| tempStorage.size() == Constants.ZERO
+							|| index == Constants.ZERO) {
+						undo.pop(); // remove Constants.COMMAND_SEARCH
+						sortByDateAndTime(tempStorage);
+						sortByDateAndTime(archiveStorage);
+						Storage.writeToFile(tempStorage, file);
+						Storage.writeToFile(archiveStorage, archive);
+						updateUndo(command, deletedTask);
+						clearRedo();
+						return returnMessage;
+					} else {
+						sortByDateAndTime(tempStorage);
+						sortByDateAndTime(archiveStorage);
+						Storage.writeToFile(tempStorage, file);
+						Storage.writeToFile(archiveStorage, archive);
+						updateUndo(Constants.ACTION_MIDWAY_DELETE, deletedTask);
+						return returnMessage;
+					}
+				}
+				if (commandCheck.equals(Constants.ACTION_MIDWAY_DELETE)) {
+					ArrayList<Task> deletedTask = undoTask.pop();
+					deletedTask.add(taskToDelete);
+					assert (deletedTask.size() <= numOfTaskToDelete);
+					if (deletedTask.size() == numOfTaskToDelete
+							|| tempStorage.size() == Constants.ZERO
+							|| index == Constants.ZERO) {
+						undo.pop(); 
+						sortByDateAndTime(tempStorage);
+						sortByDateAndTime(archiveStorage);
+						Storage.writeToFile(tempStorage, file);
+						Storage.writeToFile(archiveStorage, archive);
+						updateUndo(command, deletedTask);
+						clearRedo();
+						return returnMessage;
+					} else {
+						sortByDateAndTime(tempStorage);
+						sortByDateAndTime(archiveStorage);
+						Storage.writeToFile(tempStorage, file);
+						Storage.writeToFile(archiveStorage, archive);
+						updateUndo(Constants.ACTION_MIDWAY_DELETE, deletedTask);
+						return returnMessage;
+					}
+				}
+			} else { // DELETE FROM NORMAL STORAGE
+				if (undo.size() != 0
+						&& undo.peek().equals(Constants.ACTION_SEARCH)
+						&& searchResults.size() == 0) {
+					undo.pop();
+				}
+				int index = getIndex(task);
+				Task taskToDelete = new Task();
+				taskToDelete.copyOfTask(tempStorage.get(index));
+				returnMessage = deleteLineFromFile(index, task, file, archive);
+				if (commandCheck == null) {
+					ArrayList<Task> deletedTask = new ArrayList<Task>();
+					deletedTask.add(taskToDelete);
+					assert (deletedTask.size() <= numOfTaskToDelete
+							|| tempStorage.size() == Constants.ZERO || index == Constants.ZERO);
+					if (deletedTask.size() == numOfTaskToDelete) {
+						sortByDateAndTime(tempStorage);
+						sortByDateAndTime(archiveStorage);
+						Storage.writeToFile(tempStorage, file);
+						Storage.writeToFile(archiveStorage, archive);
+						updateUndo(command, deletedTask);
+						clearRedo();
+						return returnMessage;
+					} else {
+						sortByDateAndTime(tempStorage);
+						sortByDateAndTime(archiveStorage);
+						Storage.writeToFile(tempStorage, file);
+						Storage.writeToFile(archiveStorage, archive);
+						updateUndo(Constants.ACTION_MIDWAY_DELETE, deletedTask);
+						return returnMessage;
+					}
+				}
+				if (commandCheck.equals(Constants.ACTION_MIDWAY_DELETE)) {
+					ArrayList<Task> deletedTask = undoTask.pop();
+					deletedTask.add(taskToDelete);
+					assert (deletedTask.size() <= numOfTaskToDelete);
+					if (deletedTask.size() == numOfTaskToDelete
+							|| tempStorage.size() == Constants.ZERO
+							|| index == Constants.ZERO) {
+						sortByDateAndTime(tempStorage);
+						sortByDateAndTime(archiveStorage);
+						Storage.writeToFile(tempStorage, file);
+						Storage.writeToFile(archiveStorage, archive);
+						updateUndo(command, deletedTask);
+						clearRedo();
+						return returnMessage;
+					} else {
+						sortByDateAndTime(tempStorage);
+						sortByDateAndTime(archiveStorage);
+						Storage.writeToFile(tempStorage, file);
+						Storage.writeToFile(archiveStorage, archive);
+						updateUndo(Constants.ACTION_MIDWAY_DELETE, deletedTask);
+						return returnMessage;
+					}
+				}
+			}
+		} else if (command.equals(Constants.ACTION_REDO)) {
+			int index = tempStorage.indexOf(task);
+			returnMessage = deleteLineFromFile(index, task, file, archive);
+			sortByDateAndTime(archiveStorage);
+			Storage.writeToFile(archiveStorage, archive);
+			return returnMessage;
+		} else if (command.equals(Constants.ACTION_UNDO)) {
+			int index = tempStorage.indexOf(task);
+			returnMessage = deleteLineFromFile(index, task, file, archive);
+			archiveStorage.remove(archiveStorage.indexOf(task));
+			Storage.writeToFile(archiveStorage, archive);
+			return returnMessage;
+		} else {
+			return Constants.MSG_DELETE_FAIL;
+		}
+		return Constants.MSG_DELETE_FAIL;
+	}
+
+	/**
+	 * delete an item from file
+	 * 
+	 * @param index
+	 * @param task
+	 * @param file
+	 * @param archive
+	 * @return feedback message
+	 */
+	private static String deleteLineFromFile(int index, Task task, File file,
+			File archive) {
+		if (index == Constants.INVALID_NUMBER) {
+			return Constants.MSG_DELETE_EMPTY;
+		}
+		try {
+			String returnMessage = String.format(Constants.MSG_DELETE_SUCCESS,
+					index + 1, tempStorage.get(index).getName());
+
+			Task taskToDelete = tempStorage.remove(index);
+			archiveStorage.add(taskToDelete);
+
+			return returnMessage;
+		} catch (IndexOutOfBoundsException e) {
+			return String.format(Constants.MSG_BAD_INDEX, index + 1, 1,
+					tempStorage.size());
+		}
+	}
+
+	private static String deleteLineFromSearchList(Task task,
+			ArrayList<Task> searchResults, File file, File archive) {
+		if (searchResults.size() == 0) {
+			return Constants.MSG_DELETE_EMPTY;
+		}
+		int index = getIndex(task);
+		for (int i = 0; i < tempStorage.size(); i++) {
+			if (searchResults.get(index).equals(tempStorage.get(i))) {
+				Task taskToDelete = tempStorage.remove(i);
+				archiveStorage.add(taskToDelete);
+				sortByDateAndTime(tempStorage);
+				sortByDateAndTime(archiveStorage);
+				Storage.writeToFile(tempStorage, file);
+				Storage.writeToFile(archiveStorage, archive);
+				break;
+			}
+		}
+		return String.format(Constants.MSG_DELETE_SUCCESS, index + 1,
+				searchResults.get(index).getName());
+	}
+
+	/**
+	 * remove all tasks from tempStorage and move to archive
+	 * 
+	 * @param file
+	 * @param archive
+	 * @return feedback message
+	 */
+	public static String clearContent(File file, File archive) {
+		if (undo.size() != 0 && undo.peek().equals(Constants.ACTION_SEARCH)) {
+			undo.pop();
+		}
+		if (tempStorage.size() > 0) {
+			ArrayList<Task> deletedTask = new ArrayList<Task>();
+			for (int i = 0; i < tempStorage.size(); i++) {
+				Task taskToDelete = new Task();
+				taskToDelete.copyOfTask(tempStorage.get(i));
+				deletedTask.add(taskToDelete);
+				Task taskToArchive = new Task();
+				taskToArchive.copyOfTask(tempStorage.get(i));
+				archiveStorage.add(taskToArchive);
+			}
+			tempStorage.clear();
+			Storage.writeToFile(new ArrayList<Task>(), file);
+			sortByDateAndTime(archiveStorage);
+			Storage.writeToFile(archiveStorage, archive);
+			updateUndo(Constants.ACTION_DELETE_ALL, deletedTask);
+			return Constants.MSG_CLEARED_FILE;
+		} else {
+			return Constants.MSG_CLEAR_FAIL;
+		}
+	}
+
+	/**
+	 * remove all tasks from archive
+	 * 
+	 * @param file
+	 * @return feedback message
+	 */
+	public static String clearArchive(File file) {
+		if (undo.size() != 0 && undo.peek().equals(Constants.ACTION_SEARCH)) {
+			undo.pop();
+		}
+		if (archiveStorage.size() > 0) {
+			archiveStorage.clear();
+			Storage.writeToFile(new ArrayList<Task>(), file);
+			return Constants.MSG_CLEARED_FILE;
+		} else {
+			return Constants.MSG_CLEAR_FAIL;
+		}
+	}
+
+	private static int getIndex(Task task) {
+		try {
+			return Integer.parseInt(task.getParams()) - 1;
+		} catch (NumberFormatException e) {
+			System.out.println(String.format(Constants.MSG_WRONG_FORMAT,
+					task.getParams()));
+		}
+		return Constants.INVALID_NUMBER;
+	}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\Logic.java
+
+
+
+
+

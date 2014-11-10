@@ -1,0 +1,816 @@
+//@author: a0108380l
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\Logic.java
+	 */
+
+
+	/**
+	 * This function searches for tasks in tempStorage which occurs on the same
+	 * date and time as the taskToFind
+	 * 
+	 * @param taskToFind
+	 * @return search results
+	 */
+	public static ArrayList<Task> search(Task taskToFind) {
+		searchResults.clear();
+		assert tempStorage.size() >= 0 : "tempStorage.size() is negative";
+		for (int i = 0; i < tempStorage.size(); i++) {
+			Task taskInList = tempStorage.get(i);
+			// Filtering name
+			if (taskToFind.getName() != null
+					&& taskInList.getDetails() != null
+					&& taskInList.getDetails().toLowerCase()
+							.contains(taskToFind.getName().toLowerCase())) {
+				searchResults.add(taskInList);
+				continue;
+			}
+			if (taskToFind.getName() != null
+					&& taskInList.getName() != null
+					&& !taskInList.getName().toLowerCase()
+							.contains(taskToFind.getName().toLowerCase())) {
+				continue;
+			}
+			if (taskToFind.getDate() != null && taskInList.getDate() != null
+					&& !taskInList.getDate().equals(taskToFind.getDate())) {
+				continue;
+			}
+			if (taskToFind.getDate() != null && taskInList.getDate() == null) {
+				continue;
+			}
+			searchResults.add(taskInList);
+		}
+		undo.push(Constants.ACTION_SEARCH);
+		return searchResults;
+	}
+
+	/**
+	 * This function searches for tasks in tempStorage which occurs on the same
+	 * date and time as the taskToFind
+	 * 
+	 * @param taskToFind
+	 * @return search results
+	 */
+	public static ArrayList<Task> searchForCheckClash(Task taskToFind) {
+		searchResults.clear();
+
+		assert tempStorage.size() >= 0 : "tempStorage.size() is negative";
+		if (taskToFind.getStartTime() != null
+				&& taskToFind.getStartTime().equals(Constants.NO_TIME)) {
+			return searchResults;
+		}
+		if (taskToFind.getDate() == null) {
+			int taskLocation = getIndex(taskToFind);
+			taskToFind.setDate(tempStorage.get(taskLocation).getDate());
+		}
+		try {
+			for (int i = 0; i < tempStorage.size(); i++) {
+				Task taskInList = tempStorage.get(i);
+				// Filtering name
+				if (taskToFind.getDate() != null
+						&& taskInList.getDate() != null
+						&& !taskInList.getDate().equals(taskToFind.getDate())) {
+					continue;
+				}
+				if (taskToFind.getDate() != null
+						&& taskInList.getDate() == null) {
+					continue;
+				}
+
+				if (taskToFind.getStartTime() != null
+						&& taskToFind.getEndTime() != null) {
+					Date timeFindStart = Constants.timeFormatOne
+							.parse(taskToFind.getStartTime());
+					Date timeFindEnd = Constants.timeFormatOne.parse(taskToFind
+							.getEndTime());
+					if (taskInList.getStartTime() != null
+							&& taskInList.getEndTime() != null) {
+						Date timeInListStart = Constants.timeFormatOne
+								.parse(taskInList.getStartTime());
+						Date timeInListEnd = Constants.timeFormatOne
+								.parse(taskInList.getEndTime());
+
+						if (timeFindStart.compareTo(timeInListEnd) >= 0
+								|| timeFindEnd.compareTo(timeInListStart) <= 0) {
+							continue;
+						} else {
+							searchResults.add(taskInList);
+							continue;
+						}
+					} else if (taskInList.getStartTime() != null
+							&& taskInList.getEndTime() == null) {
+						Date timeInListStart = Constants.timeFormatOne
+								.parse(taskInList.getStartTime());
+						if (timeFindStart.compareTo(timeInListStart) > 0
+								|| timeFindEnd.compareTo(timeInListStart) <= 0) {
+							continue;
+						} else {
+							searchResults.add(taskInList);
+						}
+					}
+				} else if (taskToFind.getStartTime() != null
+						&& taskToFind.getEndTime() == null) {
+					Date timeFindStart = Constants.timeFormatOne
+							.parse(taskToFind.getStartTime());
+
+					if (taskInList.getStartTime() != null
+							&& taskInList.getEndTime() != null) {
+						Date timeInListStart = Constants.timeFormatOne
+								.parse(taskInList.getStartTime());
+						Date timeInListEnd = Constants.timeFormatOne
+								.parse(taskInList.getEndTime());
+						if (timeFindStart.compareTo(timeInListEnd) >= 0
+								|| timeFindStart.compareTo(timeInListStart) < 0) {
+							continue;
+						} else {
+							searchResults.add(taskInList);
+							continue;
+						}
+					} else if (taskInList.getStartTime() != null
+							&& taskInList.getEndTime() == null) {
+						Date timeInListStart = Constants.timeFormatOne
+								.parse(taskInList.getStartTime());
+						if (timeFindStart.compareTo(timeInListStart) != 0) {
+							continue;
+						} else {
+							searchResults.add(taskInList);
+							continue;
+						}
+					}
+				}
+
+				if (taskToFind.getStartTime() != null
+						&& taskInList.getStartTime() == null) {
+					continue;
+				}
+				searchResults.add(taskInList);
+			}
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, String.format(
+					Constants.INVALID_TIME_FORMAT, "searchForCheckClash"));
+		}
+		return searchResults;
+	}
+
+	/**
+	 * This function search for the tasks in tempStorage within a range of
+	 * dates.
+	 * 
+	 * @param taskStartOfRange
+	 * @param taskEndOfRange
+	 * @return
+	 */
+	public static ArrayList<Task> searchRangeOfDate(Task taskStartOfRange,
+			Task taskEndOfRange) {
+		searchResults.clear();
+		Date dateStart = new Date();
+		Date dateEnd = new Date();
+		try {
+			dateStart = Constants.dateFormat.parse(taskStartOfRange.getDate());
+			dateEnd = Constants.dateFormat.parse(taskEndOfRange.getDate());
+
+			assert tempStorage.size() >= 0 : "tempStorage.size() is negative";
+
+			for (int i = 0; i < tempStorage.size(); i++) {
+				if (tempStorage.get(i).getDate().equals(Constants.DATE_FT)) {
+					continue;
+				} else {
+					Date dateCheck = new Date();
+					Task taskInList = tempStorage.get(i);
+					dateCheck = Constants.dateFormat
+							.parse(taskInList.getDate());
+
+					if (dateCheck.compareTo(dateStart) >= 0
+							&& dateCheck.compareTo(dateEnd) <= 0) {
+						searchResults.add(taskInList);
+					}
+				}
+			}
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, String.format(
+					Constants.INVALID_DATE_FORMAT, "searchRangeOfDate"));
+		}
+		undo.push(Constants.ACTION_SEARCH);
+		return searchResults;
+	}
+
+	/**
+	 * This function undo the last action done by the user.
+	 * 
+	 * @param file
+	 * @param archive
+	 * @return
+	 */
+	public static String undo(File file, File archive) {
+		if (undo.empty()) {
+			return Constants.MSG_NO_PREVIOUS_ACTION;
+		} else if (undo.size() != 0
+				&& undo.peek().equals(Constants.ACTION_SEARCH)) {
+			undo.pop();
+			return undo(file, archive);
+		} else if (undo.peek().equals(Constants.ACTION_MIDWAY_DELETE)) {
+			undo.pop();
+			undo.push(Constants.ACTION_DELETE);
+			return undo(file, archive);
+		} else {
+
+			String lastCommand = undo.pop();
+
+			if (lastCommand.equals(Constants.ACTION_ADD)) {
+				ArrayList<Task> taskToBeDeleted = undoTask.pop();
+				Task taskToDelete = new Task();
+				Integer taskLocation = tempStorage.indexOf(taskToBeDeleted
+						.get(Constants.ZERO)) + 1;
+				taskToDelete.setParams(taskLocation.toString());
+				delete(Constants.ACTION_UNDO, taskToBeDeleted.size(),
+						taskToBeDeleted.get(Constants.ZERO), file, archive);
+				updateRedo(lastCommand, taskToBeDeleted);
+			} else if (lastCommand.equals(Constants.ACTION_DELETE)
+					|| lastCommand.equals(Constants.ACTION_DELETE_ALL)) {
+				ArrayList<Task> taskToBeAdded = undoTask.pop();
+				for (int i = 0; i < taskToBeAdded.size(); i++) {
+					Task taskToAdd = new Task();
+					taskToAdd.copyOfTask(taskToBeAdded.get(i));
+					add(Constants.ACTION_UNDO, taskToAdd, file);
+					if (archiveStorage.size() > 0) {
+						if (archiveStorage.contains(taskToAdd)) {
+							archiveStorage.remove(archiveStorage
+									.indexOf(taskToAdd));
+						}
+					}
+				}
+				sortByDateAndTime(archiveStorage);
+				Storage.writeToFile(archiveStorage, archive);
+				updateRedo(lastCommand, taskToBeAdded);
+			} else if (lastCommand.equals(Constants.ACTION_EDIT)) {
+				Task undoEditedTask = new Task();
+				ArrayList<Task> taskToBeEdited = undoTask.pop();
+				Integer taskNumber = tempStorage.indexOf(taskToBeEdited
+						.get(Constants.ZERO + 1)) + 1;
+				undoEditedTask.copyOfTask(taskToBeEdited.get(Constants.ZERO));
+				undoEditedTask.setParams(taskNumber.toString());
+				edit(Constants.ACTION_UNDO, undoEditedTask, file);
+				updateRedo(lastCommand, taskToBeEdited);
+			} else {
+				assert false; // Execution should never reach this point
+			}
+			sortByDateAndTime(tempStorage);
+			Storage.writeToFile(tempStorage, file);
+			return Constants.MSG_UNDO_SUCCESS;
+		}
+	}
+
+	/**
+	 * This function redo the last action undone by the user
+	 * 
+	 * @param file
+	 * @param archive
+	 * @return feedback message
+	 */
+	public static String redo(File file, File archive) {
+		if (redo.empty()) {
+			return Constants.MSG_NO_FUTURE_ACTION;
+		} else if (undo.size() != 0
+				&& undo.peek().equals(Constants.ACTION_SEARCH)) {
+			undo.pop();
+			return redo(file, archive);
+		} else {
+			String lastCommand = redo.pop();
+			if (lastCommand.equals(Constants.ACTION_ADD)) {
+				ArrayList<Task> taskToBeAdded = redoTask.pop();
+				add(Constants.ACTION_REDO, taskToBeAdded.get(Constants.ZERO),
+						file);
+				updateUndo(lastCommand, taskToBeAdded);
+
+			} else if (lastCommand.equals(Constants.ACTION_DELETE)) {
+				ArrayList<Task> taskToBeDeleted = redoTask.pop();
+				for (int i = 0; i < taskToBeDeleted.size(); i++) {
+					delete(Constants.ACTION_REDO, taskToBeDeleted.size(),
+							taskToBeDeleted.get(i), file, archive);
+				}
+				updateUndo(lastCommand, taskToBeDeleted);
+			} else if (lastCommand.equals(Constants.ACTION_EDIT)) {
+				Task redoEditedTask = new Task();
+				ArrayList<Task> taskToBeEdited = redoTask.pop();
+				Integer taskNumber = tempStorage.indexOf(taskToBeEdited
+						.get(Constants.ZERO)) + 1;
+				redoEditedTask.copyOfTask(taskToBeEdited
+						.get(Constants.ZERO + 1));
+				redoEditedTask.setParams(taskNumber.toString());
+				edit(Constants.ACTION_REDO, redoEditedTask, file);
+
+				updateUndo(lastCommand, taskToBeEdited);
+			} else if (lastCommand.equals(Constants.ACTION_DELETE_ALL)) {
+				clearContent(file, archive);
+			} else {
+				assert false; // Execution should never reach this point
+			}
+			sortByDateAndTime(tempStorage);
+			Storage.writeToFile(tempStorage, file);
+			return Constants.MSG_REDO_SUCCESS;
+		}
+	}
+
+	/**
+	 * This method sort the ArrayList based on Date and Time Task with dates
+	 * will be in front of the list and floating task will be at the end Task
+	 * without time will be in front of the task with time in the same day. If
+	 * task have same date and time, it will be based on the order of being
+	 * added.
+	 * 
+	 * @param listOfTask
+	 * @return feedback message
+	 */
+	public static String sortByDateAndTime(ArrayList<Task> listOfTask) {
+		Task.setSortedByTime(true);
+		Date dateFirst = new Date();
+		Date dateSecond = new Date();
+		Date timeFirst = new Date();
+		Date timeSecond = new Date();
+		Constants.dateFormat.setLenient(false);
+		Constants.timeFormatOne.setLenient(false);
+		if (listOfTask.size() < 1) {
+			return Constants.MSG_NO_TASKS_TO_SORT;
+		} else {
+			try {
+				for (int i = 0; i < listOfTask.size(); i++) {
+					boolean isSorted = true;
+
+					for (int j = 0; j < listOfTask.size() - 1; j++) {
+						assert (listOfTask.get(j).getDate() != null);
+						assert (listOfTask.get(j + 1).getDate() != null);
+						int firstTaskOrder = Integer.parseInt(listOfTask.get(j)
+								.getParams());
+						int secondTaskOrder = Integer.parseInt(listOfTask.get(
+								j + 1).getParams());
+						if (listOfTask.get(j).getDate()
+								.equals(Constants.DATE_FT)
+								&& !listOfTask.get(j + 1).getDate()
+										.equals(Constants.DATE_FT)) {
+							listOfTask.add(j + 2, listOfTask.get(j));
+							listOfTask.remove(j);
+							isSorted = false;
+							continue;
+						} else if (!listOfTask.get(j).getDate()
+								.equals(Constants.DATE_FT)
+								&& listOfTask.get(j + 1).getDate()
+										.equals(Constants.DATE_FT)) {
+							continue;
+						} else if (listOfTask.get(j).getDate()
+								.equals(Constants.DATE_FT)
+								&& listOfTask.get(j + 1).getDate()
+										.equals(Constants.DATE_FT)) {
+							if (firstTaskOrder > secondTaskOrder) {
+								listOfTask.add(j + 2, listOfTask.get(j));
+								listOfTask.remove(j);
+								isSorted = false;
+							}
+							continue;
+						} else {
+							dateFirst = Constants.dateFormat.parse(listOfTask
+									.get(j).getDate());
+							dateSecond = Constants.dateFormat.parse(listOfTask
+									.get(j + 1).getDate());
+							if (dateFirst.compareTo(dateSecond) > 0) {
+								listOfTask.add(j + 2, listOfTask.get(j));
+								listOfTask.remove(j);
+								isSorted = false;
+								continue;
+							} else if (dateFirst.compareTo(dateSecond) == 0) {
+								if (listOfTask.get(j).getStartTime() == null && listOfTask.get(j).getStartTime()==null) {
+									if (firstTaskOrder > secondTaskOrder) {
+										listOfTask.add(j + 2,
+												listOfTask.get(j));
+										listOfTask.remove(j);
+										isSorted = false;
+									}
+								} else if (listOfTask.get(j).getStartTime() != null
+										&& listOfTask.get(j + 1).getStartTime() == null) {
+									listOfTask.add(j + 2, listOfTask.get(j));
+									listOfTask.remove(j);
+									isSorted = false;
+									continue;
+								} else {
+									timeFirst = Constants.timeFormatOne
+											.parse(listOfTask.get(j)
+													.getStartTime());
+									timeSecond = Constants.timeFormatOne
+											.parse(listOfTask.get(j + 1)
+													.getStartTime());
+									if (timeFirst.compareTo(timeSecond) > 0) {
+										listOfTask
+												.add(j + 2, listOfTask.get(j));
+										listOfTask.remove(j);
+										isSorted = false;
+										continue;
+									} else if (timeFirst.compareTo(timeSecond) == 0) {
+										if (firstTaskOrder > secondTaskOrder) {
+											listOfTask.add(j + 2,
+													listOfTask.get(j));
+											listOfTask.remove(j);
+											isSorted = false;
+										}
+										continue;
+									} else {
+										continue;
+									}
+								}
+							} else {
+								continue;
+							}
+						}
+					}
+					if (isSorted) {
+						Task.setSortedByTime(true);
+						return String.format(Constants.MSG_SORT_SUCCESS,
+								"date and time");
+					}
+				}
+
+			} catch (ParseException e) {
+				logger.log(Level.WARNING, String.format(
+						Constants.INVALID_CHRONO_FORMAT, "sortByDateAndTime"));
+			}
+			Task.setSortedByTime(true);
+			return String.format(Constants.MSG_SORT_SUCCESS, "date and time");
+		}
+	}
+
+	/**
+	 * This method is to sort the ArrayList in alphabetical order.
+	 * 
+	 * @param listOfTask
+	 * @return feedback message
+	 */
+	public static String sortByAlphabet(ArrayList<Task> listOfTask) {
+		if (listOfTask.size() < 1) {
+			return Constants.MSG_NO_TASKS_TO_SORT;
+		} else {
+			for (int i = 0; i < listOfTask.size(); i++) {
+				boolean isSorted = true;
+				for (int j = 0; j < listOfTask.size() - 1; j++) {
+					assert (listOfTask.get(j).getName() != null);
+					if (listOfTask
+							.get(j)
+							.getName()
+							.compareToIgnoreCase(
+									listOfTask.get(j + 1).getName()) > 0) {
+						listOfTask.add(j + 2, listOfTask.get(j));
+						listOfTask.remove(j);
+						isSorted = false;
+					}
+				}
+				if (isSorted) {
+					return String.format(Constants.MSG_SORT_SUCCESS,
+							"alphabetical order");
+				}
+			}
+			return Constants.MSG_SORT_FAIL;
+		}
+	}
+
+	/**
+	 * This method is to sort the ArrayList based on importance from most
+	 * important to least.
+	 * 
+	 * @param listOfTask
+	 * @return feedback message
+	 */
+	public static String sortByImportance(ArrayList<Task> listOfTask) {
+		if (listOfTask.size() < 1) {
+			return Constants.MSG_NO_TASKS_TO_SORT;
+		} else {
+			for (int i = 0; i < listOfTask.size(); i++) {
+				boolean isSorted = true;
+				for (int j = 0; j < listOfTask.size() - 1; j++) {
+					if (listOfTask.get(j).getImportance() < listOfTask.get(
+							j + 1).getImportance()) {
+						listOfTask.add(j + 2, listOfTask.get(j));
+						listOfTask.remove(j);
+						isSorted = false;
+					}
+				}
+				if (isSorted) {
+					return String.format(Constants.MSG_SORT_SUCCESS,
+							"importance level");
+				}
+			}
+		}
+		return Constants.MSG_SORT_FAIL;
+	}
+
+	/**
+	 * This method is to update the undo stack and undoTask stack.
+	 * 
+	 * @param command
+	 * @param listOfTask
+	 */
+	private static void updateUndo(String command, ArrayList<Task> listOfTask) {
+		undo.push(command);
+		undoTask.push(listOfTask);
+	}
+
+	/**
+	 * This method is to update the redo stack and redoTask stack.
+	 * 
+	 * @param command
+	 * @param listOfTask
+	 */
+	private static void updateRedo(String command, ArrayList<Task> listOfTask) {
+		redo.push(command);
+		redoTask.push(listOfTask);
+	}
+
+	/**
+	 * This method is to update the redo stack and redoTask stack.
+	 */
+	private static void clearRedo() {
+		redo.clear();
+		redoTask.clear();
+	}
+
+	// Following methods are used for junit testing.
+	// This method is used to check the content of tempStorage for junit
+	// testing.
+	public static String printTempStorage() {
+		String string = "";
+		for (int i = 0; i < tempStorage.size(); i++) {
+			Integer importance = tempStorage.get(i).getImportance();
+			string = string + tempStorage.get(i).getName() + " "
+					+ tempStorage.get(i).getDate() + " "
+					+ tempStorage.get(i).getStartTime() + " "
+					+ tempStorage.get(i).getEndTime() + " "
+					+ tempStorage.get(i).getDetails() + " "
+					+ importance.toString() + " "
+					+ tempStorage.get(i).getParams() + "\n";
+		}
+		return string;
+	}
+
+	// This method is used to check the content of archiveStorage for junit
+	// testing.
+	public static String printTempArchive() {
+		String string = "";
+		for (int i = 0; i < archiveStorage.size(); i++) {
+			Integer importance = archiveStorage.get(i).getImportance();
+			string = string + archiveStorage.get(i).getName() + " "
+					+ archiveStorage.get(i).getDate() + " "
+					+ archiveStorage.get(i).getStartTime() + " "
+					+ archiveStorage.get(i).getEndTime() + " "
+					+ archiveStorage.get(i).getDetails() + " "
+					+ importance.toString() + " "
+					+ archiveStorage.get(i).getParams() + "\n";
+		}
+		return string;
+	}
+
+	// This method is used to clear the undo and redo stack at the start of each
+	// junit test.
+	public static void clearUndoRedo() {
+		undo.clear();
+		undoTask.clear();
+		clearRedo();
+	}
+
+	// This method is used to clear the file at the start of each junit test.
+	public static void clearAll(File file) {
+		tempStorage.clear();
+		archiveStorage.clear();
+		Storage.writeToFile(new ArrayList<Task>(), file);
+	}
+
+	// This method is to call sortByAlphabet for junit test
+	public static void sortAlpha() {
+		sortByAlphabet(tempStorage);
+	}
+
+	// This method is to call sortByDateAndTime for junit test
+	public static void sortChrono() {
+		sortByDateAndTime(tempStorage);
+	}
+
+	// This method is to call sortByImporance for junit test
+	public static void sortImportance() {
+		sortByImportance(tempStorage);
+	}
+
+	// Returns first index of non-overdue. Use in deleting past tasks before
+	// that index.
+	public static int getFirstNotOverdueInList() {
+		Date currentDate = new Date();
+		currentDate = removeTime(currentDate);
+		for (int i = 0; i < tempStorage.size(); i++) {
+			if (tempStorage.get(i).getDate().contains(Constants.DATE_FT)) {
+				return i + 1;
+			} else {
+				try {
+					Date dateOfCurrentTask = Constants.dateFormat
+							.parse(tempStorage.get(i).getDate());
+					dateOfCurrentTask = removeTime(dateOfCurrentTask);
+					if (dateOfCurrentTask.compareTo(currentDate) >= 0) {
+						return i + 1;
+					}
+				} catch (ParseException e) {
+					logger.log(Level.WARNING, String.format(
+							Constants.INVALID_DATE_FORMAT,
+							"getFirstNotOverdueInList"));
+
+				}
+			}
+		}
+		return tempStorage.size() + 1;
+	}
+
+	// For use in delete past. Need to remove time of all dates for comparison.
+	private static Date removeTime(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return cal.getTime();
+	}
+}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\Logic.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\Storage.java
+	 */
+
+	// This function serves to write all the task in the text file into temp storage.
+	public static boolean copyToArrayList(File file, ArrayList<Task> tempStorage) {
+		Scanner input;
+		try {
+			input = new Scanner(file);
+
+			if (!input.hasNext()) {
+				input.close();
+			} else {
+				for(Integer i =0; input.hasNext(); i++) {
+					Task task = new Task();
+					String currentTask = input.nextLine();
+					assignValuesToTask(i, task, currentTask);
+					
+					tempStorage.add(task);
+
+				}
+				input.close();
+			}
+		} catch (FileNotFoundException e) {
+			logger.log(Level.WARNING, "no storage.txt");
+			openFile(file.getName());
+			return false;
+
+		}
+		logger.log(Level.INFO, "end of writing to temporary storage");
+		return true;
+	}
+	
+	// This function serves to extract the information from the string and assign to corresponding portion in task.
+	private static void assignValuesToTask(Integer taskNumber, Task task,
+			String currentTask) {
+		task.setName(currentTask.substring(0, currentTask.indexOf(Constants.DIVIDER_DATE)));
+
+		currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_DATE));
+		currentTask = currentTask.replaceFirst(Constants.DIVIDER_DATE,"");
+
+		task.setDate(currentTask.substring(0,currentTask.indexOf(Constants.DIVIDER_START_TIME)));
+		currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_START_TIME));
+		currentTask = currentTask.replaceFirst((Constants.DIVIDER_START_TIME),"");
+		
+		String taskStartTime = currentTask.substring(0,currentTask.indexOf(Constants.DIVIDER_END_TIME));
+		if (taskStartTime.equals("null")){
+			task.setStartTime(null);
+		}
+		else{
+			task.setStartTime(taskStartTime);
+		}
+		
+		currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_END_TIME));
+		currentTask = currentTask.replaceFirst((Constants.DIVIDER_END_TIME),"");
+		String taskEndTime = currentTask.substring(0,currentTask.indexOf(Constants.DIVIDER_DETAILS));
+		if (taskEndTime.equals("null")){
+			task.setEndTime(null);
+		}
+		else{
+			task.setEndTime(taskEndTime);
+		}
+		
+		currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_DETAILS));
+		currentTask = currentTask.replaceFirst((Constants.DIVIDER_DETAILS),"");
+
+
+		String taskDetails = currentTask.substring(0,currentTask.indexOf(Constants.DIVIDER_IMPORTANCE));
+		if (taskDetails.equals("null")){
+			task.setDetails(null);
+		}
+		else{
+			task.setDetails(taskDetails);
+		}
+		currentTask = currentTask.substring(currentTask.indexOf(Constants.DIVIDER_IMPORTANCE));
+		currentTask = currentTask.replaceFirst((Constants.DIVIDER_IMPORTANCE),"");
+
+
+		task.setImportance(Integer.parseInt(currentTask));
+		task.setParams(taskNumber.toString());
+	}
+
+	// This function serves to write all the task in the tempStorage into the text file.
+	public static boolean writeToFile(ArrayList<Task> tempStorage, File file) {
+		logger.log(Level.INFO, "going to start writing to writing to " + file.getName());
+		BufferedWriter fileWritten;
+		String toWriteInFile;
+		try {
+			clear(file);
+			fileWritten = new BufferedWriter(new FileWriter(file.getName(),true));
+
+			for(int i=0; i<tempStorage.size();i++){
+
+				Task currentTask = tempStorage.get(i);
+				toWriteInFile = taskToString(currentTask);
+
+				fileWritten.write(toWriteInFile);
+			}
+			fileWritten.close();
+		} catch (IOException e) {
+			logger.log(Level.INFO, "unable to write to Storage.txt / archive.txt");
+			
+			return false;
+		}
+		logger.log(Level.INFO, "end of writing to " + file.getName());
+		return true;
+
+	}
+	
+	// This function serves to convert the task into a string with dividers in between each detail of the task.
+	private static String taskToString(Task currentTask) {
+		return currentTask.getName() 
+				+ Constants.DIVIDER_DATE + currentTask.getDate()
+				+ Constants.DIVIDER_START_TIME + currentTask.getStartTime() 
+				+ Constants.DIVIDER_END_TIME + currentTask.getEndTime()
+				+ Constants.DIVIDER_DETAILS + currentTask.getDetails() 
+				+ Constants.DIVIDER_IMPORTANCE + currentTask.getImportance()+"\n";
+	}
+
+
+	// This function serves to clear the file.
+	private static void clear(File file) {
+		try {
+			BufferedWriter bw =new BufferedWriter(new FileWriter (file,false));
+			bw.write("");
+			bw.close();
+		} catch (IOException e) {
+
+		}
+	}
+
+	// Creates a text file if the text file is missing or for first time usage.
+	public static File openFile(String fileName) {
+		File file = new File(fileName);
+		try {
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+		} catch (IOException e) {
+			System.out.println(Constants.MSG_FAIL_READ_FILE);
+		}
+		return file;
+	}
+}
+
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\Storage.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\Task.java
+	 */
+
+	public void copyOfTask( Task task){
+		this.setName(task.getName());
+		this.setDate(task.getDate());
+		this.setStartTime(task.getStartTime());
+		this.setEndTime(task.getEndTime());
+		this.setDetails(task.getDetails());
+		this.setImportance(task.getImportance());
+		this.setParams(task.getParams());
+	}
+}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\Task.java
+
+
+
+
+

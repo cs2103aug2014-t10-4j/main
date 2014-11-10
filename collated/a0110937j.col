@@ -1,0 +1,2658 @@
+//@author: a0110937j
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\AntiNaturalProcessor.java
+	 */
+
+
+//The following class creates loop for attribute Processor.
+//If any attribute is found, an error message will be assigned
+class AntiNaturalProcessor extends NaturalProcessor {
+
+	@Override
+	protected void assignErrorMsg(String[] parsedInput, Processor processor) {
+		if (parsedInput[processor.getItemPosition()] != null
+				&& parsedInput[Constants.ERROR_MSG_POSITION] == null) {
+			assignErrorMsg(parsedInput, Constants.ERROR_EXTRA_ITEM);
+		}
+	}
+
+	protected void assignErrorMsg(String[] parsedInput, String message) {
+		parsedInput[Constants.ERROR_MSG_POSITION] = message;
+		parsedInput[Constants.COMMAND_POSITION] = Constants.ERROR;
+	}
+}
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\AntiNaturalProcessor.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\AutoDateProcessor.java
+	 */
+
+import java.util.ArrayList;
+
+//The following class assigns today's date if no date is found
+
+class AutoDateProcessor extends DateProcessor {
+	@Override
+	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		putAllFullStop(input, fullStopArr);
+		if (parsedInput[Constants.ERROR_MSG_POSITION] == null) {
+			String possibleDate = null;
+			assignDateIfPossible(input, parsedInput, index);
+		}
+	}
+
+	private void assignDateIfPossible(String[] input, String[] parsedInput,
+			Index index) {
+		String possibleDate;
+		if (parsedInput[Constants.DATE_POSITION] == null) {
+			possibleDate = formatDate(index.getValue(), input,
+					new DateFormatter());
+			checkAndAssignDate(parsedInput, index, possibleDate);
+			index.decrement();
+		}
+	}
+
+	private void checkAndAssignDate(String[] parsedInput, Index index,
+			String possibleDate) {
+		if (validateDate(possibleDate)) {
+			assignDate(parsedInput, index, possibleDate);
+		}
+	}
+}
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\AutoDateProcessor.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\CommandProcessor.java
+	 */
+
+import java.util.ArrayList;
+
+//The following class checks and assign valid command
+class CommandProcessor extends Processor {
+
+	public void process(String[] parsedInput, String[] input, Index index) {
+		if (isPartOfList(input[index.getValue()], Constants.LIST_DETAILS)) {
+			index.setValue(input.length);
+		} else {
+			assignIfPossible(parsedInput, input, index);
+		}
+	}
+
+	private void assignAddIfPossible(String[] parsedInput, String[] input,
+			Index index) {
+		if (parsedInput[Constants.COMMAND_POSITION] == null) {
+			assignCommand(parsedInput, input, index,
+					getFirstMember(Constants.LIST_ADD));
+		}
+	}
+
+	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		putAllFullStop(input, fullStopArr);
+		assignAddIfPossible(parsedInput, input, index);
+	}
+
+	private void assignIfPossible(String[] parsedInput, String[] input,
+			Index index) {
+		if (isIndexValid(index.getValue(), input)) {
+			if (parsedInput[Constants.COMMAND_POSITION] == null) {
+				String command = getCommand(input, index, parsedInput);
+				if (command != null) {
+					assignCommand(parsedInput, input, index, command);
+				}
+			}
+		}
+	}
+
+	private void assignCommand(String[] parsedInput, String[] input,
+			Index index, String command) {
+		parsedInput[Constants.COMMAND_POSITION] = command;
+		index.increment();
+	}
+
+	private String getCommand(String[] input, Index index, String[] parsedInput) {
+
+		if (isPartOfList(input[index.getValue()], Constants.LIST_ADD)) {
+			return getFirstMember(Constants.LIST_ADD);
+		} else if (isPartOfList(input[index.getValue()], Constants.LIST_EDIT)) {
+			return getFirstMember(Constants.LIST_EDIT);
+		} else if (isPartOfList(input[index.getValue()], Constants.LIST_SEARCH)) {
+			return getFirstMember(Constants.LIST_SEARCH);
+		} else if (isPartOfList(input[index.getValue()], Constants.LIST_UNDO)) {
+			return getFirstMember(Constants.LIST_UNDO);
+		} else if (isPartOfList(input[index.getValue()], Constants.LIST_REDO)) {
+			return getFirstMember(Constants.LIST_REDO);
+		} else if (isPartOfList(input[index.getValue()], Constants.LIST_EXIT)) {
+			return getFirstMember(Constants.LIST_EXIT);
+		} else if (isSpecialCommand(input, index, Constants.LIST_CLEAR_ARCHIVE,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_CLEAR_ARCHIVE);
+		} else if (isSpecialCommand(input, index, Constants.LIST_CLEAR,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_CLEAR);
+		} else if (isSpecialCommand(input, index, Constants.LIST_SHOW_FLOATING,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_SHOW_FLOATING);
+		} else if (isSpecialCommand(input, index, Constants.LIST_SHOW_ALL,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_SHOW_ALL);
+		} else if (isSpecialCommand(input, index, Constants.LIST_SHOW_DETAILS,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_SHOW_DETAILS);
+		} else if (isSpecialCommand(input, index, Constants.LIST_HIDE_DETAILS,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_HIDE_DETAILS);
+		} else if (isSpecialCommand(input, index, Constants.LIST_SORT_IMPT,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_SORT_IMPT);
+		} else if (isSpecialCommand(input, index, Constants.LIST_SORT_ALPHA,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_SORT_ALPHA);
+		} else if (isSpecialCommand(input, index, Constants.LIST_SORT_TIME,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_SORT_TIME);
+		} else if (isSpecialCommand(input, index, Constants.LIST_DELETE_ALL,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_DELETE_ALL);
+		} else if (isSpecialCommand(input, index, Constants.LIST_DELETE_PAST,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_DELETE_PAST);
+		} else if (isSpecialCommand(input, index, Constants.LIST_DELETE_TODAY,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_DELETE_TODAY);
+		} else if (isPartOfList(input, index, Constants.LIST_DELETE_DATE)) {
+			return getFirstMember(Constants.LIST_DELETE_DATE);
+		} else if (isSpecialCommand(input, index, Constants.LIST_SHOW_TODAY,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_SHOW_TODAY);
+		} else if (isSpecialCommand(input, index, Constants.LIST_SHOW_WEEK,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_SHOW_WEEK);
+		} else if (isSpecialCommand(input, index,
+				Constants.LIST_SHOW_THIS_WEEK, parsedInput)) {
+			return getFirstMember(Constants.LIST_SHOW_THIS_WEEK);
+		} else if (isSpecialCommand(input, index,
+				Constants.LIST_SHOW_NEXT_WEEK, parsedInput)) {
+			return getFirstMember(Constants.LIST_SHOW_NEXT_WEEK);
+		} else if (isSpecialCommand(input, index, Constants.LIST_VIEW_ARCHIVE,
+				parsedInput)) {
+			return getFirstMember(Constants.LIST_VIEW_ARCHIVE);
+		} else if (isPartOfList(input[index.getValue()], Constants.LIST_DELETE)) {
+			return getFirstMember(Constants.LIST_DELETE);
+		}
+		return null;
+	}
+
+	// check if a String is part of the list
+	private boolean isSpecialCommand(String[] input, Index index,
+			String[] list, String[] parsedInput) {
+		for (int i = 0; i < list.length; i++) {
+			if (input == null) {
+				return false;
+			}
+			if (isFirstInstance(index.getValue())
+					&& isMatchString(input, index, list[i])) {
+				if (isRestEmpty(input, index.getValue())) {
+					return true;
+				} else {
+					assignErrorMsg(parsedInput, Constants.ERROR_MSG_SPECIAL_COM);
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean isFirstInstance(int index) {
+		return index == 0;
+	}
+
+	private boolean isRestEmpty(String[] input, int index) {
+		if ((input.length - 1) == index) {
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public int getItemPosition() {
+		return Constants.COMMAND_POSITION;
+	}
+
+	@Override
+	public String getItemName() {
+		return Constants.COMMAND_NAME;
+	}
+
+}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\CommandProcessor.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\DateFormatter.java
+	 */
+
+import java.text.ParseException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+//The following class formats various date inputs to dd/MM/yyyy
+
+public class DateFormatter {
+	private static Logger logger = Logger.getLogger(Constants.DATE_FORMATTER);
+
+	private String getCentury() {
+		Date today = new Date();
+		return Constants.yearFormat.format(today).substring(0, 2);
+	}
+
+	public String formatDate(Integer index, String[] input) {
+		Date today = new Date();
+		return Constants.dateFormat.format(today);
+	}
+
+	private String addSlashes(String[] temp) {
+		String result = new String(Constants.EMPTY_STRING);
+		int lastPosition = getLastPosition(temp);
+		for (int i = 0; i < lastPosition; i++) {
+			result = concatString(temp, result, i);
+		}
+		result = concatStringWithPos(temp, result, lastPosition);
+		return result;
+	}
+
+	private String concatString(String[] temp, String result, int i) {
+		result = result + temp[i] + Constants.SLASH;
+		return result;
+	}
+
+	private int getLastPosition(String[] temp) {
+		int lastPosition = temp.length - 1;
+		return lastPosition;
+	}
+
+	private String concatStringWithPos(String[] temp, String result,
+			int lastPosition) {
+		result = result + temp[lastPosition];
+		return result;
+	}
+
+	private String getYear() {
+		Date today = new Date();
+		return Constants.yearFormat.format(today);
+	}
+
+	private String getMonth() {
+		Date today = new Date();
+		return Constants.monthFormat.format(today);
+	}
+
+	private String getDay() {
+		Date today = new Date();
+		return Constants.dayFormat.format(today);
+	}
+
+	// formats tomorrows date into dd/MM/yyyy
+	public String formatTmrDate(Integer index, String[] input) {
+		GregorianCalendar tmr = new GregorianCalendar();
+		tmr.add(Calendar.DATE, 1);
+		return Constants.dateFormat.format(tmr.getTime());
+	}
+
+	// formats yesterday date into dd/MM/yyyy
+	public String formatYestDate(Integer index, String[] input) {
+		GregorianCalendar ytd = new GregorianCalendar();
+		ytd.add(Calendar.DATE, -1);
+		return Constants.dateFormat.format(ytd.getTime());
+	}
+
+	// formats spelled day like monday into dd/MM/yyyy
+	public String formatSpelledDay(Integer index, String[] input) {
+		String possibleDay = input[index];
+		Date date = new Date();
+		setLenientFalse();
+
+		date = parseDate(possibleDay, date);
+		GregorianCalendar possibleDate = new GregorianCalendar();
+		possibleDate.setTime(date);
+		GregorianCalendar today = new GregorianCalendar();
+
+		int dayOfWeekToday = today.get(Calendar.DAY_OF_WEEK);
+		int finalDay = possibleDate.get(Calendar.DAY_OF_WEEK);
+		return getFinalDate(finalDay, dayOfWeekToday, today);
+	}
+
+	private String getFinalDate(int finalDay, int dayOfWeekToday,
+			GregorianCalendar today) {
+		if (dayOfWeekToday < finalDay) {
+			addToToday(today, finalDay - dayOfWeekToday);
+			return Constants.dateFormat.format(today.getTime());
+		} else {
+			addToToday(today, finalDay + 7 - dayOfWeekToday);
+			return Constants.dateFormat.format(today.getTime());
+		}
+	}
+
+	private void addToToday(GregorianCalendar today, int addition) {
+		today.add(Calendar.DATE, addition);
+	}
+
+	private void setLenientFalse() {
+		Constants.spelledDayFormat.setLenient(false);
+	}
+
+	private Date parseDate(String possibleDay, Date date) {
+		try {
+			date = Constants.spelledDayFormat.parse(possibleDay);
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, Constants.ERROR_SPELLED_DAY_FORMAT);
+		}
+		return date;
+	}
+
+	// Formats date with initial format of 1st mar 2015 or 1st mar 15
+	// to01/03/2015
+	public String formatSpelledDate(Integer index, String[] input) {
+		String[] possibleDate = new String[Constants.MAX_LENGTH];
+		possibleDate[Constants.DAY_POSITION] = removeSuffix(input[index]);
+		possibleDate[Constants.MONTH_POSITION] = formatMonth(input[index + 1]);
+		possibleDate[Constants.YEAR_POSITION] = formatYear(input[index + 2]);
+		return addSlashes(possibleDate);
+	}
+
+	private String formatYear(String possibleYear) {
+		if (possibleYear.length() == Constants.SHORT_LENGTH_YEAR) {
+			possibleYear = getCentury() + possibleYear;
+		}
+		return possibleYear;
+	}
+
+	private String formatMonth(String possibleMonth) {
+		Date date = new Date();
+		try {
+			date = Constants.spelledMonthFormat.parse(possibleMonth);
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, Constants.ERROR_SPELLED_DATE_ONE_FORMAT);
+		}
+		return Constants.monthFormat.format(date);
+	}
+
+	private String removeSuffix(String possibleDay) {
+
+		if (possibleDay.contains(Constants.SUFFIX_OTHERS)) {
+			possibleDay = possibleDay.replaceAll(Constants.SUFFIX_OTHERS,
+					Constants.EMPTY_STRING);
+		} else if (possibleDay.contains(Constants.SUFFIX_ONE)) {
+			possibleDay = possibleDay.replaceAll(Constants.SUFFIX_ONE,
+					Constants.EMPTY_STRING);
+		} else if (possibleDay.contains(Constants.SUFFIX_TWO)) {
+			possibleDay = possibleDay.replaceAll(Constants.SUFFIX_TWO,
+					Constants.EMPTY_STRING);
+		} else if (possibleDay.contains(Constants.SUFFIX_THREE)) {
+			possibleDay = possibleDay.replaceAll(Constants.SUFFIX_THREE,
+					Constants.EMPTY_STRING);
+		}
+		return possibleDay;
+	}
+
+	// Formats date with initial format of 1st mar to 01/03/2015 (dates without
+	// year)
+	public String formatSpelledDateTwo(Integer index, String[] input) {
+		String[] possibleDate = new String[Constants.MAX_LENGTH];
+		possibleDate[Constants.DAY_POSITION] = removeSuffix(input[index]);
+		possibleDate[Constants.MONTH_POSITION] = formatMonth(input[index + 1]);
+		possibleDate[Constants.YEAR_POSITION] = formatYear(
+				possibleDate[Constants.MONTH_POSITION],
+				possibleDate[Constants.DAY_POSITION]);
+		return addSlashes(possibleDate);
+	}
+
+	private String formatYear(String possibleMonth, String possibleDay) {
+
+		if (Integer.parseInt(possibleMonth) < Integer.parseInt(getMonth())) {
+			return Integer.toString(Integer.parseInt(getYear()) + 1);
+		} else if (Integer.parseInt(possibleMonth) == Integer
+				.parseInt(getMonth())
+				&& Integer.parseInt(possibleDay) < Integer.parseInt(getDay())) {
+			return Integer.toString(Integer.parseInt(getYear()) + 1);
+		}
+		return getYear();
+	}
+
+	// formats date like dd/MM/yy to dd/MM/yyyy
+	public String formatStandardDate(Integer index, String[] input) {
+		String[] temp = removePunctuations(index, input).split(Constants.SLASH);
+		int yearPosition = temp.length - 1;
+		addCentury(temp, yearPosition);
+		return addSlashes(temp);
+	}
+
+	private void addCentury(String[] temp, int yearPosition) {
+		if (temp[yearPosition].length() == Constants.SHORT_LENGTH_YEAR) {
+			temp[yearPosition] = getCentury() + temp[yearPosition];
+		}
+	}
+
+	private String removePunctuations(Integer index, String[] input) {
+		String possibleDate = input[index];
+		if (possibleDate.contains(Constants.FULL_STOP)) {
+			possibleDate = possibleDate.replace(Constants.FULL_STOP,
+					Constants.SLASH);
+		} else if (possibleDate.contains(Constants.DASH)) {
+			possibleDate = possibleDate.replaceAll(Constants.DASH,
+					Constants.SLASH);
+		}
+		return possibleDate;
+	}
+
+}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\DateFormatter.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\DateProcessor.java
+	 */
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+//The following class checks and assigns valid dates
+
+class DateProcessor extends Processor {
+
+	public int getItemPosition() {
+		return Constants.DATE_POSITION;
+	}
+
+	private static Logger logger = Logger.getLogger(Constants.DATE_PROCESSOR);
+
+	public void process(String[] parsedInput, String[] input, Index index) {
+		int initialIndex = index.getValue();
+		if (isIndexValid(index.getValue(), input)) {
+			String possibleDate = getPossibleDate(index, input);
+			if (possibleDate == null) {
+				index.setValue(initialIndex);
+			} else if (isFloatingTask(possibleDate)) {
+				parsedInput[Constants.DATE_POSITION] = getFirstMember(Constants.LIST_FLOATING_TASK);
+				index.increment();
+			} else if (validateDate(possibleDate)) {
+				possibleDate = addZeroes(possibleDate);
+				assignDate(parsedInput, index, possibleDate);
+			} else {
+				assignErrorMsg(parsedInput, Constants.ERROR_INVALID_DATE);
+				index.setValue(initialIndex);
+			}
+		}
+	}
+
+	private boolean isFloatingTask(String possibleDate) {
+		return possibleDate
+				.equalsIgnoreCase(getFirstMember(Constants.LIST_FLOATING_TASK));
+	}
+
+	// Method adds zeroes in the date where needed
+	private String addZeroes(String possibleDate) {
+		Date date = new Date();
+		try {
+			date = Constants.dateFormat.parse(possibleDate);
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, Constants.ERROR_ADDING_ZEROES);
+		}
+		return Constants.dateFormat.format(date);
+	}
+
+	protected boolean isDateValid(Date date, Date today) {
+		return true;
+	}
+
+	protected void assignDate(String[] parsedInput, Index index,
+			String possibleDate) {
+		parsedInput[Constants.DATE_POSITION] = possibleDate;
+		index.increment();
+	}
+
+	protected String getPossibleDate(Index index, String[] input) {
+		String possibleDate = null;
+		DateFormatter dateFormatter = new DateFormatter();
+		if (isDateFormatOne(index.getValue(), input)) {
+			possibleDate = dateFormatter.formatStandardDate(index.getValue(),
+					input);
+		} else if (isSpelledDateOne(index.getValue(), input)) {
+			possibleDate = processSpelledDate(index, input, dateFormatter);
+		} else if (isSpelledDateTwo(index.getValue(), input)) {
+			possibleDate = processSpelledDateTwo(index, input, dateFormatter);
+		} else if (isSpelledDay(index.getValue(), input)) {
+			possibleDate = dateFormatter.formatSpelledDay(index.getValue(),
+					input);
+		} else if (isPartOfList(input, index, Constants.LIST_FLOATING_TASK)) {
+			possibleDate = getFirstMember(Constants.LIST_FLOATING_TASK);
+		} else if (isPartOfList(input[index.getValue()], Constants.LIST_TODAY)) {
+			possibleDate = formatDate(index.getValue(), input,
+					new DateFormatter());
+		} else if (isPartOfList(input[index.getValue()], Constants.LIST_TMR)) {
+			possibleDate = dateFormatter.formatTmrDate(index.getValue(), input);
+		} else if (isPartOfList(input[index.getValue()],
+				Constants.LIST_YESTERDAY)) {
+			possibleDate = dateFormatter
+					.formatYestDate(index.getValue(), input);
+		} else {
+			possibleDate = assignDate(input, index);
+		}
+		return possibleDate;
+
+	}
+
+	private String processSpelledDateTwo(Index index, String[] input,
+			DateFormatter dateFormatter) {
+		String possibleDate;
+		if (isRegexMatch(input[index.getValue()],
+				Constants.PATTERN_DATE_TWO)) {
+			possibleDate = dateFormatter.formatSpelledDateTwo(
+					index.getValue(), input);
+			index.increment();
+		} else {
+			possibleDate = Constants.ERROR_INVALID_DATE;
+		}
+		return possibleDate;
+	}
+
+	private String processSpelledDate(Index index, String[] input,
+			DateFormatter dateFormatter) {
+		String possibleDate;
+		if (isRegexMatch(input[index.getValue()],
+				Constants.PATTERN_DATE_TWO)) {
+			possibleDate = dateFormatter.formatSpelledDate(
+					index.getValue(), input);
+			index.incrementByTwo();
+		} else {
+			possibleDate = Constants.ERROR_INVALID_DATE;
+		}
+		return possibleDate;
+	}
+
+	protected String assignDate(String[] input, Index index) {
+		return null;
+	}
+
+	protected boolean isDateFormatOne(Integer index, String[] input) {
+		return isRegexMatch(input[index], Constants.PATTERN_DATE_ONE);
+	}
+
+	protected boolean isFloatingTask(int value, String[] input) {
+		if (input[value] == null) {
+			return false;
+		}
+		if (input[value]
+				.equalsIgnoreCase(getFirstMember(Constants.LIST_FLOATING_TASK))) {
+			return true;
+		}
+		return false;
+	}
+
+	protected boolean isSpelledDateOne(Integer index, String[] input) {
+		return isRegexMatch(input[index], Constants.PATTERN_DATE_POSSIBLE)
+				&& (isIndexValid(index + 1, input) && isPartOfList(
+						input[index + 1], Constants.LIST_MONTHS))
+				&& isIndexValid(index + 2, input)
+				&& isRegexMatch(input[index + 2], Constants.PATTERN_YEAR);
+	}
+
+	protected boolean validateDate(String possibleDate) {
+
+		Constants.dateFormat.setLenient(false);
+		try {
+			Date date = Constants.dateFormat.parse(possibleDate);
+		} catch (ParseException e) {
+			return false;
+		}
+		return true;
+	}
+
+	protected boolean isSpelledDay(Integer index, String[] input) {
+		if (isPartOfList(input[index], Constants.LIST_DAYS)) {
+			return true;
+		}
+		return false;
+	}
+
+	protected boolean isSpelledDateTwo(Integer index, String[] input) {
+		if (isRegexMatch(input[index], Constants.PATTERN_DATE_POSSIBLE)
+				&& (isIndexValid(index + 1, input) && isPartOfList(
+						input[index + 1], Constants.LIST_MONTHS))) {
+			return true;
+		}
+		return false;
+	}
+
+	protected String formatDate(Integer index, String[] input,
+			DateFormatter formatter) {
+		return formatter.formatDate(index, input);
+	}
+
+	@Override
+	public String getItemName() {
+		return Constants.DATE_NAME;
+	}
+}
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\DateProcessor.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\DetailsProcessor.java
+	 */
+
+import java.util.ArrayList;
+
+//The following class checks and assigns details
+
+class DetailsProcessor extends Processor {
+	private static final String NAME_DETAILS = null;
+
+	@Override
+	public int getItemPosition() {
+		return Constants.DETAILS_POSITION;
+	}
+
+	@Override
+	public void processBefore(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		while (isIndexValid(index.getValue(), input)) {
+			if (isPartOfList(input[index.getValue()], Constants.LIST_DETAILS)) {
+				assingInputNull(input, index);
+				parsedInput[getItemPosition()] = Constants.EMPTY_STRING;
+				index.increment();
+				break;
+			}
+			index.increment();
+		}
+	}
+
+	@Override
+	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		if (parsedInput[getItemPosition()] != null) {
+			trimString(parsedInput);
+		}
+	}
+
+	private void trimString(String[] parsedInput) {
+		parsedInput[getItemPosition()] = parsedInput[getItemPosition()]
+				.trim();
+	}
+
+	@Override
+	public void process(String[] parsedInput, String[] input, Index index) {
+		if (input[index.getValue()] != null) {
+			checkAndremoveSlashes(input, index);
+			assignDetails(parsedInput, input, index);
+			assingInputNull(input, index);
+		}
+	}
+
+	private void assingInputNull(String[] input, Index index) {
+		input[index.getValue()] = null;
+	}
+
+	private void assignDetails(String[] parsedInput, String[] input, Index index) {
+		parsedInput[getItemPosition()] = parsedInput[getItemPosition()]
+				+ input[index.getValue()] + Constants.SPACE;
+	}
+
+	protected void checkAndremoveSlashes(String[] input, Index index) {
+	}
+
+	@Override
+	public String getItemName() {
+		return NAME_DETAILS;
+	}
+}
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\DetailsProcessor.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\Index.java
+	 */
+
+
+//The following class is used to keep track of the position in string arrays
+
+public class Index {
+	private int value;
+
+	public Index() {
+		value = 0;
+	}
+
+	public Index(int number) {
+		this.value = number;
+	}
+
+	public void decrement() {
+		this.value = value - 1;
+	}
+
+	public void incrementByTwo() {
+		this.value = value + 2;
+
+	}
+
+	public int getValue() {
+		return value;
+	}
+
+	public void setValue(int index) {
+		this.value = index;
+	}
+
+	public void increment() {
+		value++;
+	}
+
+	public void reset() {
+		this.value = 0;
+	}
+
+	public void resetToOne() {
+		this.value = 1;
+	}
+
+}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\Index.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\NaturalProcessor.java
+	 */
+
+import java.util.ArrayList;
+
+//The following class creates a loop for attribute processors to process the string
+
+class NaturalProcessor {
+
+	public void process(String[] parsedInput, String[] input, Index index,
+			Processor processor) {
+		index.reset();
+		ArrayList<Integer> fullStopArr = new ArrayList<Integer>();
+
+		processor.processBefore(input, fullStopArr, parsedInput, index);
+		if (isCollectProcessors(processor)) {
+			collectProcess(parsedInput, input, index, processor);
+		} else if (isBackProcessors(processor)) {
+			backwardProcess(parsedInput, input, index, processor);
+		} else {
+
+			forwardProcess(parsedInput, input, index, processor);
+		}
+		processor.processAfter(input, fullStopArr, parsedInput, index);
+		assignErrorMsg(parsedInput, processor);
+	}
+
+	private void forwardProcess(String[] parsedInput, String[] input,
+			Index index, Processor processor) {
+		while (isIndexValid(index.getValue(), input)) {
+			int startPosition = index.getValue();
+			processor.process(parsedInput, input, index);
+			if (parsedInput[Constants.ERROR_MSG_POSITION] != null) {
+				break;
+			} else if (parsedInput[processor.getItemPosition()] != null) {
+				assignNull(input, index, startPosition);
+				cleanWord(input, index, processor, startPosition);
+				break;
+			}
+			index.increment();
+		}
+	}
+
+	private void assignNull(String[] input, Index index, int startPosition) {
+		for (int i = startPosition; i < index.getValue(); i++) {
+			input[i] = null;
+		}
+	}
+
+	private void cleanWord(String[] input, Index index, Processor processor,
+			int startPosition) {
+		cleanWordBackward(input, startPosition - 1, processor);
+		cleanWordForward(input, index.getValue(), processor);
+	}
+
+	// Processors that process from the end of string
+	private boolean isBackProcessors(Processor processor) {
+		return processor instanceof DateProcessor
+				|| processor instanceof TimeProcessor;
+	}
+
+	// Processors that process attributes that could appear more than once in
+	// string
+	private boolean isCollectProcessors(Processor processor) {
+		return processor instanceof TaskProcessor
+				|| processor instanceof DetailsProcessor
+				|| processor instanceof MultiParaProcessor;
+	}
+
+	private void cleanWordForward(String[] input, int index, Processor processor) {
+		if (processor instanceof CommandProcessor) {
+			while (isIndexValid(index, input) && input[index] != null
+					&& isPartOfList(input[index], Constants.LIST_REMOVABLES)) {
+				input[index] = null;
+				index++;
+			}
+		}
+	}
+	//Create loop that allow processors to process till the end of string 
+	//even if a valid attribute is found
+	private void collectProcess(String[] parsedInput, String[] input,
+			Index index, Processor processor) {
+		while (isIndexValid(index.getValue(), input)) {
+			processor.process(parsedInput, input, index);
+			index.increment();
+		}
+	}
+	//Creates loop that process from behind
+	private void backwardProcess(String[] parsedInput, String[] input,
+			Index index, Processor processor) {
+		index.setValue(input.length - 1);
+		while (isIndexValid(index.getValue(), input)) {
+			int startPosition = index.getValue();
+			processor.process(parsedInput, input, index);
+			if (parsedInput[Constants.ERROR_MSG_POSITION] != null) {
+				break;
+			} else if (parsedInput[processor.getItemPosition()] != null) {
+				if (index.getValue() <= startPosition) {
+					cleanWordBackward(input, index.getValue(), processor);
+				} else {
+					assignNull(input, index, startPosition);
+					cleanWordBackward(input, startPosition - 1, processor);
+					break;
+				}
+			}
+			index.decrement();
+		}
+	}
+
+	protected void assignErrorMsg(String[] parsedInput, Processor processor) {
+	}
+	
+	private void cleanWordBackward(String[] input, int index,
+			Processor processor) {
+		if (isValidBackCleanProcessor(processor)) {
+			while (hasRemovable(input, index)) {
+				input[index] = null;
+				index--;
+			}
+		}
+	}
+
+	private boolean hasRemovable(String[] input, int index) {
+		return isIndexValid(index, input)
+				&& isPartOfList(input[index], Constants.LIST_REMOVABLES)
+				&& input[index] != null;
+	}
+
+	private boolean isValidBackCleanProcessor(Processor processor) {
+		return processor instanceof DateProcessor
+				|| processor instanceof TimeProcessor
+				|| processor instanceof ImportanceProcessor
+				|| processor instanceof CommandProcessor;
+	}
+
+	protected boolean isIndexValid(int index, String[] input) {
+		if (index >= input.length || index < 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	protected boolean isPartOfList(String input, String[] list) {
+		for (int i = 0; i < list.length; i++) {
+			if (input == null) {
+				return false;
+			}
+			if (input.equalsIgnoreCase(list[i])) {
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\NaturalProcessor.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\Parser.java
+	 */
+
+//The following class acts as the controller of the entire Parser component
+public class Parser {
+
+	public static String[] parseInput(String inputFromUser) {
+		String[] parsedInput = initString();
+		inputFromUser = inputFromUser.replaceAll(Constants.PATTERN_MULTI_SPACE, Constants.SPACE);
+		String[] input = splitString(inputFromUser);
+		Index index = new Index();
+		getCommand(parsedInput, input, index, new CommandProcessor(),
+				new NaturalProcessor());
+		return getParsedInput(parsedInput, input, index);
+	}
+
+	private static String[] initString() {
+		String[] parsedInput = new String[Constants.MAX_TYPES];
+		return parsedInput;
+	}
+	
+	private static String[] getParsedInput(String[] parsedInput, String[] input,
+			Index index) {
+		if (parsedInput[Constants.COMMAND_POSITION] == null) {
+			parseCommand(parsedInput, input, index, new ParserAdd());
+		} else if (parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_ADD)) {
+			parseCommand(parsedInput, input, index, new ParserAdd());
+		} else if (parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_SEARCH)) {
+			parseCommand(parsedInput, input, index, new ParserSearch());
+		} else if (parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_DELETE)) {
+			parseCommand(parsedInput, input, index, new ParserDelete());
+		} else if (parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_EDIT)) {
+			parseCommand(parsedInput, input, index, new ParserEdit());
+		}else if(parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_DELETE_DATE)){
+			parseCommand(parsedInput, input, index, new ParserDeleteDate());
+		}else if(parsedInput[Constants.COMMAND_POSITION].equals(Constants.ACTION_SHOW_TODAY)){
+			parsedInput = parseSearchToday(parsedInput);
+		}
+		return parsedInput;
+	}
+
+	private static String[] parseSearchToday(String[] parsedInput) {
+		parsedInput=Parser.parseInput(Constants.SEARCH_TODAY);
+		return parsedInput;
+	}
+
+	private static String[] splitString(String inputFromUser) {
+		String[] input = inputFromUser.trim().split(Constants.SPACE);
+		return input;
+	} 
+
+	private static void parseCommand(String[] parsedInput, String[] input,
+			Index index, ParserCommand command) {
+		command.parse(parsedInput, input, index);
+	}
+	private static void getCommand(String[] parsedInput, String[] input,
+			Index index, Processor processor, NaturalProcessor natProcessor) {
+		natProcessor.process(parsedInput, input, index, processor);
+	}
+
+}
+
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\Parser.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\ParserAdd.java
+	 */
+
+//Command object for add
+
+class ParserAdd extends ParserCommand {
+	
+	@Override
+	public void parse(String[] parsedInput, String[] input, Index index) {
+		// processNatDetails(parsedInput, input, index, new DetailsProcessor());
+		processType(parsedInput, input, index, new DetailsProcessor(),
+				new NaturalProcessor());
+		processType(parsedInput, input, index, new AutoDateProcessor(),
+				new NaturalProcessor());
+		processType(parsedInput, input, index, new TimeProcessor(),
+				new NaturalProcessor());
+		processType(parsedInput, input, index, new ImportanceProcessor(),
+				new NaturalProcessor());
+		processType(parsedInput, input, index, new TaskProcessor(),
+				new StrictNaturalProcessor());
+	}
+}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\ParserAdd.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\ParserCommand.java
+	 */
+
+//The following class is the abstract class for command objects
+
+public abstract class ParserCommand {
+
+	public abstract void parse(String[] parsedInput, String[] input, Index index);
+
+	protected void processType(String[] parsedInput, String[] input,
+			Index index, Processor processor, NaturalProcessor natProcessor) {
+		natProcessor.process(parsedInput, input, index, processor);
+	}
+
+	// checks if parsedInput is empty
+	protected void processEmpty(String[] parsedInput) {
+		if (isAllNull(parsedInput)) {
+			assignErrorMsg(parsedInput, Constants.MSG_NO_ATTRIBUTES);
+		}
+	}
+
+	protected void assignErrorMsg(String[] parsedInput, String message) {
+		parsedInput[ Constants.ERROR_MSG_POSITION] = message;
+		parsedInput[ Constants.COMMAND_POSITION] =  Constants.ERROR;
+	}
+
+	// checks if all items of an array is null
+	private boolean isAllNull(String[] parsedInput) {
+		for (int i = 1; i < parsedInput.length; i++) {
+			if (parsedInput[i] != null) {
+				return false;
+			}
+		}
+		return true;
+	}
+}
+
+
+
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\ParserCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\ParserDelete.java
+	 */
+
+//Command object for delete 
+
+class ParserDelete extends ParserCommand {
+
+	@Override
+	public void parse(String[] parsedInput, String[] input, Index index) {
+		processType(parsedInput, input, index, new MultiParaProcessor(),
+				new StrictNaturalProcessor());
+		processType(parsedInput, input, index, new TaskProcessor(),
+				new AntiNaturalProcessor());
+	}
+
+}
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\ParserDelete.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\ParserDeleteDate.java
+	 */
+
+//Command object for delete date
+class ParserDeleteDate extends ParserCommand {
+
+	@Override
+	public void parse(String[] parsedInput, String[] input, Index index) {
+
+		processType(parsedInput, input, index, new DateProcessor(),
+				new StrictNaturalProcessor());
+		processType(parsedInput, input, index, new TaskProcessor(),
+				new AntiNaturalProcessor());
+	}
+
+}
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\ParserDeleteDate.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\ParserEdit.java
+	 */
+
+//Command object for edit
+
+class ParserEdit extends ParserCommand {
+
+	@Override
+	public void parse(String[] parsedInput, String[] input, Index index) {
+		processType(parsedInput, input, index, new DetailsProcessor(),
+				new NaturalProcessor());
+		processType(parsedInput, input, index, new DateProcessor(),
+				new NaturalProcessor());
+		processType(parsedInput, input, index, new TimeProcessor(),
+				new NaturalProcessor());
+		processType(parsedInput, input, index, new ImportanceProcessor(),
+				new NaturalProcessor());
+		processType(parsedInput, input, index, new SingleParaProcessor(),
+				new StrictNaturalProcessor());
+		processType(parsedInput, input, index, new TaskProcessor(),
+				new NaturalProcessor());
+	}
+
+}
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\ParserEdit.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\ParserSearch.java
+	 */
+
+//Command object for search
+class ParserSearch extends ParserCommand {
+
+	@Override
+	public void parse(String[] parsedInput, String[] input, Index index) {
+		processType(parsedInput, input, index, new DateProcessor(),
+				new NaturalProcessor());
+		processType(parsedInput, input, index, new TaskProcessor(),
+				new NaturalProcessor());
+		processEmpty(parsedInput);
+	}
+
+}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\ParserSearch.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\Processor.java
+	 */
+
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+//The following class is the abstract class for attribute processor
+
+public abstract class Processor {
+
+	public abstract void process(String[] parsedInput, String[] input,
+			Index index);
+
+	protected boolean isRegexMatch(String input, String regexPattern) {
+		Pattern pattern = Pattern.compile(regexPattern);
+		try {
+			Matcher matchPattern = pattern.matcher(input);
+			matchPattern.find();
+			if (matchPattern.group().length() != 0) {
+				return true;
+			}
+		} catch (IllegalStateException | NullPointerException e) {
+			return false;
+		}
+		return false;
+	}
+
+	protected void assignNull(String[] parsedInput) {
+		if (parsedInput[getItemPosition()].equals(Constants.EMPTY_STRING)) {
+			parsedInput[getItemPosition()] = null;
+		}
+	}
+
+	// check if a String is part of the list
+	protected boolean isPartOfList(String[] input, Index index, String[] list) {
+		for (int i = 0; i < list.length; i++) {
+			if (input == null) {
+				return false;
+			}
+			if (isMatchString(input, index, list[i])) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// returns first member of list
+	protected String getFirstMember(String[] list) {
+		return list[0];
+	}
+
+	protected boolean isMatchString(String[] input, Index index, String command) {
+		String[] possibleCommand = command.split(Constants.SPACE);
+		int startIndex = index.getValue();
+		for (int i = 0; i < possibleCommand.length; i++) {
+			if (!isIndexValid(index.getValue(), input)) {
+				index.setValue(startIndex);
+				return false;
+			}
+			if (!possibleCommand[i].equalsIgnoreCase(input[index.getValue()])) {
+				index.setValue(startIndex);
+				return false;
+			}
+			if (i == possibleCommand.length - 1) {
+				break;
+			}
+			index.increment();
+		}
+		return true;
+	}
+
+	protected boolean isIndexValid(int index, String[] input) {
+		if (index >= input.length || index < 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	protected void assignErrorMsg(String[] parsedInput, String message) {
+		parsedInput[Constants.ERROR_MSG_POSITION] = message;
+		parsedInput[Constants.COMMAND_POSITION] = Constants.ERROR;
+	}
+
+	// check if a String is part of the list
+	protected boolean isPartOfList(String input, String[] list) {
+		for (int i = 0; i < list.length; i++) {
+			if (input == null) {
+				return false;
+			}
+			if (input.equalsIgnoreCase(list[i])) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	protected boolean isEmpty(String taskName) {
+		return taskName.length() == 0;
+	}
+
+	protected boolean isNull(String str) {
+		if (str == null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public abstract int getItemPosition();
+
+	public abstract String getItemName();
+
+	// sets up the string before the processors process
+	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		putAllFullStop(input, fullStopArr);
+	}
+
+	protected static void putAllFullStop(String[] input,
+			ArrayList<Integer> fullStopArr) {
+		int origin;
+		for (int i = fullStopArr.size() - 1; i >= 0; i--) {
+			int position = fullStopArr.get(i);
+			origin = position;
+			if (input[position] == null) {
+				position = getPossibleLastWord(input, position);
+				if (position < 0) {
+					break;
+				}
+				i = removeCollision(fullStopArr, i, position);
+				putFullStop(input, position, origin);
+			} else {
+				putFullStop(input, position, origin);
+			}
+		}
+	}
+
+	private static int getPossibleLastWord(String[] input, int position) {
+		while (position >= 0 && input[position] == null) {
+			position--;
+		}
+		return position;
+	}
+
+	private static int removeCollision(ArrayList<Integer> fullStopArr, int i,
+			int position) {
+		for (int j = i - 1; j >= 0; j--) {
+			if (fullStopArr.get(j) >= position) {
+				fullStopArr.remove(j);
+				i--;
+			}
+		}
+		return i;
+	}
+
+	private static void putFullStop(String[] input, int position, int origin) {
+		if (origin == position) {
+			input[position] = input[position] + Constants.FULL_STOP;
+		} else if (!isLastWord(input, position)) {
+			input[position] = input[position] + Constants.FULL_STOP;
+		}
+
+	}
+
+	protected static void removeAllFullStop(String[] input,
+			ArrayList<Integer> fullStopArr) {
+		for (int i = 0; i < input.length; i++) {
+			if (isLastWord(input, i)) {
+				removeFullStop(input, i);
+				fullStopArr.add(i);
+			}
+		}
+	}
+
+	private static boolean isLastWord(String[] input, int index) {
+		if (input[index] == null) {
+			return false;
+		} else if (input[index].length() == 0) {
+			return false;
+		} else if (input[index].charAt(input[index].length() - 1) == Constants.CHAR_FULL_STOP) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private static void removeFullStop(String[] input, int index) {
+		input[index] = input[index].substring(0, input[index].length() - 1);
+		if (input[index].length() == 0) {
+			input[index] = null;
+		}
+	}
+
+	public void processBefore(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		removeAllFullStop(input, fullStopArr);
+	}
+
+}
+
+
+
+
+
+
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\Processor.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\SingleParaProcessor.java
+	 */
+
+
+// The following class checks and assigns valid parameters
+
+class SingleParaProcessor extends Processor {
+	public void process(String[] parsedInput, String[] input, Index index) {
+		setupParameter(input, index.getValue());
+		parseRange(input, index, parsedInput);
+		if (isValidInteger(input, index)) {
+			assignPara(parsedInput, index, input);
+		}
+	}
+
+	private boolean isValidInteger(String[] input, Index index) {
+		return isIndexValid(index.getValue(), input)
+				&& isInteger(input[index.getValue()]);
+	}
+
+	// For overriding by other classes
+	protected void parseRange(String[] input, Index index, String[] parsedInput) {
+	}
+
+	// For overriding by other classes
+	protected void setupParameter(String[] input, int index) {
+	}
+
+	protected void assignPara(String[] parsedInput, Index index, String[] input) {
+		parsedInput[getItemPosition()] = getInteger(index, input);
+		index.increment();
+	}
+
+	private String getInteger(Index index, String[] input) {
+		return Integer.toString(Integer
+				.parseInt(input[index.getValue()]));
+	}
+
+	protected boolean isInteger(String possiblePara) {
+		try {
+			Integer.parseInt(possiblePara);
+		} catch (NumberFormatException e) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public int getItemPosition() {
+		return Constants.PARAMETER_POSITION;
+	}
+
+	@Override
+	public String getItemName() {
+		return Constants.PARAMETERS_NAME;
+	}
+
+}
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\SingleParaProcessor.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\StrictNaturalProcessor.java
+	 */
+
+
+//The following class creates a loop for attribute Processor
+//If the attribute is not found, it will assign an error message
+
+class StrictNaturalProcessor extends NaturalProcessor {
+	@Override
+	protected void assignErrorMsg(String[] parsedInput, Processor processor) {
+		if (parsedInput[processor.getItemPosition()] == null
+				&& parsedInput[Constants.ERROR_MSG_POSITION] == null) {
+			assignErrorMsg(parsedInput, fomatEmpty(processor));
+		}
+	}
+
+	private String fomatEmpty(Processor processor) {
+		return String.format(Constants.ERROR_EMPTY_ITEM,
+				processor.getItemName());
+	}
+
+	protected void assignErrorMsg(String[] parsedInput, String message) {
+		parsedInput[Constants.ERROR_MSG_POSITION] = message;
+		parsedInput[Constants.COMMAND_POSITION] = Constants.ERROR;
+	}
+}
+
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\StrictNaturalProcessor.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\TaskProcessor.java
+	 */
+
+import java.util.ArrayList;
+
+//The following class checks and assigns task name to parsedInput
+class TaskProcessor extends DetailsProcessor {
+	public int getItemPosition() {
+		return Constants.TASK_NAME_POSITION;
+	}
+
+	@Override
+	public void processAfter(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		assignNull(parsedInput);
+		if (parsedInput[getItemPosition()] != null) {
+			parsedInput[getItemPosition()] = parsedInput[getItemPosition()]
+					.trim();
+			assignNull(parsedInput);
+		}
+	}
+
+	@Override
+	public void processBefore(String[] input, ArrayList<Integer> fullStopArr,
+			String[] parsedInput, Index index) {
+		parsedInput[getItemPosition()] = Constants.EMPTY_STRING;
+	}
+
+	@Override
+	protected void checkAndremoveSlashes(String[] input, Index index) {
+		if (hasSlashes(input, index)) {
+			removeSlashes(input, index);
+		}
+	}
+
+	private String removeSlashes(String[] input, Index index) {
+		return input[index.getValue()] = input[index.getValue()].substring(1,
+				input[index.getValue()].length());
+	}
+
+	private boolean hasSlashes(String[] input, Index index) {
+		return input[index.getValue()].length() > 0
+				&& input[index.getValue()].charAt(0) == Constants.CHAR_SLASH;
+	}
+
+	protected void checkAndAssignTask(String[] parsedInput, String taskName) {
+		if (!isEmpty(taskName)) {
+			parsedInput[Constants.TASK_NAME_POSITION] = taskName;
+		}
+	}
+
+	@Override
+	public String getItemName() {
+		return Constants.TASK_NAME;
+	}
+}
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\TaskProcessor.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\TimeProcessor.java
+	 */
+
+
+import java.text.ParseException;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+//The following class checks and assigns valid time and time ranges
+
+class TimeProcessor extends Processor {
+	private static Logger logger = Logger.getLogger(Constants.TIME_PROCESSOR);
+
+	public int getItemPosition() {
+		return Constants.START_TIME_POSITION;
+	}
+
+	public int getSecItemPosition() {
+		return Constants.END_TIME_POSITION;
+	}
+
+	// Method adds zeroes in the date where needed
+	private String addZeroes(String possibleTime) {
+		Date date = new Date();
+		try {
+			date = Constants.timeFormatOne.parse(possibleTime);
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, Constants.ERROR_ADDING_ZEROES);
+		}
+		return Constants.timeFormatOne.format(date);
+	}
+
+	@Override
+	public void process(String[] parsedInput, String[] input, Index index) {
+
+		if (isIndexValid(index.getValue(), input)) {
+			if (isPartOfList(input, index, Constants.LIST_NO_TIME)) {
+				parsedInput[getItemPosition()] = getFirstMember(Constants.LIST_NO_TIME);
+				index.increment();
+			}
+			if (!isFloating(parsedInput)
+					&& parsedInput[getItemPosition()] == null) {
+				processTimeRange(index, input, parsedInput);
+				String possibleTime = getPossibleTime(index, input);
+				if (possibleTime != null) {
+
+					if (isValidTime(possibleTime)) {
+						assignTime(parsedInput, possibleTime, getItemPosition());
+						index.increment();
+					} else {
+
+						assignErrorMsg(parsedInput,
+								Constants.ERROR_INVALID_TIME);
+					}
+				}
+			}
+		}
+	}
+
+	private void assignTime(String[] parsedInput, String possibleTime,
+			int position) {
+		possibleTime = addZeroes(possibleTime);
+		parsedInput[position] = possibleTime;
+	}
+
+	private boolean isFloating(String[] parsedInput) {
+		return !isNull(parsedInput[Constants.DATE_POSITION])
+				&& parsedInput[Constants.DATE_POSITION]
+						.equalsIgnoreCase(getFirstMember(Constants.LIST_FLOATING_TASK));
+	}
+
+	private void processTimeRange(Index index, String[] input,
+			String[] parsedInput) {
+		int current = index.getValue();
+		int prev = current - 1;
+		int next = current + 1;
+		String[] startInput = new String[Constants.MAX_LENGTH_TIME];
+		String[] endInput = new String[Constants.MAX_LENGTH_TIME];
+		Index index1 = new Index(Constants.MAX_LENGTH_TIME - 1);
+		Index index2 = new Index();
+		if (isJoinedByDash(index, input, current)) {
+			processJoined(index, input, parsedInput, current, prev, next,
+					startInput, endInput, index1, index2);
+		} else if (isSplitRange(input, prev)) {
+			processSplit(index, input, parsedInput, current, prev, next,
+					startInput, endInput, index1, index2);
+		}
+
+	}
+
+	private void processSplit(Index index, String[] input,
+			String[] parsedInput, int current, int prev, int next,
+			String[] startInput, String[] endInput, Index index1, Index index2) {
+		int prev2 = index.getValue() - 2;
+		int prev3 = index.getValue() - 3;
+
+		setupSplitRange(input, current, next, startInput, endInput, prev2,
+				prev3);
+		String possibleStart = processStartTime(startInput, index1);
+		String possibleEnd = processEndTime(endInput, index2);
+		checkAndAssignSplit(index, input, parsedInput, current, prev, next,
+				index1, index2, prev2, prev3, possibleStart, possibleEnd);
+	}
+
+	private void processJoined(Index index, String[] input,
+			String[] parsedInput, int current, int prev, int next,
+			String[] startInput, String[] endInput, Index index1, Index index2) {
+		String[] possibleTimes = getSplitPossibleTime(index, input);
+		if (possibleTimes.length == Constants.MAX_TIME_TYPES) {
+			setupJoinedRange(input, prev, next, startInput, endInput,
+					possibleTimes);
+
+			String possibleStart = processStartTime(startInput, index1);
+			String possibleEnd = processEndTime(endInput, index2);
+			checkAndAssignJoined(index, input, parsedInput, current, prev,
+					next, index1, index2, possibleStart, possibleEnd);
+		}
+	}
+
+	private String[] getSplitPossibleTime(Index index, String[] input) {
+		String[] possibleTimes = input[index.getValue()].split(Constants.DASH);
+		return possibleTimes;
+	}
+
+	private boolean isJoinedByDash(Index index, String[] input, int current) {
+		return isIndexValid(current, input) && input[current] != null
+				&& input[index.getValue()].contains(Constants.DASH);
+	}
+
+	private void checkAndAssignJoined(Index index, String[] input,
+			String[] parsedInput, int current, int prev, int next,
+			Index index1, Index index2, String possibleStart, String possibleEnd) {
+		if (isBothTimeValid(possibleStart, possibleEnd)) {
+			if (!isValidRange(possibleStart, possibleEnd)) {
+				assignErrorMsg(parsedInput, Constants.ERROR_TIME_RANGE);
+			} else {
+				assignJoined(index, input, parsedInput, current, prev, next,
+						index1, index2, possibleStart, possibleEnd);
+			}
+		} else if (possibleStart != null && possibleEnd != null) {
+			assignErrorMsg(parsedInput, Constants.ERROR_FOUND_TIME);
+		}
+	}
+
+	private void checkAndAssignSplit(Index index, String[] input,
+			String[] parsedInput, int current, int prev, int next,
+			Index index1, Index index2, int prev2, int prev3,
+			String possibleStart, String possibleEnd) {
+		if (isBothTimeValid(possibleStart, possibleEnd)) {
+			if (!isValidRange(possibleStart, possibleEnd)) {
+				assignErrorMsg(parsedInput, Constants.ERROR_TIME_RANGE);
+			} else {
+				assignSplit(index, input, parsedInput, current, prev, next,
+						index1, index2, prev2, prev3, possibleStart,
+						possibleEnd);
+			}
+
+		} else if (possibleStart != null && possibleEnd != null) {
+			assignErrorMsg(parsedInput, Constants.ERROR_FOUND_TIME);
+		}
+	}
+
+	private void assignSplit(Index index, String[] input, String[] parsedInput,
+			int current, int prev, int next, Index index1, Index index2,
+			int prev2, int prev3, String possibleStart, String possibleEnd) {
+		assignSplitNull(index, input, current, prev, next, index1, index2,
+				prev2, prev3);
+		assignTime(parsedInput, possibleStart, getItemPosition());
+		assignTime(parsedInput, possibleEnd, getSecItemPosition());
+	}
+
+	private void assignJoined(Index index, String[] input,
+			String[] parsedInput, int current, int prev, int next,
+			Index index1, Index index2, String possibleStart, String possibleEnd) {
+		assignNullJoined(index, input, current, prev, next, index1, index2);
+		assignTime(parsedInput, possibleStart, getItemPosition());
+		assignTime(parsedInput, possibleEnd, getSecItemPosition());
+	}
+
+	private void assignNullJoined(Index index, String[] input, int current,
+			int prev, int next, Index index1, Index index2) {
+		input[current] = null;
+		if (index1.getValue() == 0) {
+			input[prev] = null;
+			index.setValue(prev);
+		}
+		if (index2.getValue() != 0) {
+			input[next] = null;
+		}
+	}
+
+	private void setupJoinedRange(String[] input, int prev, int next,
+			String[] startInput, String[] endInput, String[] possibleTimes) {
+		startInput[1] = possibleTimes[0];
+		endInput[0] = possibleTimes[1];
+		if (isIndexValid(prev, input)) {
+			startInput[0] = input[prev];
+		}
+		if (isIndexValid(next, input)) {
+			endInput[1] = input[next];
+		}
+	}
+
+	private void assignSplitNull(Index index, String[] input, int current,
+			int prev, int next, Index index1, Index index2, int prev2, int prev3) {
+		input[current] = null;
+		input[prev] = null;
+		assignNullJoined(index, input, prev2, prev3, next, index1, index2);
+	}
+
+	private void setupSplitRange(String[] input, int current, int next,
+			String[] startInput, String[] endInput, int prev2, int prev3) {
+		if (isIndexValid(prev3, input)) {
+			startInput[0] = input[prev3];
+		}
+		if (isIndexValid(prev2, input)) {
+			startInput[1] = input[prev2];
+		}
+		if (isIndexValid(next, input)) {
+			endInput[1] = input[next];
+		}
+		if (isIndexValid(current, input)) {
+			endInput[0] = input[current];
+		}
+	}
+
+	private boolean isSplitRange(String[] input, int prev) {
+		return isIndexValid(prev, input)
+				&& input[prev] != null
+				&& (input[prev].equals(Constants.DASH) || input[prev]
+						.equalsIgnoreCase(Constants.TO));
+	}
+
+	private boolean isBothTimeValid(String possibleStart, String possibleEnd) {
+		return isValidTime(possibleStart) && isValidTime(possibleEnd);
+	}
+
+	private boolean isValidRange(String possibleStart, String possibleEnd) {
+		Date startTime = new Date();
+		Date endTime = new Date();
+		try {
+			startTime = Constants.timeFormatOne.parse(possibleStart);
+			endTime = Constants.timeFormatOne.parse(possibleEnd);
+		} catch (ParseException e) {
+			logger.log(Level.WARNING, Constants.ERROR_PARSING_POSSIBLETIMES);
+		}
+		if (startTime.compareTo(endTime) < 0) {
+			return true;
+		}
+		return false;
+	}
+
+	private String processStartTime(String[] input, Index index) {
+		String possibleTime = null;
+		int current = index.getValue();
+		int prev = current - 1;
+		if (isRegexMatch(input[current], Constants.PATTERN_TIME_ONE)) {
+			possibleTime = input[current];
+		} else if (isRegexMatch(input[current], Constants.PATTERN_TIME_TWO)) {
+			possibleTime = formatPatternTwo(input, current);
+		} else if (isRegexMatch(input[current], Constants.PATTERN_TIME_THREE)) {
+			possibleTime = formatPatternThree(input, current);
+		} else if (isSplitPatternTwo(input, prev, current)) {
+			possibleTime = formatSplitPatternTwo(input, prev, current);
+			index.decrement();
+		} else if (isSplitPatternThree(input, prev, current)) {
+			possibleTime = formatSplitPatternThree(input, prev, current);
+			index.decrement();
+		}
+		return possibleTime;
+	}
+
+	private String processEndTime(String[] input, Index index) {
+		String possibleTime = null;
+		int current = index.getValue();
+		int next = current + 1;
+		if (isRegexMatch(input[current], Constants.PATTERN_TIME_ONE)) {
+			possibleTime = input[current];
+		} else if (isRegexMatch(input[current], Constants.PATTERN_TIME_TWO)) {
+			possibleTime = formatPatternTwo(input, current);
+		} else if (isRegexMatch(input[current], Constants.PATTERN_TIME_THREE)) {
+			possibleTime = formatPatternThree(input, current);
+		} else if (isSplitPatternTwo(input, current, next)) {
+			possibleTime = formatSplitPatternTwo(input, current, next);
+			index.increment();
+		} else if (isSplitPatternThree(input, current, next)) {
+			possibleTime = formatSplitPatternThree(input, current, next);
+			index.increment();
+		}
+		return possibleTime;
+	}
+
+	protected boolean isValidTime(String possibleTime) {
+		Constants.timeFormatOne.setLenient(false);
+		try {
+			Date date = new Date();
+			date = Constants.timeFormatOne.parse(possibleTime);
+		} catch (ParseException | NullPointerException e) {
+			return false;
+		}
+		return true;
+	}
+
+	protected String getPossibleTime(Index index, String[] input) {
+		String possibleTime = null;
+		int current = index.getValue();
+		int next = current + 1;
+		if (isRegexMatch(input[current], Constants.PATTERN_TIME_ONE)) {
+			possibleTime = input[current];
+		} else if (isRegexMatch(input[current], Constants.PATTERN_TIME_TWO)) {
+			possibleTime = formatPatternTwo(input, current);
+		} else if (isRegexMatch(input[current], Constants.PATTERN_TIME_THREE)) {
+			possibleTime = formatPatternThree(input, current);
+		} else if (isSplitPatternTwo(input, current, next)) {
+			possibleTime = formatSplitPatternTwo(input, current, next);
+			index.increment();
+		} else if (isSplitPatternThree(input, current, next)) {
+			possibleTime = formatSplitPatternThree(input, current, next);
+			index.increment();
+		}
+		return possibleTime;
+	}
+
+	private String formatPatternTwo(String[] input, int current) {
+		String possibleTime;
+		possibleTime = input[current];
+		possibleTime = replaceFullStop(possibleTime);
+		possibleTime = reformatTimeTwo(possibleTime);
+		return possibleTime;
+	}
+
+	private String formatPatternThree(String[] input, int current) {
+		String possibleTime;
+		possibleTime = input[current];
+		possibleTime = reformatTimeThree(possibleTime);
+		return possibleTime;
+	}
+
+	private boolean isSplitPatternTwo(String[] input, int current, int next) {
+		return isIndexValid(next, input)
+				&& isRegexMatch(input[current] + input[next],
+						Constants.PATTERN_TIME_TWO);
+	}
+
+	private boolean isSplitPatternThree(String[] input, int current, int next) {
+		return isIndexValid(next, input)
+				&& isRegexMatch(input[current] + input[next],
+						Constants.PATTERN_TIME_THREE);
+	}
+
+	private String formatSplitPatternThree(String[] input, int current, int next) {
+		String possibleTime;
+		possibleTime = input[current] + input[next];
+		possibleTime = reformatTimeThree(possibleTime);
+		return possibleTime;
+	}
+
+	private String formatSplitPatternTwo(String[] input, int current, int next) {
+		String possibleTime;
+		possibleTime = input[current] + input[next];
+		possibleTime = replaceFullStop(possibleTime);
+		possibleTime = reformatTimeTwo(possibleTime);
+		return possibleTime;
+	}
+
+	protected String removeColon(String possibleTime) {
+		if (possibleTime.contains(Constants.COLON)) {
+			possibleTime = possibleTime.replaceAll(Constants.COLON,
+					Constants.EMPTY_STRING);
+		}
+		return possibleTime;
+	}
+
+	protected String reformatTimeTwo(String possibleTime) {
+		Constants.timeFormatTwo.setLenient(false);
+		Date date = new Date();
+		try {
+			date = Constants.timeFormatTwo.parse(possibleTime);
+		} catch (ParseException e) {
+			return Constants.ERROR_INVALID_TIME;
+		}
+		return Constants.timeFormatOne.format(date);
+	}
+
+	protected String reformatTimeThree(String possibleTime) {
+		Constants.timeFormatThree.setLenient(false);
+		Date date = new Date();
+		try {
+			date = Constants.timeFormatThree.parse(possibleTime);
+		} catch (ParseException e) {
+			return Constants.ERROR_INVALID_TIME;
+		}
+		return Constants.timeFormatOne.format(date);
+	}
+
+	protected String replaceFullStop(String possibleTime) {
+		if (possibleTime.contains(Constants.FULL_STOP)) {
+			possibleTime = possibleTime.replace(Constants.FULL_STOP,
+					Constants.COLON);
+		}
+		return possibleTime;
+	}
+
+	@Override
+	public String getItemName() {
+		return Constants.TIME_NAME;
+	}
+
+}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\TimeProcessor.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\test\TestDriverParser.java
+	 */
+
+
+//The following class is a test driver for testing the parser class
+public class TestDriverParser {
+
+	public static String getParsedInput(String input){
+		String[] result = Parser.parseInput(input);
+		String finalResult = new String("");
+		for(int i = 0;i< result.length;i++){
+			finalResult = finalResult + result[i]+" ";
+		}
+		return finalResult;
+	}
+}
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\test\TestDriverParser.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\test\TestParser.java
+	 */
+
+import static org.junit.Assert.*;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.junit.Test;
+
+//The following class is used to test the Parser Component
+
+public class TestParser {
+
+	@Test
+	public void testParser() {
+		String todayDate = getToday();
+		// test importance
+		// boundary and equivalence partitionining
+		// higher success
+		testParseInput("test for parsing importance",
+				"add hello 12/03/2015 01:00 null null 3 null null ",
+				".a 12th mar 1am .i 3 hello");
+		// lower success
+		testParseInput("test for parsing importance",
+				"add hello 12/03/2015 01:00 null null 0 null null ",
+				".a 12th mar 1am .i 0 hello");
+		// higher failure
+		testParseInput(
+				"test for parsing importance",
+				"error .i 4 hello 12/03/2015 01:00 null null null invalid importance level null ",
+				".a 12th mar 1am .i 4 hello");
+		// lower failure
+		testParseInput(
+				"test for parsing importance",
+				"error .i -1 hello 12/03/2015 01:00 null null null invalid importance level null ",
+				".a 12th mar 1am .i -1 hello");
+
+		// Test for delete range
+		// Correct cases
+		testParseInput("test for delete range",
+				"delete null null null null null null null 1 2 3 4 5 7 9 ",
+				".d 1- 5 7 9");
+
+		testParseInput("test for delete range",
+				"delete null null null null null null null 1 2 3 4 5 7 9 ",
+				".d 1 -5 7 9");
+		testParseInput("test for delete range",
+				"delete null null null null null null null 1 2 3 4 5 7 9 ",
+				".d 1 - 5 7 9");
+		// failure cases
+		testParseInput(
+				"test for delete range",
+				"error hello null null null null null Invalid parameter 1 5 7 9 ",
+				".d 1 - hello 5 7 9");
+		testParseInput(
+				"test for delete range",
+				"error hello null null null null null Invalid parameter 1 5 7 9 ",
+				".d 1 hello- 5 7 9");
+
+		// time range
+		// time range with space(correct cases)
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello by at to  1 pm to 2pm world 12th mar 15");
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello by at to  1 pm - 2pm world 12th mar 15");
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello  by at to  1pm - 2pm world 12th mar ");
+
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello by at to 1pm - 2 pm world 12th mar ");
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello  by at to 1 pm - 2 pm world 12th mar ");
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello by at to 1 pm - 2 pm world 12th mar ");
+		// time range with space
+		testParseInput(
+				"test for time range",
+				"add hello - 2 world 12/03/2015 13:00 null null null null null ",
+				"hello by at to 1 pm - 2 world 12th mar ");
+		testParseInput(
+				"test for time range",
+				"add hello by at to 1 - world 12/03/2015 14:00 null null null null null ",
+				"hello by at to 1  - 2 pm world 12th mar ");
+		testParseInput(
+				"test for time range",
+				"add hello 1 world 12/03/2015 13:00 14:00 null null null null ",
+				"hello  by at to 1 1 pm - 2 pm world 12th mar ");
+		// failure cases
+		testParseInput(
+				"test for time range",
+				"error hello 3pm - 2pm world 12/03/2015 14:00 null null null Time range is invalid. null ",
+				"hello 3pm - 2pm world 12th mar 15");
+		testParseInput(
+				"test for time range",
+				"error hello 3pm-2pm world 12/03/2015 null null null null Time range is invalid. null ",
+				"hello 3pm-2pm world 12th mar 15");
+		testParseInput(
+				"test for time range",
+				"error hello 3.61pm-2pm world 12/03/2015 null null null null Invalid time found. null ",
+				"hello 3.61pm-2pm world 12th mar 15");
+		testParseInput(
+				"test for time range",
+				"error hello 3.61pm - 2pm world 12/03/2015 14:00 null null null Invalid time found. null ",
+				"hello 3.61pm - 2pm world 12th mar 15");
+		testParseInput(
+				"test for time range",
+				"error hello 3pm-2.61pm world 12/03/2015 null null null null Invalid time found. null ",
+				"hello 3pm-2.61pm world 12th mar 15");
+
+		// test for no time
+		testParseInput("test for no time",
+				"add hello 12/03/2015 no time null null null null null ",
+				"hello 12th mar by no time");
+		testParseInput("test for no time",
+				"add hello 10pm 12/03/2015 no time null null null null null ",
+				"hello 12th mar 10pm .nt");
+
+		// test for double time for time range
+		testParseInput("test for time range",
+				"add hello pm 12/03/2015 13:00 14:00 null null null null ",
+				"hello 12th mar 1pm-2pm pm");
+		testParseInput(
+				"test for time range(double time)",
+				"add hello 10pm 12-12 12/03/2015 13:00 14:00 null null null null ",
+				"hello 12th mar 10pm 1pm-2pm 12-12");
+
+		// testing time range basic
+		// correct cases
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello by at to  1 pm-2pm world 12th mar 15");
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello  by at to  1pm-2pm world 12th mar ");
+
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello by at to 1pm-2 pm world 12th mar ");
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello  by at to 1 pm-2 pm world 12th mar ");
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello by at to 1 pm-2 pm world 12th mar ");
+
+		testParseInput(
+				"test for time range",
+				"add hello pm-2 pm world 12/03/2015 null null null null null null ",
+				"hello pm-2 pm world 12th mar ");
+		// mixed time range
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello 13:00-2 pm world 12th mar ");
+		testParseInput("test for time range",
+				"add hello world 12/03/2015 13:00 14:00 null null null null ",
+				"hello 1.00 pm-14:00 world 12th mar ");
+
+		// testing for details
+		testParseInput("test for details empty", "add hello " + todayDate
+				+ " 13:00 null  null null null ", "hello 1pm .dtl ");
+		testParseInput("test for details empty", "add hello " + todayDate
+				+ " null null  null null null ", "hello .dtl ");
+		testParseInput("test for no details(null)", "add hello " + todayDate
+				+ " null null null null null null ", "hello ");
+
+		// test for delete date
+		testParseInput(
+				"test for delete date",
+				"error maybe delete hello null null null null null No Date is found. null ",
+				"maybe delete date delete hello");
+		testParseInput(
+				"test for delete date",
+				"error maybe delete hello 25/01/2015 null null null null There are extra attributes. Pls remove them. null ",
+				"maybe delete date delete hello 25 jan 15");
+		testParseInput("test for delete date",
+				"delete date null 25/01/2014 null null null null null null ",
+				"25th jan 14 delete date.");
+		testParseInput("test for delete date",
+				"delete date null 25/01/2014 null null null null null null ",
+				"delete date 25th jan 14 .");
+		// test for show today
+		testParseInput("test for special commands", "search null " + todayDate
+				+ " null null null null null null ", "show today");
+
+		// test for special commands
+		testParseInput("test for special commands",
+				"show this week null null null null null null null null ",
+				"show this week");
+		testParseInput("test for special commands",
+				"show week null null null null null null null null ", ".sw");
+		testParseInput("test for special commands", "add clear archive hello "
+				+ todayDate + " null null null null null null ",
+				"add clear archive hello");
+		testParseInput(
+				"test for special commands",
+				"error null null null null null null This is a special command. You cannot input extra attributes null ",
+				"clear archive hello");
+		testParseInput("test for special commands",
+				"clear archive null null null null null null null null ",
+				"clear archive");
+		testParseInput("test for special commands",
+				"show all null null null null null null null null ", "show all");
+		testParseInput("test for special commands",
+				"sort importance null null null null null null null null ",
+				"sort impt");
+		testParseInput("test for special commands",
+				"sort time null null null null null null null null ", "sort");
+		testParseInput(
+				"test for special commands",
+				"error null null null null null null This is a special command. You cannot input extra attributes null ",
+				"sort hello");
+		testParseInput("test for special commands",
+				"sort alpha null null null null null null null null ", ".sap");
+		testParseInput("test for special commands",
+				"sort time null null null null null null null null ", ".st");
+		testParseInput("test for special commands",
+				"delete all null null null null null null null null ",
+				"delete all");
+		testParseInput("test for special commands",
+				"show details null null null null null null null null ", ".sd");
+		testParseInput("test for special commands",
+				"hide details null null null null null null null null ", ".hd");
+		testParseInput("test for special commands",
+				"view archive null null null null null null null null ",
+				"view archive");
+		testParseInput("test for special commands",
+				"undo null null null null null null null null ", "undo");
+		testParseInput("test for special commands",
+				"redo null null null null null null null null ", "redo");
+		testParseInput("test for special commands",
+				"show floating null null null null null null null null ",
+				"show floating");
+		testParseInput("test for special commands",
+				"exit null null null null null null null null ", "exit");
+		testParseInput("test for special commands",
+				"delete past null null null null null null null null ",
+				"delete past");
+		testParseInput("test for special commands",
+				"clear null null null null null null null null ", ".c");
+		testParseInput("test for special commands",
+				"delete today null null null null null null null null ",
+				"delete today");
+
+		// test for escape sequence
+		testParseInput("test for slash for details and task processor",
+				"add hello hello hello. " + todayDate
+						+ " null null /world is beautiful null null null ",
+				"hello /hello hello. .dtl /world is beautiful");
+		//test for full stop
+		testParseInput("test for full stop", "error null " + todayDate
+				+ " null null null null No Task name is found. null ", "");
+
+		testParseInput("test for full stop", "add .... " + todayDate
+				+ " null null null null null null ", " ....");
+		// tests for full-stop
+		testParseInput("test for full stop",
+				"add hello. 11/11/2014 15:00 null null 2 null null ",
+				" impt 2. hello is on 11-11-2014. on 15:00.");
+
+		testParseInput("test for full stop", "add hello. ... " + todayDate
+				+ " 23:59 null null null null null ",
+				" hello. .... at 11.59 pm.");
+		testParseInput(
+				"test for parsing importance",
+				"add howmework is important hello 12/03/2015 01:00 null null 2 null null ",
+				".a 12th mar 1am howmework is important important 2 hello");
+
+		testParseInput("test for spelled time format one",
+				"add hello 12/03/2015 01:00 null null null null null ",
+				".a 12 mar 1am hello");
+		testParseInput("test for spelled time format three",
+				"add hello 12/03/2015 01:00 null null null null null ",
+				".a 12 mar 01:00am hello");
+		testParseInput("test for spelled time format two",
+				"add hello 12/03/2015 01:00 null null null null null ",
+				".a 12 mar 01:00 hello");
+		testParseInput("test for spelled time format three",
+				"add hello 12/03/2015 01:00 null null null null null ",
+				".a 12 mar 01.00am hello");
+		testParseInput("test for spelled time format three",
+				"add hello 12/03/2015 01:00 null null null null null ",
+				".a 12 mar 01.00 am hello");
+		testParseInput("test for spelled time format three",
+				"add hello 12/03/2015 01:00 null null null null null ",
+				".a 12 mar 1 am hello");
+		testParseInput("test for spelled time format three",
+				"add hello 12/03/2015 01:00 null null null null null ",
+				".a 12 mar on at 1.00 am hello");
+
+		testParseInput("test for delete",
+				"delete null null null null null null null 1 4 5 8 1 ",
+				"1 4 5 8 1 .d.");
+
+		// testing for empty spaces
+		testParseInput("test for extra empty spaces",
+				"add mon hello. ft null null null null null null ",
+				".a          mon          hello ft              .");
+
+		testParseInput("test for full-stop",
+				"add it. 12/03/2015 null null null 2 null null ",
+				"it on 12th mar. is of impt 2. ");
+
+	
+		//test for today
+		testParseInput("test for tmr", "add hello " + todayDate
+				+ " null null null null null null ", "hello tdy");
+		testParseInput("test for today", "add hello " + todayDate
+				+ " null null go home null null null ",
+				"hello today .dtl go home");
+		testParseInput("test for possible error from parameters", "add 3 " + todayDate
+				+ " null null null null null null ", "3");
+
+		// testing for edit
+		// by individual attributes
+		testParseInput(
+				"test for edit",
+				"edit the world on 24rd mar 24/04/2015 17:00 null hello .dtl null null 1 ",
+				"the world on 24rd mar is at 5pm 1 at 24th apr to be edited .dtl hello .dtl ");
+		testParseInput(
+				"test for edit",
+				"edit the world on 23rd mar null 17:00 null hello .dtl null null 1 ",
+				"the world  1 on /23rd mar at 5pm to be edited .dtl hello .dtl ");
+		testParseInput("test for edit",
+				"edit null null null null hello .dtl null null 1 ",
+				" edit 1 .dtl hello .dtl ");
+		testParseInput("test for edit",
+				"edit null 24/04/2015 null null null null null 1 ",
+				" edit for 1 24th apr ");
+		testParseInput("test for edit",
+				"edit null null 14:00 null null null null 1 ",
+				" edit for 1 14:00 ");
+		testParseInput("test for edit",
+				"edit null null 23:00 null null null null 1 ",
+				" edit for 1 11pm ");
+		testParseInput("test for edit",
+				"edit null null 12:15 null null null null 1 ",
+				" edit for 1 12.15pm ");
+		testParseInput("test for edit",
+				"edit hello cat. null null null null null null 1 ",
+				" edit 1 hello cat.");
+		testParseInput("test for edit",
+				"edit null null null null null 3 null 1 ",
+				" edit importance 3 1");
+		testParseInput("test for edit",
+				"edit null null null null null 3 null 1 ", " edit 1 impt 3 ");
+		testParseInput("test for edit",
+				"edit null null null null null 3 null 1 ", " edit 1 .i 3");
+		testParseInput("test for edit", "edit 2 null null null null 3 null 1 ",
+				" edit 1 2 .i 3");
+		//edit failure case
+		testParseInput(
+				"test for edit",
+				"error null null null null null null No Parameters is found. null ",
+				"edit");
+		//test for search by individual attributes
+		testParseInput("test for search", "search hello null null null null null null null ",
+				" .s hello");
+		testParseInput("test for search", "search null 22/10/2015 null null null null null null ",
+				" .s 22nd oct 15");
+		//test search with both attributes
+		testParseInput("test for search", "search hello 22/10/2015 null null null null null null ",
+				" 22nd oct 15 hello to be .s");
+		//failure case for search
+		testParseInput("test for search", "error null null null null null null No attributes found. null ",
+				"search");
+		// test add floating task
+		testParseInput("test for today",
+				"add mon hello. ft null null null null null null ",
+				".a mon hello ft.");
+		// test for edit
+		testParseInput("test for edit",
+				"edit hello 12/03/2012 12:00 null hello world 2 null 1 ",
+				".e 1 12th mar 12 12:00 .i 2 hello .dtl hello world");
+		testParseInput("test for edit",
+				"edit null 12/03/2015 12:00 null null null null 1 ",
+				".e 1 12th mar 12:00");
+		// failure case for edit with no parameters
+		testParseInput(
+				"test for command",
+				"error add make breakfast at null null null Just get rid. null No Parameters is found. null ",
+				"edit the add make breakfast at .dtl Just get rid.");
+
+		// test for auto add with only date, time,details and importance
+		testParseInput(
+				"test for command",
+				"add make breakfast 14/04/2015 13:00 null Just get rid. 3 null null ",
+				"make breakfast .i 3 at 13:00 on 14/4/15 .dtl Just get rid.");
+		testParseInput(
+				"test for command",
+				"add make breakfast 14/04/2015 null null Just get rid. null null null ",
+				"make breakfast on 14th apr .dtl Just get rid.");
+		testParseInput(
+				"test for command",
+				"add make breakfast 14/04/2015 null null Just get rid. null null null ",
+				"make breakfast on 14th apr 15 .dtl Just get rid.");
+		testParseInput(
+				"test for command",
+				"add make breakfast 14/04/2015 null null Just get rid. null null null ",
+				"make breakfast on 14th apr 15 to be added .dtl Just get rid.");
+		testParseInput("test for command", "add make breakfast " + todayDate
+				+ " null null Just get rid. null null null ",
+				"make breakfast at to be added .dtl Just get rid.");
+
+		testParseInput(
+				"test for command",
+				"error make breakfast at null null null Just get rid. null No Parameters is found. null ",
+				"edit make breakfast at .dtl Just get rid.");
+
+		// test for special command where it is not the first part of string
+		testParseInput("test for clear all archive",
+				"add I just want to clear all archive " + todayDate
+						+ " null null Just get rid. null null null ",
+				"I just want to clear all archive .dtl Just get rid.");
+		// edit for edit
+		testParseInput("test for edit",
+				"edit null 12/03/2015 12:00 null null null null 1 ",
+				".e 1 12th mar 12:00");
+		testParseInput("test for edit",
+				"edit hello 12/03/2015 12:00 null hello world 2 null 1 ",
+				".e 1 12th mar 12:00 .i 2 hello .dtl hello world");
+		testParseInput("test for edit",
+				"edit hello 12/03/2015 null null hello world 2 null 1 ",
+				".e 1 12th mar .i 2 hello .dtl hello world");
+		
+		// test edit with all other attributes other than date
+		// to make sure that date is not added automatically
+		testParseInput("test for edit",
+				"edit hello null 12:00 null hello world 2 null 1 ",
+				".e 1 12:00 .i 2 hello .dtl hello world");
+
+		// test delete
+		testParseInput("test for delete",
+				"delete null null null null null null null 1 2 3 5 6 7 8 ",
+				".d 1 2 3 5 6 7 8");
+		testParseInput("test for delete",
+				"delete null null null null null null null 1 ", ".d 1");
+		testParseInput(
+				"test for delete",
+				"error hello null null null null null No Parameters is found. null ",
+				".d hello");
+		testParseInput(
+				"test for delete",
+				"error hello null null null null null There are extra attributes. Pls remove them. 1 2 1 ",
+				"1 2 hello 1 .d.");
+
+		// test details
+		testParseInput(
+				"test for parsing details",
+				"add hello 12/03/2015 01:00 null everything is awesome .dtl the world is round. 3 null null ",
+				".a 12th mar 1am .i 3 hello .dtl everything is awesome .dtl the world is round.");
+		testParseInput("test for parsing details",
+				"add hello 12/03/2015 01:00 null  3 null null ",
+				".a 12th mar 1am .i 3 hello .dtl    ");
+
+		// test timing
+		testParseInput("test for time",
+				"add hello 12/03/2015 19:00 null null null null null ",
+				".a 12th mar 19:00 hello");
+		testParseInput("test for today timing", "add hello " + todayDate
+				+ " 23:59 null null null null null ", ".a 23:59 hello");
+		testParseInput("test for no time",
+				"add hello 12/03/2015 null null null null null null ",
+				".a 12th mar hello");
+		testParseInput("test for time",
+				"add hello 12/03/2015 00:00 null null null null null ",
+				".a 12th mar 12am hello");
+		// failure cases for time
+		testParseInput(
+				"test for time",
+				"error 24pm hello 12/03/2015 null null null null invalid time null ",
+				".a 12th mar 24pm hello");
+		testParseInput(
+				"test for time",
+				"error 13:00am hello 12/03/2015 null null null null invalid time null ",
+				".a 12th mar 13:00am hello");
+		testParseInput(
+				"test for time",
+				"error 24:59 hello 12/03/2015 null null null null invalid time null ",
+				".a 12th mar 24:59 hello");
+		testParseInput(
+				"test for time",
+				"error 12:60 hello 12/03/2015 null null null null invalid time null ",
+				".a 12th mar 12:60 hello");
+
+		// tests for spelled date two format
+		testParseInput("test for spelled date format one",
+				"add hello 12/03/2015 null null null null null null ",
+				".a 12th mar hello");
+		testParseInput("test for spelled date format one",
+				"add hello 12/03/2015 null null null null null null ",
+				".a 12 mar hello");
+		testParseInput("test for spelled date format one",
+				"add hello 01/11/2015 null null null null null null ",
+				".a 1st nov hello");
+
+		// tests for spelled date one format
+		testParseInput("test for spelled date format one",
+				"add hello 12/03/2015 null null null null null null ",
+				".a 12th mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 01/01/2015 null null null null null null ",
+				".a 1st jan 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello world 01/01/2015 null null null null null null ",
+				".a 1st january 15 hello world");
+		testParseInput("test for spelled date format one",
+				"add hello 01/03/2015 null null null null null null ",
+				".a 1st mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 02/03/2015 null null null null null null ",
+				".a 2nd mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 03/03/2015 null null null null null null ",
+				".a 3rd mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 04/03/2015 null null null null null null ",
+				".a 4th mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 11/03/2015 null null null null null null ",
+				".a 11th mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 12/03/2015 null null null null null null ",
+				".a 12th mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 13/03/2015 null null null null null null ",
+				".a 13th mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 30/03/2015 null null null null null null ",
+				".a 30th mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 24/03/2015 null null null null null null ",
+				".a 24th mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 22/03/2015 null null null null null null ",
+				".a 22nd mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 23/03/2015 null null null null null null ",
+				".a 23rd mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 30/03/2015 null null null null null null ",
+				".a 30th mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 31/03/2015 null null null null null null ",
+				".a 31st mar 2015 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 31/03/2014 null null null null null null ",
+				".a 31st mar 2014 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 31/03/2015 null null null null null null ",
+				".a 31st mar 15 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 31/03/2014 null null null null null null ",
+				".a 31st mar 14 hello");
+		testParseInput("test for spelled date format one",
+				"add hello 29/02/2016 null null null null null null ",
+				".a 29th february 16 hello");
+		//test for spelled date format without suffix
+		testParseInput("test for spelled date format one",
+				"add hello 01/03/2015 null null null null null null ",
+				".a 1 mar 2015 hello");
+		testParseInput(
+				"test for spelled date format one",
+				"error 0 mar 2015 hello null null null null null invalid Date null ",
+				".a 0 mar 2015 hello");
+		testParseInput(
+				"test for spelled date format one",
+				"error 32 mar 2015 hello null null null null null invalid Date null ",
+				".a 32 mar 2015 hello");
+
+		// tests for format one
+		testParseInput("test for date format one",
+				"add hello 29/02/2012 null null null null null null ",
+				".a 29/2/12 hello");
+		testParseInput("test for date format one",
+				"add hello 12/05/2015 null null null null null null ",
+				".a 12/05/15 hello");
+		testParseInput("test for date format one",
+				"add hello 01/01/2015 null null null null null null ",
+				".a 1/1/15 hello");
+		// leap year test for date format one
+		testParseInput("test for date format one",
+				"add hello 29/02/2016 null null null null null null ",
+				".a 29/2/16 hello");
+		// error cases for date format one
+		testParseInput(
+				"test for date format one",
+				"error 29/2/15 hello null null null null null invalid Date null ",
+				".a 29/2/15 hello");
+
+		// failure cases for date format one
+		testParseInput("test for date format one",
+				"add hello 12/04/2014 null null null null null null ",
+				".a 12/04/14 hello");
+		testParseInput("test for date format one", "add 12/05/ hello "
+				+ todayDate + " null null null null null null ",
+				".a 12/05/ hello");
+		testParseInput("test for date format one", "add 12/05/2 hello "
+				+ todayDate + " null null null null null null ",
+				".a 12/05/2 hello");
+		testParseInput("test for date format one", "add 12/05/123 hello "
+				+ todayDate + " null null null null null null ",
+				".a 12/05/123 hello");
+	}
+
+	private String getToday() {
+		SimpleDateFormat formatToday = new SimpleDateFormat("dd/MM/yyyy");
+		Date today = new Date();
+		return formatToday.format(today);
+	}
+
+	private void testParseInput(String description, String expected,
+			String command) {
+		assertEquals(description, expected,
+				TestDriverParser.getParsedInput(command));
+	}
+
+}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\test\TestParser.java
+
+
+
+
+

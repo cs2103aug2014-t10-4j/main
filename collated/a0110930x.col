@@ -1,0 +1,1601 @@
+//@author: a0110930x
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\Controller.java
+	 */
+
+/*
+ * This class calls Parser to parse the user input, then creates a Task object,
+ * and call the corresponding methods from Logic. It returns a ResultOfCommand 
+ * object to its caller.
+ */
+import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+
+public class Controller {
+
+	enum CommandType {
+		ADD_TEXT, CLEAR_SCREEN, CLEAR_ARCHIVE, DELETE_ALL, DELETE_DATE, DELETE_PAST, 
+		DELETE_TEXT, DELETE_TODAY, EDIT, EXIT, HELP, HIDE_DETAILS, INVALID, 
+		SEARCH, SHOW_ALL, SHOW_FLOATING, SHOW_TODAY, SHOW_DETAILS, SHOW_THIS_WEEK, 
+		SHOW_WEEK, SORT_TIME, SORT_ALPHA, SORT_IMPORTANCE, REDO, UNDO, VIEW_ARCHIVE;
+	}
+
+	private static final String MSG_DEL_FEEDBACK = "%s from your list";
+
+	/* This method calls the corresponding method from Logic after Parser
+	 * parses the user input.
+	 */
+	public static ResultOfCommand executeCommand(String userSentence, File file, File archive) {
+		CommandType commandType;
+		String[] splitCommand = Parser.parseInput(userSentence);
+		String action = getCommandWord(splitCommand);
+		commandType = determineCommandType(action);
+		Task taskToExecute = new Task(splitCommand);
+		String feedback = "";
+		ResultOfCommand results = new ResultOfCommand();
+		switch (commandType) {
+		case ADD_TEXT:
+			ArrayList<Task> tasksFound = findClash(taskToExecute);
+			if (tasksFound.size() == 0){
+				results.setFeedback(Logic.add(Constants.ACTION_ADD, taskToExecute, file));
+			} else {
+				results.setListOfTasks(tasksFound);
+				continueToAdd(file, taskToExecute, results);
+			}
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case CLEAR_SCREEN:
+			results.setFeedback(Constants.MSG_SCREEN_CLEARED);
+			results.setListOfTasks(new ArrayList<Task>());
+			return results;
+		case CLEAR_ARCHIVE:
+			results.setFeedback(Logic.clearArchive(archive)); 
+			results.setListOfTasks(Logic.getArchiveStorage());
+			results.setTitleOfPanel(Constants.TITLE_ARCHIVED_TASKS);
+			return results;
+		case DELETE_ALL:
+			results.setFeedback(Logic.clearContent(file, archive));
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel(Constants.TITLE_ALL_TASKS);
+			return results;
+		case DELETE_DATE:
+			Task taskWithThisDate = new Task();
+			taskWithThisDate.setDate(taskToExecute.getDate());
+			return deleteTasksForDate(file, archive, results, taskWithThisDate);
+		case DELETE_PAST:
+			//Force sort by time first
+			Task.setSortedByTime(true);
+			Logic.sortByDateAndTime(Logic.getTempStorage());
+			int indexToDeleteBefore = Logic.getFirstNotOverdueInList();
+			try {
+				if (indexToDeleteBefore > 1){
+					int [] indexesToDelete = new int [indexToDeleteBefore-1]; 
+					for (int j = 0; j < indexesToDelete.length; j++){
+						indexesToDelete[j]= j+1;
+					}
+					deleteMultiple(file, archive, results, feedback, indexesToDelete);
+					results.setFeedback(Constants.MSG_DELETE_PAST_SUCCESS);
+					results.setListOfTasks(Logic.getTempStorage());
+					return results;
+				} else {
+					results.setFeedback(Constants.MSG_DELETE_PAST_FAIL);
+					results.setListOfTasks(Logic.getTempStorage());
+					return results;
+				}
+			} catch (NegativeArraySizeException e) {
+				results.setFeedback(Constants.MSG_DELETE_PAST_FAIL);
+				results.setListOfTasks(Logic.getTempStorage());
+				return results;
+			}
+		case DELETE_TODAY:
+			Task todayOnly = new Task();
+			todayOnly.setDate(getTodayDate());
+			deleteTasksForDate(file, archive, results, todayOnly);
+			results.setFeedback(Constants.MSG_DELETED_TODAY);
+			return results;
+		case DELETE_TEXT:
+			String params = taskToExecute.getParams();
+			//Because multiple deletions is handled by Controller.
+			if (params != null){
+				int[] splitIndex = createIndexToDelete(params);
+				sortIndex(splitIndex);
+				deleteMultiple(file, archive, results, feedback, splitIndex);
+			} else { 
+				results.setFeedback(Constants.MSG_DELETE_NO_INDEX);
+			}
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case EDIT:
+			ArrayList<Task> clashFoundForEdit = findClash(taskToExecute);
+			if (taskToExecute.getDetails() !=null && taskToExecute.getDetails().equals("")){
+				Task.setIsDetailsShown(false);
+			}
+			if (clashFoundForEdit.size() == 0) {
+				results.setFeedback(Logic.edit(Constants.ACTION_EDIT, taskToExecute, file));
+			} else {
+				results.setListOfTasks(clashFoundForEdit);
+				JFrame frame = new JFrame();
+				int n = confirmClashIsOk(frame, Constants.ACTION_EDIT);
+				editOrNot(file, taskToExecute, results, n);
+			}
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case EXIT:
+			System.exit(0);
+		case SEARCH:
+			results.setListOfTasks(Logic.search(taskToExecute));
+			int numMatches = results.getListOfTasks().size();
+			results.setFeedback(String.format(Constants.MSG_FOUND_N_ITEMS, numMatches));
+			results.setTitleOfPanel(String.format(Constants.TITLE_SEARCH_RESULTS, 
+					getSearchTermOnly(taskToExecute)));
+			return results;
+		case SHOW_ALL:
+			results.setFeedback(Constants.MSG_SHOW_ALL_SUCCESS);
+			results.setTitleOfPanel(Constants.TITLE_ALL_TASKS);
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case SHOW_FLOATING:
+			Task dateFloating = new Task ();
+			dateFloating.setDate(Constants.DATE_FT);
+			results.setListOfTasks( Logic.search(dateFloating));
+			results.setFeedback(Constants.MSG_SHOW_FLOATING_SUCCESS);
+			results.setTitleOfPanel(Constants.TITLE_FLOATING_TASKS);
+			return results;
+		case SHOW_TODAY:
+			Task dateToday = new Task();
+			dateToday.setDate(getTodayDate());
+			results.setListOfTasks(Logic.search(dateToday));
+			results.setFeedback(Constants.MSG_SHOW_TODAY_SUCCESS);
+			results.setTitleOfPanel(Constants.TITLE_TODAY_TASKS);
+			return results;
+		case SHOW_DETAILS:
+			Task.setIsDetailsShown(true);
+			results.setFeedback(Constants.MSG_SHOW_DETAILS_SUCCESS);
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel(Constants.TITLE_ALL_TASKS);
+			return results;
+		case HIDE_DETAILS: 
+			Task.setIsDetailsShown(false);
+			results.setFeedback(Constants.MSG_HIDE_DETAILS_SUCCESS);
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel(Constants.TITLE_ALL_TASKS);
+			return results;
+		case SHOW_WEEK:
+			DateFormat dateFormat1 = new SimpleDateFormat(Constants.DATE_FORMAT);
+			// Set the date today
+			Calendar calendar = Calendar.getInstance();
+			calendar.setTime(new Date());
+			Calendar firstDay = (Calendar) calendar.clone();
+			Task startOfSevenDays = new Task();
+			startOfSevenDays.setDate(dateFormat1.format(firstDay.getTime()));
+			
+			// Add six days to get the end date
+			Calendar lastDay = (Calendar) firstDay.clone();
+			lastDay.add(Calendar.DAY_OF_YEAR, 6);
+			Task endOfSevenDays = new Task();
+			endOfSevenDays.setDate(dateFormat1.format(lastDay.getTime()));
+			
+			String rangeOfSevenDays = getRangeOfWeek(startOfSevenDays, endOfSevenDays);
+			results.setListOfTasks(Logic.searchRangeOfDate(startOfSevenDays, endOfSevenDays));
+			results.setFeedback(Constants.MSG_SHOW_SEVEN_DAYS_SUCCESS);
+			results.setTitleOfPanel(String.format(Constants.TITLE_SHOW_SEVEN_DAYS, rangeOfSevenDays));
+			return results;
+		case SHOW_THIS_WEEK:
+			// Set the date today
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(new Date());
+			// Calculates the start date of the week
+			Calendar first = (Calendar) cal.clone();
+			first.add(Calendar.DAY_OF_WEEK, 
+					first.getFirstDayOfWeek() - first.get(Calendar.DAY_OF_WEEK));
+			// and add six days to the end date
+			Calendar last = (Calendar) first.clone();
+			last.add(Calendar.DAY_OF_YEAR, 6);
+			DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
+			Task startOfWeekTask = new Task();
+			startOfWeekTask.setDate(dateFormat.format(first.getTime()));
+			Task endOfWeekTask = new Task();
+			endOfWeekTask.setDate(dateFormat.format(last.getTime()));
+			String rangeOfWeek = getRangeOfWeek(startOfWeekTask, endOfWeekTask);
+			results.setListOfTasks(Logic.searchRangeOfDate(startOfWeekTask, endOfWeekTask));
+			results.setFeedback(Constants.MSG_SHOW_THIS_WEEK_SUCCESS);
+			results.setTitleOfPanel(String.format(Constants.TITLE_SHOW_WEEK, rangeOfWeek));
+			return results;
+		case SORT_TIME:
+			Task.setSortedByTime(true);
+			results.setFeedback(Logic.sortByDateAndTime(Logic.getTempStorage()));
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel(Constants.TITLE_ALL_TASKS);
+			return results;
+		case SORT_ALPHA:
+			Task.setSortedByTime(false);
+			results.setFeedback(Logic.sortByAlphabet(Logic.getTempStorage()));
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel(Constants.TITLE_ALPHABETICAL_ORDER);
+			return results;
+		case SORT_IMPORTANCE:
+			Task.setSortedByTime(false);
+			results.setFeedback(Logic.sortByImportance(Logic.getTempStorage()));
+			results.setListOfTasks(Logic.getTempStorage());
+			results.setTitleOfPanel(Constants.TITLE_IMPORTANCE_ORDER);
+			return results;
+		case UNDO: 
+			results.setFeedback(Logic.undo(file, archive));
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case REDO:
+			results.setFeedback(Logic.redo(file, archive));
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		case VIEW_ARCHIVE:
+			results.setTitleOfPanel(Constants.TITLE_ARCHIVED_TASKS);
+			results.setFeedback(Constants.MSG_ARCHIVED_TASKS);
+			results.setListOfTasks(Logic.getArchiveStorage());
+			return results;
+		default:
+			try {
+				results.setFeedback(taskToExecute.getError());
+			} catch (NullPointerException e){
+				results.setFeedback(Constants.MSG_INVALID_COMMAND);
+			}
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		}
+	}
+
+	//Prompts user if they want to continue to add
+	public static void continueToAdd(File file, Task taskToExecute,
+			ResultOfCommand results) {
+		JFrame frame = new JFrame();
+		int userChoice = confirmClashIsOk(frame, Constants.ACTION_ADD);
+		UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
+		if (userChoice == JOptionPane.YES_OPTION){
+			results.setFeedback(Logic.add(Constants.ACTION_ADD,taskToExecute, file));			
+		} else {
+			results.setFeedback(String.format(Constants.MSG_USER_CONFIRMED_NO, Constants.ACTION_ADD));
+		}
+	}
+
+	// Edit the file based on the user choice
+	public static void editOrNot(File file, Task taskToExecute,
+			ResultOfCommand results, int userChoice) {
+		if (userChoice == JOptionPane.YES_OPTION){
+			results.setFeedback(Logic.edit(Constants.ACTION_EDIT, taskToExecute, file));			 
+		} else {
+			results.setFeedback(String.format(Constants.MSG_USER_CONFIRMED_NO, 
+					Constants.ACTION_EDIT));
+		}
+	}
+
+	//Creates an integer array from the String for parameters returned by Parser
+	private static int[] createIndexToDelete(String params) {
+		String [] splitParams = params.split("\\s+");
+		int [] splitIndex = new int [splitParams.length];
+		for (int j = 0; j < splitParams.length; j ++){
+			int indexToDelete = Integer.parseInt(splitParams[j]);
+			if (indexToDelete > 0){
+				splitIndex[j] = indexToDelete;
+			} 
+		}
+		return splitIndex;
+	}
+
+	// This method is used to determine the command types given the first word of the command.
+	private static CommandType determineCommandType(String commandTypeString) {
+		if (commandTypeString == null) {
+			throw new Error(Constants.ERROR_NULL_COMMAND);
+		}
+		if (commandTypeString.equalsIgnoreCase(Constants.ACTION_ADD)) {
+			return CommandType.ADD_TEXT;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_CLEAR)) {
+			return CommandType.CLEAR_SCREEN;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_CLEAR_ARCHIVE)) {
+			return CommandType.CLEAR_ARCHIVE;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE)) {
+			return CommandType.DELETE_TEXT;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE_ALL)) {
+			return CommandType.DELETE_ALL;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE_DATE)) {
+			return CommandType.DELETE_DATE;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE_PAST)) {
+			return CommandType.DELETE_PAST;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_DELETE_TODAY)) {
+			return CommandType.DELETE_TODAY;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_EDIT)) {
+			return CommandType.EDIT;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_EXIT)) {
+			return CommandType.EXIT;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_HELP)) {
+			return CommandType.HELP;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_HIDE_DETAILS)) {
+			return CommandType.HIDE_DETAILS;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SEARCH)) {
+			return CommandType.SEARCH;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SORT_TIME)) {
+			return CommandType.SORT_TIME;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SORT_ALPHA)) {
+			return CommandType.SORT_ALPHA;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SORT_IMPORTANCE)) {
+			return CommandType.SORT_IMPORTANCE;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_ALL)) {
+			return CommandType.SHOW_ALL;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_FLOATING)) {
+			return CommandType.SHOW_FLOATING;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_TODAY)) {
+			return CommandType.SHOW_TODAY;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_WEEK)) {
+			return CommandType.SHOW_WEEK;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_THIS_WEEK)) {
+			return CommandType.SHOW_THIS_WEEK;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_SHOW_DETAILS)) {
+			return CommandType.SHOW_DETAILS;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_REDO)) {
+			return CommandType.REDO;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_UNDO)) {
+			return CommandType.UNDO;
+		} else if (commandTypeString.equalsIgnoreCase(Constants.ACTION_VIEW_ARCHIVE)) {
+			return CommandType.VIEW_ARCHIVE;
+		} else {
+			return CommandType.INVALID;
+		}
+	}
+
+	//Get first word in the command position
+	private static String getCommandWord(String[] userCommand) {
+		assert userCommand.length >0;
+		String firstWord = userCommand[Constants.COMMAND_POSITION];
+		return firstWord;
+	}
+
+	//Method that deletes multiple tasks from the list.
+	private static void deleteMultiple(File file, File archive,
+			ResultOfCommand results, String feedback, int[] splitIndex) {
+		boolean isMoreThanSizeOfList = false;
+		for (int j = splitIndex.length - 1; j >= 0; j--){
+			if (splitIndex[j] > Logic.getTempStorage().size()){
+				isMoreThanSizeOfList = true;
+				continue; //Because cannot delete numbers larger than list size
+			}
+			Task oneTaskToDelete = new Task();
+			String userDeleteIndex = String.valueOf(splitIndex[j]); 
+			oneTaskToDelete.setParams(userDeleteIndex);
+			feedback = deleteIndex(file, archive, feedback, splitIndex, j,
+					oneTaskToDelete);
+		}
+		feedback = shortenFeedback(feedback);
+		feedback = capitalizeFirstLetter(feedback);
+		feedback = endWithFullstop(feedback);
+		feedback = feedback.replace("deleted", "");
+		if (isMoreThanSizeOfList){
+			feedback = feedback + Constants.MSG_DELETE_NON_EXISTENT ;
+			feedback = feedback.trim();
+		}
+		results.setFeedback(feedback);
+	}
+
+	// Used to shorten feedback for delete because delete multiple 
+	// can have very long feedback strings.
+	private static String shortenFeedback(String feedback) {
+		String firstPart = "";
+		String secondPart = "";
+		if (feedback.length() > Constants.SIZE_FEEDBACK_MAX){
+			firstPart = feedback.substring(0, Constants.SIZE_FEEDBACK_MAX);
+			int lastCommaIndex = firstPart.lastIndexOf(",");
+			if (lastCommaIndex != -1){
+				firstPart = firstPart.substring(0, lastCommaIndex) + ", ...";
+			}
+			secondPart = feedback.substring(Constants.SIZE_FEEDBACK_MAX);
+			int lastCommaSecondPart = secondPart.lastIndexOf(",", secondPart.length()- 2);
+			if (lastCommaSecondPart != -1){
+				secondPart = secondPart.substring(lastCommaSecondPart);
+			}
+			feedback = firstPart + secondPart;
+		}
+		return feedback;
+	}
+
+	//Call Logic to delete index from list
+	private static String deleteIndex(File file, File archive, String feedback,
+			int[] splitIndex, int j, Task oneOutOfMany) {
+		if (splitIndex[j] > 0){
+			feedback = Logic.delete(Constants.ACTION_DELETE, splitIndex.length, oneOutOfMany, 
+					file, archive) + "," + feedback ;
+		} else  {
+			feedback = capitalizeFirstLetter(feedback);
+			feedback = Logic.delete(Constants.ACTION_DELETE, splitIndex.length, oneOutOfMany, 
+					file, archive) + ". " + feedback ;
+		}
+		return feedback;
+	}
+
+	//Sort index from smallest to largest for multiple deletion.
+	private static void sortIndex(int[] splitIndex) {
+		int n = splitIndex.length;
+		int temp = 0;
+		for (int i = 0; i < n; i++) {
+			for (int j = 1; j < (n - i); j++) {
+				if (splitIndex[j - 1] > splitIndex[j]) {
+					temp = splitIndex[j - 1];
+					splitIndex[j - 1] = splitIndex[j];
+					splitIndex[j] = temp;
+				}
+			}
+		}
+	}
+
+	//Methods delete all tasks on a particular date.
+	private static ResultOfCommand deleteTasksForDate(File file, File archive,
+			ResultOfCommand results, Task withParticularDate) {
+		ArrayList<Task> allThoseTasks= Logic.search(withParticularDate);
+		if (allThoseTasks.isEmpty()){
+			results.setFeedback(String.format(Constants.MSG_NO_TASK_FOR_DATE, withParticularDate.getDate()));
+			results.setListOfTasks(Logic.getTempStorage());
+			return results;
+		}
+		int [] splitIndexA = new int [allThoseTasks.size()];
+		for (int j = 0 ; j < allThoseTasks.size(); j++){
+			splitIndexA[j] = j+1;
+		}
+		String feedback1 = "";
+		deleteMultiple(file, archive, results, feedback1, splitIndexA);
+		results.setListOfTasks(Logic.getTempStorage());
+		return results;
+	}
+
+	//Return any tasks with the same date and time as taskToExecute
+	private static ArrayList<Task> findClash(Task taskToExecute) {
+		//Do not check for clash if is floating, because it will always clash
+		if (taskToExecute.getDate() != null && taskToExecute.getDate().equals(Constants.DATE_FT)){
+			return new ArrayList<Task>();
+		}
+		//If time is null, means there is no time allocated for that task today
+		if (taskToExecute.getStartTime() == null){
+			return new ArrayList<Task>();
+		}
+		Task tempTask = new Task();
+		tempTask.setDate(taskToExecute.getDate());
+		tempTask.setStartTime(taskToExecute.getStartTime());
+		tempTask.setEndTime(taskToExecute.getEndTime());
+		tempTask.setParams(taskToExecute.getParams());
+		ArrayList<Task> searchResult = Logic.searchForCheckClash(tempTask);
+		return searchResult;
+	}
+
+	//Creates a JDialog to prompt whether user still wants to add the task
+	private static int confirmClashIsOk(JFrame frame, String action) {
+		int n = JOptionPane.showConfirmDialog(
+				frame, String.format(Constants.MSG_CLASH_FOUND, action),
+				Constants.TITLE_JDIALOG_CLASH_FOUND,
+				JOptionPane.YES_NO_OPTION);
+		return n;
+	}
+
+	//Make sure feedback string is changed to a fullstop.
+	private static String endWithFullstop(String feedback) {
+		if (feedback.endsWith(",") || (feedback.endsWith(", "))){
+			feedback = feedback.substring(0, feedback.lastIndexOf(",")) + " from your list.";
+		}
+		if (feedback.endsWith("..."))
+			feedback = String.format(MSG_DEL_FEEDBACK, feedback);
+		return feedback;
+	}
+
+	//Capitalizes the first letter of the sentence
+	private static String capitalizeFirstLetter(String feedback) {
+		if (!feedback.isEmpty()){
+			feedback = feedback.substring(0,1).toUpperCase() + feedback.substring(1); // Capitalize first letter
+		}
+		return feedback;
+	}
+
+	//Returns the String that is being searched after Parser processes it.
+	private static String getSearchTermOnly(Task task) {
+		String searchTerm = "";
+		if (task.getName() != null){
+			searchTerm += task.getName();
+		}
+		if (task.getDate() != null){
+			if (searchTerm.length() > 0){
+				searchTerm += " ";
+			}
+			searchTerm += task.getDate();
+		}
+		if (task.getStartTime() != null){
+			if (searchTerm.length() > 0){
+				searchTerm += " ";
+			}
+			searchTerm += task.getStartTime();
+		}
+		if (task.getEndTime() != null){
+			if (searchTerm.length() > 0){
+				searchTerm += " - ";
+			}
+			searchTerm += task.getEndTime();
+		}
+		return searchTerm;
+	}
+
+	//Returns today date as a String
+	private static String getTodayDate() {
+		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
+		Date date = new Date();
+		String reportDate = dateFormat.format(date);
+		return reportDate;
+	}
+
+	//Return the day of the week
+	private static String getDayOfWeek(String date) {
+		try {
+			Date mydate = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.ENGLISH).parse(date);
+			return new SimpleDateFormat("EEE").format(mydate);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	//This method returns a String for a range of dates for show_week
+	private static String getRangeOfWeek(Task startOfWeekTask,
+			Task endOfWeekTask) {
+		return String.format(Constants.MSG_RANGE_OF_WEEK,
+				getDayOfWeek(startOfWeekTask.getDate()),  
+				startOfWeekTask.getDate(), 
+				getDayOfWeek(endOfWeekTask.getDate()),
+				endOfWeekTask.getDate());
+	}
+}
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\Controller.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\DoubleUp.java
+	 */
+
+/*
+ * The main method of DoubleUp
+ */
+import java.awt.AWTException;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Panel;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileLock;
+import java.util.ArrayList;
+import java.util.EmptyStackException;
+import java.util.Scanner;
+import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
+import javax.imageio.ImageIO;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JEditorPane;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.plaf.metal.MetalIconFactory;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
+
+import org.jnativehook.GlobalScreen;
+import org.jnativehook.NativeHookException;
+import org.jnativehook.NativeInputEvent;
+import org.jnativehook.keyboard.NativeKeyEvent;
+import org.jnativehook.keyboard.NativeKeyListener;
+
+public class DoubleUp extends JFrame implements NativeKeyListener , WindowListener{
+
+	private static final long serialVersionUID = 1L;
+	private static JTextField textFieldCmdIn;
+	private static JEditorPane displayPanelTodayTasks;
+	private static JTextArea textFieldResultsOut;
+	private static JPanel middleRow;
+	private static JFrame frame;
+	private static TrayIcon icon;
+	private static Stack <String> backwardsUserInput = new Stack<String>();
+	private static Stack <String> forwardUserInput = new Stack<String>();
+	private static File file, archive;
+	private static Logger logger = Logger.getLogger(Constants.LOGGER);
+
+	public static void main(String[] args) {
+		if (lockInstance()){
+			ArrayList<Integer> overview = initFilesAndTasks();
+			createApplicationWindows();
+			initSystemTray(overview);
+		} else {
+			JOptionPane.showMessageDialog(new JFrame(), Constants.MSG_PREVIOUS_INSTANCE);
+		}
+	}
+
+	//First level of abstraction
+	public static void createApplicationWindows() {
+		frame = new DoubleUp();
+	}
+
+	//Get Storage to initialize the txt files. Returns the number of each type of tasks
+	public static ArrayList<Integer> initFilesAndTasks() {
+		file = Storage.openFile(Constants.FILE_TASK);
+		archive = Storage.openFile(Constants.FILE_ARCHIVE);
+		ArrayList<Integer> overview = Logic.init(file, archive);
+		return overview;
+	}
+
+	//Constructor of DoubleUp
+	public DoubleUp() {
+		setLookAndFeel();
+		setTitle(Constants.TITLE_MAIN_WINDOW);
+		setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		addComponentsToPane(getContentPane());
+		setMinimumSize(new Dimension(730,700));
+		setVisible(true);
+		setResizable(false);
+		addWindowListener(this);
+		setLocationRelativeTo(null);
+		logger.log(Level.INFO, Constants.MSG_CREATE_GUI_SUCCESS);
+	}
+
+	//Allows only one instance of the program to run
+	private static boolean lockInstance() {
+		try {
+			final File lockfile = new File(Constants.FILE_LOCK);
+			final RandomAccessFile randomAccessFile = new RandomAccessFile(lockfile, "rw");
+			final FileLock fileLock = randomAccessFile.getChannel().tryLock();
+			if (fileLock != null) {
+				Runtime.getRuntime().addShutdownHook(new Thread() {
+					public void run() {
+						try {
+							fileLock.release();
+							randomAccessFile.close();
+							lockfile.delete();
+						} catch (Exception e) {
+							logger.log(Level.WARNING, Constants.ERROR_REMOVE_LOCK_FAIL + 
+									Constants.FILE_LOCK, e);
+						}
+					}
+				});
+				return true;
+			}
+		} catch (Exception e) {
+			logger.log(Level.WARNING, Constants.ERROR_CREATE_LOCK_FAIL + 
+					Constants.FILE_LOCK, e);
+		}
+		return false;
+	}
+
+	//Second level of abstraction
+	private void setLookAndFeel() {
+		Color champagneGold = Color.decode(Constants.COLOR_CHAMPAGNE_GOLD);
+		Color white = Color.decode(Constants.COLOR_SNOW_WHITE);
+		try {
+			for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+				if ("Nimbus".equals(info.getName())) {
+					UIManager.put("control", champagneGold);
+					UIManager.put("EditorPane.background", white);
+					UIManager.setLookAndFeel(info.getClassName());
+					break;
+				}
+			}
+		} catch (Exception e) {
+		}
+	}
+
+	// Initializes the system tray if supported
+	private static void initSystemTray(ArrayList<Integer> overview) {
+		if (SystemTray.isSupported()) {
+			Image image;
+			try {
+				image = ImageIO.read(DoubleUp.class.getResource(Constants.RES_UP_ARROW_ICON));
+			} catch (IOException e2) {
+				e2.printStackTrace();
+				image = getImage();
+			}
+			icon = new TrayIcon(image, Constants.DOUBLE_UP, null);
+			icon.setImageAutoSize(true);
+			final JPopupMenu jpopup = createJPopupMenu();
+			icon.addMouseListener(new MouseAdapter() {
+				public void mouseReleased(MouseEvent e) {
+					if (e.isPopupTrigger()) {
+						jpopup.setLocation(e.getX(), e.getY());
+						jpopup.setInvoker(jpopup);
+						jpopup.setVisible(true);
+					}
+				}
+			});
+			icon.addMouseListener(new MouseAdapter() {
+			    public void mouseClicked(MouseEvent e) {
+			        if (e.getClickCount() == 2) {
+			        	frame.setState(Frame.NORMAL);
+			        	frame.setVisible(true);
+			        }
+			    }
+			}); 
+			try {
+				SystemTray.getSystemTray().add(icon);
+			} catch (AWTException e1) {
+				e1.printStackTrace();
+			}
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			icon.displayMessage(Constants.MSG_WELCOME, String.format(Constants.MSG_PROGRESS_BAR, overview.get(0), overview.get(1),overview.get(2), overview.get(3)), 
+					TrayIcon.MessageType.INFO);
+		}
+	}
+
+
+	@SuppressWarnings("serial")
+	public static void addComponentsToPane(Container cp){
+		customizeFont();
+		cp.setLayout(new BorderLayout());
+		//Top panel for Command
+		JPanel topRow = new JPanel();
+		topRow.add(new JLabel(Constants.TITLE_ENTER_COMMAND));
+		textFieldCmdIn = new JTextField(Constants.SIZE_TEXT_FIELD_CMD_IN);
+		textFieldCmdIn.setDocument (new JTextFieldLimit(Constants.SIZE_OF_DISPLAY_PANEL));
+		topRow.add(textFieldCmdIn);
+		cp.add(topRow, BorderLayout.NORTH);
+
+		// Today panel
+		middleRow = new JPanel();
+		middleRow.setLayout(new BorderLayout());
+		displayPanelTodayTasks = new JEditorPane();
+		displayPanelTodayTasks.setContentType("text/html");
+		setHTMLstyle();
+		displayPanelTodayTasks.setEditable(false);
+		displayPanelTodayTasks.setMargin(new Insets(5,5,5,5));
+
+		ResultOfCommand results = Controller.executeCommand(Constants.ACTION_SHOW_ALL, file, archive);
+		displayPanelTodayTasks.setText(results.printArrayList());
+		JScrollPane scroll  = new JScrollPane(displayPanelTodayTasks,
+				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		middleRow.add(scroll, BorderLayout.CENTER);
+		middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
+		cp.add(middleRow, BorderLayout.CENTER);
+
+		//Feedback field below
+		JPanel lastRow = new JPanel();
+		ImageIcon icon = createImageIcon(Constants.RES_SYSTEM_TRAY_ICON, Constants.DOUBLE_UP);
+		JLabel doubleupIcon = new JLabel(icon, JLabel.CENTER);
+		lastRow.add(doubleupIcon);
+		JLabel resultsCmd = new JLabel(Constants.TITLE_RESULT);
+		lastRow.add(resultsCmd);
+
+		textFieldResultsOut = new JTextArea(0, Constants.SIZE_WIDTH_TEXT_AREA_RESULTS);
+		textFieldResultsOut.setLineWrap(true);
+		textFieldResultsOut.setWrapStyleWord(true);
+		textFieldResultsOut.setMargin(new Insets(5,5,5,5));
+		textFieldResultsOut.setEditable(false); 
+		textFieldResultsOut.setText(Constants.MSG_WELCOME + Constants.MSG_HELP);
+		textFieldResultsOut.setLineWrap(true);
+		textFieldResultsOut.setWrapStyleWord(true);
+		textFieldResultsOut.setFocusable(false);
+		lastRow.add(textFieldResultsOut);
+		cp.add(lastRow, BorderLayout.SOUTH);
+
+		UIManager.put("Button.defaultButtonFollowsFocus", Boolean.TRUE);
+		Color white = Color.decode(Constants.COLOR_SNOW_WHITE);
+		middleRow.setBackground(white);
+
+		Action showHelp = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				showHelp();
+			}
+			private void showHelp() {
+				String helpfile = Constants.RES_HELP_HTML;
+				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
+				assert inputStream != null;
+				String helpString = convertStreamToString(inputStream);
+				displayPanelTodayTasks.setText(helpString);
+				displayPanelTodayTasks.setCaretPosition(0);
+				textFieldResultsOut.setText(Constants.MSG_HELP_SUCCESS);
+				middleRow.setBorder(BorderFactory.createTitledBorder(Constants.TITLE_HELP_SCREEN));
+			}
+
+			String convertStreamToString(java.io.InputStream is) {
+				@SuppressWarnings("resource")
+				Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
+				return s.hasNext() ? s.next() : "";
+			}
+		};
+
+		Action showAll = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				showAll();
+			}
+			private void showAll() {
+				ResultOfCommand results = Controller.executeCommand(Constants.ACTION_SHOW_ALL, file, archive);
+				displayPanelTodayTasks.setText(results.printArrayList());
+				displayPanelTodayTasks.setCaretPosition(0);
+				middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
+				textFieldResultsOut.setText(Constants.MSG_SHOW_ALL_SUCCESS);
+			}
+		};
+
+		Action goBack = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				goBack();
+			}
+			private void goBack() {
+				try {
+					if (!backwardsUserInput.empty()){
+						forwardUserInput.push(backwardsUserInput.pop());
+						textFieldCmdIn.setText(forwardUserInput.peek());
+					}
+				} catch (EmptyStackException e) {
+				}
+			}
+		};
+		Action goForward = new AbstractAction() {
+			public void actionPerformed(ActionEvent e) {
+				goForward();
+			}
+			private void goForward() {
+				try {
+					if (!forwardUserInput.empty()){
+						backwardsUserInput.push(forwardUserInput.pop());
+						textFieldCmdIn.setText(forwardUserInput.peek());
+					}
+				} catch (EmptyStackException e) {
+					textFieldCmdIn.setText("");
+				}
+			}
+		};
+		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("F2"), "showHelp");
+		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke("ESCAPE"), "showall");
+		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0), "goBack");
+		textFieldCmdIn.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0), "goForward");
+		textFieldCmdIn.getActionMap().put("showHelp", showHelp);
+		textFieldCmdIn.getActionMap().put("showall", showAll);
+		textFieldCmdIn.getActionMap().put("goBack", goBack);
+		textFieldCmdIn.getActionMap().put("goForward", goForward);
+
+		//This is to add listener for textfield at top
+		textFieldCmdIn.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String userSentence = textFieldCmdIn.getText().trim();
+				ResultOfCommand results = new ResultOfCommand();
+				if (userSentence.equalsIgnoreCase(Constants.ACTION_HELP) || 
+						userSentence.equalsIgnoreCase(Constants.ACTION_HELP_SHORT)){
+					showHelp(results);
+				} else { 
+					results = Controller.executeCommand(userSentence, file, archive);	
+					assert results != null;
+					displayPanelTodayTasks.setText(results.printArrayList());
+					middleRow.setBorder(BorderFactory.createTitledBorder(results.getTitleOfPanel()));
+					textFieldResultsOut.setText(results.getFeedback());
+					displayPanelTodayTasks.setCaretPosition(0);
+				}
+				backwardsUserInput.push(userSentence);
+				textFieldCmdIn.setText("");  
+			}
+
+			private void showHelp(ResultOfCommand results) {
+				String helpfile = Constants.RES_HELP_HTML;
+				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
+				assert inputStream != null;
+				String helpString = convertStreamToString(inputStream);
+				displayPanelTodayTasks.setText(helpString);
+				textFieldResultsOut.setText(Constants.MSG_HELP_SUCCESS);
+				middleRow.setBorder(BorderFactory.createTitledBorder(Constants.TITLE_HELP_SCREEN));
+				results.setTitleOfPanel(Constants.TITLE_HELP_SCREEN);
+				results.setFeedback(Constants.MSG_HELP_SUCCESS);
+				displayPanelTodayTasks.setCaretPosition(0);
+			}
+
+			String convertStreamToString(java.io.InputStream is) {
+				@SuppressWarnings("resource")
+				Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
+				return s.hasNext() ? s.next() : "";
+			}
+		});
+	}
+
+	//Set the font of DoubleUp to be Monaco
+	public static void customizeFont() {
+		InputStream is = DoubleUp.class.getResourceAsStream(Constants.RES_MONACO_TTF);	
+		try {
+			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
+			Font sizedFont = font.deriveFont(13f); 
+			UIManager.getLookAndFeelDefaults().put("defaultFont", sizedFont);
+			sizedFont = font.deriveFont(Font.BOLD, 13f); 
+			UIManager.getLookAndFeelDefaults().put("Label.font", sizedFont);
+			GraphicsEnvironment genv = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			genv.registerFont(font);
+		} catch (Exception e) {
+		}
+	}
+
+	// Add some styles to the html of the JEditorPane
+	public static void setHTMLstyle() {
+		String myStyle = 
+				String.format(".time{color: %s;}",Constants.COLOR_BLUE)
+				+ String.format(".details{color: %s;}", Constants.COLOR_ORANGER )
+				+ String.format(".name{color: %s;}", Constants.COLOR_MIDNIGHT_BLUE )
+				+ String.format(".importance{color: %s;}", Constants.COLOR_RED)
+				+ String.format(".date{color: %s;}",Constants.COLOR_HOT_PINK);
+		HTMLEditorKit kit = new HTMLEditorKit();
+		displayPanelTodayTasks.setEditorKit(kit);
+		StyleSheet styleSheet = kit.getStyleSheet();
+		styleSheet.addRule(myStyle);
+		Document setdoc = kit.createDefaultDocument();
+		displayPanelTodayTasks.setDocument(setdoc);
+	}
+
+	//Third level of abstraction
+
+	//Creates PopUp Menu in taskbar
+	private static JPopupMenu createJPopupMenu() {
+		final JPopupMenu jpopup = new JPopupMenu();
+		JMenuItem helpMI = new JMenuItem(Constants.MENU_HELP);
+		helpMI.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				String helpfile = Constants.RES_HELP_HTML;
+				InputStream inputStream = this.getClass().getResourceAsStream(helpfile);
+				assert inputStream != null;
+				String helpString = convertStreamToString(inputStream);
+				displayPanelTodayTasks.setText(helpString);
+				displayPanelTodayTasks.setCaretPosition(0);
+				textFieldResultsOut.setText(Constants.MSG_HELP_SUCCESS);
+				middleRow.setBorder(BorderFactory.createTitledBorder(Constants.TITLE_HELP_SCREEN));
+    			textFieldCmdIn.requestFocus();
+    			frame.setState(Frame.NORMAL);
+	        	frame.setVisible(true);
+			}
+			String convertStreamToString(java.io.InputStream is) {
+				@SuppressWarnings("resource")
+				Scanner s = new Scanner(is, "UTF-8").useDelimiter("\\A");
+				return s.hasNext() ? s.next() : "";
+			}
+		});
+			
+		jpopup.add(helpMI);
+
+		jpopup.addSeparator();
+		JMenuItem exitMI = new JMenuItem(Constants.MENU_EXIT);
+		exitMI.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		jpopup.add(exitMI);
+		return jpopup;
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+		//Initialize native hook.
+		try {
+			LogManager.getLogManager().reset();
+			GlobalScreen.registerNativeHook();
+			Logger nativeHookLogger = Logger.getLogger(GlobalScreen.class.getPackage().getName());
+			nativeHookLogger.setLevel(Level.WARNING);
+		}
+		catch (NativeHookException ex) {
+			System.err.println(Constants.ERROR_NATIVE_HOOK_FAIL);
+			System.err.println(ex.getMessage());
+			ex.printStackTrace();
+			System.exit(1);
+		}
+		GlobalScreen.getInstance().addNativeKeyListener(this);
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		GlobalScreen.unregisterNativeHook();
+		System.runFinalization();
+		System.exit(0);
+	}
+
+	@Override
+	public void nativeKeyPressed(NativeKeyEvent e) {
+		System.out.println("Key Pressed: " + NativeKeyEvent.getKeyText(e.getKeyCode()));
+		if (e.getKeyCode() == NativeKeyEvent.VC_SPACE && 
+				NativeInputEvent.getModifiersText(e.getModifiers()).equals(
+						"Ctrl")) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					controlSpace();
+				}
+			});
+		}
+	}
+
+	private static Image getImage() throws HeadlessException{
+		Icon defaultIcon = MetalIconFactory.getTreeHardDriveIcon();
+		Image image;
+		try {
+			image = ImageIO.read(DoubleUp.class.getResource(Constants.RES_SYSTEM_TRAY_ICON));
+			defaultIcon.paintIcon(new Panel(), image.getGraphics(), 0, 0);
+		} catch (IOException e) {
+			e.printStackTrace();
+			image = new BufferedImage(defaultIcon.getIconWidth(), 
+					defaultIcon.getIconHeight(), BufferedImage.TYPE_4BYTE_ABGR);
+		}
+		return image;
+	}
+
+	//Fetch the icon image from path and creates it.
+	protected static ImageIcon createImageIcon(String path,
+			String description) {
+		java.net.URL imgURL = DoubleUp.class.getResource(path);
+		if (imgURL != null) {
+			return new ImageIcon(imgURL, description);
+		} else {
+			System.err.println(String.format(Constants.ERROR_ICON_NOT_FOUND, path));
+			return null;
+		}
+	}
+
+	//To maximize and minimize application using Control + Space
+	private void controlSpace() {
+		if (isFocused()){
+			setState(Frame.ICONIFIED);
+		} else { 
+			setState(Frame.NORMAL);
+			setVisible(true);
+			toFront();
+			textFieldCmdIn.requestFocus();
+			repaint();
+		}
+		repaint();
+	}
+
+	/* 
+	 * This method resolves the issue where Windows will not allow application 
+	 * windows to steal focus and will only flash the icon in the taskbar. 
+	 */
+	@Override 
+	public void toFront() {
+		int sta = super.getExtendedState() &~ JFrame.ICONIFIED & JFrame.NORMAL;
+		super.setExtendedState(sta);
+		super.setAlwaysOnTop(true);
+		super.toFront();
+		super.requestFocus();
+		super.setAlwaysOnTop(false);
+	}
+
+	@Override
+	public void nativeKeyReleased(NativeKeyEvent e) {
+	}
+
+	@Override
+	public void nativeKeyTyped(NativeKeyEvent arg0) {
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+		icon.displayMessage(Constants.MSG_DOUBLEUP_MINIMIZED, Constants.MSG_STILL_RUNNING_BG,
+				TrayIcon.MessageType.INFO);
+	}
+	
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+	}
+}
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\DoubleUp.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\ResultOfCommand.java
+	 */
+
+/*
+ * This class is used to create an object to store the results after executing 
+ * a command. The ResultOfCommand object is to be returned to the UI and be 
+ *  used to set the display on the UI.
+ */
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+
+public class ResultOfCommand {
+	private ArrayList<Task> listOfTasks;
+	private String feedback;
+	private String titleOfPanel;
+	
+	public ResultOfCommand () {
+		listOfTasks = new ArrayList<Task>();
+		feedback = "";
+		titleOfPanel = Constants.TITLE_ALL_TASKS;
+	}
+
+	//Accessors
+	public ArrayList<Task> getListOfTasks (){
+		return listOfTasks;
+	}
+
+	public String getFeedback(){
+		return feedback;
+	}
+	public String getTitleOfPanel(){
+		return titleOfPanel;
+	}
+
+	//Mutators
+	public void setListOfTasks(ArrayList<Task> list){
+		listOfTasks = list;
+	}
+
+	public void setFeedback(String result){
+		this.feedback = result;
+	}
+	public void setTitleOfPanel(String newTitle){
+		this.titleOfPanel = newTitle;
+	}
+
+	//Other methods
+	public String printArrayList(){
+		if (listOfTasks.size() !=0){
+			return printTasks();
+		} else {
+			return Constants.MSG_EMPTY_TYPES;
+		}
+	}
+
+	private String printTasks() {
+		String toPrint = "";
+		assert listOfTasks.size() >0;
+		String previousDate = listOfTasks.get(0).getDate();
+		toPrint = printDateHeader(toPrint, previousDate);
+		for (int j = 0; j < listOfTasks.size() ; j ++){
+			String dateOfCurrentTask = listOfTasks.get(j).getDate();
+			if ( dateOfCurrentTask != null && !dateOfCurrentTask.equals(previousDate)){
+				if (Task.getIsSortedByTime()){
+					toPrint += "<br>";
+				}
+				toPrint = printDateHeader(toPrint, dateOfCurrentTask);
+			}
+			toPrint += String.format("%2d. ", j+1) + listOfTasks.get(j).toString() + "<br>";
+			previousDate = dateOfCurrentTask;
+		}
+		return toPrint;
+	}
+
+	//Prints the date header if list is sorted by time.
+	private String printDateHeader(String toPrint, String dateOfCurrentTask) {
+		if (Task.getIsSortedByTime()){
+			String dayOfWeek = "";
+			if (isOverdue(dateOfCurrentTask)){
+				dayOfWeek = getDayOfWeek(dateOfCurrentTask);
+				toPrint += String.format(Constants.DATE_WITH_LINE, Constants.COLOR_PINKISH_RED, 
+						dateOfCurrentTask, ", " + dayOfWeek);
+			} else if  (dateOfCurrentTask.equals(getTodayDate())){
+				dayOfWeek = getDayOfWeek(dateOfCurrentTask);
+				toPrint += String.format(Constants.DATE_WITH_LINE_TODAY, Constants.COLOR_DARK_BLUE, 
+						dateOfCurrentTask, ", " + dayOfWeek + " (Today)");
+			} else if (dateOfCurrentTask.equals("ft")){
+				toPrint += String.format(Constants.DATE_WITH_LINE, Constants.COLOR_BLOOD_RED, 
+						"Floating Tasks", dayOfWeek);
+			} else {
+				dayOfWeek = getDayOfWeek(dateOfCurrentTask);
+				toPrint += String.format(Constants.DATE_WITH_LINE, Constants.COLOR_DARK_GREEN, 
+						dateOfCurrentTask, ", " + dayOfWeek); 
+			}
+		}
+		return toPrint;
+	}
+
+	//Get today date and return it as a String
+	private static String getTodayDate() {
+		DateFormat dateFormat = new SimpleDateFormat(Constants.DATE_FORMAT);
+		Date date = new Date();
+		String reportDate = dateFormat.format(date);
+		return reportDate;
+	}
+
+	//Return the day of the week
+	private static String getDayOfWeek(String date){
+		try {
+			Date mydate = new SimpleDateFormat(Constants.DATE_FORMAT, Locale.ENGLISH).parse(date);
+			return new SimpleDateFormat("EEE").format(mydate);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	//Returns whether a date is overdue.
+	private static boolean isOverdue (String date) {
+		Date currentDate = new Date();
+		currentDate = removeTime(currentDate);
+		try {
+			Date dateOfCurrentTask = Constants.dateFormat.parse(date);
+			dateOfCurrentTask = removeTime(dateOfCurrentTask);
+			if (dateOfCurrentTask.compareTo(currentDate) < 0) {
+				return true;
+			}
+		} catch (ParseException e) {
+		}
+		return false;
+	}
+
+	//For use internally to check whether date is overdue.
+	private static Date removeTime(Date date) {
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(date);
+		cal.set(Calendar.HOUR_OF_DAY, 0);
+		cal.set(Calendar.MINUTE, 0);
+		cal.set(Calendar.SECOND, 0);
+		cal.set(Calendar.MILLISECOND, 0);
+		return cal.getTime();
+	}
+}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\ResultOfCommand.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\src\Task.java
+	 */
+
+/*
+ * This Task class is used to create Task objects that can be added 
+ * or deleted from the to-do-list.
+ */
+class Task {
+	private String name;
+	private String date;
+	private String startTime;
+	private String endTime;
+	private String details;
+	private int importance;
+	private String error;
+	private String params;
+	private static boolean isSortedByTime = true;
+	private static boolean isDetailsShown = false;
+
+	public Task(String[] splitTask){
+		this.name = splitTask[Constants.TASK_NAME_POSITION];
+		this.date = splitTask[Constants.DATE_POSITION];
+		this.startTime = splitTask[Constants.START_TIME_POSITION];
+		this.endTime = splitTask[Constants.END_TIME_POSITION];
+		this.details = splitTask[Constants.DETAILS_POSITION];
+		if (splitTask[6] != null){
+			this.importance = Integer.parseInt(splitTask[Constants.IMPT_POSITION]);
+		} else {
+			this.importance = Constants.INVALID_IMPORTANCE_LEVEL;
+		}
+		this.error = splitTask[Constants.ERROR_MSG_POSITION];
+		this.params = splitTask[Constants.PARAMETER_POSITION];
+	}
+
+	public Task(){
+		this.name = null;
+		this.date = null;
+		this.startTime = null;
+		this.endTime = null;
+		this.details = null;
+		this.importance = Constants.INVALID_IMPORTANCE_LEVEL;
+		this.error = null;
+		this.params = null;
+	}
+
+	//Accessors
+	public String getName(){
+		return name;
+	}
+	public String getDate(){
+		return date;
+	}
+	public String getStartTime() {
+		return startTime;
+	}
+	public String getEndTime(){
+		return endTime;
+	}
+	public String getDetails(){
+		return details;
+	}
+	public int getImportance(){
+		return importance;
+	}
+	public String getError(){
+		return error;
+	}
+	public String getParams(){
+		return params;
+	}
+	public static boolean getIsSortedByTime(){
+		return isSortedByTime;
+	}
+
+	public static boolean getIsDetailsShown(){
+		return isDetailsShown;
+	}
+
+	//Mutators
+	public void setName(String newName){
+		this.name = newName;
+	}
+	public void setDate(String newDate){
+		this.date = newDate;
+	}
+	public void setStartTime(String newStartTime){
+		this.startTime= newStartTime;
+	}
+	public void setEndTime(String newEndTime){
+		this.endTime= newEndTime;
+	}
+	public void setDetails(String newDetails){
+		this.details = newDetails;
+	}
+	public void setImportance(int newImportance){
+		this.importance = newImportance;
+	}
+	public void setError(String newError){
+		this.error = newError;
+	}
+	public void setParams(String newParams){
+		this.params = newParams;
+	}
+	public static void setSortedByTime(boolean sortedByTime){
+		isSortedByTime = sortedByTime;
+	}
+	public static void setIsDetailsShown(boolean shouldShowDetails){
+		isDetailsShown = shouldShowDetails;
+	}
+
+	//This method can be used to print tasks for display.
+	@Override
+	public String toString() {
+		String taskSentence = "";
+		if (isSortedByTime){
+			taskSentence = String.format("%s %s %s %s ",
+					printTime(), printName(), printImportanceLevel()
+					, printDetails());
+		} else {
+			taskSentence = String.format("%s %s %s %s %s ",
+					printDate(), printTime(), printName(), 
+					printImportanceLevel(), printDetails());
+		}
+		return taskSentence;
+	}
+
+	private String printTime() {
+		String time = "";
+		if (this.getDate().equalsIgnoreCase("ft")){
+			time += "&nbsp &nbsp &nbsp&nbsp";
+		} else if (this.getStartTime() == null || this.getStartTime().equals("null")) {
+			time +=  "[****]&nbsp"; 
+		} else if (this.getStartTime() != null && this.getEndTime() == null){
+			time +=  "[" + this.getStartTime() +"]"; 
+		} else{
+			time += "[" + this.getStartTime() +"] - [" + this.getEndTime() +"]";
+		}
+		return String.format(Constants.SPAN_TAG, "time", time);
+	}
+
+	private String printDate() {
+		String dateOfTask = "";
+			if (this.getDate() != null && !date.equals("null")) {
+				if (!this.getDate().equals("ft")){
+					dateOfTask += "(" + date + ")";
+				} else {
+					dateOfTask += "(Floating) &nbsp";
+				}
+			}
+		return String.format(Constants.SPAN_TAG, "date", dateOfTask);
+	}
+
+	private String printName() {
+		return String.format(Constants.SPAN_TAG, "name", this.getName());
+	}
+
+	private String printImportanceLevel() {
+		String importanceOfTask = "";
+		if (importance >0) {
+			importanceOfTask += " <b>(" + printImportance(importance) + ")</b>";
+		}
+		return String.format(Constants.SPAN_TAG, "importance", importanceOfTask);
+	}
+
+	private String printDetails() {
+		String detailsOfTask = "";
+		if (details != null && details.equals("")){
+			return detailsOfTask;
+		}
+		if (details != null && !details.equals("null") && !isDetailsShown){
+			detailsOfTask += " [+] ";
+		}
+		if (details != null && !details.equals("null") && isDetailsShown){
+			detailsOfTask += "<br>" + "&#09" + " [-] " + details;
+		}
+		return String.format(Constants.SPAN_TAG, "details", detailsOfTask);
+	}
+
+	//This override method can perhaps be used for search and other methods.
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Task){
+			Task task = (Task) obj; 
+			return compareStrings(this.getName(),task.getName()) && compareStrings(this.getDate(),task.getDate()) && 
+					compareStrings(this.getStartTime(),task.getStartTime()) && compareStrings(this.getEndTime(),task.getEndTime()) 
+					&& compareStrings(this.getDetails(),task.getDetails()) && this.getImportance() == task.getImportance() 
+					&& compareStrings(this.getParams(),task.getParams()) && compareStrings(this.getError(),task.getError());
+		} else {
+			return false;
+		}
+	}
+
+	private boolean compareStrings(String firstLine, String secondLine){
+		if(firstLine !=null && secondLine != null){
+			return firstLine.equals(secondLine);
+		}
+		else if (firstLine == null && secondLine == null){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	//Return a number of ! based on importance number
+	private String printImportance (int num){
+		String toPrint = "";
+		for (int j=0; j < num; j++){
+			toPrint += "!";
+		}
+		return toPrint;
+	}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\Task.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\test\TestController.java
+	 */
+
+//The following class is used for integration testing from Controller
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+
+import org.junit.Test;
+
+public class TestController {
+	private static File testFile = new File("testFile.txt");
+	private static File archiveFile = new File("testArchive.txt");
+
+	@Test
+	public void testExecuteCommand() {
+		//Testing add
+		//Successful with add command
+		ResultOfCommand results = Controller.executeCommand("add abc", testFile, archiveFile);
+		assertEquals(String.format(Constants.MSG_ADD_SUCCESS, "testFile.txt", "abc"), results.getFeedback());
+		//Successful without add command
+		results = Controller.executeCommand("wahaha", testFile, archiveFile);
+		assertEquals(String.format(Constants.MSG_ADD_SUCCESS, "testFile.txt", "wahaha"), results.getFeedback());
+		//Unsuccessful add
+		results = Controller.executeCommand("add ", testFile, archiveFile);
+		assertEquals(String.format(Constants.ERROR_EMPTY_ITEM, "Task name"), results.getFeedback());
+		
+		//Testing delete 
+		//0 is a boundary case
+		results = Controller.executeCommand("delete 0", testFile, archiveFile);
+		assertEquals(Constants.MSG_DELETE_FAIL + ". ", results.getFeedback());
+		//Delete index -100 
+		results = Controller.executeCommand("delete -100", testFile, archiveFile);
+		assertEquals(Constants.ERROR_INVALID_PARAMETER, results.getFeedback());
+		Controller.executeCommand("add abc", testFile, archiveFile);
+		Controller.executeCommand("add def", testFile, archiveFile);
+		Controller.executeCommand("add ghi", testFile, archiveFile);
+		//Delete index 10 when there are only three items.
+		results = Controller.executeCommand("delete 10", testFile, archiveFile);
+		assertEquals(Constants.MSG_DELETE_NON_EXISTENT.trim(), results.getFeedback());
+		//Delete index 5 - successful case
+		results = Controller.executeCommand("delete 5", testFile, archiveFile);
+		assertEquals("Deleted '5. ghi' from your list.", results.getFeedback());
+		
+		//Testing sort
+		results = Controller.executeCommand("sort time", testFile, archiveFile);
+		assertEquals(String.format(Constants.MSG_SORT_SUCCESS, "date and time"), results.getFeedback());
+		results = Controller.executeCommand("sort alpha", testFile, archiveFile);
+		assertEquals(String.format(Constants.MSG_SORT_SUCCESS, "alphabetical order"), results.getFeedback());
+		results = Controller.executeCommand("sort importance", testFile, archiveFile);
+		assertEquals(String.format(Constants.MSG_SORT_SUCCESS, "importance level"), results.getFeedback());
+		
+		//Testing search- boundary case: cannot find anything
+		results = Controller.executeCommand("search ghi", testFile, archiveFile);
+		assertEquals(0, results.getListOfTasks().size());
+		//Successful search- found two "abc"
+		results = Controller.executeCommand("search abc", testFile, archiveFile);
+		assertEquals(2, results.getListOfTasks().size());
+		//Testing delete all
+		results = Controller.executeCommand("delete all", testFile, archiveFile);
+		assertEquals(Constants.MSG_CLEARED_FILE, results.getFeedback());
+		//Boundary case - search empty list
+		results = Controller.executeCommand("search abc", testFile, archiveFile);
+		assertEquals(String.format(Constants.MSG_FOUND_N_ITEMS,0), results.getFeedback());
+	}
+
+}
+
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\test\TestController.java
+
+
+
+
+
