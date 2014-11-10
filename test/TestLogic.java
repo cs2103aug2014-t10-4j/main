@@ -23,7 +23,8 @@ public class TestLogic {
 	
 	private static ArrayList<Task> List = new ArrayList<Task>();
 	private static ArrayList<Task> List1 = new ArrayList<Task>();
-
+	
+	//@author A0115281N
 	@Test
 	public void Test_clearContent() {
 		String expected = String.format(Constants.MSG_CLEARED_FILE, "");
@@ -127,7 +128,8 @@ public class TestLogic {
 		Logic.clearContent(testFile, testArchive);	
 		assertEquals(Constants.MSG_NO_TASKS_TO_SORT, Logic.sortByImportance(List1));	
 	}
-			
+	
+	//@author A0108380L	
 	@Test
 	public void testOneItem() {
 		Logic.init(testFile, testArchive);

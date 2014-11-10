@@ -26,7 +26,7 @@ public class Logic {
 	private static Stack<ArrayList<Task>> redoTask = new Stack<ArrayList<Task>>();
 	private static Logger logger = Logger.getLogger("Logic");
 
-	// @author A0115281N
+	//@author A0115281N
 	/**
 	 * Create an instance Logic
 	 * 
@@ -561,7 +561,7 @@ public class Logic {
 		return Constants.INVALID_NUMBER;
 	}
 
-	// @author A0108380L
+	//@author A0108380L
 
 	/**
 	 * This function searches for tasks in tempStorage which occurs on the same
