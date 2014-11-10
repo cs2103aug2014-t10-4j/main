@@ -40,6 +40,7 @@ class CommandProcessor extends Processor {
 
 	private void assignCommand(String[] parsedInput, String[] input,
 			Index index, String command) {
+		assert index.getValue() < input.length;
 		parsedInput[Constants.COMMAND_POSITION] = command;
 		index.increment();
 	}

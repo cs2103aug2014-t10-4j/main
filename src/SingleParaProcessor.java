@@ -25,6 +25,7 @@ class SingleParaProcessor extends Processor {
 	}
 
 	protected void assignPara(String[] parsedInput, Index index, String[] input) {
+		assert index.getValue() < input.length;
 		parsedInput[getItemPosition()] = getInteger(index, input);
 		index.increment();
 	}

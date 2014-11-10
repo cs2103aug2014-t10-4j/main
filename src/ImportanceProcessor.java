@@ -1,5 +1,5 @@
 
-//@A0110937J
+//@author A0110937J
 
 //The following class checks and assigns importance levels
 class ImportanceProcessor extends Processor {
