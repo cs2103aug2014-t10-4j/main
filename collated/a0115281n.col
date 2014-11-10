@@ -156,11 +156,16 @@
 	public static String edit(String command, Task detailsOfTask, File file) {
 		String returnMessage;
 		String lastCommand = null;
+		int taskNumber = getIndex(detailsOfTask);
+		if (taskNumber>= tempStorage.size()){
+			return  String.format(Constants.MSG_BAD_INDEX, taskNumber + 1, 1,
+					tempStorage.size());
+		}
 		if (undo.size() != 0 && undo.peek().equals(Constants.ACTION_SEARCH)) {
 			lastCommand = undo.pop();
 		}
 		if (lastCommand != null && lastCommand.equals(Constants.ACTION_SEARCH)) {
-			int taskNumber = getIndex(detailsOfTask);
+
 			for (int i = 0; i < tempStorage.size(); i++) {
 				if (searchResults.get(taskNumber).equals(tempStorage.get(i))) {
 					ArrayList<Task> tasksEdited = new ArrayList<Task>();
@@ -180,7 +185,7 @@
 			}
 		}
 		if (command.equals(Constants.ACTION_EDIT)) {
-			int taskNumber = getIndex(detailsOfTask);
+
 			ArrayList<Task> tasksEdited = new ArrayList<Task>();
 			Task originalTask = new Task();
 			originalTask.copyOfTask(tempStorage.get(taskNumber));
@@ -196,7 +201,6 @@
 			return returnMessage;
 		} else if (command.equals(Constants.ACTION_UNDO)
 				|| command.equals(Constants.ACTION_REDO)) {
-			int taskNumber = getIndex(detailsOfTask);
 			returnMessage = editUndoRedo(detailsOfTask, file, taskNumber);
 			return returnMessage;
 		} else {
@@ -497,7 +501,7 @@
 				archiveStorage.add(taskToArchive);
 			}
 			tempStorage.clear();
-			Storage.writeToFile(new ArrayList<Task>(), file);
+			Storage.writeToFile(emptyList, file);
 			sortByDateAndTime(archiveStorage);
 			Storage.writeToFile(archiveStorage, archive);
 			updateUndo(Constants.ACTION_DELETE_ALL, deletedTask);
@@ -519,7 +523,7 @@
 		}
 		if (archiveStorage.size() > 0) {
 			archiveStorage.clear();
-			Storage.writeToFile(new ArrayList<Task>(), file);
+			Storage.writeToFile(emptyList, file);
 			return Constants.MSG_CLEARED_FILE;
 		} else {
 			return Constants.MSG_CLEAR_FAIL;
@@ -537,6 +541,120 @@
 	}
 
 	// End of segment: C:\Users\Yang\workspace\DoubleUp\src\Logic.java
+
+
+
+
+
+	/**
+	 * origin: C:\Users\Yang\workspace\DoubleUp\test\TestLogic.java
+	 */
+
+	@Test
+	public void Test_clearContent() {
+		String expected = String.format(Constants.MSG_CLEARED_FILE, "");
+		String result = Logic.clearContent(testFile, testArchive);
+		assertEquals(expected, result);
+	}
+
+	@Test
+	public void Test_add() {
+		assertEquals("Added to testingStorage.txt: \"testing task\". Type .u to undo.",
+				Logic.add("add", task1, testFile));
+		Logic.undo(testFile, testArchive);
+	}
+
+	@Test
+	/* This is a boundary case for the ArrayList task size partition */
+	public void Test_DeleteTask() {
+		Logic.add("add", task1, testFile);
+		Logic.add("add",task2,testFile);
+		/*test delete first valid index number*/
+		assertEquals("deleted \'1. testing task\'",
+				Logic.delete("delete", 1, task1, testFile, testArchive));
+		/*test delete a upper boundary case*/
+		assertEquals("deleted \'1. apple\'",
+				Logic.delete("delete", 2, task1, testFile, testArchive));
+	}
+	
+	@Test
+	public void Test_search() {
+		String[] splitTask = {null,"testing",null,null, null, null, null, null , null};
+		Task task = new Task(splitTask);
+		Logic.clearContent(testFile,testArchive);
+		Logic.add("add", task1, testFile);	
+		List.clear();
+		List.add(task1);
+		assertEquals(List, Logic.search(task));
+		Logic.clearContent(testFile, testArchive);
+	}
+	@Test
+	public void test_edit() {
+		/*edit time */
+		Logic.add("add", task1, testFile);
+		String[] splitTask = {null,null,null,"1pm", "2pm", null, null, null , "1"};
+		Task task5 = new Task(splitTask);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, Logic.edit("edit",task5,testFile));
+		/*edit date*/
+		String[] splitTask1 = {null,null,null,"1pm", "2pm", null, null, null , "1"};
+		Task task6 = new Task(splitTask1);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, Logic.edit("edit",task6,testFile));
+		/*edit task name*/
+		String[] splitTask2 = {null,"CS2103 develop guide",null,null, null, null, null, null , "1"};
+		Task task7 = new Task(splitTask2);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, Logic.edit("edit",task7,testFile));
+		/*edit date*/
+		String[] splitTask3 = {null,null,"tomorrow",null, null, null, null, null , "1"};
+		Task task8 = new Task(splitTask3);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, Logic.edit("edit",task8,testFile));
+		/*edit importance level*/
+		String[] splitTask4 = {null,null,null,null, null, null, "3", null , "1"};
+		Task task9 = new Task(splitTask4);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, Logic.edit("edit",task9,testFile));
+		/*edit timed task to floating task*/
+		String[] splitTask5= {null,null,"ft",null, null, null, null, null , "1"};
+		Task task10 = new Task(splitTask5);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, Logic.edit("edit",task10,testFile));
+		Logic.clearAll(testFile);
+		Logic.clearAll(testArchive);	
+	}
+
+	@Test
+	public void Test_sortByAlphabet() {
+		List1.clear();
+		List1.add(task1);
+		List1.add(task2);
+		List.add(task3);
+		Logic.add("add", task1, testFile);	
+		Logic.add("add", task2, testFile);	
+		Logic.add("add", task3, testFile);	
+		String expected = String.format(Constants.MSG_SORT_SUCCESS,
+				"alphabetical order");
+		assertEquals(expected, Logic.sortByAlphabet(List1));
+		List1.clear();
+		Logic.clearContent(testFile, testArchive);
+		/*nothing to sort*/
+		assertEquals(Constants.MSG_NO_TASKS_TO_SORT, Logic.sortByImportance(List1));	
+	}
+	@Test
+	public void Test_sortByImportance(){
+		List1.clear();
+		List1.add(task1);
+		List1.add(task2);
+		List.add(task3);
+		Logic.add("add", task1, testFile);	
+		Logic.add("add", task2, testFile);	
+		Logic.add("add", task3, testFile);	
+		String expected = String.format(Constants.MSG_SORT_SUCCESS,
+				"importance level");
+		assertEquals(expected, Logic.sortByImportance(List1));
+		List1.clear();
+		/*nothing to sort*/
+		Logic.clearContent(testFile, testArchive);	
+		assertEquals(Constants.MSG_NO_TASKS_TO_SORT, Logic.sortByImportance(List1));	
+	}
+	
+	// End of segment: C:\Users\Yang\workspace\DoubleUp\test\TestLogic.java
 
 
 

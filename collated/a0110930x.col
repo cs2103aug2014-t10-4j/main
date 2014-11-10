@@ -257,7 +257,7 @@ public class Controller {
 	}
 
 	//Prompts user if they want to continue to add
-	public static void continueToAdd(File file, Task taskToExecute,
+	private static void continueToAdd(File file, Task taskToExecute,
 			ResultOfCommand results) {
 		JFrame frame = new JFrame();
 		int userChoice = confirmClashIsOk(frame, Constants.ACTION_ADD);
@@ -270,7 +270,7 @@ public class Controller {
 	}
 
 	// Edit the file based on the user choice
-	public static void editOrNot(File file, Task taskToExecute,
+	private static void editOrNot(File file, Task taskToExecute,
 			ResultOfCommand results, int userChoice) {
 		if (userChoice == JOptionPane.YES_OPTION){
 			results.setFeedback(Logic.edit(Constants.ACTION_EDIT, taskToExecute, file));			 
@@ -378,7 +378,7 @@ public class Controller {
 		feedback = shortenFeedback(feedback);
 		feedback = capitalizeFirstLetter(feedback);
 		feedback = endWithFullstop(feedback);
-		feedback = feedback.replace("deleted", "");
+		feedback = removeMultipleWord(feedback);
 		if (isMoreThanSizeOfList){
 			feedback = feedback + Constants.MSG_DELETE_NON_EXISTENT ;
 			feedback = feedback.trim();
@@ -412,7 +412,7 @@ public class Controller {
 			int[] splitIndex, int j, Task oneOutOfMany) {
 		if (splitIndex[j] > 0){
 			feedback = Logic.delete(Constants.ACTION_DELETE, splitIndex.length, oneOutOfMany, 
-					file, archive) + "," + feedback ;
+					file, archive) + ", " + feedback ;
 		} else  {
 			feedback = capitalizeFirstLetter(feedback);
 			feedback = Logic.delete(Constants.ACTION_DELETE, splitIndex.length, oneOutOfMany, 
@@ -498,6 +498,12 @@ public class Controller {
 		if (!feedback.isEmpty()){
 			feedback = feedback.substring(0,1).toUpperCase() + feedback.substring(1); // Capitalize first letter
 		}
+		return feedback;
+	}
+
+	// Used to remove multiple ", deleted" from the feedback sentence
+	private static String removeMultipleWord(String feedback) {
+		feedback = feedback.replace(", deleted ", ", ");
 		return feedback;
 	}
 
@@ -661,12 +667,12 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	//First level of abstraction
-	public static void createApplicationWindows() {
+	private static void createApplicationWindows() {
 		frame = new DoubleUp();
 	}
 
 	//Get Storage to initialize the txt files. Returns the number of each type of tasks
-	public static ArrayList<Integer> initFilesAndTasks() {
+	private static ArrayList<Integer> initFilesAndTasks() {
 		file = Storage.openFile(Constants.FILE_TASK);
 		archive = Storage.openFile(Constants.FILE_ARCHIVE);
 		ArrayList<Integer> overview = Logic.init(file, archive);
@@ -776,7 +782,6 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 					TrayIcon.MessageType.INFO);
 		}
 	}
-
 
 	@SuppressWarnings("serial")
 	public static void addComponentsToPane(Container cp){
@@ -948,7 +953,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	//Set the font of DoubleUp to be Monaco
-	public static void customizeFont() {
+	private static void customizeFont() {
 		InputStream is = DoubleUp.class.getResourceAsStream(Constants.RES_MONACO_TTF);	
 		try {
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
@@ -963,7 +968,7 @@ public class DoubleUp extends JFrame implements NativeKeyListener , WindowListen
 	}
 
 	// Add some styles to the html of the JEditorPane
-	public static void setHTMLstyle() {
+	private static void setHTMLstyle() {
 		String myStyle = 
 				String.format(".time{color: %s;}",Constants.COLOR_BLUE)
 				+ String.format(".details{color: %s;}", Constants.COLOR_ORANGER )
@@ -1546,14 +1551,14 @@ public class TestController {
 		ResultOfCommand results = Controller.executeCommand("add abc", testFile, archiveFile);
 		assertEquals(String.format(Constants.MSG_ADD_SUCCESS, "testFile.txt", "abc"), results.getFeedback());
 		//Successful without add command
-		results = Controller.executeCommand("wahaha", testFile, archiveFile);
-		assertEquals(String.format(Constants.MSG_ADD_SUCCESS, "testFile.txt", "wahaha"), results.getFeedback());
+		results = Controller.executeCommand("this is something new", testFile, archiveFile);
+		assertEquals(String.format(Constants.MSG_ADD_SUCCESS, "testFile.txt", "this is something new"), results.getFeedback());
 		//Unsuccessful add
 		results = Controller.executeCommand("add ", testFile, archiveFile);
 		assertEquals(String.format(Constants.ERROR_EMPTY_ITEM, "Task name"), results.getFeedback());
 		
 		//Testing delete 
-		//0 is a boundary case
+		//Delete index 0 is a boundary case
 		results = Controller.executeCommand("delete 0", testFile, archiveFile);
 		assertEquals(Constants.MSG_DELETE_FAIL + ". ", results.getFeedback());
 		//Delete index -100 
@@ -1589,6 +1594,40 @@ public class TestController {
 		//Boundary case - search empty list
 		results = Controller.executeCommand("search abc", testFile, archiveFile);
 		assertEquals(String.format(Constants.MSG_FOUND_N_ITEMS,0), results.getFeedback());
+		
+		//Testing delete multiple
+		Controller.executeCommand("add abc", testFile, archiveFile);
+		Controller.executeCommand("add def", testFile, archiveFile);
+		results = Controller.executeCommand("delete 1 2", testFile, archiveFile);
+		assertEquals("Deleted '1. abc', '2. def' from your list.", results.getFeedback());
+		
+		//Testing edit
+		//Boundary case: wrong type of parameters
+		results = Controller.executeCommand("edit abc", testFile, archiveFile);
+		assertEquals(String.format(Constants.ERROR_EMPTY_ITEM,"Parameters"), results.getFeedback());
+		//Successful edit
+		Controller.executeCommand("add abc", testFile, archiveFile);
+		results = Controller.executeCommand("edit 1 def", testFile, archiveFile);
+		assertEquals(Constants.MSG_EDIT_SUCCESS, results.getFeedback());
+		//Unsuccessful edit - editing item #2 when there is only one item
+		results = Controller.executeCommand("edit 2 def", testFile, archiveFile);
+		assertEquals(String.format(Constants.MSG_BAD_INDEX, 2 , 1 ,1), results.getFeedback());
+		
+		//Testing show and hide details
+		results = Controller.executeCommand("show details", testFile, archiveFile);
+		assertEquals(Constants.MSG_SHOW_DETAILS_SUCCESS, results.getFeedback());
+		results = Controller.executeCommand("hide details", testFile, archiveFile);
+		assertEquals(Constants.MSG_HIDE_DETAILS_SUCCESS, results.getFeedback());
+		
+		//Testing undo and redo
+		results = Controller.executeCommand("undo", testFile, archiveFile);
+		assertEquals(Constants.MSG_UNDO_SUCCESS, results.getFeedback());
+		results = Controller.executeCommand("redo", testFile, archiveFile);
+		assertEquals(Constants.MSG_REDO_SUCCESS, results.getFeedback());
+		
+		//Testing show all
+		results = Controller.executeCommand("show all", testFile, archiveFile);
+		assertEquals(Constants.MSG_SHOW_ALL_SUCCESS, results.getFeedback());
 	}
 
 }
